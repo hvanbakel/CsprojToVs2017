@@ -30,6 +30,8 @@ namespace Project2015To2017.Writing
                 {
                     itemGroup.Add(new XElement("ProjectReference", new XAttribute("Include", projectReference)));
                 }
+
+                projectNode.Add(itemGroup);
             }
 
             if (project.PackageReferences?.Count > 0)
