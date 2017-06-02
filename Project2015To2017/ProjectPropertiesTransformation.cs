@@ -15,13 +15,13 @@ namespace Project2015To2017
             var propertyGroups = projectFile.Element(nsSys + "Project").Elements(nsSys + "PropertyGroup");
             var targetFramework = propertyGroups.Elements(nsSys + "TargetFrameworkVersion").FirstOrDefault()?.Value;
 
-            definition.Optimize = "true".Equals(propertyGroups.Elements("Optimize").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
-            definition.TreatWarningsAsErrors = "true".Equals(propertyGroups.Elements("TreatWarningsAsErrors").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
-            definition.AllowUnsafeBlocks = "true".Equals(propertyGroups.Elements("AllowUnsafeBlocks").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
-            definition.DefineConstants = propertyGroups.Elements("DefineConstants").FirstOrDefault()?.Value;
+            definition.Optimize = "true".Equals(propertyGroups.Elements(nsSys + "Optimize").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+            definition.TreatWarningsAsErrors = "true".Equals(propertyGroups.Elements(nsSys + "TreatWarningsAsErrors").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+            definition.AllowUnsafeBlocks = "true".Equals(propertyGroups.Elements(nsSys + "AllowUnsafeBlocks").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+            definition.DefineConstants = propertyGroups.Elements(nsSys + "DefineConstants").FirstOrDefault()?.Value;
 
-            definition.RootNamespace = propertyGroups.Elements("RootNamespace").FirstOrDefault()?.Value;
-            definition.AssemblyName = propertyGroups.Elements("AssemblyName").FirstOrDefault()?.Value;
+            definition.RootNamespace = propertyGroups.Elements(nsSys + "RootNamespace").FirstOrDefault()?.Value;
+            definition.AssemblyName = propertyGroups.Elements(nsSys + "AssemblyName").FirstOrDefault()?.Value;
             definition.Type = propertyGroups.Elements(nsSys + "TestProjectType").Any() 
                 ? ApplicationType.TestProject
                 : ToApplicationType(propertyGroups.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
