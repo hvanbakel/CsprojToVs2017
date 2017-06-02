@@ -161,6 +161,8 @@ namespace Project2015To2017.Writing
             AddIfNotNull(mainPropertyGroup, "GenerateAssemblyCopyrightAttribute", "false");
             AddIfNotNull(mainPropertyGroup, "GenerateAssemblyInformationalVersionAttribute", "false");
             AddIfNotNull(mainPropertyGroup, "GenerateAssemblyVersionAttribute", "false");
+            AddIfNotNull(mainPropertyGroup, "GenerateAssemblyFileVersionAttribute", "false");
+            AddIfNotNull(mainPropertyGroup, "GenerateAssemblyConfigurationAttribute", "false");
         }
 
         private void AddIfNotNull(XElement node, string elementName, string value)
