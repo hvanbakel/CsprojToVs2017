@@ -103,7 +103,7 @@ namespace Project2015To2017.Writing
             AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : "false");
             AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : "false");
             AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace);
-            AddIfNotNull(mainPropertyGroup, "RootNamespace", project.AssemblyName);
+            AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName);
             AddIfNotNull(mainPropertyGroup, "AllowUnsafeBlocks", project.AllowUnsafeBlocks ? "true" : "false");
             AddIfNotNull(mainPropertyGroup, "DefineConstants", project.DefineConstants);
 
