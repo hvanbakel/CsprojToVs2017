@@ -42,6 +42,11 @@ namespace Project2015To2017
                 {
                     ExtractPackageConfiguration(definition, nuspec, ns);
                 }
+
+                if (definition.PackageConfiguration == null)
+                {
+                    Console.WriteLine("Error reading package info from nuspec.");
+                }
             }
             else
             {
@@ -84,10 +89,6 @@ namespace Project2015To2017
                     ReleaseNotes = ReadValueAndReplace(metadata, ns + "releaseNotes", definition.AssemblyAttributes),
                     RequiresLicenseAcceptance = metadata.Element(ns + "requireLicenseAcceptance")?.Value != null ? bool.Parse(metadata.Element(ns + "requireLicenseAcceptance")?.Value) : false
                 };
-            }
-            else
-            {
-                Console.WriteLine("Error reading package info from nuspec.");
             }
         }
 
