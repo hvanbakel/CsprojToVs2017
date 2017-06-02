@@ -26,7 +26,6 @@ namespace Project2015To2017
                 ? ApplicationType.TestProject
                 : ToApplicationType(propertyGroups.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
             definition.TargetFrameworks = new[] { ToTargetFramework(targetFramework) };
-            definition.ConditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") != null).ToArray();
 
             if (definition.Type == ApplicationType.Unkown)
             {

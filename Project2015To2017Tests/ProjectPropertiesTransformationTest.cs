@@ -42,7 +42,6 @@ namespace Project2015To2017Tests
 
             Assert.AreEqual(ApplicationType.TestProject, project.Type);
             Assert.AreEqual("net46", project.TargetFrameworks[0]);
-            Assert.AreEqual(2, project.ConditionalPropertyGroups.Count);
         }
 
         [TestMethod]

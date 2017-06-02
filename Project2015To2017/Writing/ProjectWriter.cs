@@ -17,12 +17,6 @@ namespace Project2015To2017.Writing
 
             projectNode.Add(GetMainPropertyGroup(project));
 
-            // Don't write these, VS2017 wants to have WPF installed for console projects
-            //if (project.ConditionalPropertyGroups?.Count > 0)
-            //{
-            //    projectNode.Add(project.ConditionalPropertyGroups);
-            //}
-
             if (project.ProjectReferences?.Count > 0)
             {
                 var itemGroup = new XElement("ItemGroup");
@@ -64,7 +58,7 @@ namespace Project2015To2017.Writing
             // manual includes
             if (project.ItemsToInclude?.Count > 0)
             {
-                projectNode.Add(new XElement("ItemGroup", project.ItemsToInclude));
+                projectNode.Add(new XElement("ItemGroup", project.ItemsToInclude.Select(RemoveAllNamespaces)));
             }
 
             using (var filestream = File.Open(outputFile, FileMode.Create))
@@ -72,9 +66,20 @@ namespace Project2015To2017.Writing
             {
                 streamWriter.Write(projectNode.ToString());
             }
-        }
+		}
 
-        private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
+		private static XElement RemoveAllNamespaces(XElement e)
+		{
+			return new XElement(e.Name.LocalName,
+			  (from n in e.Nodes()
+			   select ((n is XElement) ? RemoveAllNamespaces(n as XElement) : n)),
+				  (e.HasAttributes) ?
+					(from a in e.Attributes()
+					 where (!a.IsNamespaceDeclaration)
+					 select new XAttribute(a.Name.LocalName, a.Value)) : null);
+		}
+
+		private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
         {
             return new string[]
             {

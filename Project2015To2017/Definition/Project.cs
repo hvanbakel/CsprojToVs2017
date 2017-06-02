@@ -5,7 +5,6 @@ namespace Project2015To2017.Definition
 {
     internal sealed class Project
     {
-        public IReadOnlyList<XElement> ConditionalPropertyGroups { get; internal set; }
         public IReadOnlyList<string> AssemblyReferences { get; internal set; }
         public IReadOnlyList<string> ProjectReferences { get; internal set; }
         public IReadOnlyList<PackageReference> PackageReferences { get; internal set; }
