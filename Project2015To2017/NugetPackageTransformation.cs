@@ -32,8 +32,16 @@ namespace Project2015To2017
                     nuspec = XDocument.Load(filestream);
                 }
 
-                XNamespace ns = "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd";
-                ExtractPackageConfiguration(definition, nuspec, ns);
+                var namespaces = new XNamespace[]
+                {
+                    "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd",
+                    "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd",
+                    "http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd"
+                };
+                foreach (var ns in namespaces)
+                {
+                    ExtractPackageConfiguration(definition, nuspec, ns);
+                }
             }
             else
             {
