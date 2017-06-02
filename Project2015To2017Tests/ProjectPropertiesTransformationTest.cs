@@ -79,6 +79,108 @@ namespace Project2015To2017Tests
         }
 
         [TestMethod]
+        public async Task ReadsRootNamespace()
+        {
+            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <RootNamespace>MyProject</RootNamespace>
+  </PropertyGroup>
+</Project>";
+
+            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+            Assert.AreEqual("MyProject", project.RootNamespace);
+        }
+
+        [TestMethod]
+        public async Task ReadsAssemblyName()
+        {
+            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <AssemblyName>MyProject</AssemblyName>
+  </PropertyGroup>
+</Project>";
+
+            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+            Assert.AreEqual("MyProject", project.AssemblyName);
+        }
+
+        [TestMethod]
+        public async Task ReadsOptimize()
+        {
+            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+</Project>";
+
+            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+            Assert.AreEqual(true, project.Optimize);
+        }
+
+        [TestMethod]
+        public async Task ReadsTreatWarningsAsErrors()
+        {
+            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>";
+
+            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+            Assert.AreEqual(true, project.TreatWarningsAsErrors);
+        }
+
+        [TestMethod]
+        public async Task ReadsAllowUnsafeBlocks()
+        {
+            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+</Project>";
+
+            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+            Assert.AreEqual(true, project.AllowUnsafeBlocks);
+        }
+
+        [TestMethod]
+        public async Task ReadsDefineConstants()
+        {
+            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <DefineConstants>foo</DefineConstants>
+  </PropertyGroup>
+</Project>";
+
+            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+            Assert.AreEqual("foo", project.DefineConstants);
+        }
+
+        [TestMethod]
         public async Task ReadsWindowsApplication()
         {
             var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
