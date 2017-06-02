@@ -45,6 +45,17 @@ namespace Project2015To2017.Writing
                 projectNode.Add(nugetReferences);
             }
 
+            if (project.AssemblyReferences?.Count > 0)
+            {
+                var assemblyReferences = new XElement("ItemGroup");
+                foreach (var assemblyReference in project.AssemblyReferences.Where(x => !IsDefaultIncludedAssemblyReference(x)))
+                {
+                    assemblyReferences.Add(new XElement("Reference", new XAttribute("Include", assemblyReference)));
+                }
+
+                projectNode.Add(assemblyReferences);
+            }
+
             // resx wildcards
             projectNode.Add(
                 new XElement("ItemGroup",
@@ -61,6 +72,22 @@ namespace Project2015To2017.Writing
             {
                 streamWriter.Write(projectNode.ToString());
             }
+        }
+
+        private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
+        {
+            return new string[]
+            {
+                "System",
+                "System.Core",
+                "System.Data",
+                "System.Drawing",
+                "System.IO.Compression.FileSystem",
+                "System.Numerics",
+                "System.Runtime.Serialization",
+                "System.Xml",
+                "System.Xml.Linq"
+            }.Contains(assemblyReference);
         }
 
         private XElement GetMainPropertyGroup(Project project)
