@@ -11,11 +11,11 @@ namespace Project2015To2017.Writing
 {
     internal sealed class ProjectWriter
     {
-        public void Write(Project project, string outputFile)
+        public void Write(Project project, FileInfo outputFile)
         {
             var projectNode = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"));
 
-            projectNode.Add(GetMainPropertyGroup(project));
+            projectNode.Add(GetMainPropertyGroup(project, outputFile));
 
             if (project.ProjectReferences?.Count > 0)
             {
@@ -61,7 +61,7 @@ namespace Project2015To2017.Writing
                 projectNode.Add(new XElement("ItemGroup", project.ItemsToInclude.Select(RemoveAllNamespaces)));
             }
 
-            using (var filestream = File.Open(outputFile, FileMode.Create))
+            using (var filestream = File.Open(outputFile.FullName, FileMode.Create))
             using (var streamWriter = new StreamWriter(filestream)) 
             {
                 streamWriter.Write(projectNode.ToString());
@@ -95,15 +95,15 @@ namespace Project2015To2017.Writing
             }.Contains(assemblyReference);
         }
 
-        private XElement GetMainPropertyGroup(Project project)
+        private XElement GetMainPropertyGroup(Project project, FileInfo outputFile)
         {
             var mainPropertyGroup = new XElement("PropertyGroup",
                 ToTargetFrameworks(project.TargetFrameworks));
 
             AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : null);
             AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : null);
-            AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace);
-            AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName);
+            AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.RootNamespace : null);
+            AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.AssemblyName : null);
             AddIfNotNull(mainPropertyGroup, "AllowUnsafeBlocks", project.AllowUnsafeBlocks ? "true" : null);
             AddIfNotNull(mainPropertyGroup, "DefineConstants", project.DefineConstants);
 

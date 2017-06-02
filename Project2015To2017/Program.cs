@@ -66,7 +66,7 @@ namespace Project2015To2017
             }
             File.Copy(args[0], fileInfo.FullName + ".old");
 
-            new ProjectWriter().Write(projectDefinition, fileInfo.FullName);
+            new ProjectWriter().Write(projectDefinition, fileInfo);
         }
     }
 }
