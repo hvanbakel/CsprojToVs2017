@@ -100,11 +100,11 @@ namespace Project2015To2017.Writing
             var mainPropertyGroup = new XElement("PropertyGroup",
                 ToTargetFrameworks(project.TargetFrameworks));
 
-            AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : "false");
-            AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : "false");
+            AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : null);
+            AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : null);
             AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace);
             AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName);
-            AddIfNotNull(mainPropertyGroup, "AllowUnsafeBlocks", project.AllowUnsafeBlocks ? "true" : "false");
+            AddIfNotNull(mainPropertyGroup, "AllowUnsafeBlocks", project.AllowUnsafeBlocks ? "true" : null);
             AddIfNotNull(mainPropertyGroup, "DefineConstants", project.DefineConstants);
 
             switch (project.Type)
