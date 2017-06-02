@@ -32,39 +32,18 @@ namespace Project2015To2017
                     nuspec = XDocument.Load(filestream);
                 }
 
-                XNamespace ns = "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd";
-                var metadata = nuspec?.Element(ns + "package")?.Element(ns + "metadata");
-
-                if (metadata != null)
+                var namespaces = new XNamespace[]
                 {
-                    var id = metadata.Element(ns + "id")?.Value;
-                    if (id == "$id$")
-                    {
-                        id = null;
-                    }
-
-                    var version = metadata.Element(ns + "version")?.Value;
-                    if (version == "$version$")
-                    {
-                        version = null;
-                    }
-
-                    definition.PackageConfiguration = new PackageConfiguration
-                    {
-                        Id = id,
-                        Version = version,
-                        Authors = ReadValueAndReplace(metadata, ns + "authors", definition.AssemblyAttributes),
-                        Description = ReadValueAndReplace(metadata, ns + "description", definition.AssemblyAttributes),
-                        Copyright = ReadValueAndReplace(metadata, ns + "copyright", definition.AssemblyAttributes),
-                        LicenseUrl = ReadValueAndReplace(metadata, ns + "licenseUrl", definition.AssemblyAttributes),
-                        ProjectUrl = ReadValueAndReplace(metadata, ns + "projectUrl", definition.AssemblyAttributes),
-                        IconUrl = ReadValueAndReplace(metadata, ns + "iconUrl", definition.AssemblyAttributes),
-                        Tags = ReadValueAndReplace(metadata, ns + "tags", definition.AssemblyAttributes),
-                        ReleaseNotes = ReadValueAndReplace(metadata, ns + "releaseNotes", definition.AssemblyAttributes),
-                        RequiresLicenseAcceptance = metadata.Element(ns + "requireLicenseAcceptance")?.Value != null ? bool.Parse(metadata.Element(ns + "requireLicenseAcceptance")?.Value) : false
-                    };
+                    "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd",
+                    "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd",
+                    "http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd"
+                };
+                foreach (var ns in namespaces)
+                {
+                    ExtractPackageConfiguration(definition, nuspec, ns);
                 }
-                else
+
+                if (definition.PackageConfiguration == null)
                 {
                     Console.WriteLine("Error reading package info from nuspec.");
                 }
@@ -76,6 +55,41 @@ namespace Project2015To2017
             }
 
             return Task.CompletedTask;
+        }
+
+        private void ExtractPackageConfiguration(Project definition, XDocument nuspec, XNamespace ns)
+        {
+            var metadata = nuspec?.Element(ns + "package")?.Element(ns + "metadata");
+
+            if (metadata != null)
+            {
+                var id = metadata.Element(ns + "id")?.Value;
+                if (id == "$id$")
+                {
+                    id = null;
+                }
+
+                var version = metadata.Element(ns + "version")?.Value;
+                if (version == "$version$")
+                {
+                    version = null;
+                }
+
+                definition.PackageConfiguration = new PackageConfiguration
+                {
+                    Id = id,
+                    Version = version,
+                    Authors = ReadValueAndReplace(metadata, ns + "authors", definition.AssemblyAttributes),
+                    Description = ReadValueAndReplace(metadata, ns + "description", definition.AssemblyAttributes),
+                    Copyright = ReadValueAndReplace(metadata, ns + "copyright", definition.AssemblyAttributes),
+                    LicenseUrl = ReadValueAndReplace(metadata, ns + "licenseUrl", definition.AssemblyAttributes),
+                    ProjectUrl = ReadValueAndReplace(metadata, ns + "projectUrl", definition.AssemblyAttributes),
+                    IconUrl = ReadValueAndReplace(metadata, ns + "iconUrl", definition.AssemblyAttributes),
+                    Tags = ReadValueAndReplace(metadata, ns + "tags", definition.AssemblyAttributes),
+                    ReleaseNotes = ReadValueAndReplace(metadata, ns + "releaseNotes", definition.AssemblyAttributes),
+                    RequiresLicenseAcceptance = metadata.Element(ns + "requireLicenseAcceptance")?.Value != null ? bool.Parse(metadata.Element(ns + "requireLicenseAcceptance")?.Value) : false
+                };
+            }
         }
 
         private string ReadValueAndReplace(XElement metadata, XName elementName, AssemblyAttributes assemblyAttributes)
