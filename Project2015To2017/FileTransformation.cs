@@ -35,10 +35,9 @@ namespace Project2015To2017
                 .Elements(nsSys + "ItemGroup");
 
             var compileManualIncludes = FindNonWildcardMatchedFiles(projectFolder, itemGroups, "*.cs", nsSys + "Compile");
-            var resourceManualIncludes = FindNonWildcardMatchedFiles(projectFolder, itemGroups, "*.resx", nsSys + "EmbeddedResource");
             var otherIncludes = itemsToProject.SelectMany(x => itemGroups.Elements(nsSys + x));
 
-            definition.ItemsToInclude = compileManualIncludes.Concat(resourceManualIncludes).Concat(otherIncludes).ToArray();
+            definition.ItemsToInclude = compileManualIncludes.Concat(otherIncludes).ToArray();
 
             return Task.CompletedTask;
         }
@@ -56,12 +55,36 @@ namespace Project2015To2017
                 var includeAttribute = compiledFile.Attribute("Include");
                 if (includeAttribute != null)
                 {
-                    if (compiledFile.Attributes().Count() != 1 ||
-                        compiledFile.Elements().Count() != 0 ||
-                        !Path.GetFullPath(Path.Combine(projectFolder.FullName, includeAttribute.Value)).StartsWith(projectFolder.FullName))
+                    Console.WriteLine(includeAttribute.Value);
+                    if (!Path.GetFullPath(Path.Combine(projectFolder.FullName, includeAttribute.Value)).StartsWith(projectFolder.FullName))
                     {
                         Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile.ToString()}.");
                         manualIncludes.Add(compiledFile);
+                    }
+                    else if (compiledFile.Attributes().Count() != 1)
+                    {
+                        Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile.ToString()}.");
+                        manualIncludes.Add(compiledFile);
+                    }
+                    else if (compiledFile.Elements().Count() != 0)
+                    {
+                        var dependentUpon = compiledFile.Element(elementName.Namespace + "DependentUpon");
+                        if (dependentUpon != null && dependentUpon.Value.EndsWith(".resx", StringComparison.OrdinalIgnoreCase))
+                        {
+                            Console.WriteLine("Found resx generatedcode file.");
+                            // resx generated code file
+                            manualIncludes.Add(new XElement(
+                                "Compile",
+                                new XAttribute("Update", includeAttribute.Value),
+                                new XElement("DependentUpon", dependentUpon.Value)));
+
+                            filesMatchingWildcard.Add(includeAttribute.Value);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile.ToString()}.");
+                            manualIncludes.Add(compiledFile);
+                        }
                     }
                     else
                     {
@@ -76,7 +99,8 @@ namespace Project2015To2017
 
             var filesInFolder = projectFolder.EnumerateFiles(wildcard, SearchOption.AllDirectories).Select(x => x.FullName).ToArray();
             var knownFullPaths = manualIncludes
-                .Select(x => x.Attribute("Include").Value)
+                .Select(x => x.Attribute("Include")?.Value)
+                .Where(x => x != null)
                 .Concat(filesMatchingWildcard)
                 .Select(x => Path.GetFullPath(Path.Combine(projectFolder.FullName, x)))
                 .ToArray();
@@ -90,6 +114,10 @@ namespace Project2015To2017
                 }
 
                 Console.WriteLine($"File found which was not included, will now create exclude for {nonListedFile}.");
+
+                manualIncludes.Add(new XElement(
+                    "Compile",
+                    new XAttribute("Exclude", nonListedFile.Substring(projectFolder.FullName.Length))));
             }
 
             foreach (var fileNotOnDisk in knownFullPaths.Except(filesInFolder).Where(x => x.StartsWith(projectFolder.FullName, StringComparison.OrdinalIgnoreCase)))

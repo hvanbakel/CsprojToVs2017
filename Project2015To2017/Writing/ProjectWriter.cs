@@ -50,19 +50,20 @@ namespace Project2015To2017.Writing
                 projectNode.Add(assemblyReferences);
             }
 
-            // resx wildcards
-            projectNode.Add(
-                new XElement("ItemGroup",
-                    new XElement("EmbeddedResource", new XAttribute("Include", "**\\*.resx"))));
-
             // manual includes
             if (project.ItemsToInclude?.Count > 0)
             {
-                projectNode.Add(new XElement("ItemGroup", project.ItemsToInclude.Select(RemoveAllNamespaces)));
+                var includeGroup = new XElement("ItemGroup");
+                foreach (var include in project.ItemsToInclude.Select(RemoveAllNamespaces))
+                {
+                    includeGroup.Add(include);
+                }
+
+                projectNode.Add(includeGroup);
             }
 
             using (var filestream = File.Open(outputFile.FullName, FileMode.Create))
-            using (var streamWriter = new StreamWriter(filestream)) 
+            using (var streamWriter = new StreamWriter(filestream))
             {
                 streamWriter.Write(projectNode.ToString());
             }
