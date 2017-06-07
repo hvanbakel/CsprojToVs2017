@@ -15,6 +15,7 @@ namespace Project2015To2017
         {
             "None",
             "Content",
+            "Analyzer",
             "AdditionalFiles",
             "CodeAnalysisDictionary",
             "ApplicationDefinition",
