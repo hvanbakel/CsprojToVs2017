@@ -22,7 +22,7 @@ namespace Project2015To2017Tests
 
             await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
 
-            Assert.AreEqual(7, project.PackageReferences.Count);
+            Assert.AreEqual(8, project.PackageReferences.Count);
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk" && x.Version == "15.0.0"));
         }
 
@@ -37,7 +37,8 @@ namespace Project2015To2017Tests
 
             await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
 
-            Assert.AreEqual(4, project.PackageReferences.Count);
+            Assert.AreEqual(5, project.PackageReferences.Count);
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.IsDevelopmentDependency));
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin" && x.Version == "3.1.0"));
         }
     }

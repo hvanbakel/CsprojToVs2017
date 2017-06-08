@@ -40,7 +40,8 @@ namespace Project2015To2017
             definition.PackageReferences = document.Element("packages").Elements("package").Select(x => new PackageReference
             {
                 Id = x.Attribute("id").Value,
-                Version = x.Attribute("version").Value
+                Version = x.Attribute("version").Value,
+                IsDevelopmentDependency = x.Attribute("developmentDependency")?.Value == "true"
             }).Concat(testReferences).ToArray();
 
             foreach (var reference in definition.PackageReferences)

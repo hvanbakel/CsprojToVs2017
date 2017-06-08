@@ -33,7 +33,13 @@ namespace Project2015To2017.Writing
                 var nugetReferences = new XElement("ItemGroup");
                 foreach (var packageReference in project.PackageReferences)
                 {
-                    nugetReferences.Add(new XElement("PackageReference", new XAttribute("Include", packageReference.Id), new XAttribute("Version", packageReference.Version)));
+                    var reference = new XElement("PackageReference", new XAttribute("Include", packageReference.Id), new XAttribute("Version", packageReference.Version));
+                    if (packageReference.IsDevelopmentDependency)
+                    {
+                        reference.Add(new XElement("PrivateAssets", "all"));
+                    }
+
+                    nugetReferences.Add(reference);
                 }
 
                 projectNode.Add(nugetReferences);
