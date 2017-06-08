@@ -89,7 +89,28 @@ namespace Project2015To2017
                     ReleaseNotes = ReadValueAndReplace(metadata, ns + "releaseNotes", definition.AssemblyAttributes),
                     RequiresLicenseAcceptance = metadata.Element(ns + "requireLicenseAcceptance")?.Value != null ? bool.Parse(metadata.Element(ns + "requireLicenseAcceptance")?.Value) : false
                 };
+
+                var dependencies = metadata.Element(ns + "dependencies")?.Elements(ns + "dependency");
+                if (dependencies != null)
+                {
+                    foreach (var dependency in dependencies)
+                    {
+                        var packageId = dependency.Attribute("id").Value;
+                        var constraint = dependency.Attribute("version").Value;
+
+                        var packageReference = definition.PackageReferences?.FirstOrDefault(x => x.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase));
+                        if (packageReference != null)
+                        {
+                            packageReference.Version = constraint;
+                        }
+                    }
+                }
             }
+        }
+
+        private void ConvertVersionConstraints(XElement dependencies, IReadOnlyList<PackageReference> packageReferences)
+        {
+            throw new NotImplementedException();
         }
 
         private string ReadValueAndReplace(XElement metadata, XName elementName, AssemblyAttributes assemblyAttributes)

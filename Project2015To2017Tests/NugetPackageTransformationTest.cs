@@ -4,6 +4,7 @@ using Project2015To2017.Definition;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -40,6 +41,25 @@ namespace Project2015To2017Tests
             Assert.AreEqual("some tags API", project.PackageConfiguration.Tags);
             Assert.AreEqual("someurl", project.PackageConfiguration.LicenseUrl);
             Assert.AreEqual("Some long\n        text\n        with newlines", project.PackageConfiguration.ReleaseNotes.Trim());
+        }
+
+        [TestMethod]
+        public async Task ConvertsDependencies()
+        {
+            var project = new Project();
+
+            var directoryInfo = new DirectoryInfo(".\\TestFiles");
+            var doc = XDocument.Load("TestFiles\\net46console.testcsproj");
+            
+            project.PackageReferences = new[] 
+            {
+                new PackageReference { Id = "Newtonsoft.Json", Version = "10.0.2" },
+                new PackageReference { Id = "Other.Package", Version = "1.0.2" }
+            };
+            await new NugetPackageTransformation().TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
+
+            Assert.AreEqual("[10.0.2,11)", project.PackageReferences.Single(x => x.Id == "Newtonsoft.Json").Version);
+            Assert.AreEqual("1.0.2", project.PackageReferences.Single(x => x.Id == "Other.Package").Version);
         }
     }
 }
