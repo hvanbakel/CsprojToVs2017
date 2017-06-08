@@ -11,6 +11,7 @@ namespace Project2015To2017.Definition
         public IReadOnlyList<XElement> ItemsToInclude { get; internal set; }
         public PackageConfiguration PackageConfiguration { get; internal set; }
         public AssemblyAttributes AssemblyAttributes { get; internal set; }
+        public IReadOnlyList<XElement> ConditionalPropertyGroups { get; internal set; }
 
         public IReadOnlyList<string> TargetFrameworks { get; internal set; }
         public ApplicationType Type { get; internal set; }
