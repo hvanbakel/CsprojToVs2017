@@ -74,7 +74,7 @@ namespace Project2015To2017.Writing
             }
 
             using (var filestream = File.Open(outputFile.FullName, FileMode.Create))
-            using (var streamWriter = new StreamWriter(filestream))
+            using (var streamWriter = new StreamWriter(filestream, Encoding.UTF8))
             {
                 streamWriter.Write(projectNode.ToString());
             }
