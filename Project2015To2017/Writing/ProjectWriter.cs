@@ -117,7 +117,6 @@ namespace Project2015To2017.Writing
             AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.RootNamespace : null);
             AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.AssemblyName : null);
             AddIfNotNull(mainPropertyGroup, "AllowUnsafeBlocks", project.AllowUnsafeBlocks ? "true" : null);
-            AddIfNotNull(mainPropertyGroup, "DefineConstants", project.DefineConstants);
 
             switch (project.Type)
             {

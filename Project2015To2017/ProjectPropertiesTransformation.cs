@@ -13,19 +13,28 @@ namespace Project2015To2017
         {
             XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
             var propertyGroups = projectFile.Element(nsSys + "Project").Elements(nsSys + "PropertyGroup");
-            var targetFramework = propertyGroups.Elements(nsSys + "TargetFrameworkVersion").FirstOrDefault()?.Value;
 
-            definition.Optimize = "true".Equals(propertyGroups.Elements(nsSys + "Optimize").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
-            definition.TreatWarningsAsErrors = "true".Equals(propertyGroups.Elements(nsSys + "TreatWarningsAsErrors").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
-            definition.AllowUnsafeBlocks = "true".Equals(propertyGroups.Elements(nsSys + "AllowUnsafeBlocks").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
-            definition.DefineConstants = propertyGroups.Elements(nsSys + "DefineConstants").FirstOrDefault()?.Value;
+			var unconditionalPropertyGroup = propertyGroups.FirstOrDefault(x => x.Attribute("Condition") == null);
+			if (unconditionalPropertyGroup == null)
+			{
+				throw new NotSupportedException("No unconditional property group found. Cannot determine important properties like target framework and others.");
+			}
+			else
+			{
+				var targetFramework = unconditionalPropertyGroup.Elements(nsSys + "TargetFrameworkVersion").FirstOrDefault()?.Value;
 
-            definition.RootNamespace = propertyGroups.Elements(nsSys + "RootNamespace").FirstOrDefault()?.Value;
-            definition.AssemblyName = propertyGroups.Elements(nsSys + "AssemblyName").FirstOrDefault()?.Value;
-            definition.Type = propertyGroups.Elements(nsSys + "TestProjectType").Any() 
-                ? ApplicationType.TestProject
-                : ToApplicationType(propertyGroups.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
-            definition.TargetFrameworks = new[] { ToTargetFramework(targetFramework) };
+				definition.Optimize = "true".Equals(unconditionalPropertyGroup.Elements(nsSys + "Optimize").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+				definition.TreatWarningsAsErrors = "true".Equals(unconditionalPropertyGroup.Elements(nsSys + "TreatWarningsAsErrors").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+				definition.AllowUnsafeBlocks = "true".Equals(unconditionalPropertyGroup.Elements(nsSys + "AllowUnsafeBlocks").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+
+				definition.RootNamespace = unconditionalPropertyGroup.Elements(nsSys + "RootNamespace").FirstOrDefault()?.Value;
+				definition.AssemblyName = unconditionalPropertyGroup.Elements(nsSys + "AssemblyName").FirstOrDefault()?.Value;
+				definition.Type = unconditionalPropertyGroup.Elements(nsSys + "TestProjectType").Any()
+					? ApplicationType.TestProject
+					: ToApplicationType(unconditionalPropertyGroup.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
+				definition.TargetFrameworks = new[] { ToTargetFramework(targetFramework) };
+			}
+
             definition.ConditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") != null).ToArray();
 
             if (definition.Type == ApplicationType.Unkown)

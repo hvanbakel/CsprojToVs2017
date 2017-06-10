@@ -3,6 +3,7 @@ using System.Xml.Linq;
 using Project2015To2017;
 using System.Threading.Tasks;
 using Project2015To2017.Definition;
+using System;
 
 namespace Project2015To2017Tests
 {
@@ -161,26 +162,40 @@ namespace Project2015To2017Tests
             var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
             Assert.AreEqual(true, project.AllowUnsafeBlocks);
-        }
+		}
 
-        [TestMethod]
-        public async Task ReadsDefineConstants()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		[TestMethod]
+		[ExpectedException(typeof(NotSupportedException))]
+		public async Task ThrowsOnNoUnconditionalPropertyGroup()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
+  <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
+	<OutputType>Library</OutputType>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <DefineConstants>foo</DefineConstants>
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			await ParseAndTransformAsync(xml).ConfigureAwait(false);
+		}
 
-            Assert.AreEqual("foo", project.DefineConstants);
-        }
+		[TestMethod]
+		[ExpectedException(typeof(NotSupportedException))]
+		public async Task ThrowsOnNoOutput()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <DefineConstants>foo</DefineConstants>
+  </PropertyGroup>
+</Project>";
 
-        [TestMethod]
+			await ParseAndTransformAsync(xml).ConfigureAwait(false);
+		}
+
+		[TestMethod]
         public async Task ReadsWindowsApplication()
         {
             var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
