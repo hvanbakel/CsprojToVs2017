@@ -94,6 +94,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\SomeOtherProject\SomeOtherProject.csproj">
       <Project>{E5D98CC4-93A3-450D-B33E-F9CAD02BBD8C}</Project>
       <Name>SomeOtherProject</Name>
