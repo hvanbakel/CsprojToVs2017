@@ -27,7 +27,15 @@ namespace Project2015To2017.Writing
                 var itemGroup = new XElement("ItemGroup");
                 foreach (var projectReference in project.ProjectReferences)
                 {
-                    itemGroup.Add(new XElement("ProjectReference", new XAttribute("Include", projectReference)));
+					var projectReferenceElement = new XElement("ProjectReference",
+							new XAttribute("Include", projectReference.Include));
+
+					if (!string.IsNullOrWhiteSpace(projectReference.Aliases) && projectReference.Aliases != "global")
+					{
+						projectReferenceElement.Add(new XElement("Aliases", projectReference.Aliases));
+					}
+
+					itemGroup.Add(projectReferenceElement);
                 }
 
                 projectNode.Add(itemGroup);

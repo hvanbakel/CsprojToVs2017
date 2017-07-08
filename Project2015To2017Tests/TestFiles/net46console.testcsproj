@@ -71,10 +71,12 @@
     <ProjectReference Include="..\SomeOtherProject\SomeOtherProject.csproj">
       <Project>{E5D98CC4-93A3-450D-B33E-F9CAD02BBD8C}</Project>
       <Name>SomeOtherProject</Name>
+			<Aliases>global,one</Aliases>
     </ProjectReference>
     <ProjectReference Include="..\YetAnotherProject\YetAnotherProject.csproj">
       <Project>{E5D98CC5-93A3-450D-B33E-F9CAD02BBD8C}</Project>
       <Name>YetAnotherProject</Name>
+			<Aliases>global</Aliases>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

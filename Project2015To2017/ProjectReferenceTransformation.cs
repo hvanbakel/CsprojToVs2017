@@ -14,7 +14,15 @@ namespace Project2015To2017
 
             // TODO Project references are now transitive so we might be able to flatten later..
 
-            definition.ProjectReferences = projectFile.Element(nsSys + "Project").Elements(nsSys + "ItemGroup").Elements(nsSys + "ProjectReference").Select(x => x.Attribute("Include").Value).ToArray();
+            definition.ProjectReferences = projectFile
+				.Element(nsSys + "Project")
+				.Elements(nsSys + "ItemGroup")
+				.Elements(nsSys + "ProjectReference")
+				.Select(x => new ProjectReference
+				{
+					Include = x.Attribute("Include").Value,
+					Aliases = x.Element(nsSys + "Aliases")?.Value
+				}).ToArray();
             return Task.CompletedTask;
         }
     }

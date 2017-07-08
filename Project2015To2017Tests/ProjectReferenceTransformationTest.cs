@@ -23,7 +23,7 @@ namespace Project2015To2017Tests
             await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
 
             Assert.AreEqual(2, project.ProjectReferences.Count);
-            Assert.IsTrue(project.ProjectReferences.Contains(@"..\SomeOtherProject\SomeOtherProject.csproj"));
+            Assert.IsTrue(project.ProjectReferences.Any(x => x.Include == @"..\SomeOtherProject\SomeOtherProject.csproj" && x.Aliases == "global,one"));
         }
     }
 }
