@@ -22,8 +22,8 @@ namespace Project2015To2017Tests
 
             await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
 
-            Assert.AreEqual(8, project.AssemblyReferences.Count);
-            Assert.IsTrue(project.AssemblyReferences.Contains(@"System.Xml.Linq"));
+            Assert.AreEqual(12, project.AssemblyReferences.Count);
+            Assert.IsTrue(project.AssemblyReferences.Any(x => x.Include == @"System.Xml.Linq"));
         }
     }
 }

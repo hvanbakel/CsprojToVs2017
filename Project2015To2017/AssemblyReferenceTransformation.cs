@@ -13,13 +13,46 @@ namespace Project2015To2017
             XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
 
             definition.AssemblyReferences = projectFile
-				.Element(nsSys + "Project")
-				.Elements(nsSys + "ItemGroup")
-				.Elements(nsSys + "Reference")
-				.Where(x => !x.Elements(nsSys + "HintPath").Any())
-				.Select(x => x.Attribute("Include").Value).ToArray();
+                .Element(nsSys + "Project")
+                .Elements(nsSys + "ItemGroup")
+                .Elements(nsSys + "Reference")
+                .Select(FormatAssemblyReference).ToArray();
 
             return Task.CompletedTask;
+        }
+
+        private static AssemblyReference FormatAssemblyReference(XElement reference)
+        {
+            var output = new AssemblyReference
+            {
+                Include = reference.Attribute("Include").Value
+            };
+
+            var specificVersion = reference.Descendants().FirstOrDefault(x => x.Name.LocalName == "SpecificVersion");
+            if (specificVersion != null)
+            {
+                output.SpecificVersion = specificVersion.Value;
+            }
+
+            var hintPath = reference.Descendants().FirstOrDefault(x => x.Name.LocalName == "HintPath");
+            if (hintPath != null)
+            {
+                output.HintPath = hintPath.Value;
+            }
+
+            var isPrivate = reference.Descendants().FirstOrDefault(x => x.Name.LocalName == "Private");
+            if (isPrivate != null)
+            {
+                output.Private = isPrivate.Value;
+            }
+
+            var embedInteropTypes = reference.Descendants().FirstOrDefault(x => x.Name.LocalName == "EmbedInteropTypes");
+            if (embedInteropTypes != null)
+            {
+                output.EmbedInteropTypes = embedInteropTypes.Value;
+            }
+
+            return output;
         }
     }
 }
