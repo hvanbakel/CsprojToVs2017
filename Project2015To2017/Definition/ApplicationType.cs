@@ -4,7 +4,7 @@ namespace Project2015To2017.Definition
 {
     internal enum ApplicationType
     {
-        Unkown = 0,
+        Unknown = 0,
         ClassLibrary = 1,
         ConsoleApplication = 2,
         WindowsApplication = 3,
