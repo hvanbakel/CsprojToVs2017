@@ -58,7 +58,7 @@ namespace Project2015To2017
 
         private ApplicationType ToApplicationType(string outputType)
         {
-            if (string.IsNullOrWhitespace(outputType)) 
+            if (string.IsNullOrWhiteSpace(outputType)) 
 	    {
 	    	return ApplicationType.Unknown;
 	    }
