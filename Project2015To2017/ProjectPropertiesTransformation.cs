@@ -58,11 +58,16 @@ namespace Project2015To2017
 
         private ApplicationType ToApplicationType(string outputType)
         {
-            switch(outputType)
+            if (string.IsNullOrWhitespace(outputType)) 
+	    {
+	    	return ApplicationType.Unknown;
+	    }
+	    
+            switch(outputType.ToLowerInvariant())
             {
-                case "Exe": return ApplicationType.ConsoleApplication;
-                case "Library": return ApplicationType.ClassLibrary;
-                case "Winexe": return ApplicationType.WindowsApplication;
+                case "exe": return ApplicationType.ConsoleApplication;
+                case "library": return ApplicationType.ClassLibrary;
+                case "winexe": return ApplicationType.WindowsApplication;
                 default: throw new NotSupportedException($"OutputType {outputType} is not supported.");
             }
         }
