@@ -37,7 +37,7 @@ namespace Project2015To2017
 
             definition.ConditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") != null).ToArray();
 
-            if (definition.Type == ApplicationType.Unkown)
+            if (definition.Type == ApplicationType.Unknown)
             {
                 throw new NotSupportedException("Unable to parse output type.");
             }
@@ -58,7 +58,7 @@ namespace Project2015To2017
 
         private ApplicationType ToApplicationType(string outputType)
         {
-            if (string.IsNullOrWhitespace(outputType)) 
+            if (string.IsNullOrWhiteSpace(outputType)) 
 	    {
 	    	return ApplicationType.Unknown;
 	    }
