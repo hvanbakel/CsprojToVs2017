@@ -38,7 +38,7 @@ namespace Project2015To2017
                 Console.WriteLine($"File {args[0]} could not be found.");
                 return;
             }
-            
+
             XDocument xmlDocument;
             using (var stream = File.Open(args[0], FileMode.Open, FileAccess.Read, FileShare.Read))
             {
@@ -56,17 +56,37 @@ namespace Project2015To2017
 
             var fileInfo = new FileInfo(args[0]);
             var directory = fileInfo.Directory;
-            Task.WaitAll(_transformationsToApply.Select(t => t.TransformAsync(xmlDocument, directory, projectDefinition)).ToArray());
+            Task.WaitAll(_transformationsToApply.Select(
+                t => t.TransformAsync(xmlDocument, directory, projectDefinition))
+                .ToArray());
 
-            var backupFileName = fileInfo.FullName + ".old";
-            if (File.Exists(backupFileName))
-            {
-                Console.Write($"Transformation succeeded but cannot create backup file. Please delete {backupFileName}.");
-                return;
-            }
-            File.Copy(args[0], fileInfo.FullName + ".old");
+            AssemblyReferenceTransformation.RemoveExtraAssemblyReferences(projectDefinition);
+
+            var projectFile = fileInfo.FullName;
+            if (!SaveBackup(projectFile)) { return; }
+
+            var packagesFile = Path.Combine(fileInfo.DirectoryName, "packages.config");
+            if (!SaveBackup(packagesFile)) { return; }
 
             new ProjectWriter().Write(projectDefinition, fileInfo);
+        }
+
+        private static bool SaveBackup(string fileToDelete)
+        {
+            var output = false;
+
+            var backupFileName = fileToDelete + ".old";
+            if (File.Exists(backupFileName))
+            {
+                Console.Write($"Cannot create backup file. Please delete {backupFileName}.");
+            }
+            else
+            {
+                File.Copy(fileToDelete, fileToDelete + ".old");
+                output = true;
+            }
+
+            return output;
         }
     }
 }

@@ -5,7 +5,7 @@ namespace Project2015To2017.Definition
 {
     internal sealed class Project
     {
-        public IReadOnlyList<AssemblyReference> AssemblyReferences { get; internal set; }
+        public List<AssemblyReference> AssemblyReferences { get; internal set; }
         public IReadOnlyList<ProjectReference> ProjectReferences { get; internal set; }
         public IReadOnlyList<PackageReference> PackageReferences { get; internal set; }
         public IReadOnlyList<XElement> ItemsToInclude { get; internal set; }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
@@ -14,18 +15,40 @@ namespace Project2015To2017
 
             definition.AssemblyReferences = projectFile
                 .Element(nsSys + "Project")
-                .Elements(nsSys + "ItemGroup")
+                ?.Elements(nsSys + "ItemGroup")
                 .Elements(nsSys + "Reference")
-                .Select(FormatAssemblyReference).ToArray();
+                .Select(FormatAssemblyReference).ToList();
 
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Remove Assembly References which are already in the Package References collection.
+        /// </summary>
+        /// <param name="projectDefinition">The project definition</param>
+        public static void RemoveExtraAssemblyReferences(Project projectDefinition)
+        {
+            if (projectDefinition.AssemblyReferences.Count > 0
+                && projectDefinition.PackageReferences.Count > 0)
+            {
+                var packageReferences =
+                    projectDefinition.PackageReferences.AsQueryable();
+                foreach (var assemblyReference in projectDefinition.AssemblyReferences
+                    .ToArray())
+                {
+                    if (packageReferences.Any(x => x.Id == assemblyReference.Include))
+                    {
+                        projectDefinition.AssemblyReferences.Remove(assemblyReference);
+                    }
+                }
+            }
         }
 
         private static AssemblyReference FormatAssemblyReference(XElement reference)
         {
             var output = new AssemblyReference
             {
-                Include = reference.Attribute("Include").Value
+                Include = reference.Attribute("Include")?.Value
             };
 
             var specificVersion = reference.Descendants().FirstOrDefault(x => x.Name.LocalName == "SpecificVersion");
