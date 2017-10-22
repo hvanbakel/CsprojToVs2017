@@ -37,12 +37,23 @@ namespace Project2015To2017
                 };
             }
 
+            XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
+            var existingPackageReferences = projectFile.Root.Elements(nsSys + "ItemGroup").Elements(nsSys + "PackageReference").Select(x => new PackageReference
+            {
+                Id = x.Attribute("Include").Value,
+                Version = x.Attribute("Version").Value,
+                IsDevelopmentDependency = x.Element(nsSys + "PrivateAssets") != null
+            });
+
             definition.PackageReferences = document.Element("packages").Elements("package").Select(x => new PackageReference
             {
                 Id = x.Attribute("id").Value,
                 Version = x.Attribute("version").Value,
                 IsDevelopmentDependency = x.Attribute("developmentDependency")?.Value == "true"
-            }).Concat(testReferences).ToArray();
+            })
+            .Concat(testReferences)
+            .Concat(existingPackageReferences)
+            .ToArray();
 
             foreach (var reference in definition.PackageReferences)
             {
