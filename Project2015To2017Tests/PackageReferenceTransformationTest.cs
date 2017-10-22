@@ -38,8 +38,8 @@ namespace Project2015To2017Tests
 
             await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
 
-            Assert.AreEqual(5, project.PackageReferences.Count);
-            Assert.AreEqual(1, project.PackageReferences.Count(x => x.IsDevelopmentDependency));
+            Assert.AreEqual(6, project.PackageReferences.Count);
+            Assert.AreEqual(2, project.PackageReferences.Count(x => x.IsDevelopmentDependency));
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin" && x.Version == "3.1.0"));
         }
     }
