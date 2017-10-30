@@ -28,8 +28,8 @@ namespace Project2015To2017
         /// <param name="projectDefinition">The project definition</param>
         public static void RemoveExtraAssemblyReferences(Project projectDefinition)
         {
-            if (projectDefinition.AssemblyReferences.Count > 0
-                && projectDefinition.PackageReferences.Count > 0)
+            if (projectDefinition.AssemblyReferences?.Count > 0
+                && projectDefinition.PackageReferences?.Count > 0)
             {
                 var packageReferences =
                     projectDefinition.PackageReferences.AsQueryable();

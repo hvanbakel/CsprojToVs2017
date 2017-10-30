@@ -63,30 +63,55 @@ namespace Project2015To2017
             AssemblyReferenceTransformation.RemoveExtraAssemblyReferences(projectDefinition);
 
             var projectFile = fileInfo.FullName;
-            if (!SaveBackup(projectFile)) { return; }
+            if (!SaveBackup(projectFile))
+            { return; }
 
             var packagesFile = Path.Combine(fileInfo.DirectoryName, "packages.config");
-            if (!SaveBackup(packagesFile)) { return; }
+            if (File.Exists(packagesFile))
+            {
+                if (!RenameFile(packagesFile))
+                { return; }
+            }
 
             new ProjectWriter().Write(projectDefinition, fileInfo);
         }
 
-        private static bool SaveBackup(string fileToDelete)
+        private static bool SaveBackup(string filename)
         {
             var output = false;
 
-            var backupFileName = fileToDelete + ".old";
+            var backupFileName = filename + ".old";
             if (File.Exists(backupFileName))
             {
                 Console.Write($"Cannot create backup file. Please delete {backupFileName}.");
             }
             else
             {
-                File.Copy(fileToDelete, fileToDelete + ".old");
+                File.Copy(filename, filename + ".old");
                 output = true;
             }
 
             return output;
         }
+
+        private static bool RenameFile(string filename)
+        {
+            var output = false;
+
+            var backupFileName = filename + ".old";
+            if (File.Exists(backupFileName))
+            {
+                Console.Write($"Cannot create backup file. Please delete {backupFileName}.");
+            }
+            else
+            {
+                // todo Consider using TF VC or Git?
+                File.Move(filename, filename + ".old");
+                output = true;
+            }
+
+            return output;
+        }
+
     }
 }
