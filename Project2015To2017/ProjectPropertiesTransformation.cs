@@ -32,7 +32,10 @@ namespace Project2015To2017
 				definition.Type = unconditionalPropertyGroup.Elements(nsSys + "TestProjectType").Any()
 					? ApplicationType.TestProject
 					: ToApplicationType(unconditionalPropertyGroup.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
-				definition.TargetFrameworks = new[] { ToTargetFramework(targetFramework) };
+				if (targetFramework != null)
+				{
+					definition.TargetFrameworks = new[] { ToTargetFramework(targetFramework) };
+				}
 			}
 
             definition.ConditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") != null).ToArray();
