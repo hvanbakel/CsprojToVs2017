@@ -64,14 +64,18 @@ namespace Project2015To2017
 
             var projectFile = fileInfo.FullName;
             if (!SaveBackup(projectFile))
-            { return; }
+            {
+				return;
+			}
 
             var packagesFile = Path.Combine(fileInfo.DirectoryName, "packages.config");
             if (File.Exists(packagesFile))
             {
                 if (!RenameFile(packagesFile))
-                { return; }
-            }
+				{
+					return;
+				}
+			}
 
             new ProjectWriter().Write(projectDefinition, fileInfo);
         }
