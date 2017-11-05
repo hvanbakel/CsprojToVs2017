@@ -212,6 +212,31 @@ namespace Project2015To2017Tests
             Assert.AreEqual("net462", project.TargetFrameworks[0]);
         }
 
+		[TestMethod]
+		public async Task ReadsIOSApplication()
+		{
+		var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""4.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <Import Project=""..\..\packages\Xamarin.Forms.2.4.0.38779\build\netstandard1.0\Xamarin.Forms.props"" Condition=""Exists('..\..\packages\Xamarin.Forms.2.4.0.38779\build\netstandard1.0\Xamarin.Forms.props')"" />
+  <PropertyGroup>
+    <Configuration Condition="" '$(Configuration)' == '' "">Debug</Configuration>
+    <Platform Condition="" '$(Platform)' == '' "">iPhoneSimulator</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>App.iOS</RootNamespace>
+    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+    <AssemblyName>App.iOS</AssemblyName>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+</Project>";
+
+		var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+		Assert.IsNull(project.TargetFrameworks);
+		}
+
         private static async Task<Project> ParseAndTransformAsync(string xml)
         {
             var document = XDocument.Parse(xml);

@@ -117,8 +117,9 @@ namespace Project2015To2017.Writing
 
         private XElement GetMainPropertyGroup(Project project, FileInfo outputFile)
         {
-            var mainPropertyGroup = new XElement("PropertyGroup",
-                ToTargetFrameworks(project.TargetFrameworks));
+            var mainPropertyGroup = new XElement("PropertyGroup");
+
+            addTargetFrameworks(mainPropertyGroup, project.TargetFrameworks);
 
             AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : null);
             AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : null);
@@ -144,7 +145,7 @@ namespace Project2015To2017.Writing
 
         private void AddPackageNodes(XElement mainPropertyGroup, PackageConfiguration packageConfiguration)
         {
-            if (packageConfiguration== null)
+            if (packageConfiguration == null)
             {
                 return;
             }
@@ -194,19 +195,23 @@ namespace Project2015To2017.Writing
 
         private string ToOutputType(ApplicationType type)
         {
-            
-
             return null;
         }
 
-        private XElement ToTargetFrameworks(IReadOnlyList<string> targetFrameworks)
+        private void addTargetFrameworks(XElement mainPropertyGroup, IReadOnlyList<string> targetFrameworks)
         {
-            if (targetFrameworks.Count > 1)
+            if (targetFrameworks == null)
             {
-                return new XElement("TargetFrameworks", string.Join(";", targetFrameworks));
+                return;
             }
-
-            return new XElement("TargetFramework", targetFrameworks[0]);
+            else if (targetFrameworks.Count > 1)
+            {
+                AddIfNotNull(mainPropertyGroup, "TargetFrameworks", string.Join(";", targetFrameworks));
+            }
+            else
+            {
+                AddIfNotNull(mainPropertyGroup, "TargetFramework", targetFrameworks[0]);
+            }
         }
     }
 }
