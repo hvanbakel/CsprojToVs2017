@@ -1,10 +1,9 @@
-﻿using Project2015To2017.Definition;
-using System;
+﻿using System;
+using Project2015To2017.Definition;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace Project2015To2017.Writing
@@ -61,9 +60,9 @@ namespace Project2015To2017.Writing
             if (project.AssemblyReferences?.Count > 0)
             {
                 var assemblyReferences = new XElement("ItemGroup");
-                foreach (var assemblyReference in project.AssemblyReferences.Where(x => !IsDefaultIncludedAssemblyReference(x)))
+                foreach (var assemblyReference in project.AssemblyReferences.Where(x => !IsDefaultIncludedAssemblyReference(x.Include)))
                 {
-                    assemblyReferences.Add(new XElement("Reference", new XAttribute("Include", assemblyReference)));
+                    assemblyReferences.Add(MakeAssemblyReference(assemblyReference));
                 }
 
                 projectNode.Add(assemblyReferences);
@@ -88,11 +87,35 @@ namespace Project2015To2017.Writing
             }
 		}
 
-		private static XElement RemoveAllNamespaces(XElement e)
+        private static XElement MakeAssemblyReference(AssemblyReference assemblyReference)
+        {
+            var output = new XElement("Reference", new XAttribute("Include", assemblyReference.Include));
+
+            if (assemblyReference.HintPath != null)
+            {
+                output.Add(new XElement("HintPath", assemblyReference.HintPath));
+            }
+            if (assemblyReference.Private != null)
+            {
+                output.Add(new XElement("Private", assemblyReference.Private));
+            }
+            if (assemblyReference.SpecificVersion != null)
+            {
+                output.Add(new XElement("SpecificVersion", assemblyReference.SpecificVersion));
+            }
+            if (assemblyReference.EmbedInteropTypes != null)
+            {
+                output.Add(new XElement("EmbedInteropTypes", assemblyReference.EmbedInteropTypes));
+            }
+
+            return output;
+        }
+
+        private static XElement RemoveAllNamespaces(XElement e)
 		{
 			return new XElement(e.Name.LocalName,
 			  (from n in e.Nodes()
-			   select ((n is XElement) ? RemoveAllNamespaces(n as XElement) : n)),
+			   select ((n is XElement) ? RemoveAllNamespaces((XElement) n) : n)),
 				  (e.HasAttributes) ?
 					(from a in e.Attributes()
 					 where (!a.IsNamespaceDeclaration)
@@ -101,7 +124,7 @@ namespace Project2015To2017.Writing
 
 		private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
         {
-            return new string[]
+            return new[]
             {
                 "System",
                 "System.Core",
@@ -119,7 +142,7 @@ namespace Project2015To2017.Writing
         {
             var mainPropertyGroup = new XElement("PropertyGroup");
 
-            addTargetFrameworks(mainPropertyGroup, project.TargetFrameworks);
+            AddTargetFrameworks(mainPropertyGroup, project.TargetFrameworks);
 
             AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : null);
             AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : null);
@@ -193,12 +216,7 @@ namespace Project2015To2017.Writing
             }
         }
 
-        private string ToOutputType(ApplicationType type)
-        {
-            return null;
-        }
-
-        private void addTargetFrameworks(XElement mainPropertyGroup, IReadOnlyList<string> targetFrameworks)
+        private void AddTargetFrameworks(XElement mainPropertyGroup, IReadOnlyList<string> targetFrameworks)
         {
             if (targetFrameworks == null)
             {

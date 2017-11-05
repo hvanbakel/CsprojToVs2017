@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
@@ -11,7 +10,7 @@ namespace Project2015To2017
 {
     internal sealed class FileTransformation : ITransformation
     {
-        private static readonly IReadOnlyList<string> itemsToProject = new[]
+        private static readonly IReadOnlyList<string> ItemsToProject = new[]
         {
             "None",
             "Content",
@@ -35,7 +34,10 @@ namespace Project2015To2017
                 .Elements(nsSys + "ItemGroup");
 
             var compileManualIncludes = FindNonWildcardMatchedFiles(projectFolder, itemGroups, "*.cs", nsSys + "Compile");
-            var otherIncludes = itemsToProject.SelectMany(x => itemGroups.Elements(nsSys + x));
+            var otherIncludes = ItemsToProject.SelectMany(x => itemGroups.Elements(nsSys + x));
+
+            // Remove packages.config since those references were already added to the CSProj file.
+            otherIncludes.Where(x => x.Attribute("Include")?.Value == "packages.config").Remove();
 
             definition.ItemsToInclude = compileManualIncludes.Concat(otherIncludes).ToArray();
 
@@ -57,12 +59,12 @@ namespace Project2015To2017
                 {
                     if (!Path.GetFullPath(Path.Combine(projectFolder.FullName, includeAttribute.Value)).StartsWith(projectFolder.FullName))
                     {
-                        Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile.ToString()}.");
+                        Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile}.");
                         manualIncludes.Add(compiledFile);
                     }
                     else if (compiledFile.Attributes().Count() != 1)
                     {
-                        Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile.ToString()}.");
+                        Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile}.");
                         manualIncludes.Add(compiledFile);
                     }
                     else if (compiledFile.Elements().Count() != 0)
@@ -80,7 +82,7 @@ namespace Project2015To2017
                         }
                         else
                         {
-                            Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile.ToString()}.");
+                            Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile}.");
                             manualIncludes.Add(compiledFile);
                         }
                     }
@@ -91,7 +93,7 @@ namespace Project2015To2017
                 }
                 else
                 {
-                    Console.WriteLine($"Compile found with no include, full node {compiledFile.ToString()}.");
+                    Console.WriteLine($"Compile found with no include, full node {compiledFile}.");
                 }
             }
 
