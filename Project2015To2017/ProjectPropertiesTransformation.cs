@@ -14,24 +14,24 @@ namespace Project2015To2017
             XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
             var propertyGroups = projectFile.Element(nsSys + "Project").Elements(nsSys + "PropertyGroup");
 
-			var unconditionalPropertyGroup = propertyGroups.FirstOrDefault(x => x.Attribute("Condition") == null);
-			if (unconditionalPropertyGroup == null)
+			var unconditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") == null);
+			if (unconditionalPropertyGroups == null)
 			{
 				throw new NotSupportedException("No unconditional property group found. Cannot determine important properties like target framework and others.");
 			}
 			else
 			{
-				var targetFramework = unconditionalPropertyGroup.Elements(nsSys + "TargetFrameworkVersion").FirstOrDefault()?.Value;
+				var targetFramework = unconditionalPropertyGroups.Elements(nsSys + "TargetFrameworkVersion").FirstOrDefault()?.Value;
 
-				definition.Optimize = "true".Equals(unconditionalPropertyGroup.Elements(nsSys + "Optimize").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
-				definition.TreatWarningsAsErrors = "true".Equals(unconditionalPropertyGroup.Elements(nsSys + "TreatWarningsAsErrors").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
-				definition.AllowUnsafeBlocks = "true".Equals(unconditionalPropertyGroup.Elements(nsSys + "AllowUnsafeBlocks").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+				definition.Optimize = "true".Equals(unconditionalPropertyGroups.Elements(nsSys + "Optimize").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+				definition.TreatWarningsAsErrors = "true".Equals(unconditionalPropertyGroups.Elements(nsSys + "TreatWarningsAsErrors").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+				definition.AllowUnsafeBlocks = "true".Equals(unconditionalPropertyGroups.Elements(nsSys + "AllowUnsafeBlocks").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
 
-				definition.RootNamespace = unconditionalPropertyGroup.Elements(nsSys + "RootNamespace").FirstOrDefault()?.Value;
-				definition.AssemblyName = unconditionalPropertyGroup.Elements(nsSys + "AssemblyName").FirstOrDefault()?.Value;
-				definition.Type = unconditionalPropertyGroup.Elements(nsSys + "TestProjectType").Any()
+				definition.RootNamespace = unconditionalPropertyGroups.Elements(nsSys + "RootNamespace").FirstOrDefault()?.Value;
+				definition.AssemblyName = unconditionalPropertyGroups.Elements(nsSys + "AssemblyName").FirstOrDefault()?.Value;
+				definition.Type = unconditionalPropertyGroups.Elements(nsSys + "TestProjectType").Any()
 					? ApplicationType.TestProject
-					: ToApplicationType(unconditionalPropertyGroup.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
+					: ToApplicationType(unconditionalPropertyGroups.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
 				if (targetFramework != null)
 				{
 					definition.TargetFrameworks = new[] { ToTargetFramework(targetFramework) };
@@ -59,20 +59,20 @@ namespace Project2015To2017
             throw new NotSupportedException($"Target framework {targetFramework} is not supported.");
         }
 
-        private ApplicationType ToApplicationType(string outputType)
-        {
-            if (string.IsNullOrWhiteSpace(outputType)) 
-	    {
-	    	return ApplicationType.Unknown;
-	    }
-	    
-            switch(outputType.ToLowerInvariant())
-            {
-                case "exe": return ApplicationType.ConsoleApplication;
-                case "library": return ApplicationType.ClassLibrary;
-                case "winexe": return ApplicationType.WindowsApplication;
-                default: throw new NotSupportedException($"OutputType {outputType} is not supported.");
-            }
-        }
+		private ApplicationType ToApplicationType(string outputType)
+		{
+			if (string.IsNullOrWhiteSpace(outputType))
+			{
+				return ApplicationType.Unknown;
+			}
+
+			switch (outputType.ToLowerInvariant())
+			{
+				case "exe": return ApplicationType.ConsoleApplication;
+				case "library": return ApplicationType.ClassLibrary;
+				case "winexe": return ApplicationType.WindowsApplication;
+				default: throw new NotSupportedException($"OutputType {outputType} is not supported.");
+			}
+		}
     }
 }

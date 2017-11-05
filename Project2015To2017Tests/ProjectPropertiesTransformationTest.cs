@@ -7,13 +7,13 @@ using System;
 
 namespace Project2015To2017Tests
 {
-    [TestClass]
-    public class ProjectPropertiesTransformationTest
-    {
-        [TestMethod]
-        public async Task ReadsTestProject()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+	[TestClass]
+	public class ProjectPropertiesTransformationTest
+	{
+		[TestMethod]
+		public async Task ReadsTestProject()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -39,16 +39,16 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-            Assert.AreEqual(ApplicationType.TestProject, project.Type);
-            Assert.AreEqual("net46", project.TargetFrameworks[0]);
-        }
+			Assert.AreEqual(ApplicationType.TestProject, project.Type);
+			Assert.AreEqual("net46", project.TargetFrameworks[0]);
+		}
 
-        [TestMethod]
-        public async Task ReadsConsoleApplication()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		[TestMethod]
+		public async Task ReadsConsoleApplication()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -56,16 +56,16 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-            Assert.AreEqual(ApplicationType.ConsoleApplication, project.Type);
-            Assert.AreEqual("net46", project.TargetFrameworks[0]);
-        }
+			Assert.AreEqual(ApplicationType.ConsoleApplication, project.Type);
+			Assert.AreEqual("net46", project.TargetFrameworks[0]);
+		}
 
-        [TestMethod]
-        public async Task ReadsClassLibraryApplication()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		[TestMethod]
+		public async Task ReadsClassLibraryApplication()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -73,16 +73,16 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-            Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
-            Assert.AreEqual("net462", project.TargetFrameworks[0]);
-        }
+			Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
+			Assert.AreEqual("net462", project.TargetFrameworks[0]);
+		}
 
-        [TestMethod]
-        public async Task ReadsRootNamespace()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		[TestMethod]
+		public async Task ReadsRootNamespace()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -91,15 +91,15 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-            Assert.AreEqual("MyProject", project.RootNamespace);
-        }
+			Assert.AreEqual("MyProject", project.RootNamespace);
+		}
 
-        [TestMethod]
-        public async Task ReadsAssemblyName()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		[TestMethod]
+		public async Task ReadsAssemblyName()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -108,15 +108,15 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-            Assert.AreEqual("MyProject", project.AssemblyName);
-        }
+			Assert.AreEqual("MyProject", project.AssemblyName);
+		}
 
-        [TestMethod]
-        public async Task ReadsOptimize()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		[TestMethod]
+		public async Task ReadsOptimize()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -125,15 +125,15 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-            Assert.AreEqual(true, project.Optimize);
-        }
+			Assert.AreEqual(true, project.Optimize);
+		}
 
-        [TestMethod]
-        public async Task ReadsTreatWarningsAsErrors()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		[TestMethod]
+		public async Task ReadsTreatWarningsAsErrors()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -142,15 +142,15 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-            Assert.AreEqual(true, project.TreatWarningsAsErrors);
-        }
+			Assert.AreEqual(true, project.TreatWarningsAsErrors);
+		}
 
-        [TestMethod]
-        public async Task ReadsAllowUnsafeBlocks()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		[TestMethod]
+		public async Task ReadsAllowUnsafeBlocks()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -159,9 +159,9 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-            Assert.AreEqual(true, project.AllowUnsafeBlocks);
+			Assert.AreEqual(true, project.AllowUnsafeBlocks);
 		}
 
 		[TestMethod]
@@ -196,9 +196,9 @@ namespace Project2015To2017Tests
 		}
 
 		[TestMethod]
-        public async Task ReadsWindowsApplication()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		public async Task ReadsWindowsApplication()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Winexe</OutputType>
@@ -206,16 +206,16 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-            Assert.AreEqual(ApplicationType.WindowsApplication, project.Type);
-            Assert.AreEqual("net462", project.TargetFrameworks[0]);
-        }
+			Assert.AreEqual(ApplicationType.WindowsApplication, project.Type);
+			Assert.AreEqual("net462", project.TargetFrameworks[0]);
+		}
 
 		[TestMethod]
 		public async Task ReadsIOSApplication()
 		{
-		var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""4.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <Import Project=""..\..\packages\Xamarin.Forms.2.4.0.38779\build\netstandard1.0\Xamarin.Forms.props"" Condition=""Exists('..\..\packages\Xamarin.Forms.2.4.0.38779\build\netstandard1.0\Xamarin.Forms.props')"" />
   <PropertyGroup>
@@ -232,20 +232,56 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-		var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-		Assert.IsNull(project.TargetFrameworks);
+			Assert.IsNull(project.TargetFrameworks);
 		}
 
-        private static async Task<Project> ParseAndTransformAsync(string xml)
-        {
-            var document = XDocument.Parse(xml);
+		public async Task ReadsPropertiesWithMultipleUnconditionalPropertyGroups()
+		{
+			var xml = @"
+<Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
+  <Import Project=""$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"" Condition=""Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=""'$(VisualStudioVersion)' == ''"">15.0</VisualStudioVersion>
+    <OldToolsVersion>14.0</OldToolsVersion>
+    <DslTargetsPath>..\SDK\v15.0\MSBuild\DSLTools</DslTargetsPath>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition="" '$(Configuration)' == '' "">Debug</Configuration>
+    <Platform Condition="" '$(Platform)' == '' "">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9F9AF5F0-C2CF-48B9-BF38-FEC89FDABA4A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Croc.XFW3.DomainModelDefinitionLanguage</RootNamespace>
+    <AssemblyName>Croc.XFW3.DomainModelDefinitionLanguage.Dsl</AssemblyName>
+    <SolutionDir Condition=""$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'"">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
+  </PropertyGroup>";
 
-            var transformation = new ProjectPropertiesTransformation();
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
-            var project = new Project();
-            await transformation.TransformAsync(document, null, project).ConfigureAwait(false);
-            return project;
-        }
-    }
+			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.AssemblyName);
+			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.RootNamespace);
+			Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
+		}
+
+		private static async Task<Project> ParseAndTransformAsync(string xml)
+		{
+			var document = XDocument.Parse(xml);
+
+			var transformation = new ProjectPropertiesTransformation();
+
+			var project = new Project();
+			await transformation.TransformAsync(document, null, project).ConfigureAwait(false);
+			return project;
+		}
+	}
 }
