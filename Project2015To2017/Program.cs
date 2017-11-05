@@ -38,7 +38,7 @@ namespace Project2015To2017
                 Console.WriteLine($"File {args[0]} could not be found.");
                 return;
             }
-            
+
             XDocument xmlDocument;
             using (var stream = File.Open(args[0], FileMode.Open, FileAccess.Read, FileShare.Read))
             {
@@ -56,17 +56,62 @@ namespace Project2015To2017
 
             var fileInfo = new FileInfo(args[0]);
             var directory = fileInfo.Directory;
-            Task.WaitAll(_transformationsToApply.Select(t => t.TransformAsync(xmlDocument, directory, projectDefinition)).ToArray());
+            Task.WaitAll(_transformationsToApply.Select(
+                t => t.TransformAsync(xmlDocument, directory, projectDefinition))
+                .ToArray());
 
-            var backupFileName = fileInfo.FullName + ".old";
-            if (File.Exists(backupFileName))
+            AssemblyReferenceTransformation.RemoveExtraAssemblyReferences(projectDefinition);
+
+            var projectFile = fileInfo.FullName;
+            if (!SaveBackup(projectFile))
+            { return; }
+
+            var packagesFile = Path.Combine(fileInfo.DirectoryName, "packages.config");
+            if (File.Exists(packagesFile))
             {
-                Console.Write($"Transformation succeeded but cannot create backup file. Please delete {backupFileName}.");
-                return;
+                if (!RenameFile(packagesFile))
+                { return; }
             }
-            File.Copy(args[0], fileInfo.FullName + ".old");
 
             new ProjectWriter().Write(projectDefinition, fileInfo);
         }
+
+        private static bool SaveBackup(string filename)
+        {
+            var output = false;
+
+            var backupFileName = filename + ".old";
+            if (File.Exists(backupFileName))
+            {
+                Console.Write($"Cannot create backup file. Please delete {backupFileName}.");
+            }
+            else
+            {
+                File.Copy(filename, filename + ".old");
+                output = true;
+            }
+
+            return output;
+        }
+
+        private static bool RenameFile(string filename)
+        {
+            var output = false;
+
+            var backupFileName = filename + ".old";
+            if (File.Exists(backupFileName))
+            {
+                Console.Write($"Cannot create backup file. Please delete {backupFileName}.");
+            }
+            else
+            {
+                // todo Consider using TF VC or Git?
+                File.Move(filename, filename + ".old");
+                output = true;
+            }
+
+            return output;
+        }
+
     }
 }
