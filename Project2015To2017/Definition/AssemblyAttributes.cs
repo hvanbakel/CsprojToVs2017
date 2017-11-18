@@ -16,5 +16,7 @@ namespace Project2015To2017.Definition
         public string Version { get; set; }
         public string AssemblyName { get; set; }
         public string Description { get; set; }
-    }
+		public string Configuration { get; internal set; }
+		public string FileVersion { get; internal set; }
+	}
 }

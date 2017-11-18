@@ -39,8 +39,10 @@ namespace Project2015To2017
                     Product = GetAttributeValue<AssemblyProductAttribute>(text),
                     Copyright = GetAttributeValue<AssemblyCopyrightAttribute>(text),
                     InformationalVersion = GetAttributeValue<AssemblyInformationalVersionAttribute>(text),
-                    Version = GetAttributeValue<AssemblyVersionAttribute>(text)
-                };
+                    Version = GetAttributeValue<AssemblyVersionAttribute>(text),
+					FileVersion = GetAttributeValue<AssemblyFileVersionAttribute>(text),
+					Configuration = GetAttributeValue<AssemblyConfigurationAttribute>(text)
+				};
             }
             else
             {
