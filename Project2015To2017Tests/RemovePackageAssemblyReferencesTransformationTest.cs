@@ -9,7 +9,16 @@ namespace Project2015To2017Tests
 	[TestClass]
     public class RemovePackageAssemblyReferencesTransformationTest
     {
-		[TestMethod]
+        [TestMethod]
+        public void HandlesNoPackagesConfig()
+        {
+            var project = new Project2015To2017.Definition.Project();
+
+            var transformation = new RemovePackageAssemblyReferencesTransformation();
+            transformation.TransformAsync(null, null, project);
+        }
+
+        [TestMethod]
 		public void DedupeReferencesFromPackages()
 		{
 			var project = new Project2015To2017.Definition.Project
