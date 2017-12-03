@@ -34,9 +34,9 @@ namespace Project2015To2017
                 return;
             }
 
-            if (!File.Exists(args[0]))
+            var file = new FileInfo(args[0]);
+            if (!Validate(file))
             {
-                Console.WriteLine($"File {args[0]} could not be found.");
                 return;
             }
 
@@ -79,6 +79,23 @@ namespace Project2015To2017
 			}
 
             new ProjectWriter().Write(projectDefinition, fileInfo);
+        }
+
+        internal static bool Validate(FileInfo file)
+        {
+            if (!file.Exists)
+            {
+                Console.WriteLine($"File {file.FullName} could not be found.");
+                return false;
+            }
+
+            if (file.IsReadOnly)
+            {
+                Console.WriteLine($"File {file.FullName} is readonly, please make the file writable first (checkout from source control?).");
+                return false;
+            }
+
+            return true;
         }
 
         private static bool SaveBackup(string filename)
