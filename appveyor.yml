@@ -11,5 +11,7 @@ before_build:
 - appveyor-retry dotnet restore -v Minimal
 build_script:
 - dotnet build -c %CONFIGURATION%
+test_script:
+- dotnet test -c %CONFIGURATION%
 cache:
 - '%USERPROFILE%\.nuget\packages'
