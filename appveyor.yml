@@ -14,10 +14,10 @@ build:
   verbosity: minimal
 before_test:
 - cmd: Dotnet test "Project2015To2017Tests\Project2015To2017Tests.csproj"
-on_finish:
+after_build:
 - cmd: dotnet publish -f net46 -c Release -o ./out/net46 ./Project2015To2017/Project2015To2017.csproj
 - cmd: dotnet publish -f netcoreapp1.1 -c Release -o ./out/netcoreapp1.1 ./Project2015To2017/Project2015To2017.csproj
-- cmd: 7z a ./out/CSProj2015To2017.v1.5.{build}.zip ./out/*.*
+- cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.v1.5.{build}.zip ./Project2015To2017/out/*.*
 
 artifacts:
   - path: ./out/CSProj2015To2017.v1.5.{build}.zip
