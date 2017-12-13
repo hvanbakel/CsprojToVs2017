@@ -42,7 +42,7 @@ namespace Project2015To2017
                 var existingPackageReferences = projectFile.Root.Elements(nsSys + "ItemGroup").Elements(nsSys + "PackageReference").Select(x => new PackageReference
                 {
                     Id = x.Attribute("Include").Value,
-                    Version = x.Attribute("Version").Value,
+                    Version = x.Attribute("Version")?.Value ?? x.Element(nsSys + "Version").Value,
                     IsDevelopmentDependency = x.Element(nsSys + "PrivateAssets") != null
                 });
 

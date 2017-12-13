@@ -62,6 +62,9 @@
 		<PackageReference Include="AutoMapper" Version="6.1.1">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+    <PackageReference Include="Microsoft.Owin.Host.HttpListener">
+      <Version>3.1.0</Version>
+    </PackageReference>
 	</ItemGroup>
   <ItemGroup>
     <None Include="Class1.cs" />

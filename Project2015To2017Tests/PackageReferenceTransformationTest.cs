@@ -22,7 +22,8 @@ namespace Project2015To2017Tests
 
             await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
 
-            Assert.AreEqual(9, project.PackageReferences.Count);
+            Assert.AreEqual(10, project.PackageReferences.Count);
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk" && x.Version == "15.0.0"));
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "AutoMapper" && x.Version == "6.1.1" && x.IsDevelopmentDependency));
         }
@@ -38,7 +39,7 @@ namespace Project2015To2017Tests
 
             await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
 
-            Assert.AreEqual(6, project.PackageReferences.Count);
+            Assert.AreEqual(7, project.PackageReferences.Count);
             Assert.AreEqual(2, project.PackageReferences.Count(x => x.IsDevelopmentDependency));
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin" && x.Version == "3.1.0"));
         }
