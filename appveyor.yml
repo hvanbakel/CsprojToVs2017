@@ -17,8 +17,21 @@ before_test:
 after_build:
 - cmd: dotnet publish -f net46 -c Release -o ./out/net46 ./Project2015To2017/Project2015To2017.csproj
 - cmd: dotnet publish -f netcoreapp1.1 -c Release -o ./out/netcoreapp1.1 ./Project2015To2017/Project2015To2017.csproj
-- cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.v1.5.{build}.zip ./Project2015To2017/out/*.*
+- cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.v$(appveyor_build_version).zip ./Project2015To2017/out/*.*
 
 artifacts:
-  - path: ./out/CSProj2015To2017.v1.5.{build}.zip
-    name: zip
+  - path: ./Project2015To2017/out/CSProj2015To2017.v$(appveyor_build_version).zip
+    name: out-zip
+    
+deploy:
+  release: CSProj2015To2017-CD-v$(appveyor_build_version)
+  description: 'Automatically built release $(appveyor_build_version).'
+  provider: GitHub  
+  auth_token:
+    secure: <your encrypted token> # your encrypted token from GitHub
+  artifact: out-zip                # upload all NuGet packages to release assets
+  draft: false
+  prerelease: true
+  on:
+    branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # deploy on tag push only
