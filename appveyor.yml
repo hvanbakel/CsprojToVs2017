@@ -14,10 +14,8 @@ build:
 before_test:
 - cmd: Dotnet test "Project2015To2017Tests\Project2015To2017Tests.csproj"
 after_build:
-- cmd: dotnet publish -f net46 -c Release -o ./out/net46 ./Project2015To2017/Project2015To2017
-.csproj
-- cmd: dotnet publish -f netcoreapp1.1 -c Release -o ./out/netcoreapp1.1 ./Project2015To2017/Project2015To2017
-.csproj
+- cmd: dotnet publish -f net46 -c Release -o ./out/net46 ./Project2015To2017/Project2015To2017.csproj
+- cmd: dotnet publish -f netcoreapp1.1 -c Release -o ./out/netcoreapp1.1 ./Project2015To2017/Project2015To2017.csproj
 - cmd: 7z a ./out/CSProj2015To2017.v1.5.{build}.zip ./out/*.*
 
 artifacts:
