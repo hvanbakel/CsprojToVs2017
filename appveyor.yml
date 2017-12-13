@@ -1,0 +1,16 @@
+version: 1.5.{build}
+image: 
+- Visual Studio 2017
+configuration:
+- Debug
+- Release
+pull_requests:
+  do_not_increment_build_number: true
+skip_branch_with_pr: true
+before_build:
+- cmd: nuget restore
+build:
+  parallel: true
+  verbosity: minimal
+before_test:
+- cmd: Dotnet test "Project2015To2017Tests\Project2015To2017Tests.csproj"
