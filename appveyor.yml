@@ -33,4 +33,3 @@ deploy:
   prerelease: true
   on:
     branch: master                 # release from master branch only
-    appveyor_repo_tag: true        # deploy on tag push only
