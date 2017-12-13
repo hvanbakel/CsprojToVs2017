@@ -13,8 +13,11 @@ There are a number of things [that VS2017 handles differently](http://www.natemc
 
 ## How it works
 Using the tool is simple, it is a simple command line utitlity that has a single argument being the project file you would like to convert.
+You can also give a directory path and the tool will discover all csproj files nested in it.
 
 For example
 `Project2015To2017.exe "D:\Path\To\My\TestProject.csproj"`
+Or
+`Project2015To2017.exe "D:\Path\To\My\Directory"`
 
 After confirming this is an old style project file, it will start performing the conversion. When it has gathered all the data it needs it first creates a backup of the old project file (suffixed with .old) and then generates a new project file in the new format. 

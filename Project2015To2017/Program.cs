@@ -34,14 +34,39 @@ namespace Project2015To2017
                 return;
             }
 
-            var file = new FileInfo(args[0]);
+            // Process all csprojs found in given directory
+            if (Path.GetExtension(args[0]) != ".csproj")
+            {
+                var projectFiles = Directory.EnumerateFiles(args[0], "*.csproj", SearchOption.AllDirectories).ToArray();
+                if (projectFiles.Length == 0)
+                {
+                    Console.WriteLine($"Please specify a project file.");
+                    return;
+                }
+                Console.WriteLine($"Multiple project files found under directory {args[0]}:");
+                Console.WriteLine(string.Join(Environment.NewLine, projectFiles));
+                foreach (var projectFile in projectFiles)
+                {
+                    ProcessFile(projectFile);
+                }
+
+                return;
+            }
+
+            // Process only the given project file
+            ProcessFile(args[0]);
+        }
+
+        private static void ProcessFile(string filePath)
+        {
+            var file = new FileInfo(filePath);
             if (!Validate(file))
             {
                 return;
             }
 
             XDocument xmlDocument;
-            using (var stream = File.Open(args[0], FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 xmlDocument = XDocument.Load(stream);
             }
@@ -55,10 +80,10 @@ namespace Project2015To2017
 
             var projectDefinition = new Project();
 
-            var fileInfo = new FileInfo(args[0]);
+            var fileInfo = new FileInfo(filePath);
             var directory = fileInfo.Directory;
             Task.WaitAll(_transformationsToApply.Select(
-                t => t.TransformAsync(xmlDocument, directory, projectDefinition))
+                    t => t.TransformAsync(xmlDocument, directory, projectDefinition))
                 .ToArray());
 
             AssemblyReferenceTransformation.RemoveExtraAssemblyReferences(projectDefinition);
@@ -66,17 +91,17 @@ namespace Project2015To2017
             var projectFile = fileInfo.FullName;
             if (!SaveBackup(projectFile))
             {
-				return;
-			}
+                return;
+            }
 
             var packagesFile = Path.Combine(fileInfo.DirectoryName, "packages.config");
             if (File.Exists(packagesFile))
             {
                 if (!RenameFile(packagesFile))
-				{
-					return;
-				}
-			}
+                {
+                    return;
+                }
+            }
 
             new ProjectWriter().Write(projectDefinition, fileInfo);
         }
