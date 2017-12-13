@@ -1,4 +1,5 @@
 version: 1.5.{build}
+skip_tags: true
 image: 
 - Visual Studio 2017
 configuration:
@@ -32,4 +33,10 @@ deploy:
   draft: false
   prerelease: true
   on:
+    branch: master
     appveyor_repo_tag: true        # deploy on tag push only
+    
+# build cache to preserve files/folders between builds
+cache:
+  - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
+  - '%LocalAppData%\NuGet\Cache'
