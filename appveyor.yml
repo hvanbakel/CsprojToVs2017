@@ -23,8 +23,8 @@ artifacts:
     name: out-zip
     
 deploy:
-  release: CSProj2015To2017-CD-v$(appveyor_build_version)
-  description: 'Automatically built release $(appveyor_build_version).'
+  release: CSProj2015To2017-v$(APPVEYOR_REPO_TAG_NAME)
+  description: 'Automatically built release v$(APPVEYOR_REPO_TAG_NAME).'
   provider: GitHub  
   auth_token:
     secure: "LYFGDMnT4oJLpCsZUkhL/oTnG3ZpQnsjaTc10DfTf/jbkXtzctRkXEu2ea3YnyqP" # your encrypted token from GitHub
