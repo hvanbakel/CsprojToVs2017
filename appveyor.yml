@@ -16,10 +16,10 @@ before_test:
 after_build:
 - cmd: dotnet publish -f net46 -c Release -o ./out/net46 ./Project2015To2017/Project2015To2017.csproj
 - cmd: dotnet publish -f netcoreapp1.1 -c Release -o ./out/netcoreapp1.1 ./Project2015To2017/Project2015To2017.csproj
-- cmd: 7z a ./out/CSProj2015To2017.zip ./out/*.*
+- cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.zip ./Project2015To2017/out/*.*
 
 artifacts:
-  - path: ./out/CSProj2015To2017.zip
+  - path: ./Project2015To2017/out/CSProj2015To2017.zip
     name: out-zip
     
 deploy:
