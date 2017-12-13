@@ -16,7 +16,7 @@ before_test:
 after_build:
 - cmd: dotnet publish -f net46 -c Release -o ./out/net46 ./Project2015To2017/Project2015To2017.csproj
 - cmd: dotnet publish -f netcoreapp1.1 -c Release -o ./out/netcoreapp1.1 ./Project2015To2017/Project2015To2017.csproj
-- cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.zip ./Project2015To2017/out/*.*
+- cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.zip ./out/*.*
 
 artifacts:
   - path: ./Project2015To2017/out/CSProj2015To2017.zip
@@ -33,3 +33,4 @@ deploy:
   prerelease: true
   on:
     branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # deploy on tag push only
