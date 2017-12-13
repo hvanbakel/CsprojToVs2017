@@ -1,5 +1,4 @@
 version: 1.5.{build}
-skip_tags: true
 image: 
 - Visual Studio 2017
 configuration:
@@ -24,8 +23,8 @@ artifacts:
     name: out-zip
     
 deploy:
-  release: CSProj2015To2017-v$(APPVEYOR_REPO_TAG_NAME)
-  description: 'Automatically built release v$(APPVEYOR_REPO_TAG_NAME).'
+  release: CSProj2015To2017-v$(APPVEYOR_BUILD_VERSION)
+  description: 'Automatically built release v$(APPVEYOR_BUILD_VERSION).'
   provider: GitHub  
   auth_token:
     secure: "LYFGDMnT4oJLpCsZUkhL/oTnG3ZpQnsjaTc10DfTf/jbkXtzctRkXEu2ea3YnyqP" # your encrypted token from GitHub
@@ -33,7 +32,7 @@ deploy:
   draft: false
   prerelease: true
   on:
-    appveyor_repo_tag: true        # deploy on tag push only
+    branch: master        # deploy on tag push only
     
 # build cache to preserve files/folders between builds
 cache:
