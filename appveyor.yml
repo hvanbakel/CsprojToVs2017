@@ -30,7 +30,7 @@ deploy:
   auth_token:
     secure: "LYFGDMnT4oJLpCsZUkhL/oTnG3ZpQnsjaTc10DfTf/jbkXtzctRkXEu2ea3YnyqP" # your encrypted token from GitHub
   artifact: out-zip                # upload all NuGet packages to release assets
-  draft: false
+  draft: true
   prerelease: true
   on:
     branch: master        # deploy on tag push only

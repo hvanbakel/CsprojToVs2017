@@ -11,90 +11,90 @@ namespace Project2015To2017.Writing
     internal sealed class ProjectWriter
     {
         public void Write(Project project, FileInfo outputFile)
-		{
-			var projectNode = CreateXml(project, outputFile);
+        {
+            var projectNode = CreateXml(project, outputFile);
 
-			using (var filestream = File.Open(outputFile.FullName, FileMode.Create))
-			using (var streamWriter = new StreamWriter(filestream, Encoding.UTF8))
-			{
-				streamWriter.Write(projectNode.ToString());
-			}
-		}
+            using (var filestream = File.Open(outputFile.FullName, FileMode.Create))
+            using (var streamWriter = new StreamWriter(filestream, Encoding.UTF8))
+            {
+                streamWriter.Write(projectNode.ToString());
+            }
+        }
 
-		internal XElement CreateXml(Project project, FileInfo outputFile)
-		{
-			var projectNode = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"));
+        internal XElement CreateXml(Project project, FileInfo outputFile)
+        {
+            var projectNode = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"));
 
-			projectNode.Add(GetMainPropertyGroup(project, outputFile));
+            projectNode.Add(GetMainPropertyGroup(project, outputFile));
 
-			if (project.ConditionalPropertyGroups != null)
-			{
-				projectNode.Add(project.ConditionalPropertyGroups.Select(RemoveAllNamespaces));
-			}
+            if (project.ConditionalPropertyGroups != null)
+            {
+                projectNode.Add(project.ConditionalPropertyGroups.Select(RemoveAllNamespaces));
+            }
 
-			if (project.ProjectReferences?.Count > 0)
-			{
-				var itemGroup = new XElement("ItemGroup");
-				foreach (var projectReference in project.ProjectReferences)
-				{
-					var projectReferenceElement = new XElement("ProjectReference",
-							new XAttribute("Include", projectReference.Include));
+            if (project.ProjectReferences?.Count > 0)
+            {
+                var itemGroup = new XElement("ItemGroup");
+                foreach (var projectReference in project.ProjectReferences)
+                {
+                    var projectReferenceElement = new XElement("ProjectReference",
+                            new XAttribute("Include", projectReference.Include));
 
-					if (!string.IsNullOrWhiteSpace(projectReference.Aliases) && projectReference.Aliases != "global")
-					{
-						projectReferenceElement.Add(new XElement("Aliases", projectReference.Aliases));
-					}
+                    if (!string.IsNullOrWhiteSpace(projectReference.Aliases) && projectReference.Aliases != "global")
+                    {
+                        projectReferenceElement.Add(new XElement("Aliases", projectReference.Aliases));
+                    }
 
-					itemGroup.Add(projectReferenceElement);
-				}
+                    itemGroup.Add(projectReferenceElement);
+                }
 
-				projectNode.Add(itemGroup);
-			}
+                projectNode.Add(itemGroup);
+            }
 
-			if (project.PackageReferences?.Count > 0)
-			{
-				var nugetReferences = new XElement("ItemGroup");
-				foreach (var packageReference in project.PackageReferences)
-				{
-					var reference = new XElement("PackageReference", new XAttribute("Include", packageReference.Id), new XAttribute("Version", packageReference.Version));
-					if (packageReference.IsDevelopmentDependency)
-					{
-						reference.Add(new XElement("PrivateAssets", "all"));
-					}
+            if (project.PackageReferences?.Count > 0)
+            {
+                var nugetReferences = new XElement("ItemGroup");
+                foreach (var packageReference in project.PackageReferences)
+                {
+                    var reference = new XElement("PackageReference", new XAttribute("Include", packageReference.Id), new XAttribute("Version", packageReference.Version));
+                    if (packageReference.IsDevelopmentDependency)
+                    {
+                        reference.Add(new XElement("PrivateAssets", "all"));
+                    }
 
-					nugetReferences.Add(reference);
-				}
+                    nugetReferences.Add(reference);
+                }
 
-				projectNode.Add(nugetReferences);
-			}
+                projectNode.Add(nugetReferences);
+            }
 
-			if (project.AssemblyReferences?.Count > 0)
-			{
-				var assemblyReferences = new XElement("ItemGroup");
-				foreach (var assemblyReference in project.AssemblyReferences.Where(x => !IsDefaultIncludedAssemblyReference(x.Include)))
-				{
-					assemblyReferences.Add(MakeAssemblyReference(assemblyReference));
-				}
+            if (project.AssemblyReferences?.Count > 0)
+            {
+                var assemblyReferences = new XElement("ItemGroup");
+                foreach (var assemblyReference in project.AssemblyReferences.Where(x => !IsDefaultIncludedAssemblyReference(x.Include)))
+                {
+                    assemblyReferences.Add(MakeAssemblyReference(assemblyReference));
+                }
 
-				projectNode.Add(assemblyReferences);
-			}
+                projectNode.Add(assemblyReferences);
+            }
 
-			// manual includes
-			if (project.ItemsToInclude?.Count > 0)
-			{
-				var includeGroup = new XElement("ItemGroup");
-				foreach (var include in project.ItemsToInclude.Select(RemoveAllNamespaces))
-				{
-					includeGroup.Add(include);
-				}
+            // manual includes
+            if (project.ItemsToInclude?.Count > 0)
+            {
+                var includeGroup = new XElement("ItemGroup");
+                foreach (var include in project.ItemsToInclude.Select(RemoveAllNamespaces))
+                {
+                    includeGroup.Add(include);
+                }
 
-				projectNode.Add(includeGroup);
-			}
+                projectNode.Add(includeGroup);
+            }
 
-			return projectNode;
-		}
+            return projectNode;
+        }
 
-		private static XElement MakeAssemblyReference(AssemblyReference assemblyReference)
+        private static XElement MakeAssemblyReference(AssemblyReference assemblyReference)
         {
             var output = new XElement("Reference", new XAttribute("Include", assemblyReference.Include));
 
@@ -119,17 +119,17 @@ namespace Project2015To2017.Writing
         }
 
         private static XElement RemoveAllNamespaces(XElement e)
-		{
-			return new XElement(e.Name.LocalName,
-			  (from n in e.Nodes()
-			   select ((n is XElement) ? RemoveAllNamespaces((XElement) n) : n)),
-				  (e.HasAttributes) ?
-					(from a in e.Attributes()
-					 where (!a.IsNamespaceDeclaration)
-					 select new XAttribute(a.Name.LocalName, a.Value)) : null);
-		}
+        {
+            return new XElement(e.Name.LocalName,
+              (from n in e.Nodes()
+               select ((n is XElement) ? RemoveAllNamespaces((XElement)n) : n)),
+                  (e.HasAttributes) ?
+                    (from a in e.Attributes()
+                     where (!a.IsNamespaceDeclaration)
+                     select new XAttribute(a.Name.LocalName, a.Value)) : null);
+        }
 
-		private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
+        private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
         {
             return new[]
             {
@@ -168,18 +168,19 @@ namespace Project2015To2017.Writing
             }
 
             AddAssemblyAttributeNodes(mainPropertyGroup, project.AssemblyAttributes);
-            AddPackageNodes(mainPropertyGroup, project.PackageConfiguration);
+            AddPackageNodes(mainPropertyGroup, project.PackageConfiguration, project.AssemblyAttributes);
 
             return mainPropertyGroup;
         }
 
-        private void AddPackageNodes(XElement mainPropertyGroup, PackageConfiguration packageConfiguration)
+        private void AddPackageNodes(XElement mainPropertyGroup, PackageConfiguration packageConfiguration, AssemblyAttributes attributes)
         {
             if (packageConfiguration == null)
             {
                 return;
             }
 
+            AddIfNotNull(mainPropertyGroup, "Company", attributes.Company);
             AddIfNotNull(mainPropertyGroup, "Authors", packageConfiguration.Authors);
             AddIfNotNull(mainPropertyGroup, "Copyright", packageConfiguration.Copyright);
             AddIfNotNull(mainPropertyGroup, "Description", packageConfiguration.Description);
@@ -204,32 +205,32 @@ namespace Project2015To2017.Writing
                 return;
             }
 
-			var attributes = new[]
-			{
-				new KeyValuePair<string, string>("GenerateAssemblyTitleAttribute", assemblyAttributes.Title),
-				new KeyValuePair<string, string>("GenerateAssemblyCompanyAttribute", assemblyAttributes.Company),
-				new KeyValuePair<string, string>("GenerateAssemblyDescriptionAttribute", assemblyAttributes.Description),
-				new KeyValuePair<string, string>("GenerateAssemblyProductAttribute", assemblyAttributes.Product),
-				new KeyValuePair<string, string>("GenerateAssemblyCopyrightAttribute", assemblyAttributes.Copyright),
-				new KeyValuePair<string, string>("GenerateAssemblyInformationalVersionAttribute", assemblyAttributes.InformationalVersion),
-				new KeyValuePair<string, string>("GenerateAssemblyVersionAttribute", assemblyAttributes.Version),
-				new KeyValuePair<string, string>("GenerateAssemblyFileVersionAttribute", assemblyAttributes.FileVersion),
-				new KeyValuePair<string, string>("GenerateAssemblyConfigurationAttribute", assemblyAttributes.Configuration)
-			};
+            var attributes = new[]
+            {
+                new KeyValuePair<string, string>("GenerateAssemblyTitleAttribute", assemblyAttributes.Title),
+                new KeyValuePair<string, string>("GenerateAssemblyCompanyAttribute", assemblyAttributes.Company),
+                new KeyValuePair<string, string>("GenerateAssemblyDescriptionAttribute", assemblyAttributes.Description),
+                new KeyValuePair<string, string>("GenerateAssemblyProductAttribute", assemblyAttributes.Product),
+                new KeyValuePair<string, string>("GenerateAssemblyCopyrightAttribute", assemblyAttributes.Copyright),
+                new KeyValuePair<string, string>("GenerateAssemblyInformationalVersionAttribute", assemblyAttributes.InformationalVersion),
+                new KeyValuePair<string, string>("GenerateAssemblyVersionAttribute", assemblyAttributes.Version),
+                new KeyValuePair<string, string>("GenerateAssemblyFileVersionAttribute", assemblyAttributes.FileVersion),
+                new KeyValuePair<string, string>("GenerateAssemblyConfigurationAttribute", assemblyAttributes.Configuration)
+            };
 
-			var childNodes = attributes
-				.Where(x => !string.IsNullOrWhiteSpace(x.Value))
-				.Select(x => new XElement(x.Key, "false"))
-				.ToArray();
+            var childNodes = attributes
+                .Where(x => !string.IsNullOrWhiteSpace(x.Value))
+                .Select(x => new XElement(x.Key, "false"))
+                .ToArray();
 
-			if (childNodes.Length == 0)
-			{
-				mainPropertyGroup.Add(new XElement("GenerateAssemblyInfo", "false"));
-			}
-			else
-			{
-				mainPropertyGroup.Add(childNodes);
-			}
+            if (childNodes.Length == 0)
+            {
+                mainPropertyGroup.Add(new XElement("GenerateAssemblyInfo", "false"));
+            }
+            else
+            {
+                mainPropertyGroup.Add(childNodes);
+            }
         }
 
         private void AddIfNotNull(XElement node, string elementName, string value)
