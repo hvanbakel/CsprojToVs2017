@@ -25,6 +25,7 @@ namespace Project2015To2017Tests
 
             Assert.AreEqual(11, project.AssemblyReferences.Count);
             Assert.IsTrue(project.AssemblyReferences.Any(x => x.Include == @"System.Xml.Linq"));
+            Assert.IsFalse(project.AssemblyReferences.Any(x => x.Include == @"Microsoft.CSharp"));
         }
 
         [TestMethod]
