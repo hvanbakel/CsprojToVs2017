@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Project2015To2017Tests.TestFiles
+﻿namespace Project2015To2017Tests.TestFiles
 {
     class IncludedFile
     {

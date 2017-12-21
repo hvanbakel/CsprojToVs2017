@@ -237,7 +237,8 @@ namespace Project2015To2017Tests
 			Assert.IsNull(project.TargetFrameworks);
 		}
 
-		public async Task ReadsPropertiesWithMultipleUnconditionalPropertyGroups()
+        [TestMethod]
+        public async Task ReadsPropertiesWithMultipleUnconditionalPropertyGroups()
 		{
 			var xml = @"
 <Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
@@ -264,12 +265,13 @@ namespace Project2015To2017Tests
     <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
-  </PropertyGroup>";
+  </PropertyGroup>
+</Project>";
 
 			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
 
 			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.AssemblyName);
-			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.RootNamespace);
+			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage", project.RootNamespace);
 			Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
 		}
 

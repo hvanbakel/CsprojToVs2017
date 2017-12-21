@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Project2015To2017.Definition
+﻿namespace Project2015To2017.Definition
 {
     internal sealed class AssemblyAttributes
     {

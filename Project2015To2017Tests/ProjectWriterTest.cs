@@ -1,12 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Writing;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Project2015To2017Tests
 {
-	[TestClass]
+    [TestClass]
     public class ProjectWriterTest
 	{
 		[TestMethod]

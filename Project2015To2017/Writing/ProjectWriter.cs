@@ -1,5 +1,4 @@
-﻿using System;
-using Project2015To2017.Definition;
+﻿using Project2015To2017.Definition;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

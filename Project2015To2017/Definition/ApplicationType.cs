@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Project2015To2017.Definition
+﻿namespace Project2015To2017.Definition
 {
     internal enum ApplicationType
     {
