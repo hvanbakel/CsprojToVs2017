@@ -17,7 +17,8 @@ namespace Project2015To2017
                 .Element(nsSys + "Project")
                 ?.Elements(nsSys + "ItemGroup")
                 .Elements(nsSys + "Reference")
-                .Select(FormatAssemblyReference).ToList();
+                .Select(FormatAssemblyReference)
+                .Where(r => r != null).ToList();
 
             return Task.CompletedTask;
         }
@@ -50,6 +51,12 @@ namespace Project2015To2017
             {
                 Include = reference.Attribute("Include")?.Value
             };
+
+            if (output.Include.Equals("Microsoft.CSharp", StringComparison.OrdinalIgnoreCase))
+            {
+                // This reference is obsolete.
+                return null;
+            }
 
             var specificVersion = reference.Descendants().FirstOrDefault(x => x.Name.LocalName == "SpecificVersion");
             if (specificVersion != null)
