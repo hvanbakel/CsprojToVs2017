@@ -32,10 +32,15 @@ namespace Project2015To2017
                 {
                     testReferences = new[]
                     {
-                    new PackageReference { Id = "Microsoft.NET.Test.Sdk", Version = "15.0.0" },
-                    new PackageReference { Id = "MSTest.TestAdapter", Version = "1.1.11" },
-                    new PackageReference { Id = "MSTest.TestFramework", Version = "1.1.11" }
-                };
+                        new PackageReference { Id = "Microsoft.NET.Test.Sdk", Version = "15.0.0" },
+                        new PackageReference { Id = "MSTest.TestAdapter", Version = "1.1.11" },
+                        new PackageReference { Id = "MSTest.TestFramework", Version = "1.1.11" }
+                    };
+
+                    if (definition.TargetFrameworks.Contains("net40"))
+                    {
+                        Console.WriteLine($"Warning - target framework net40 is not compatible with the MSTest NuGet packages. Please consider updating the target framework of your test project(s)");
+                    }
                 }
 
                 XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
