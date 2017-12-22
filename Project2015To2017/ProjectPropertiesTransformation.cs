@@ -29,9 +29,18 @@ namespace Project2015To2017
 
 				definition.RootNamespace = unconditionalPropertyGroups.Elements(nsSys + "RootNamespace").FirstOrDefault()?.Value;
 				definition.AssemblyName = unconditionalPropertyGroups.Elements(nsSys + "AssemblyName").FirstOrDefault()?.Value;
-				definition.Type = unconditionalPropertyGroups.Elements(nsSys + "TestProjectType").Any()
-					? ApplicationType.TestProject
-					: ToApplicationType(unconditionalPropertyGroups.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
+
+                // Ref.: https://www.codeproject.com/Reference/720512/List-of-Visual-Studio-Project-Type-GUIDs
+                if (unconditionalPropertyGroups.Elements(nsSys + "TestProjectType").Any() || 
+                    unconditionalPropertyGroups.Elements(nsSys + "ProjectTypeGuids").Any(e => e.Value.IndexOf("3AC096D0-A1C2-E12C-1390-A8335801FDAB", StringComparison.OrdinalIgnoreCase) > -1))
+                {
+                    definition.Type = ApplicationType.TestProject;
+                }
+                else
+                {
+                    definition.Type = ToApplicationType(unconditionalPropertyGroups.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
+                }
+
 				if (targetFramework != null)
 				{
 					definition.TargetFrameworks = new[] { ToTargetFramework(targetFramework) };

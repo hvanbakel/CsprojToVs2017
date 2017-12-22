@@ -45,7 +45,42 @@ namespace Project2015To2017Tests
 			Assert.AreEqual("net46", project.TargetFrameworks[0]);
 		}
 
-		[TestMethod]
+        [TestMethod]
+        public async Task ReadsTestProjectGuid()
+        {
+            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+  </PropertyGroup>
+ <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' "">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+</Project>";
+
+            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+            Assert.AreEqual(ApplicationType.TestProject, project.Type);
+            Assert.AreEqual("net40", project.TargetFrameworks[0]);
+        }
+
+        [TestMethod]
 		public async Task ReadsConsoleApplication()
 		{
 			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
