@@ -37,9 +37,14 @@ namespace Project2015To2017
                         new PackageReference { Id = "MSTest.TestFramework", Version = "1.1.11" }
                     };
 
-                    if ((definition.TargetFrameworks?.Contains("net40")).GetValueOrDefault(false))
+                    var versions = definition.TargetFrameworks?.Select(f => int.Parse(f.Replace("net", string.Empty))).Select(v => v < 100 ? v * 10 : v);
+
+                    if (versions != null)
                     {
-                        Console.WriteLine($"Warning - target framework net40 is not compatible with the MSTest NuGet packages. Please consider updating the target framework of your test project(s)");
+                        if (versions.Any(v => v < 450))
+                        {
+                            Console.WriteLine($"Warning - target framework net40 is not compatible with the MSTest NuGet packages. Please consider updating the target framework of your test project(s)");
+                        }
                     }
                 }
 

@@ -14,7 +14,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public async Task AddsTestPackagesAsync()
         {
-            var project = new Project { Type = ApplicationType.TestProject };
+            var project = new Project { Type = ApplicationType.TestProject, TargetFrameworks = new[] { "net45" } };
             var transformation = new PackageReferenceTransformation();
 
             var directoryInfo = new DirectoryInfo(".\\TestFiles");
