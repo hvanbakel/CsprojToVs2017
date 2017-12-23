@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml;
+using System.Collections.Generic;
 
 namespace Project2015To2017
 {
@@ -27,8 +28,16 @@ namespace Project2015To2017
                     document = XDocument.Load(stream);
                 }
 
+                XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
+                var existingPackageReferences = projectFile.Root.Elements(nsSys + "ItemGroup").Elements(nsSys + "PackageReference").Select(x => new PackageReference
+                {
+                    Id = x.Attribute("Include").Value,
+                    Version = x.Attribute("Version")?.Value ?? x.Element(nsSys + "Version").Value,
+                    IsDevelopmentDependency = x.Element(nsSys + "PrivateAssets") != null
+                });
+
                 var testReferences = Array.Empty<PackageReference>();
-                if (definition.Type == ApplicationType.TestProject)
+                if (definition.Type == ApplicationType.TestProject && existingPackageReferences.All(x => x.Id != "Microsoft.NET.Test.Sdk"))
                 {
                     testReferences = new[]
                     {
@@ -37,19 +46,19 @@ namespace Project2015To2017
                         new PackageReference { Id = "MSTest.TestFramework", Version = "1.1.11" }
                     };
 
-                    if ((definition.TargetFrameworks?.Contains("net40")).GetValueOrDefault(false))
+                    var versions = definition.TargetFrameworks?
+                        .Select(f => int.TryParse(f.Replace("net", string.Empty), out int result) ? result : default(int?))
+                        .Where(x => x.HasValue)
+                        .Select(v => v < 100 ? v * 10 : v);
+
+                    if (versions != null)
                     {
-                        Console.WriteLine($"Warning - target framework net40 is not compatible with the MSTest NuGet packages. Please consider updating the target framework of your test project(s)");
+                        if (versions.Any(v => v < 450))
+                        {
+                            Console.WriteLine($"Warning - target framework net40 is not compatible with the MSTest NuGet packages. Please consider updating the target framework of your test project(s)");
+                        }
                     }
                 }
-
-                XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
-                var existingPackageReferences = projectFile.Root.Elements(nsSys + "ItemGroup").Elements(nsSys + "PackageReference").Select(x => new PackageReference
-                {
-                    Id = x.Attribute("Include").Value,
-                    Version = x.Attribute("Version")?.Value ?? x.Element(nsSys + "Version").Value,
-                    IsDevelopmentDependency = x.Element(nsSys + "PrivateAssets") != null
-                });
 
                 definition.PackageReferences = document.Element("packages").Elements("package").Select(x => new PackageReference
                 {
