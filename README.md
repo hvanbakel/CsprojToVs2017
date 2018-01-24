@@ -7,13 +7,13 @@ This project converts an existing csproj to the new format, shortening the proje
 ## What does it fix?
 There are a number of things [that VS2017 handles differently](http://www.natemcmaster.com/blog/2017/03/09/vs2015-to-vs2017-upgrade/) that are performed by this tool: 
 1. Include files using a wildcard as opposed to specifying every single file 
-2. A more succint way of defining project references 
-3. A more succint way of handling nuget package references
-4. Moving some of the attributes that used to be defined in assemblyinfo into the project file
-5. Defining the nuget package definition as part of the project file
+2. A more succinct way of defining project references 
+3. A more succinct way of handling NuGet package references
+4. Moving some of the attributes that used to be defined in AssemblyInfo.cs into the project file
+5. Defining the NuGet package definition as part of the project file
 
 ## How it works
-Using the tool is simple, it is a simple command line utitlity that has a single argument being the project file you would like to convert.
+Using the tool is simple, it is a simple command line utility that has a single argument being the project file you would like to convert.
 You can also give a directory path and the tool will discover all csproj files nested in it.
 
 For example
