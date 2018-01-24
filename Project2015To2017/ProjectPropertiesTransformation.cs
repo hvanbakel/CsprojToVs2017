@@ -30,6 +30,9 @@ namespace Project2015To2017
 				definition.RootNamespace = unconditionalPropertyGroups.Elements(nsSys + "RootNamespace").FirstOrDefault()?.Value;
 				definition.AssemblyName = unconditionalPropertyGroups.Elements(nsSys + "AssemblyName").FirstOrDefault()?.Value;
 
+                definition.SignAssembly = "true".Equals(unconditionalPropertyGroups.Elements(nsSys + "SignAssembly").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+                definition.AssemblyOriginatorKeyFile = unconditionalPropertyGroups.Elements(nsSys + "AssemblyOriginatorKeyFile").FirstOrDefault()?.Value;
+
                 // Ref.: https://www.codeproject.com/Reference/720512/List-of-Visual-Studio-Project-Type-GUIDs
                 if (unconditionalPropertyGroups.Elements(nsSys + "TestProjectType").Any() || 
                     unconditionalPropertyGroups.Elements(nsSys + "ProjectTypeGuids").Any(e => e.Value.IndexOf("3AC096D0-A1C2-E12C-1390-A8335801FDAB", StringComparison.OrdinalIgnoreCase) > -1))

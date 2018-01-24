@@ -20,5 +20,7 @@ namespace Project2015To2017.Definition
         public string RootNamespace { get; internal set; }
         public string AssemblyName { get; internal set; }
         public bool AllowUnsafeBlocks { get; internal set; }
+        public bool SignAssembly { get; internal set; }
+        public string AssemblyOriginatorKeyFile { get; internal set; }
     }
 }
