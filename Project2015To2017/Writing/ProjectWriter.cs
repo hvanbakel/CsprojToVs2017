@@ -181,7 +181,7 @@ namespace Project2015To2017.Writing
                 return;
             }
 
-            AddIfNotNull(mainPropertyGroup, "Company", attributes.Company);
+            AddIfNotNull(mainPropertyGroup, "Company", attributes?.Company);
             AddIfNotNull(mainPropertyGroup, "Authors", packageConfiguration.Authors);
             AddIfNotNull(mainPropertyGroup, "Copyright", packageConfiguration.Copyright);
             AddIfNotNull(mainPropertyGroup, "Description", packageConfiguration.Description);
