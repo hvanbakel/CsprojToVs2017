@@ -57,7 +57,7 @@ namespace Project2015To2017
                 var includeAttribute = compiledFile.Attribute("Include");
                 if (includeAttribute != null)
                 {
-                    if (!Path.GetFullPath(Path.Combine(projectFolder.FullName, includeAttribute.Value)).StartsWith(projectFolder.FullName))
+                    if (!Path.Combine(Path.GetFullPath(projectFolder.FullName), includeAttribute.Value).StartsWith(projectFolder.FullName))
                     {
                         Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile}.");
                         manualIncludes.Add(compiledFile);
@@ -102,7 +102,7 @@ namespace Project2015To2017
                 .Select(x => x.Attribute("Include")?.Value)
                 .Where(x => x != null)
                 .Concat(filesMatchingWildcard)
-                .Select(x => Path.GetFullPath(Path.Combine(projectFolder.FullName, x)))
+                .Select(x => Path.Combine(Path.GetFullPath(projectFolder.FullName), x))
                 .ToArray();
 
             foreach (var nonListedFile in filesInFolder.Except(knownFullPaths))
