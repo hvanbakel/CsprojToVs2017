@@ -63,6 +63,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IncludedFile.cs" />
+	<Compile Include="Folder\*.cs" />
+	<Compile Include="**\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Folder\FileInFolder.cs" />
