@@ -97,12 +97,12 @@ namespace Project2015To2017
                 }
             }
 
-            var filesInFolder = projectFolder.EnumerateFiles(wildcard, SearchOption.AllDirectories).Select(x => x.FullName).ToArray();
+            var filesInFolder = projectFolder.EnumerateFiles(wildcard, SearchOption.AllDirectories).Select(x => x.FullName.ToUpper()).ToArray();
             var knownFullPaths = manualIncludes
                 .Select(x => x.Attribute("Include")?.Value)
                 .Where(x => x != null)
                 .Concat(filesMatchingWildcard)
-                .Select(x => Path.GetFullPath(Path.Combine(projectFolder.FullName, x)))
+                .Select(x => Path.GetFullPath(Path.Combine(projectFolder.FullName, x)).ToUpper())
                 .ToArray();
 
             foreach (var nonListedFile in filesInFolder.Except(knownFullPaths))
