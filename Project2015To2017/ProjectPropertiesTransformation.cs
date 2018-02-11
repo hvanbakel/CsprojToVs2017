@@ -51,6 +51,10 @@ namespace Project2015To2017
 			}
 
             definition.ConditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") != null).ToArray();
+            definition.Imports = projectFile.Element(nsSys + "Project").Elements(nsSys + "Import").Where(x => 
+                    x.Attribute("Project")?.Value != @"$(MSBuildToolsPath)\Microsoft.CSharp.targets" &&
+                    x.Attribute("Project")?.Value != @"$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props").ToArray();
+            definition.Targets = projectFile.Element(nsSys + "Project").Elements(nsSys + "Target").ToArray();
 
             if (definition.Type == ApplicationType.Unknown)
             {
