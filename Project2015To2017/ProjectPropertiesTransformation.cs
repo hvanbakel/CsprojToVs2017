@@ -14,8 +14,8 @@ namespace Project2015To2017
             XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
             var propertyGroups = projectFile.Element(nsSys + "Project").Elements(nsSys + "PropertyGroup");
 
-			var unconditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") == null);
-			if (unconditionalPropertyGroups == null)
+			var unconditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") == null).ToArray();
+			if (unconditionalPropertyGroups.Length == 0)
 			{
 				throw new NotSupportedException("No unconditional property group found. Cannot determine important properties like target framework and others.");
 			}
@@ -41,7 +41,8 @@ namespace Project2015To2017
                 }
                 else
                 {
-                    definition.Type = ToApplicationType(unconditionalPropertyGroups.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
+                    definition.Type = ToApplicationType(unconditionalPropertyGroups.Elements(nsSys + "OutputType").FirstOrDefault()?.Value ??
+                        propertyGroups.Elements(nsSys + "OutputType").FirstOrDefault()?.Value);
                 }
 
 				if (targetFramework != null)

@@ -95,9 +95,31 @@ namespace Project2015To2017Tests
 
 			Assert.AreEqual(ApplicationType.ConsoleApplication, project.Type);
 			Assert.AreEqual("net46", project.TargetFrameworks[0]);
-		}
+        }
 
-		[TestMethod]
+        [TestMethod]
+        public async Task ReadsConsoleApplicationFromConditional()
+        {
+            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+  </PropertyGroup>  
+  <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputType>Exe</OutputType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+</Project>";
+
+            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+            Assert.AreEqual(ApplicationType.ConsoleApplication, project.Type);
+            Assert.AreEqual("net46", project.TargetFrameworks[0]);
+        }
+
+        [TestMethod]
 		public async Task ReadsClassLibraryApplication()
 		{
 			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
