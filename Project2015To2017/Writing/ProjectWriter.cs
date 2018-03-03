@@ -209,6 +209,9 @@ namespace Project2015To2017.Writing
             AddIfNotNull(mainPropertyGroup, "PackageTags", packageConfiguration.Tags);
             AddIfNotNull(mainPropertyGroup, "Version", packageConfiguration.Version);
 
+            if(packageConfiguration.Id != null)
+                mainPropertyGroup.Add(new XElement("RepositoryType", "Library"));
+
             if (packageConfiguration.RequiresLicenseAcceptance)
             {
                 mainPropertyGroup.Add(new XElement("PackageRequireLicenseAcceptance", "true"));
