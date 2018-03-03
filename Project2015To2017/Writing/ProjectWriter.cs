@@ -207,7 +207,7 @@ namespace Project2015To2017.Writing
             AddIfNotNull(mainPropertyGroup, "PackageProjectUrl", packageConfiguration.ProjectUrl);
             AddIfNotNull(mainPropertyGroup, "PackageReleaseNotes", packageConfiguration.ReleaseNotes);
             AddIfNotNull(mainPropertyGroup, "PackageTags", packageConfiguration.Tags);
-            AddIfNotNull(mainPropertyGroup, "PackageVersion", packageConfiguration.Version);
+            AddIfNotNull(mainPropertyGroup, "Version", packageConfiguration.Version);
 
             if (packageConfiguration.RequiresLicenseAcceptance)
             {
@@ -236,7 +236,7 @@ namespace Project2015To2017.Writing
             };
 
             var childNodes = attributes
-                .Where(x => !string.IsNullOrWhiteSpace(x.Value))
+                .Where(x => x.Value != null)
                 .Select(x => new XElement(x.Key, "false"))
                 .ToArray();
 

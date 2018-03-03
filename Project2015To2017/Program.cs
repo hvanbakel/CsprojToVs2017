@@ -103,6 +103,15 @@ namespace Project2015To2017
                 }
             }
 
+            var nuspecFile = fileInfo.FullName.Replace("csproj", "nuspec");
+            if (File.Exists(nuspecFile))
+            {
+                if (!RenameFile(nuspecFile))
+                {
+                    return;
+                }
+            }
+
             new ProjectWriter().Write(projectDefinition, fileInfo);
         }
 

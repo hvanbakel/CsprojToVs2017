@@ -38,6 +38,7 @@ namespace Project2015To2017
 
             // Remove packages.config since those references were already added to the CSProj file.
             otherIncludes.Where(x => x.Attribute("Include")?.Value == "packages.config").Remove();
+            otherIncludes.Where(x => x.Attribute("Include") != null && x.Attribute("Include").Value.EndsWith(".nuspec")).Remove();
 
             definition.ItemsToInclude = compileManualIncludes.Concat(otherIncludes).ToArray();
 
@@ -57,6 +58,10 @@ namespace Project2015To2017
                 var includeAttribute = compiledFile.Attribute("Include");
                 if (includeAttribute != null && !includeAttribute.Value.Contains("*"))
                 {
+                    var compiledFileAttributes = compiledFile.Attributes().Where(a => a.Name != "Include").ToList();
+                    compiledFileAttributes.Add(new XAttribute("Update", includeAttribute.Value));
+                    compiledFile.ReplaceAttributes(compiledFileAttributes);
+
                     if (!Path.GetFullPath(Path.Combine(projectFolder.FullName, includeAttribute.Value)).StartsWith(projectFolder.FullName))
                     {
                         Console.WriteLine($"Include cannot be done through wildcard, adding as separate include {compiledFile}.");
