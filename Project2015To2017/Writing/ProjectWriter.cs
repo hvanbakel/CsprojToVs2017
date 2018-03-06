@@ -33,7 +33,7 @@ namespace Project2015To2017.Writing
 
             if (project.Imports != null)
             {
-                foreach (var import in project.Imports)
+                foreach (var import in project.Imports.Select(RemoveAllNamespaces))
                 {
                     projectNode.Add(import);
                 }
@@ -41,7 +41,7 @@ namespace Project2015To2017.Writing
 
             if (project.Targets != null)
             {
-                foreach (var target in project.Targets)
+                foreach (var target in project.Targets.Select(RemoveAllNamespaces))
                 {
                     projectNode.Add(target);
                 }
