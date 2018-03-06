@@ -20,7 +20,7 @@ namespace Project2015To2017
             new ProjectReferenceTransformation(),
             new PackageReferenceTransformation(),
             new AssemblyReferenceTransformation(),
-			new RemovePackageAssemblyReferencesTransformation(),
+            new RemovePackageAssemblyReferencesTransformation(),
             new FileTransformation(),
             new AssemblyInfoTransformation(),
             new NugetPackageTransformation()
@@ -33,6 +33,8 @@ namespace Project2015To2017
                 Console.WriteLine($"Please specify a project file.");
                 return;
             }
+
+            Console.WriteLine($"Remove Assembly info: {Config.RemoveAssemblyInfo}");
 
             // Process all csprojs found in given directory
             if (Path.GetExtension(args[0]) != ".csproj")
@@ -110,6 +112,15 @@ namespace Project2015To2017
                 {
                     return;
                 }
+            }
+
+            if (Config.RemoveAssemblyInfo)
+            {
+                var assemblyInfoFiles = new DirectoryInfo(fileInfo.DirectoryName)
+                    .EnumerateFiles("AssemblyInfo.cs", SearchOption.AllDirectories)
+                    .ToArray();
+                foreach(var assemblyInfoFile in assemblyInfoFiles)
+                    assemblyInfoFile.Delete();
             }
 
             new ProjectWriter().Write(projectDefinition, fileInfo);

@@ -209,8 +209,8 @@ namespace Project2015To2017.Writing
             AddIfNotNull(mainPropertyGroup, "PackageTags", packageConfiguration.Tags);
             AddIfNotNull(mainPropertyGroup, "Version", packageConfiguration.Version);
 
-            if(packageConfiguration.Id != null)
-                mainPropertyGroup.Add(new XElement("RepositoryType", "Library"));
+            if(packageConfiguration.Id != null && packageConfiguration.Tags == null)
+                mainPropertyGroup.Add(new XElement("PackageTags", "Library"));
 
             if (packageConfiguration.RequiresLicenseAcceptance)
             {
@@ -220,7 +220,7 @@ namespace Project2015To2017.Writing
 
         private void AddAssemblyAttributeNodes(XElement mainPropertyGroup, AssemblyAttributes assemblyAttributes)
         {
-            if (assemblyAttributes == null)
+            if (assemblyAttributes == null || Config.RemoveAssemblyInfo)
             {
                 return;
             }
