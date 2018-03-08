@@ -33,7 +33,7 @@ namespace Project2015To2017.Writing
 
             if (project.Imports != null)
             {
-                foreach (var import in project.Imports)
+                foreach (var import in project.Imports.Select(RemoveAllNamespaces))
                 {
                     projectNode.Add(import);
                 }
@@ -41,7 +41,7 @@ namespace Project2015To2017.Writing
 
             if (project.Targets != null)
             {
-                foreach (var target in project.Targets)
+                foreach (var target in project.Targets.Select(RemoveAllNamespaces))
                 {
                     projectNode.Add(target);
                 }
@@ -207,7 +207,10 @@ namespace Project2015To2017.Writing
             AddIfNotNull(mainPropertyGroup, "PackageProjectUrl", packageConfiguration.ProjectUrl);
             AddIfNotNull(mainPropertyGroup, "PackageReleaseNotes", packageConfiguration.ReleaseNotes);
             AddIfNotNull(mainPropertyGroup, "PackageTags", packageConfiguration.Tags);
-            AddIfNotNull(mainPropertyGroup, "PackageVersion", packageConfiguration.Version);
+            AddIfNotNull(mainPropertyGroup, "Version", packageConfiguration.Version);
+
+            if(packageConfiguration.Id != null && packageConfiguration.Tags == null)
+                mainPropertyGroup.Add(new XElement("PackageTags", "Library"));
 
             if (packageConfiguration.RequiresLicenseAcceptance)
             {
@@ -236,7 +239,7 @@ namespace Project2015To2017.Writing
             };
 
             var childNodes = attributes
-                .Where(x => !string.IsNullOrWhiteSpace(x.Value))
+                .Where(x => x.Value != null)
                 .Select(x => new XElement(x.Key, "false"))
                 .ToArray();
 

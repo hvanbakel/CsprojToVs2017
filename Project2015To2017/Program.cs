@@ -20,7 +20,7 @@ namespace Project2015To2017
             new ProjectReferenceTransformation(),
             new PackageReferenceTransformation(),
             new AssemblyReferenceTransformation(),
-			new RemovePackageAssemblyReferencesTransformation(),
+            new RemovePackageAssemblyReferencesTransformation(),
             new FileTransformation(),
             new AssemblyInfoTransformation(),
             new NugetPackageTransformation()
@@ -98,6 +98,15 @@ namespace Project2015To2017
             if (File.Exists(packagesFile))
             {
                 if (!RenameFile(packagesFile))
+                {
+                    return;
+                }
+            }
+
+            var nuspecFile = fileInfo.FullName.Replace("csproj", "nuspec");
+            if (File.Exists(nuspecFile))
+            {
+                if (!RenameFile(nuspecFile))
                 {
                     return;
                 }
