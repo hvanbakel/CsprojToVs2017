@@ -220,7 +220,7 @@ namespace Project2015To2017.Writing
 
         private void AddAssemblyAttributeNodes(XElement mainPropertyGroup, AssemblyAttributes assemblyAttributes)
         {
-            if (assemblyAttributes == null || Config.RemoveAssemblyInfo)
+            if (assemblyAttributes == null)
             {
                 return;
             }

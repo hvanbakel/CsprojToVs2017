@@ -34,8 +34,6 @@ namespace Project2015To2017
                 return;
             }
 
-            Console.WriteLine($"Remove Assembly info: {Config.RemoveAssemblyInfo}");
-
             // Process all csprojs found in given directory
             if (Path.GetExtension(args[0]) != ".csproj")
             {
@@ -112,15 +110,6 @@ namespace Project2015To2017
                 {
                     return;
                 }
-            }
-
-            if (Config.RemoveAssemblyInfo)
-            {
-                var assemblyInfoFiles = new DirectoryInfo(fileInfo.DirectoryName)
-                    .EnumerateFiles("AssemblyInfo.cs", SearchOption.AllDirectories)
-                    .ToArray();
-                foreach(var assemblyInfoFile in assemblyInfoFiles)
-                    assemblyInfoFile.Delete();
             }
 
             new ProjectWriter().Write(projectDefinition, fileInfo);
