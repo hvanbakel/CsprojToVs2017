@@ -1,4 +1,5 @@
-﻿using Project2015To2017.Definition;
+﻿using Onion.SolutionParser.Parser;
+using Project2015To2017.Definition;
 using Project2015To2017.Writing;
 using System;
 using System.Collections.Generic;
@@ -34,30 +35,56 @@ namespace Project2015To2017
                 return;
             }
 
-            // Process all csprojs found in given directory
-            if (Path.GetExtension(args[0]) != ".csproj")
-            {
-                var projectFiles = Directory.EnumerateFiles(args[0], "*.csproj", SearchOption.AllDirectories).ToArray();
-                if (projectFiles.Length == 0)
-                {
-                    Console.WriteLine($"Please specify a project file.");
-                    return;
-                }
-                Console.WriteLine($"Multiple project files found under directory {args[0]}:");
-                Console.WriteLine(string.Join(Environment.NewLine, projectFiles));
-                foreach (var projectFile in projectFiles)
-                {
-                    ProcessFile(projectFile);
-                }
+			var extension = Path.GetExtension(args[0]);
 
-                return;
-            }
-
-            // Process only the given project file
-            ProcessFile(args[0]);
+			switch(extension)
+			{
+				case ".csproj":
+					// Process only the given project file
+					ProcessProjectFile(args[0]);
+					break;
+				case ".sln":
+					// Process all csprojs defined in solution file
+					ProcessSolutionFile(args[0]);
+					break;
+				default:
+					// Process all csprojs found in given directory
+					ProcessFolder(args[0]);
+					break;
+			}
         }
 
-        private static void ProcessFile(string filePath)
+		private static void ProcessSolutionFile(string filePath)
+		{
+			var solutionFolderGuid = Guid.Parse("2150e333-8fdc-42a3-9474-1a3956d46de8");
+			var parser = new SolutionParser(filePath);
+			var solution = parser.Parse();
+			var projects = solution.Projects.Where(p => p.TypeGuid != solutionFolderGuid).ToArray();
+			var solutionDirectory = Path.GetDirectoryName(filePath);
+			foreach (var project in projects)
+			{
+				var projectFullPath = Path.Combine(solutionDirectory, project.Path);
+				ProcessProjectFile(projectFullPath);
+			}
+		}
+
+		private static void ProcessFolder(string folderPath)
+		{
+			var projectFiles = Directory.EnumerateFiles(folderPath, "*.csproj", SearchOption.AllDirectories).ToArray();
+			if(projectFiles.Length == 0)
+			{
+				Console.WriteLine($"Please specify a project file.");
+				return;
+			}
+			Console.WriteLine($"Multiple project files found under directory {folderPath}:");
+			Console.WriteLine(string.Join(Environment.NewLine, projectFiles));
+			foreach(var projectFile in projectFiles)
+			{
+				ProcessProjectFile(projectFile);
+			}
+		}
+
+        private static void ProcessProjectFile(string filePath)
         {
             var file = new FileInfo(filePath);
             if (!Validate(file))

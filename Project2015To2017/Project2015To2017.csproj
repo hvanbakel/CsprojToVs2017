@@ -4,4 +4,10 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net46;netcoreapp1.1</TargetFrameworks>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+    <PackageReference Include="Onion.SolutionParser.Parser">
+      <Version>1.0.0</Version>
+    </PackageReference>
+  </ItemGroup>
 </Project>
