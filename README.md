@@ -13,11 +13,13 @@ There are a number of things [that VS2017 handles differently](http://www.natemc
 5. Defining the NuGet package definition as part of the project file
 
 ## How it works
-Using the tool is simple, it is a simple command line utility that has a single argument being the project file you would like to convert.
-You can also give a directory path and the tool will discover all csproj files nested in it.
+Using the tool is simple, it is a simple command line utility that has a single argument being the project file, solution file or folder you would like to convert.
+When you give it a directory path, the tool will discover all csproj files nested in it.
 
 For example
 `Project2015To2017.exe "D:\Path\To\My\TestProject.csproj"`
+Or
+`Project2015To2017.exe "D:\Path\To\My\TestProject.sln"`
 Or
 `Project2015To2017.exe "D:\Path\To\My\Directory"`
 
