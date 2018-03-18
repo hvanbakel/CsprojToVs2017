@@ -9,6 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="TestFiles\AltNugetConfig\ProjectFolder\net46console.testcsproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="OtherPackagesConfig\net46console.testcsproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -67,6 +70,12 @@
 
   <ItemGroup>
     <None Update="OtherPackagesConfig\packages.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\AltNugetConfig\nuget.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\AltNugetConfig\ProjectFolder\packages.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestFiles\packages.config">

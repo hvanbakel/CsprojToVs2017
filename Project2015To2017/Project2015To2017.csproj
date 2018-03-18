@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,5 +7,6 @@
 
   <ItemGroup>
     <Folder Include="Properties\" />
+    <PackageReference Include="NuGet.Configuration" Version="4.6.0" />
   </ItemGroup>
 </Project>
