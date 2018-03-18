@@ -26,9 +26,9 @@ namespace Project2015To2017.Writing
 
             projectNode.Add(GetMainPropertyGroup(project, outputFile));
 
-            if (project.ConditionalPropertyGroups != null)
+            if (project.AdditionalPropertyGroups != null)
             {
-                projectNode.Add(project.ConditionalPropertyGroups.Select(RemoveAllNamespaces));
+                projectNode.Add(project.AdditionalPropertyGroups.Select(RemoveAllNamespaces));
             }
 
             if (project.Imports != null)

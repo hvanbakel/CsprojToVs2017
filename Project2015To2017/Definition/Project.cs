@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace Project2015To2017.Definition
@@ -11,8 +11,8 @@ namespace Project2015To2017.Definition
         public IReadOnlyList<XElement> ItemsToInclude { get; internal set; }
         public PackageConfiguration PackageConfiguration { get; internal set; }
         public AssemblyAttributes AssemblyAttributes { get; internal set; }
-        public IReadOnlyList<XElement> ConditionalPropertyGroups { get; internal set; }
-        public IReadOnlyList<XElement> Imports { get; internal set; }
+		public IReadOnlyList<XElement> AdditionalPropertyGroups { get; internal set; }
+		public IReadOnlyList<XElement> Imports { get; internal set; }
         public IReadOnlyList<XElement> Targets { get; internal set; }
 
         public IReadOnlyList<string> TargetFrameworks { get; internal set; }
