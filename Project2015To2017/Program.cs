@@ -1,4 +1,4 @@
-﻿using Project2015To2017.Definition;
+using Project2015To2017.Definition;
 using Project2015To2017.Writing;
 using System;
 using System.Collections.Generic;
@@ -34,8 +34,37 @@ namespace Project2015To2017
                 return;
             }
 
+			if (Path.GetExtension(args[0]).Equals(".sln", StringComparison.OrdinalIgnoreCase))
+			{
+				Console.WriteLine("Solution parsing started.");
+				using (var reader = new StreamReader(File.OpenRead(args[0])))
+				{
+					var file = new FileInfo(args[0]);
+					string line;
+					while ((line = reader.ReadLine()) != null)
+					{
+						var projectPath = line.Split('"').FirstOrDefault(x => x.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase));
+						if (projectPath != null)
+						{
+							Console.WriteLine("Project found: " + projectPath);
+							var fullPath = Path.Combine(file.Directory.FullName, projectPath);
+							if (!File.Exists(fullPath))
+							{
+								Console.WriteLine("Project file not found at: " + fullPath);
+							}
+							else
+							{
+								ProcessFile(fullPath);
+							}
+						}
+					}
+				}
+
+				return;
+			}
+
             // Process all csprojs found in given directory
-            if (Path.GetExtension(args[0]) != ".csproj")
+            if (Path.GetExtension(args[0]).Equals(".csproj", StringComparison.OrdinalIgnoreCase))
             {
                 var projectFiles = Directory.EnumerateFiles(args[0], "*.csproj", SearchOption.AllDirectories).ToArray();
                 if (projectFiles.Length == 0)

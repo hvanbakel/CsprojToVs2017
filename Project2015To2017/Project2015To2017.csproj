@@ -4,4 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net46;netcoreapp1.1</TargetFrameworks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
 </Project>
