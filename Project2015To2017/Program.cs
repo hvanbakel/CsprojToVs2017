@@ -64,7 +64,7 @@ namespace Project2015To2017
 			}
 
             // Process all csprojs found in given directory
-            if (Path.GetExtension(args[0]).Equals(".csproj", StringComparison.OrdinalIgnoreCase))
+            if (!Path.GetExtension(args[0]).Equals(".csproj", StringComparison.OrdinalIgnoreCase))
             {
                 var projectFiles = Directory.EnumerateFiles(args[0], "*.csproj", SearchOption.AllDirectories).ToArray();
                 if (projectFiles.Length == 0)
