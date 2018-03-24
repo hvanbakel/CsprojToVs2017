@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.3</TargetFramework>
     <RootNamespace>hvanbakel.Project2015To2017</RootNamespace>
     <AssemblyName>Project2015To2017.Core</AssemblyName>
   </PropertyGroup>

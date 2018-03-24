@@ -33,7 +33,7 @@ namespace hvanbakel.Project2015To2017
                 && projectDefinition.PackageReferences?.Count > 0)
             {
                 var packageReferences =
-                    projectDefinition.PackageReferences.AsQueryable();
+                    projectDefinition.PackageReferences;
                 foreach (var assemblyReference in projectDefinition.AssemblyReferences
                     .ToArray())
                 {

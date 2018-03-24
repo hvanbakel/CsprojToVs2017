@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net46;netcoreapp1.1</TargetFrameworks>
     <RootNamespace>hvanbakel.Project2015To2017.App</RootNamespace>
     <AssemblyName>Project2015To2017</AssemblyName>
   </PropertyGroup>
