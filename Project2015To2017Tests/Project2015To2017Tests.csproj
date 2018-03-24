@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Project2015To2017\Project2015To2017.csproj" />
+    <ProjectReference Include="..\Project2015To2017.Core\Project2015To2017.csproj" />
   </ItemGroup>
 
   <ItemGroup>
