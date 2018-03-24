@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace Project2015To2017.Definition
+namespace hvanbakel.Project2015To2017.Definition
 {
     internal sealed class Project
     {

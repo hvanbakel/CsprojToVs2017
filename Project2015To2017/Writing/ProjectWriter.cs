@@ -1,11 +1,11 @@
-﻿using Project2015To2017.Definition;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using hvanbakel.Project2015To2017.Definition;
 
-namespace Project2015To2017.Writing
+namespace hvanbakel.Project2015To2017.Writing
 {
     internal sealed class ProjectWriter
     {

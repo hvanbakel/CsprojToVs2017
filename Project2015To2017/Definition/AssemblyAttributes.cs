@@ -1,4 +1,4 @@
-﻿namespace Project2015To2017.Definition
+namespace hvanbakel.Project2015To2017.Definition
 {
     internal sealed class AssemblyAttributes
     {

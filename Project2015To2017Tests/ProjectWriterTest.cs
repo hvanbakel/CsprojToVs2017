@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Project2015To2017.Writing;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Project2015To2017Tests
 {

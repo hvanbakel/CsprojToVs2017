@@ -1,8 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Xml.Linq;
-using Project2015To2017;
 using System.Threading.Tasks;
-using Project2015To2017.Definition;
 using System;
 using System.Linq;
 

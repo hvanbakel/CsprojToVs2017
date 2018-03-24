@@ -1,5 +1,3 @@
-using Project2015To2017.Definition;
-using Project2015To2017.Writing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,10 +5,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using hvanbakel.Project2015To2017.Definition;
+using hvanbakel.Project2015To2017.Writing;
 
 [assembly: InternalsVisibleTo("Project2015To2017Tests")]
 
-namespace Project2015To2017
+namespace hvanbakel.Project2015To2017
 {
     class Program
     {

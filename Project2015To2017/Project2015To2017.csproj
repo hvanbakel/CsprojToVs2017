@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net46;netcoreapp1.1</TargetFrameworks>
+    <RootNamespace>hvanbakel.Project2015To2017</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

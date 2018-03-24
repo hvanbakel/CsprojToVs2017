@@ -1,11 +1,11 @@
-using Project2015To2017.Definition;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using hvanbakel.Project2015To2017.Definition;
 
-namespace Project2015To2017
+namespace hvanbakel.Project2015To2017
 {
     internal sealed class ProjectPropertiesTransformation : ITransformation
     {
