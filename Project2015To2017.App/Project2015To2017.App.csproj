@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+    <RootNamespace>hvanbakel.Project2015To2017.App</RootNamespace>
+    <AssemblyName>Project2015To2017</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Project2015To2017\Project2015To2017.csproj" />
+  </ItemGroup>
+
+</Project>

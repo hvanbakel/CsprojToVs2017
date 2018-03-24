@@ -1,8 +1,11 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using hvanbakel.Project2015To2017;
+using hvanbakel.Project2015To2017.Definition;
 
 namespace Project2015To2017Tests
 {
@@ -17,8 +20,10 @@ namespace Project2015To2017Tests
 
             var directoryInfo = new DirectoryInfo(".\\TestFiles");
             var doc = XDocument.Load("TestFiles\\net46console.testcsproj");
+			
+	        var progress = new Progress<string>(x => { });
 
-            await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
+            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
 
             Assert.AreEqual(2, project.ProjectReferences.Count);
             Assert.IsTrue(project.ProjectReferences.Any(x => x.Include == @"..\SomeOtherProject\SomeOtherProject.csproj" && x.Aliases == "global,one"));

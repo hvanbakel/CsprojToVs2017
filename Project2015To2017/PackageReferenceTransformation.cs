@@ -10,12 +10,12 @@ namespace hvanbakel.Project2015To2017
 {
     internal sealed class PackageReferenceTransformation : ITransformation
     {
-        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition)
+        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
         {
             var packagesConfig = projectFolder.GetFiles("packages.config", SearchOption.TopDirectoryOnly);
             if (packagesConfig == null || packagesConfig.Length == 0)
             {
-                Console.WriteLine("Packages.config file not found.");
+                progress.Report("Packages.config file not found.");
                 return Task.CompletedTask;
             }
 
@@ -54,7 +54,7 @@ namespace hvanbakel.Project2015To2017
                     {
                         if (versions.Any(v => v < 450))
                         {
-                            Console.WriteLine($"Warning - target framework net40 is not compatible with the MSTest NuGet packages. Please consider updating the target framework of your test project(s)");
+                            progress.Report($"Warning - target framework net40 is not compatible with the MSTest NuGet packages. Please consider updating the target framework of your test project(s)");
                         }
                     }
                 }
@@ -71,12 +71,12 @@ namespace hvanbakel.Project2015To2017
 
                 foreach (var reference in definition.PackageReferences)
                 {
-                    Console.WriteLine($"Found nuget reference to {reference.Id}, version {reference.Version}.");
+	                progress.Report($"Found nuget reference to {reference.Id}, version {reference.Version}.");
                 }
             }
             catch(XmlException e)
             {
-                Console.WriteLine($"Got xml exception reading packages.config: " + e.Message);
+	            progress.Report($"Got xml exception reading packages.config: " + e.Message);
             }
 
             return Task.CompletedTask;

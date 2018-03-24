@@ -1,7 +1,10 @@
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using hvanbakel.Project2015To2017;
+using hvanbakel.Project2015To2017.Definition;
 
 namespace Project2015To2017Tests
 {
@@ -17,7 +20,9 @@ namespace Project2015To2017Tests
             var directoryInfo = new DirectoryInfo(".\\TestFiles");
             var doc = XDocument.Load("TestFiles\\net46console.testcsproj");
 
-            await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
+	        var progress = new Progress<string>(x => { });
+
+		    await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
 
             Assert.IsNotNull(project.AssemblyAttributes.Company);
             Assert.IsNotNull(project.AssemblyAttributes.Copyright);

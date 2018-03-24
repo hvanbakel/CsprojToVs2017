@@ -3,6 +3,8 @@ using System.Xml.Linq;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using hvanbakel.Project2015To2017;
+using hvanbakel.Project2015To2017.Definition;
 
 namespace Project2015To2017Tests
 {
@@ -431,9 +433,11 @@ namespace Project2015To2017Tests
 			var document = XDocument.Parse(xml);
 
 			var transformation = new ProjectPropertiesTransformation();
+			
+			var progress = new Progress<string>(x => { });
 
 			var project = new Project();
-			await transformation.TransformAsync(document, null, project).ConfigureAwait(false);
+			await transformation.TransformAsync(document, null, project, progress).ConfigureAwait(false);
 			return project;
 		}
 	}

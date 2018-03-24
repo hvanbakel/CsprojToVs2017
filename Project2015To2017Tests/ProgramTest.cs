@@ -1,4 +1,7 @@
+﻿using System;
 using System.IO;
+using hvanbakel.Project2015To2017;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Project2015To2017Tests
@@ -9,14 +12,19 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void ValidatesFileIsWritable()
         {
+	        var progress = new Progress<string>(x => { });
+
             File.SetAttributes("TestFiles\\readonly.testcsproj", FileAttributes.ReadOnly);
-            Assert.IsFalse(Program.Validate(new FileInfo("TestFiles\\readonly.testcsproj")));
+            Assert.IsFalse(ProjectConverter.Validate(new FileInfo("TestFiles\\readonly.testcsproj"), progress));
         }
 
         [TestMethod]
         public void ValidatesFileExists()
         {
-            Assert.IsFalse(Program.Validate(new FileInfo("TestFiles\\nonexistent.testcsproj")));
+			
+	        var progress = new Progress<string>(x => { });
+
+            Assert.IsFalse(ProjectConverter.Validate(new FileInfo("TestFiles\\nonexistent.testcsproj"), progress));
         }
     }
 }

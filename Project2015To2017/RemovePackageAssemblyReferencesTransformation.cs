@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace hvanbakel.Project2015To2017
 {
     internal sealed class RemovePackageAssemblyReferencesTransformation : ITransformation
 	{
-		public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition)
+		public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
 		{
 			if (definition.PackageReferences == null || definition.PackageReferences.Count == 0)
 			{

@@ -9,7 +9,7 @@ namespace hvanbakel.Project2015To2017
 {
     internal sealed class ProjectPropertiesTransformation : ITransformation
     {
-        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition)
+        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
 		{
 			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
 			var propertyGroups = projectFile.Element(nsSys + "Project").Elements(nsSys + "PropertyGroup");

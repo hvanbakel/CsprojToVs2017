@@ -11,7 +11,7 @@ namespace hvanbakel.Project2015To2017
 {
     internal sealed class AssemblyInfoTransformation : ITransformation
     {
-        public async Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition)
+        public async Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
         {
             var assemblyInfoFiles = projectFolder
                 .EnumerateFiles("AssemblyInfo.cs", SearchOption.AllDirectories)
@@ -19,7 +19,7 @@ namespace hvanbakel.Project2015To2017
 
             if (assemblyInfoFiles.Length == 1)
             {
-                Console.WriteLine($"Reading assembly info from {assemblyInfoFiles[0].FullName}.");
+	            progress.Report($"Reading assembly info from {assemblyInfoFiles[0].FullName}.");
 
                 string text;
                 using (var filestream = File.Open(assemblyInfoFiles[0].FullName, FileMode.Open, FileAccess.Read))
@@ -44,7 +44,7 @@ namespace hvanbakel.Project2015To2017
             }
             else
             {
-                Console.WriteLine($@"Could not read from assemblyinfo, multiple assemblyinfo files found: 
+	            progress.Report($@"Could not read from assemblyinfo, multiple assemblyinfo files found: 
 {string.Join(Environment.NewLine, assemblyInfoFiles.Select(x => x.FullName))}.");
             }
         }
