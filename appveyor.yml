@@ -17,7 +17,7 @@ before_test:
 after_build:
 - cmd: dotnet publish -f netcoreapp1.1 -c Release -o ./out/netcoreapp1.1 ./Project2015To2017.Console/Project2015To2017.Console.csproj
 - cmd: dotnet publish -f net46 -c Release -o ./out/net46 ./Project2015To2017.Console/Project2015To2017.Console.csproj
-- cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.zip ./Project2015To2017/out/*
+- cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.zip ./Project2015To2017.Console/out/*
 
 artifacts:
   - path: ./Project2015To2017/out/CSProj2015To2017.zip
