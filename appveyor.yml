@@ -15,13 +15,20 @@ build:
 before_test:
 - cmd: Dotnet test "Project2015To2017Tests\Project2015To2017Tests.csproj"
 after_build:
-- cmd: dotnet publish -f netcoreapp1.1 -c Release -o ./out/netcoreapp1.1 ./Project2015To2017/Project2015To2017.Console.csproj
-- cmd: dotnet publish -f net46 -c Release -o ./out/net46 ./Project2015To2017/Project2015To2017.Console.csproj
+- cmd: dotnet publish -f netcoreapp1.1 -c Release -o ./out/netcoreapp1.1 ./Project2015To2017.Console/Project2015To2017.Console.csproj
+- cmd: dotnet publish -f net46 -c Release -o ./out/net46 ./Project2015To2017.Console/Project2015To2017.Console.csproj
 - cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.zip ./Project2015To2017/out/*
 
 artifacts:
   - path: ./Project2015To2017/out/CSProj2015To2017.zip
     name: out-zip
+    
+deploy:
+  provider: NuGet
+  api_key:
+    secure: i6ZaMLxF/Jbkh7SgDJuFIwpcrXl1BcNI5vd5Re33EEQV7PrZ71F6MpuIDF7glY/o
+  skip_symbols: false
+  artifact: /.*\.nupkg/
     
 deploy:
   release: CSProj2015To2017-v$(APPVEYOR_BUILD_VERSION)

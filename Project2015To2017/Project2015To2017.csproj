@@ -4,6 +4,8 @@
     <TargetFramework>netstandard1.3</TargetFramework>
     <RootNamespace>Project2015To2017</RootNamespace>
     <AssemblyName>Project2015To2017</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.5.11</Version>
   </PropertyGroup>
 
   <ItemGroup>
