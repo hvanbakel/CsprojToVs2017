@@ -1,6 +1,6 @@
-namespace hvanbakel.Project2015To2017.Definition
+namespace Project2015To2017.Definition
 {
-    internal sealed class PackageConfiguration
+    public sealed class PackageConfiguration
     {
         public string Id { get; internal set; }
         public string Version { get; internal set; }

@@ -1,12 +1,11 @@
-﻿using System;
+using System;
 using System.IO;
-using hvanbakel.Project2015To2017;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Project2015To2017;
 
 namespace Project2015To2017Tests
 {
-    [TestClass]
+	[TestClass]
     public class ProgramTest
     {
         [TestMethod]

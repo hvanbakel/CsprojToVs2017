@@ -5,14 +5,13 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using hvanbakel.Project2015To2017.Definition;
-using hvanbakel.Project2015To2017.Writing;
+using Project2015To2017.Definition;
 
 [assembly: InternalsVisibleTo("Project2015To2017Tests")]
 
-namespace hvanbakel.Project2015To2017
+namespace Project2015To2017
 {
-    public class ProjectConverter
+	public class ProjectConverter
     {
         private static readonly IReadOnlyList<ITransformation> _transformationsToApply = new ITransformation[]
         {
@@ -26,7 +25,7 @@ namespace hvanbakel.Project2015To2017
             new NugetPackageTransformation()
         };
 
-        public static void Convert(string target, IProgress<string> progress)
+        public static IEnumerable<Definition.Project> Convert(string target, IProgress<string> progress)
         {
 			if (Path.GetExtension(target).Equals(".sln", StringComparison.OrdinalIgnoreCase))
 			{
@@ -48,13 +47,13 @@ namespace hvanbakel.Project2015To2017
 							}
 							else
 							{
-								ProcessFile(fullPath, progress);
+								yield return ProcessFile(fullPath, progress);
 							}
 						}
 					}
 				}
 
-				return;
+				yield break;
 			}
 
             // Process all csprojs found in given directory
@@ -64,29 +63,30 @@ namespace hvanbakel.Project2015To2017
                 if (projectFiles.Length == 0)
                 {
 	                progress.Report($"Please specify a project file.");
-                    return;
+					yield break;
                 }
 	            progress.Report($"Multiple project files found under directory {target}:");
 	            progress.Report(string.Join(Environment.NewLine, projectFiles));
                 foreach (var projectFile in projectFiles)
                 {
-                    ProcessFile(projectFile, progress);
+                    yield return ProcessFile(projectFile, progress);
                 }
 
-                return;
+				yield break;
             }
 
             // Process only the given project file
-            ProcessFile(target, progress);
+            yield return ProcessFile(target, progress);
+			yield break;
         }
 
-        private static void ProcessFile(string filePath, IProgress<string> progress)
+        private static Definition.Project ProcessFile(string filePath, IProgress<string> progress)
         {
             var file = new FileInfo(filePath);
             if (!Validate(file, progress))
-            {
-                return;
-            }
+			{
+				return null;
+			}
 
             XDocument xmlDocument;
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -98,12 +98,15 @@ namespace hvanbakel.Project2015To2017
             if (xmlDocument.Element(nsSys + "Project") == null)
             {
 	            progress.Report($"This is not a VS2015 project file.");
-                return;
-            }
+				return null;
+			}
 
-            var projectDefinition = new Project();
+			var fileInfo = new FileInfo(filePath);
+			var projectDefinition = new Project
+			{
+				FilePath = fileInfo
+			};
 
-            var fileInfo = new FileInfo(filePath);
             var directory = fileInfo.Directory;
             Task.WaitAll(_transformationsToApply.Select(
                     t => t.TransformAsync(xmlDocument, directory, projectDefinition, progress))
@@ -114,16 +117,16 @@ namespace hvanbakel.Project2015To2017
             var projectFile = fileInfo.FullName;
             if (!SaveBackup(projectFile, progress))
             {
-                return;
-            }
+				return null;
+			}
 
             var packagesFile = Path.Combine(fileInfo.DirectoryName, "packages.config");
             if (File.Exists(packagesFile))
             {
                 if (!RenameFile(packagesFile, progress))
-                {
-                    return;
-                }
+				{
+					return null;
+				}
             }
 
             var nuspecFile = fileInfo.FullName.Replace("csproj", "nuspec");
@@ -131,11 +134,11 @@ namespace hvanbakel.Project2015To2017
             {
                 if (!RenameFile(nuspecFile, progress))
                 {
-                    return;
+					return null;
                 }
             }
 
-            new ProjectWriter().Write(projectDefinition, fileInfo);
+			return projectDefinition;
         }
 
         internal static bool Validate(FileInfo file, IProgress<string> progress)

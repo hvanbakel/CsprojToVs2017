@@ -1,10 +1,10 @@
-﻿using hvanbakel.Project2015To2017.Definition;
-using hvanbakel.Project2015To2017.Writing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Project2015To2017.Definition;
+using Project2015To2017.Writing;
 
 namespace Project2015To2017Tests
 {
-    [TestClass]
+	[TestClass]
     public class ProjectWriterTest
 	{
 		[TestMethod]

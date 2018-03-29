@@ -2,15 +2,14 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using hvanbakel.Project2015To2017;
-using hvanbakel.Project2015To2017.Definition;
+using Project2015To2017.Definition;
+using Project2015To2017;
 
 namespace Project2015To2017Tests
 {
-    [TestClass]
+	[TestClass]
     public class RemovePackageAssemblyReferencesTransformationTest
     {
         [TestMethod]

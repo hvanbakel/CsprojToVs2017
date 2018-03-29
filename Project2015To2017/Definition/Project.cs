@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Xml.Linq;
 
-namespace hvanbakel.Project2015To2017.Definition
+namespace Project2015To2017.Definition
 {
-    internal sealed class Project
+    public sealed class Project
     {
-        public List<AssemblyReference> AssemblyReferences { get; internal set; }
+		public List<AssemblyReference> AssemblyReferences { get; internal set; }
         public IReadOnlyList<ProjectReference> ProjectReferences { get; internal set; }
         public IReadOnlyList<PackageReference> PackageReferences { get; internal set; }
         public IReadOnlyList<XElement> ItemsToInclude { get; internal set; }
@@ -24,5 +25,6 @@ namespace hvanbakel.Project2015To2017.Definition
         public bool AllowUnsafeBlocks { get; internal set; }
         public bool SignAssembly { get; internal set; }
         public string AssemblyOriginatorKeyFile { get; internal set; }
-    }
+		public FileInfo FilePath { get; internal set; }
+	}
 }

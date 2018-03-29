@@ -1,6 +1,6 @@
-namespace hvanbakel.Project2015To2017.Definition
+namespace Project2015To2017.Definition
 {
-    internal sealed class AssemblyAttributes
+    public sealed class AssemblyAttributes
     {
         public string Title { get; set; }
         public string Company { get; set; }

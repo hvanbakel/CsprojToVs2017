@@ -3,8 +3,8 @@ using System.Xml.Linq;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
-using hvanbakel.Project2015To2017;
-using hvanbakel.Project2015To2017.Definition;
+using Project2015To2017.Definition;
+using Project2015To2017;
 
 namespace Project2015To2017Tests
 {

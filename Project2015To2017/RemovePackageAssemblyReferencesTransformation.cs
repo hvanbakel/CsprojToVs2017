@@ -3,12 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using hvanbakel.Project2015To2017.Definition;
 using NuGet.Configuration;
+using Project2015To2017.Definition;
 
-namespace hvanbakel.Project2015To2017
+namespace Project2015To2017
 {
-    internal sealed class RemovePackageAssemblyReferencesTransformation : ITransformation
+	internal sealed class RemovePackageAssemblyReferencesTransformation : ITransformation
 	{
 		public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
 		{
