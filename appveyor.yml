@@ -28,7 +28,7 @@ deploy:
   api_key:
     secure: i6ZaMLxF/Jbkh7SgDJuFIwpcrXl1BcNI5vd5Re33EEQV7PrZ71F6MpuIDF7glY/o
   skip_symbols: false
-  artifact: ./Project2015To2017/bin/$(configuration)/*.nupkg
+  artifact: **\*.nupkg
     
 - provider: GitHub  
   release: CSProj2015To2017-v$(APPVEYOR_BUILD_VERSION)
