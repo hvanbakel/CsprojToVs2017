@@ -24,16 +24,15 @@ artifacts:
     name: out-zip
     
 deploy:
-  provider: NuGet
+- provider: NuGet
   api_key:
     secure: i6ZaMLxF/Jbkh7SgDJuFIwpcrXl1BcNI5vd5Re33EEQV7PrZ71F6MpuIDF7glY/o
   skip_symbols: false
   artifact: /.*\.nupkg/
     
-deploy:
+- provider: GitHub  
   release: CSProj2015To2017-v$(APPVEYOR_BUILD_VERSION)
   description: 'Automatically built release v$(APPVEYOR_BUILD_VERSION).'
-  provider: GitHub  
   auth_token:
     secure: "LYFGDMnT4oJLpCsZUkhL/oTnG3ZpQnsjaTc10DfTf/jbkXtzctRkXEu2ea3YnyqP" # your encrypted token from GitHub
   artifact: out-zip                # upload all NuGet packages to release assets
