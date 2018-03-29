@@ -22,13 +22,15 @@ after_build:
 artifacts:
   - path: ./Project2015To2017/out/CSProj2015To2017.zip
     name: out-zip
+  - path: Project2015To2017\bin\$(configuration)\Project2015To2017.1.5.11*.nupkg
+    name: nupkg
     
 deploy:
 - provider: NuGet
   api_key:
     secure: i6ZaMLxF/Jbkh7SgDJuFIwpcrXl1BcNI5vd5Re33EEQV7PrZ71F6MpuIDF7glY/o
   skip_symbols: false
-  artifact: '**/*.nupkg'
+  artifact: nupkg
     
 - provider: GitHub  
   release: CSProj2015To2017-v$(APPVEYOR_BUILD_VERSION)
