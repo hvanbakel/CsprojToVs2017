@@ -23,8 +23,9 @@ namespace Project2015To2017
             "DesignData",
             "DesignDataWithDesignTimeCreatableTypes",
             "EntityDeploy",
-            "XamlAppDef"
-        };
+            "XamlAppDef",
+			"EmbeddedResource"
+		};
 
         public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
         {
@@ -38,9 +39,10 @@ namespace Project2015To2017
 
             // Remove packages.config since those references were already added to the CSProj file.
             otherIncludes.Where(x => x.Attribute("Include")?.Value == "packages.config").Remove();
-            otherIncludes.Where(x => x.Attribute("Include") != null && x.Attribute("Include").Value.EndsWith(".nuspec")).Remove();
+			otherIncludes.Where(x => x.Attribute("Include") != null && x.Attribute("Include").Value.EndsWith(".nuspec")).Remove();
+			otherIncludes.Where(x => x.Name == nsSys + "EmbeddedResource" && x.Attribute("Include") != null && x.Attribute("Include").Value.EndsWith(".resx")).Remove();
 
-            definition.ItemsToInclude = compileManualIncludes.Concat(otherIncludes).ToArray();
+			definition.ItemsToInclude = compileManualIncludes.Concat(otherIncludes).ToArray();
 
             return Task.CompletedTask;
         }
