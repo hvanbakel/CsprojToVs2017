@@ -1,16 +1,16 @@
-﻿using Project2015To2017.Definition;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Project2015To2017.Definition;
 
 namespace Project2015To2017
 {
-    internal sealed class NugetPackageTransformation : ITransformation
+	internal sealed class NugetPackageTransformation : ITransformation
     {
-        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition)
+        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
         {
             var nuspecFiles = projectFolder
                 .EnumerateFiles("*.nuspec", SearchOption.AllDirectories)
@@ -18,11 +18,11 @@ namespace Project2015To2017
 
             if (nuspecFiles.Length == 0)
             {
-                Console.WriteLine("No nuspec found, skipping package configuration.");
+                progress.Report("No nuspec found, skipping package configuration.");
             }
             else if (nuspecFiles.Length == 1)
             {
-                Console.WriteLine($"Reading package info from nuspec {nuspecFiles[0].FullName}.");
+	            progress.Report($"Reading package info from nuspec {nuspecFiles[0].FullName}.");
 
                 XDocument nuspec;
                 using (var filestream = File.Open(nuspecFiles[0].FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -43,12 +43,12 @@ namespace Project2015To2017
 
                 if (definition.PackageConfiguration == null)
                 {
-                    Console.WriteLine("Error reading package info from nuspec.");
+	                progress.Report("Error reading package info from nuspec.");
                 }
             }
             else
             {
-                Console.WriteLine($@"Could not read from nuspec, multiple nuspecs found: 
+	            progress.Report($@"Could not read from nuspec, multiple nuspecs found: 
 {string.Join(Environment.NewLine, nuspecFiles.Select(x => x.FullName))}.");
             }
 

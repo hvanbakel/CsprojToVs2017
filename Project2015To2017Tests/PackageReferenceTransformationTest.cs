@@ -1,14 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Project2015To2017;
-using Project2015To2017.Definition;
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Project2015To2017;
+using Project2015To2017.Definition;
 
 namespace Project2015To2017Tests
 {
-    [TestClass]
+	[TestClass]
     public class PackageReferenceTransformationTest
     {
         [TestMethod]
@@ -20,7 +21,9 @@ namespace Project2015To2017Tests
             var directoryInfo = new DirectoryInfo(".\\TestFiles");
             var doc = XDocument.Load("TestFiles\\net46console.testcsproj");
 
-            await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
+	        var progress = new Progress<string>(x => { });
+
+            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
 
             Assert.AreEqual(10, project.PackageReferences.Count);
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
@@ -37,7 +40,9 @@ namespace Project2015To2017Tests
             var directoryInfo = new DirectoryInfo(".\\TestFiles");
             var doc = XDocument.Load("TestFiles\\net46console.testcsproj");
 
-            await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
+	        var progress = new Progress<string>(x => { });
+
+            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
 
             Assert.AreEqual(10, project.PackageReferences.Count);
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
@@ -61,8 +66,10 @@ namespace Project2015To2017Tests
   </ItemGroup>
 </Project>
 ");
+			
+	        var progress = new Progress<string>(x => { });
 
-            await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
+            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
 
             Assert.AreEqual(6, project.PackageReferences.Count);
             Assert.AreEqual(0, project.PackageReferences.Count(x => x.Id == "MSTest.TestAdapter"));
@@ -77,7 +84,9 @@ namespace Project2015To2017Tests
             var directoryInfo = new DirectoryInfo(".\\TestFiles");
             var doc = XDocument.Load("TestFiles\\net46console.testcsproj");
 
-            await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
+	        var progress = new Progress<string>(x => { });
+
+            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
 
             Assert.AreEqual(7, project.PackageReferences.Count);
             Assert.AreEqual(2, project.PackageReferences.Count(x => x.IsDevelopmentDependency));
@@ -93,7 +102,9 @@ namespace Project2015To2017Tests
             var directoryInfo = new DirectoryInfo(".\\OtherPackagesConfig");
             var doc = XDocument.Load("OtherPackagesConfig\\net46console.testcsproj");
 
-            await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
+	        var progress = new Progress<string>(x => { });
+
+            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
         }
     }
 }

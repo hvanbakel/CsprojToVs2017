@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Project2015To2017;
-using Project2015To2017.Definition;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Project2015To2017.Definition;
+using Project2015To2017;
 
 namespace Project2015To2017Tests
 {
-    [TestClass]
+	[TestClass]
     public class AssemblyReferenceTransformationTest
     {
         [TestMethod]
@@ -21,7 +22,9 @@ namespace Project2015To2017Tests
             var directoryInfo = new DirectoryInfo(".\\TestFiles");
             var doc = XDocument.Load("TestFiles\\net46console.testcsproj");
 
-            await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
+	        var progress = new Progress<string>(x => { });
+
+            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
 
             Assert.AreEqual(11, project.AssemblyReferences.Count);
             Assert.IsTrue(project.AssemblyReferences.Any(x => x.Include == @"System.Xml.Linq"));

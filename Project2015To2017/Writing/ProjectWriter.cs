@@ -1,19 +1,19 @@
-﻿using Project2015To2017.Definition;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using Project2015To2017.Definition;
 
 namespace Project2015To2017.Writing
 {
-    internal sealed class ProjectWriter
+	public class ProjectWriter
     {
-        public void Write(Project project, FileInfo outputFile)
+        public void Write(Project project)
         {
-            var projectNode = CreateXml(project, outputFile);
+            var projectNode = CreateXml(project, project.FilePath);
 
-            using (var filestream = File.Open(outputFile.FullName, FileMode.Create))
+            using (var filestream = File.Open(project.FilePath.FullName, FileMode.Create))
             using (var streamWriter = new StreamWriter(filestream, Encoding.UTF8))
             {
                 streamWriter.Write(projectNode.ToString());

@@ -1,14 +1,15 @@
-﻿using System.IO;
+using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
-using System.Linq;
 
 namespace Project2015To2017
 {
-    internal sealed class ProjectReferenceTransformation : ITransformation
+	internal sealed class ProjectReferenceTransformation : ITransformation
     {
-        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition)
+        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
         {
             XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
 

@@ -1,15 +1,15 @@
-﻿using System;
+using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
-using System.Linq;
 
 namespace Project2015To2017
 {
-    internal sealed class AssemblyReferenceTransformation : ITransformation
+	internal sealed class AssemblyReferenceTransformation : ITransformation
     {
-        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition)
+        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
         {
             XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
 
@@ -33,7 +33,7 @@ namespace Project2015To2017
                 && projectDefinition.PackageReferences?.Count > 0)
             {
                 var packageReferences =
-                    projectDefinition.PackageReferences.AsQueryable();
+                    projectDefinition.PackageReferences;
                 foreach (var assemblyReference in projectDefinition.AssemblyReferences
                     .ToArray())
                 {

@@ -1,6 +1,6 @@
-﻿namespace Project2015To2017.Definition
+namespace Project2015To2017.Definition
 {
-    internal enum ApplicationType
+    public enum ApplicationType
     {
         Unknown = 0,
         ClassLibrary = 1,

@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFrameworks>net46;netcoreapp1.1</TargetFrameworks>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <RootNamespace>Project2015To2017</RootNamespace>
+    <AssemblyName>Project2015To2017</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

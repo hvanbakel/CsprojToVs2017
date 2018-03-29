@@ -1,10 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Xml.Linq;
-using Project2015To2017;
 using System.Threading.Tasks;
-using Project2015To2017.Definition;
 using System;
 using System.Linq;
+using Project2015To2017.Definition;
+using Project2015To2017;
 
 namespace Project2015To2017Tests
 {
@@ -433,9 +433,11 @@ namespace Project2015To2017Tests
 			var document = XDocument.Parse(xml);
 
 			var transformation = new ProjectPropertiesTransformation();
+			
+			var progress = new Progress<string>(x => { });
 
 			var project = new Project();
-			await transformation.TransformAsync(document, null, project).ConfigureAwait(false);
+			await transformation.TransformAsync(document, null, project, progress).ConfigureAwait(false);
 			return project;
 		}
 	}
