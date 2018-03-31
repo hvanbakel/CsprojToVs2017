@@ -17,10 +17,10 @@ Using the tool is simple, it is a simple command line utility that has a single 
 When you give it a directory path, the tool will discover all csproj files nested in it.
 
 For example
-`Project2015To2017.exe "D:\Path\To\My\TestProject.csproj"`
+`Project2015To2017.Console.exe "D:\Path\To\My\TestProject.csproj"`
 Or
-`Project2015To2017.exe "D:\Path\To\My\TestProject.sln"`
+`Project2015To2017.Console.exe "D:\Path\To\My\TestProject.sln"`
 Or
-`Project2015To2017.exe "D:\Path\To\My\Directory"`
+`Project2015To2017.Console.exe "D:\Path\To\My\Directory"`
 
 After confirming this is an old style project file, it will start performing the conversion. When it has gathered all the data it needs it first creates a backup of the old project file (suffixed with .old) and then generates a new project file in the new format. 
