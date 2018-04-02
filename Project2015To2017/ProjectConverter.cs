@@ -13,6 +13,13 @@ namespace Project2015To2017
 {
 	public class ProjectConverter
     {
+		private static readonly IReadOnlyDictionary<string, string> ProjectFileMappings = new Dictionary<string, string>
+		{
+			{ ".csproj", "cs" },
+			{ ".vbproj", "vb" },
+			{ ".fsproj", "fs" }
+		};
+
         private static readonly IReadOnlyList<ITransformation> _transformationsToApply = new ITransformation[]
         {
             new ProjectPropertiesTransformation(),
@@ -36,7 +43,7 @@ namespace Project2015To2017
 					string line;
 					while ((line = reader.ReadLine()) != null)
 					{
-						var projectPath = line.Split('"').FirstOrDefault(x => x.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase));
+						var projectPath = line.Split('"').FirstOrDefault(x => ProjectFileMappings.Any(f => x.EndsWith(f.Key, StringComparison.OrdinalIgnoreCase)));
 						if (projectPath != null)
 						{
 							progress.Report("Project found: " + projectPath);
@@ -56,10 +63,11 @@ namespace Project2015To2017
 				yield break;
 			}
 
-            // Process all csprojs found in given directory
-            if (!Path.GetExtension(target).Equals(".csproj", StringComparison.OrdinalIgnoreCase))
+			var extension = Path.GetExtension(target);
+			// Process all project files found in given directory
+			if (ProjectFileMappings.All(x => !extension.Equals(x.Key, StringComparison.OrdinalIgnoreCase)))
             {
-                var projectFiles = Directory.EnumerateFiles(target, "*.csproj", SearchOption.AllDirectories).ToArray();
+                var projectFiles = Directory.EnumerateFiles(target, "*" + extension, SearchOption.AllDirectories).ToArray();
                 if (projectFiles.Length == 0)
                 {
 	                progress.Report($"Please specify a project file.");
@@ -104,7 +112,8 @@ namespace Project2015To2017
 			var fileInfo = new FileInfo(filePath);
 			var projectDefinition = new Project
 			{
-				FilePath = fileInfo
+				FilePath = fileInfo,
+				CodeFileExtension = ProjectFileMappings[file.Extension]
 			};
 
             var directory = fileInfo.Directory;
@@ -129,7 +138,7 @@ namespace Project2015To2017
 				}
             }
 
-            var nuspecFile = fileInfo.FullName.Replace("csproj", "nuspec");
+            var nuspecFile = fileInfo.FullName.Replace(projectDefinition.FilePath.Extension.Substring(1), "nuspec");
             if (File.Exists(nuspecFile))
             {
                 if (!RenameFile(nuspecFile, progress))

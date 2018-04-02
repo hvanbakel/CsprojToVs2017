@@ -26,5 +26,6 @@ namespace Project2015To2017.Definition
         public bool SignAssembly { get; internal set; }
         public string AssemblyOriginatorKeyFile { get; internal set; }
 		public FileInfo FilePath { get; internal set; }
+		public string CodeFileExtension { get; set; }
 	}
 }

@@ -27,14 +27,18 @@ namespace Project2015To2017
 			"EmbeddedResource"
 		};
 
-        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
+        public Task TransformAsync(
+			XDocument projectFile,
+			DirectoryInfo projectFolder,
+			Project definition,
+			IProgress<string> progress)
         {
             XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
             var itemGroups = projectFile
                 .Element(nsSys + "Project")
                 .Elements(nsSys + "ItemGroup");
 
-            var compileManualIncludes = FindNonWildcardMatchedFiles(projectFolder, itemGroups, "*.cs", nsSys + "Compile", progress);
+            var compileManualIncludes = FindNonWildcardMatchedFiles(projectFolder, itemGroups, "*." + definition.CodeFileExtension, nsSys + "Compile", progress);
             var otherIncludes = ItemsToProject.SelectMany(x => itemGroups.Elements(nsSys + x));
 
             // Remove packages.config since those references were already added to the CSProj file.
