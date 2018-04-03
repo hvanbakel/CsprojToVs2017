@@ -67,7 +67,7 @@ namespace Project2015To2017
 			// Process all project files found in given directory
 			if (ProjectFileMappings.All(x => !extension.Equals(x.Key, StringComparison.OrdinalIgnoreCase)))
             {
-                var projectFiles = Directory.EnumerateFiles(target, "*" + extension, SearchOption.AllDirectories).ToArray();
+                var projectFiles = Directory.EnumerateFiles(target, "*", SearchOption.AllDirectories).Where(x => ProjectFileMappings.Any(f => x.EndsWith(f.Key))).ToArray();
                 if (projectFiles.Length == 0)
                 {
 	                progress.Report($"Please specify a project file.");
