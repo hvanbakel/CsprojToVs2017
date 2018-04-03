@@ -91,14 +91,14 @@ namespace Project2015To2017
 				yield break;
 			}
 
+			var projectsProcessed = 0;
 			// Process all csprojs found in given directory
 			foreach (var mapping in ProjectFileMappings)
 			{
 				var projectFiles = Directory.EnumerateFiles(target, "*" + mapping.Key, SearchOption.AllDirectories).ToArray();
 				if (projectFiles.Length == 0)
 				{
-					this.logger.LogCritical("Please specify a project file.");
-					yield break;
+					continue;
 				}
 
 				if (projectFiles.Length > 1)
@@ -112,7 +112,13 @@ namespace Project2015To2017
 				{
 					// todo: rewrite both directory enumerations to use FileInfo instead of raw strings
 					yield return this.ProcessFile(new FileInfo(projectFile), null);
+					projectsProcessed++;
 				}
+			}
+
+			if (projectsProcessed == 0)
+			{
+				this.logger.LogCritical("Please specify a project file.");
 			}
 		}
 
