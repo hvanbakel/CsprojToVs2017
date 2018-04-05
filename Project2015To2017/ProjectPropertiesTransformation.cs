@@ -51,6 +51,16 @@ namespace Project2015To2017
 				}
 			}
 
+			// yuk... but hey it works...
+			definition.Configurations = propertyGroups
+				.Where(x => x.Attribute("Condition") != null)
+				.Select(x => x.Attribute("Condition").Value)
+				.Where(x => x.Contains("'$(Configuration)|$(Platform)'"))
+				.Select(x => x.Split('\'').Skip(3).FirstOrDefault())
+				.Where(x => x != null)
+				.Select(x => x.Split('|')[0])
+				.ToArray();
+
 			definition.BuildEvents = propertyGroups.Elements().Where(x => x.Name == nsSys + "PostBuildEvent" || x.Name == nsSys + "PreBuildEvent").ToArray();
 			definition.AdditionalPropertyGroups = ReadAdditionalPropertyGroups(propertyGroups);
 			definition.Imports = projectFile.Element(nsSys + "Project").Elements(nsSys + "Import").Where(x =>

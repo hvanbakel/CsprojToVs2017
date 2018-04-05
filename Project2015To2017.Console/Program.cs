@@ -15,6 +15,11 @@ namespace Project2015To2017.Console
 			var writer = new Project2015To2017.Writing.ProjectWriter();
 			foreach (var definition in ProjectConverter.Convert(args[0], new Progress<string>(System.Console.WriteLine)))
 			{
+				if (definition == null)
+				{
+					continue;
+				}
+
 				writer.Write(definition);
 			}
         }

@@ -16,6 +16,7 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<XElement> Imports { get; internal set; }
         public IReadOnlyList<XElement> Targets { get; internal set; }
 		public IReadOnlyList<XElement> BuildEvents { get; internal set; }
+		public IReadOnlyList<string> Configurations { get; internal set; }
 
 		public IReadOnlyList<string> TargetFrameworks { get; internal set; }
         public ApplicationType Type { get; internal set; }
