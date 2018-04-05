@@ -37,17 +37,27 @@ namespace Project2015To2017.Writing
                 {
                     projectNode.Add(import);
                 }
-            }
+			}
 
-            if (project.Targets != null)
-            {
-                foreach (var target in project.Targets.Select(RemoveAllNamespaces))
-                {
-                    projectNode.Add(target);
-                }
-            }
+			if (project.Targets != null)
+			{
+				foreach (var target in project.Targets.Select(RemoveAllNamespaces))
+				{
+					projectNode.Add(target);
+				}
+			}
 
-            if (project.ProjectReferences?.Count > 0)
+			if (project.BuildEvents != null)
+			{
+				var propertyGroup = new XElement("PropertyGroup");
+				projectNode.Add(propertyGroup);
+				foreach (var buildEvent in project.BuildEvents.Select(RemoveAllNamespaces))
+				{
+					propertyGroup.Add(buildEvent);
+				}
+			}
+
+			if (project.ProjectReferences?.Count > 0)
             {
                 var itemGroup = new XElement("ItemGroup");
                 foreach (var projectReference in project.ProjectReferences)

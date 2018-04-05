@@ -428,6 +428,48 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(4, project.AdditionalPropertyGroups[0].Elements().Count());
 		}
 
+		[TestMethod]
+		public async Task MaintainsPrePostBuildEvent()
+		{
+			var xml = @"
+<Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
+  <Import Project=""$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"" Condition=""Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=""'$(VisualStudioVersion)' == ''"">15.0</VisualStudioVersion>
+    <OldToolsVersion>14.0</OldToolsVersion>
+    <DslTargetsPath>..\SDK\v15.0\MSBuild\DSLTools</DslTargetsPath>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition="" '$(Configuration)' == '' "">Debug</Configuration>
+    <Platform Condition="" '$(Platform)' == '' "">AnyCPU</Platform>
+    <ProjectGuid>{D8141286-2A5C-4CC4-8502-8E651D35F371}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ClassLibrary1</RootNamespace>
+    <AssemblyName>ClassLibrary1</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>CD $(SolutionDir)
+
+if $(ConfigurationName) == Debug (
+	xcopy "".\Configuration\Log4Net\*.config""  ""$(TargetDir)"" /E /Y
+)</PostBuildEvent>
+  </PropertyGroup>
+ </Project>";
+
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+			Assert.AreEqual(1, project.BuildEvents.Count);
+		}
+
 		private static async Task<Project> ParseAndTransformAsync(string xml)
 		{
 			var document = XDocument.Parse(xml);

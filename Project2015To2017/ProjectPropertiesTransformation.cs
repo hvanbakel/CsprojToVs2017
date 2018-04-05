@@ -51,6 +51,7 @@ namespace Project2015To2017
 				}
 			}
 
+			definition.BuildEvents = propertyGroups.Elements().Where(x => x.Name == nsSys + "PostBuildEvent" || x.Name == nsSys + "PreBuildEvent").ToArray();
 			definition.AdditionalPropertyGroups = ReadAdditionalPropertyGroups(propertyGroups);
 			definition.Imports = projectFile.Element(nsSys + "Project").Elements(nsSys + "Import").Where(x =>
 					x.Attribute("Project")?.Value != @"$(MSBuildToolsPath)\Microsoft.CSharp.targets" &&
