@@ -2,22 +2,21 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using NuGet.Configuration;
 using Project2015To2017.Definition;
 
-namespace Project2015To2017
+namespace Project2015To2017.Transforms
 {
 	internal sealed class RemovePackageAssemblyReferencesTransformation : ITransformation
 	{
-		public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
+		public Project Transform(Project definition, IProgress<string> progress)
 		{
 			if (definition.PackageReferences == null || definition.PackageReferences.Count == 0)
 			{
-				return Task.CompletedTask;
+				return definition;
 			}
 
-			var projectPath = projectFolder.FullName;
+			var projectPath = definition.ProjectFolder.FullName;
 
 			var nugetRepositoryPath = NuGetRepositoryPath(projectPath);
 
@@ -26,15 +25,22 @@ namespace Project2015To2017
 			var packagePaths = packageReferenceIds.Select(packageId => Path.Combine(nugetRepositoryPath, packageId).ToLower())
 												  .ToArray();
 
-			definition.AssemblyReferences.RemoveAll(assembly => 
-				assembly.HintPath != null && 
-				packagePaths.Any(packagePath => AssemblyMatchesPackage(assembly, packagePath)));
+			var filteredAssemblies = definition.AssemblyReferences
+											.Where(assembly => !packagePaths.Any(
+														packagePath => AssemblyMatchesPackage(assembly, packagePath)
+													)
+											);
 
-			return Task.CompletedTask;
+			return definition.WithAssemblyReferences(filteredAssemblies);
 
 			bool AssemblyMatchesPackage(AssemblyReference assembly, string packagePath)
 			{
 				var hintPath = assembly.HintPath;
+				if (hintPath == null)
+				{
+					return false;
+				}
+
 				var fullHintPath = Path.IsPathRooted(hintPath) ? hintPath : Path.GetFullPath(Path.Combine(projectPath, hintPath));
 
 				return fullHintPath.ToLower().StartsWith(packagePath);

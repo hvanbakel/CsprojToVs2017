@@ -11,10 +11,10 @@ namespace Project2015To2017Tests
 		public void GenerateAssemblyInfoOnNothingSpecifiedTest()
 		{
 			var writer = new ProjectWriter();
-			var xmlNode = writer.CreateXml(new Project
+			var xmlNode = writer.CreateXml(new ProjectBuilder()
 			{
 				AssemblyAttributes = new AssemblyAttributes()
-			}, new System.IO.FileInfo("test.cs"));
+			}.ToImmutable(), new System.IO.FileInfo("test.cs"));
 
 			var generateAssemblyInfo = xmlNode.Element("PropertyGroup").Element("GenerateAssemblyInfo");
 			Assert.IsNotNull(generateAssemblyInfo);
@@ -25,13 +25,10 @@ namespace Project2015To2017Tests
 		public void GeneratesAssemblyInfoNodesWhenSpecifiedTest()
 		{
 			var writer = new ProjectWriter();
-			var xmlNode = writer.CreateXml(new Project
+			var xmlNode = writer.CreateXml(new ProjectBuilder
 			{
-				AssemblyAttributes = new AssemblyAttributes
-				{
-					Company = "Company"
-				}
-			}, new System.IO.FileInfo("test.cs"));
+				AssemblyAttributes = new AssemblyAttributes().WithCompany("Company")
+			}.ToImmutable(), new System.IO.FileInfo("test.cs"));
 
 			var generateAssemblyInfo = xmlNode.Element("PropertyGroup").Element("GenerateAssemblyInfo");
 			Assert.IsNull(generateAssemblyInfo);
