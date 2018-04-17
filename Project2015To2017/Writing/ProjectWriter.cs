@@ -273,7 +273,7 @@ namespace Project2015To2017.Writing
             }
         }
 
-        private void AddTargetFrameworks(XElement mainPropertyGroup, IReadOnlyList<string> targetFrameworks)
+        private void AddTargetFrameworks(XElement mainPropertyGroup, IList<string> targetFrameworks)
         {
             if (targetFrameworks == null)
             {

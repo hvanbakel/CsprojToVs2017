@@ -7,33 +7,29 @@ namespace Project2015To2017.Transforms
 {
 	internal sealed class NugetPackageTransformation : ITransformation
 	{
-		public Project Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, IProgress<string> progress)
 		{
 			var packageConfig = PopulatePlaceHolders(
 									definition.PackageConfiguration,
 									definition.AssemblyAttributes
 								);
 
-			var packageReferences = ConstrainedPackageReferences(
-										definition.PackageReferences, packageConfig
-									);
+			ConstrainPackageReferences(
+				definition.PackageReferences, packageConfig
+			);
 
-			var adjustedProject = definition
-										.WithPackageConfig(packageConfig)
-										.WithPackageReferences(packageReferences);
-
-			return adjustedProject;
+			definition.PackageConfiguration = packageConfig;
 		}
 
-		private static IReadOnlyList<PackageReference> ConstrainedPackageReferences(
-				IReadOnlyList<PackageReference> rawPackageReferences,
+		private static void ConstrainPackageReferences(
+				IList<PackageReference> rawPackageReferences,
 				PackageConfiguration packageConfig
 			)
 		{
 			var dependencies = packageConfig.Dependencies;
 			if (dependencies == null || rawPackageReferences == null)
 			{
-				return rawPackageReferences;
+				return;
 			}
 
 			var packageIdConstraints = dependencies.Select(dependency =>
@@ -41,48 +37,42 @@ namespace Project2015To2017.Transforms
 				var packageId = dependency.Attribute("id").Value;
 				var constraint = dependency.Attribute("version").Value;
 
-				return new {packageId, constraint};
+				return new { packageId, constraint };
 			}).ToList();
 
-			var adjustedPackageReferences = rawPackageReferences.Select(
-							packageReference =>
-							{
-								var matchingPackage = packageIdConstraints
-														.SingleOrDefault(dependency =>
-															packageReference.Id.Equals(dependency.packageId, StringComparison.OrdinalIgnoreCase)
-														);
+			foreach (var packageReference in rawPackageReferences)
+			{
+				var matchingPackage = packageIdConstraints
+										.SingleOrDefault(dependency =>
+											packageReference.Id.Equals(dependency.packageId, StringComparison.OrdinalIgnoreCase)
+										);
 
-								if (matchingPackage == null)
-								{
-									return packageReference;
-								}
-
-								return packageReference.WithVersion(matchingPackage.constraint);
-							}
-						).ToList()
-						.AsReadOnly();
-
-			return adjustedPackageReferences;
+				if (matchingPackage != null)
+				{
+					packageReference.Version = matchingPackage.constraint;
+				}
+			}
 		}
 
 		private PackageConfiguration PopulatePlaceHolders(PackageConfiguration rawPackageConfig, AssemblyAttributes assemblyAttributes)
 		{
-			return new PackageConfiguration(
-					id: PopulatePlaceHolder("id", rawPackageConfig.Id, assemblyAttributes.AssemblyName),
-					version: PopulatePlaceHolder("version", rawPackageConfig.Version, assemblyAttributes.InformationalVersion ?? assemblyAttributes.Version),
-					authors: PopulatePlaceHolder("author", rawPackageConfig.Authors, assemblyAttributes.Company),
-					description: PopulatePlaceHolder("description", rawPackageConfig.Description, assemblyAttributes.Description),
-					copyright: PopulatePlaceHolder("copyright", rawPackageConfig.Copyright, assemblyAttributes.Copyright),
-					licenseUrl: rawPackageConfig.LicenseUrl,
-					projectUrl: rawPackageConfig.ProjectUrl,
-					iconUrl: rawPackageConfig.IconUrl,
-					tags: rawPackageConfig.Tags,
-					releaseNotes: rawPackageConfig.ReleaseNotes,
-					requiresLicenseAcceptance: rawPackageConfig.RequiresLicenseAcceptance,
-					dependencies: rawPackageConfig.Dependencies
-				);
+			return new PackageConfiguration
+			{
+				Id = PopulatePlaceHolder("id", rawPackageConfig.Id, assemblyAttributes.AssemblyName),
+				Version = PopulatePlaceHolder("version", rawPackageConfig.Version, assemblyAttributes.InformationalVersion ?? assemblyAttributes.Version),
+				Authors = PopulatePlaceHolder("author", rawPackageConfig.Authors, assemblyAttributes.Company),
+				Description = PopulatePlaceHolder("description", rawPackageConfig.Description, assemblyAttributes.Description),
+				Copyright = PopulatePlaceHolder("copyright", rawPackageConfig.Copyright, assemblyAttributes.Copyright),
+				LicenseUrl = rawPackageConfig.LicenseUrl,
+				ProjectUrl = rawPackageConfig.ProjectUrl,
+				IconUrl = rawPackageConfig.IconUrl,
+				Tags = rawPackageConfig.Tags,
+				ReleaseNotes = rawPackageConfig.ReleaseNotes,
+				RequiresLicenseAcceptance = rawPackageConfig.RequiresLicenseAcceptance,
+				Dependencies = rawPackageConfig.Dependencies
+			};
 		}
-		
+
 		private string PopulatePlaceHolder(string placeHolder, string nuSpecValue, string assemblyAttributeValue)
 		{
 			if (nuSpecValue == $"${placeHolder}$")

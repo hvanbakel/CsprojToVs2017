@@ -5,6 +5,11 @@ namespace Project2015To2017.Transforms
 {
 	internal interface ITransformation
     {
-        Project Transform(Project definition, IProgress<string> progress);
+		/// <summary>
+		/// Alter the provided project in some way
+		/// </summary>
+		/// <param name="definition"></param>
+		/// <param name="progress"></param>
+        void Transform(Project definition, IProgress<string> progress);
     }
 }

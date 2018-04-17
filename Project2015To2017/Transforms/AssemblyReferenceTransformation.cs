@@ -7,7 +7,7 @@ namespace Project2015To2017.Transforms
 {
 	internal sealed class AssemblyReferenceTransformation : ITransformation
 	{
-		public Project Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, IProgress<string> progress)
 		{
 			var packageReferences =
 				definition.PackageReferences ?? new List<PackageReference>();
@@ -23,12 +23,10 @@ namespace Project2015To2017.Transforms
 						?.Where(x => !x.Include.Equals("Microsoft.CSharp", StringComparison.OrdinalIgnoreCase))
 						//We don't need to keep any references to package files as these are
 						//now generated dynamically at build time
-						.Where(assemblyReference => !packageIds.Contains(assemblyReference.Include));
+						.Where(assemblyReference => !packageIds.Contains(assemblyReference.Include))
+						.ToList();
 
-			var transformedDefinition = definition
-											.WithAssemblyReferences(assemblyReferences);
-
-			return transformedDefinition;
+			definition.AssemblyReferences = assemblyReferences;
 		}
 	}
 }

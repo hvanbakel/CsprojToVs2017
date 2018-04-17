@@ -16,39 +16,41 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void AddsTestPackages()
         {
-	        var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj")
-		        .WithType(ApplicationType.TestProject)
-		        .WithTargetFrameworks(new[] { "net45" });
+	        var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj");
+
+	        project.Type = ApplicationType.TestProject;
+	        project.TargetFrameworks = new[] { "net45" };
 			
             var transformation = new PackageReferenceTransformation();
 
 	        var progress = new Progress<string>(x => { });
 
-            var transformedProject = transformation.Transform(project, progress);
+            transformation.Transform(project, progress);
 
-            Assert.AreEqual(10, transformedProject.PackageReferences.Count);
-            Assert.AreEqual(1, transformedProject.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
-            Assert.AreEqual(1, transformedProject.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk" && x.Version == "15.0.0"));
-            Assert.AreEqual(1, transformedProject.PackageReferences.Count(x => x.Id == "AutoMapper" && x.Version == "6.1.1" && x.IsDevelopmentDependency));
+            Assert.AreEqual(10, project.PackageReferences.Count);
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk" && x.Version == "15.0.0"));
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "AutoMapper" && x.Version == "6.1.1" && x.IsDevelopmentDependency));
         }
 
         [TestMethod]
         public void AcceptsNetStandardFramework()
         {
-	        var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj")
-											 .WithType(ApplicationType.TestProject)
-											 .WithTargetFrameworks(new[] { "netstandard2.0" });
+	        var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj");
 
+	        project.Type = ApplicationType.TestProject;
+	        project.TargetFrameworks = new[] { "netstandard2.0" };
+			
 			var transformation = new PackageReferenceTransformation();
 
 	        var progress = new Progress<string>(x => { });
 
-            var transformedProject = transformation.Transform(project, progress);
+            transformation.Transform(project, progress);
 
-            Assert.AreEqual(10, transformedProject.PackageReferences.Count);
-            Assert.AreEqual(1, transformedProject.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
-            Assert.AreEqual(1, transformedProject.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk" && x.Version == "15.0.0"));
-            Assert.AreEqual(1, transformedProject.PackageReferences.Count(x => x.Id == "AutoMapper" && x.Version == "6.1.1" && x.IsDevelopmentDependency));
+            Assert.AreEqual(10, project.PackageReferences.Count);
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk" && x.Version == "15.0.0"));
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "AutoMapper" && x.Version == "6.1.1" && x.IsDevelopmentDependency));
         }
 
         [TestMethod]
@@ -57,15 +59,16 @@ namespace Project2015To2017Tests
             var transformation = new PackageReferenceTransformation();
 
 			var project = new ProjectReader()
-								.Read(@"TestFiles\\containsTestSDK.testcsproj")
-								.WithTargetFrameworks(new[] { "net45" });
-			
+								.Read(@"TestFiles\\containsTestSDK.testcsproj");
+
+	        project.TargetFrameworks = new[] { "net45" };
+
 	        var progress = new Progress<string>(x => { });
 
-            var transformedProject = transformation.Transform(project, progress);
+            transformation.Transform(project, progress);
 
-            Assert.AreEqual(6, transformedProject.PackageReferences.Count);
-            Assert.AreEqual(0, transformedProject.PackageReferences.Count(x => x.Id == "MSTest.TestAdapter"));
+            Assert.AreEqual(6, project.PackageReferences.Count);
+            Assert.AreEqual(0, project.PackageReferences.Count(x => x.Id == "MSTest.TestAdapter"));
         }
 
         [TestMethod]
@@ -77,11 +80,11 @@ namespace Project2015To2017Tests
 
 	        var progress = new Progress<string>(x => { });
 
-            var transformedProject = transformation.Transform(project, progress);
+            transformation.Transform(project, progress);
 
-            Assert.AreEqual(7, transformedProject.PackageReferences.Count);
-            Assert.AreEqual(2, transformedProject.PackageReferences.Count(x => x.IsDevelopmentDependency));
-            Assert.AreEqual(1, transformedProject.PackageReferences.Count(x => x.Id == "Microsoft.Owin" && x.Version == "3.1.0"));
+            Assert.AreEqual(7, project.PackageReferences.Count);
+            Assert.AreEqual(2, project.PackageReferences.Count(x => x.IsDevelopmentDependency));
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin" && x.Version == "3.1.0"));
         }
 
         [TestMethod]

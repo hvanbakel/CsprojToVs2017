@@ -43,7 +43,7 @@ namespace Project2015To2017.Reading
 
 			var packageConfig = new NuSpecReader().Read(fileInfo, progress);
 
-			var projectDefinition = new ProjectBuilder
+			var projectDefinition = new Project
 			{
 				FilePath = fileInfo,
 				AssemblyReferences = assemblyReferences,
@@ -61,10 +61,10 @@ namespace Project2015To2017.Reading
 
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
 
-			return projectDefinition.ToImmutable();
+			return projectDefinition;
 		}
 
-		private IReadOnlyList<PackageReference> LoadPackageReferences(FileInfo projectFile, XDocument projectXml, IProgress<string> progress)
+		private List<PackageReference> LoadPackageReferences(FileInfo projectFile, XDocument projectXml, IProgress<string> progress)
 		{
 			var packagesConfig = projectFile.Directory.GetFiles("packages.config", SearchOption.TopDirectoryOnly);
 
@@ -80,11 +80,11 @@ namespace Project2015To2017.Reading
 				var existingPackageReferences = projectXml.Root.Elements(XmlNamespace + "ItemGroup")
 															   .Elements(XmlNamespace + "PackageReference")
 															   .Select(x => new PackageReference
-																(
-																	id : x.Attribute("Include").Value,
-																	version : x.Attribute("Version")?.Value ?? x.Element(XmlNamespace + "Version").Value,
-																	isDevelopmentDependency : x.Element(XmlNamespace + "PrivateAssets") != null
-																));
+																{
+																	Id = x.Attribute("Include").Value,
+																	Version = x.Attribute("Version")?.Value ?? x.Element(XmlNamespace + "Version").Value,
+																	IsDevelopmentDependency = x.Element(XmlNamespace + "PrivateAssets") != null
+																});
 
 				var packageConfigPackages = PackageConfigPackages(packagesConfig);
 
@@ -103,7 +103,7 @@ namespace Project2015To2017.Reading
 				progress.Report($"Got xml exception reading packages.config: " + e.Message);
 			}
 
-			return packageReferences.AsReadOnly();
+			return packageReferences;
 		}
 
 		private static IEnumerable<PackageReference> PackageConfigPackages(FileInfo[] packagesConfig)
@@ -121,27 +121,27 @@ namespace Project2015To2017.Reading
 
 			var packageConfigPackages = packagesConfigDoc.Element("packages").Elements("package")
 				.Select(x => new PackageReference
-				(
-					id: x.Attribute("id").Value,
-					version: x.Attribute("version").Value,
-					isDevelopmentDependency: x.Attribute("developmentDependency")?.Value == "true"
-				));
+				{
+					Id = x.Attribute("id").Value,
+					Version = x.Attribute("version").Value,
+					IsDevelopmentDependency = x.Attribute("developmentDependency")?.Value == "true"
+				});
 
 			return packageConfigPackages;
 		}
 
-		private IReadOnlyList<ProjectReference> LoadProjectReferences(XDocument projectXml, IProgress<string> progress)
+		private IList<ProjectReference> LoadProjectReferences(XDocument projectXml, IProgress<string> progress)
 		{
 			var projectReferences = projectXml
 									.Element(XmlNamespace + "Project")
 									.Elements(XmlNamespace + "ItemGroup")
 									.Elements(XmlNamespace + "ProjectReference")
 									.Select(x => new ProjectReference
-									(
-										include : x.Attribute("Include").Value,
-										aliases : x.Element(XmlNamespace + "Aliases")?.Value
-									))
-									.ToList().AsReadOnly();
+									{
+										Include = x.Attribute("Include").Value,
+										Aliases = x.Element(XmlNamespace + "Aliases")?.Value
+									})
+									.ToList();
 
 			return projectReferences;
 		}
@@ -163,18 +163,19 @@ namespace Project2015To2017.Reading
 
 				var text = File.ReadAllText(assemblyInfoFiles[0].FullName);
 
-				return new AssemblyAttributes(
-					assemblyName: assemblyName ?? projectFolder.Name,
-					description: GetAttributeValue<AssemblyDescriptionAttribute>(text),
-					title: GetAttributeValue<AssemblyTitleAttribute>(text),
-					company: GetAttributeValue<AssemblyCompanyAttribute>(text),
-					product: GetAttributeValue<AssemblyProductAttribute>(text),
-					copyright: GetAttributeValue<AssemblyCopyrightAttribute>(text),
-					informationalVersion: GetAttributeValue<AssemblyInformationalVersionAttribute>(text),
-					version: GetAttributeValue<AssemblyVersionAttribute>(text),
-					fileVersion: GetAttributeValue<AssemblyFileVersionAttribute>(text),
-					configuration: GetAttributeValue<AssemblyConfigurationAttribute>(text)
-				);
+				return new AssemblyAttributes
+				{
+					AssemblyName = assemblyName ?? projectFolder.Name,
+					Description = GetAttributeValue<AssemblyDescriptionAttribute>(text),
+					Title = GetAttributeValue<AssemblyTitleAttribute>(text),
+					Company = GetAttributeValue<AssemblyCompanyAttribute>(text),
+					Product = GetAttributeValue<AssemblyProductAttribute>(text),
+					Copyright = GetAttributeValue<AssemblyCopyrightAttribute>(text),
+					InformationalVersion = GetAttributeValue<AssemblyInformationalVersionAttribute>(text),
+					Version = GetAttributeValue<AssemblyVersionAttribute>(text),
+					FileVersion = GetAttributeValue<AssemblyFileVersionAttribute>(text),
+					Configuration = GetAttributeValue<AssemblyConfigurationAttribute>(text)
+				};
 			}
 			else
 			{
@@ -225,13 +226,13 @@ namespace Project2015To2017.Reading
 
 				var embedInteropTypes = GetElementValue(referenceElement, "EmbedInteropTypes");
 
-				var output = new AssemblyReference(
-					include,
-					embedInteropTypes,
-					hintPath,
-					isPrivate,
-					specificVersion
-				);
+				var output = new AssemblyReference {
+					Include = include,
+					EmbedInteropTypes = embedInteropTypes,
+					HintPath = hintPath,
+					Private = isPrivate,
+					SpecificVersion = specificVersion
+				};
 
 				return output;
 			}
@@ -243,14 +244,14 @@ namespace Project2015To2017.Reading
 
 			return element?.Value;
 		}
-		private static IReadOnlyList<XElement> LoadFileIncludes(XDocument projectXml)
+		private static List<XElement> LoadFileIncludes(XDocument projectXml)
 		{
 			var items = projectXml
 								?.Element(XmlNamespace + "Project")
 								?.Elements(XmlNamespace + "ItemGroup")
-								.ToList().AsReadOnly()
+								.ToList()
 
-			                 ?? new List<XElement>().AsReadOnly();
+			                 ?? new List<XElement>();
 
 			return items;
 		}

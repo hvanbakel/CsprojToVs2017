@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using NuGet.Configuration;
 using Project2015To2017.Definition;
 
@@ -9,11 +8,11 @@ namespace Project2015To2017.Transforms
 {
 	internal sealed class RemovePackageAssemblyReferencesTransformation : ITransformation
 	{
-		public Project Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, IProgress<string> progress)
 		{
 			if (definition.PackageReferences == null || definition.PackageReferences.Count == 0)
 			{
-				return definition;
+				return;
 			}
 
 			var projectPath = definition.ProjectFolder.FullName;
@@ -26,12 +25,13 @@ namespace Project2015To2017.Transforms
 												  .ToArray();
 
 			var filteredAssemblies = definition.AssemblyReferences
-											.Where(assembly => !packagePaths.Any(
-														packagePath => AssemblyMatchesPackage(assembly, packagePath)
-													)
-											);
+											   .Where(assembly => !packagePaths.Any(
+														    packagePath => AssemblyMatchesPackage(assembly, packagePath)
+													 )
+											    )
+												.ToList();
 
-			return definition.WithAssemblyReferences(filteredAssemblies);
+			definition.AssemblyReferences = filteredAssemblies;
 
 			bool AssemblyMatchesPackage(AssemblyReference assembly, string packagePath)
 			{

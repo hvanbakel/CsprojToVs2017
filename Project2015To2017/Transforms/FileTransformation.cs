@@ -27,7 +27,7 @@ namespace Project2015To2017.Transforms
 			"EmbeddedResource"
 		};
 
-	    public Project Transform(Project definition, IProgress<string> progress)
+	    public void Transform(Project definition, IProgress<string> progress)
 		{
 			var items = definition.IncludeItems;
 
@@ -41,9 +41,7 @@ namespace Project2015To2017.Transforms
 									.ToList()
 									.AsReadOnly();
 
-			var transformedDefinition = definition.WithIncludeItems(itemsToInclude);
-
-            return transformedDefinition;
+			definition.IncludeItems = itemsToInclude;
         }
 
 	    private static bool KeepFileInclusion(XElement x)

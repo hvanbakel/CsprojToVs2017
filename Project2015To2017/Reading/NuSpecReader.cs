@@ -79,22 +79,24 @@ namespace Project2015To2017.Reading
 				version = null;
 			}
 
-			var dependencies = metadata.Element(ns + "dependencies")?.Elements(ns + "dependency");
+			var dependencies = metadata.Element(ns + "dependencies")
+									   ?.Elements(ns + "dependency")
+										.ToList();
 
-			var packageConfig = new PackageConfiguration(
-				id : id,
-				version : version,
-				authors : GetElement(metadata, ns + "authors"),
-				description : GetElement(metadata, ns + "description"),
-				copyright : GetElement(metadata, ns + "copyright"),
-				licenseUrl : GetElement(metadata, ns + "licenseUrl"),
-				projectUrl : GetElement(metadata, ns + "projectUrl"),
-				iconUrl : GetElement(metadata, ns + "iconUrl"),
-				tags : GetElement(metadata, ns + "tags"),
-				releaseNotes : GetElement(metadata, ns + "releaseNotes"),
-				requiresLicenseAcceptance : metadata.Element(ns + "requireLicenseAcceptance")?.Value != null && bool.Parse(metadata.Element(ns + "requireLicenseAcceptance")?.Value),
-				dependencies: dependencies
-			);
+			var packageConfig = new PackageConfiguration {
+				Id = id,
+				Version = version,
+				Authors = GetElement(metadata, ns + "authors"),
+				Description = GetElement(metadata, ns + "description"),
+				Copyright = GetElement(metadata, ns + "copyright"),
+				LicenseUrl = GetElement(metadata, ns + "licenseUrl"),
+				ProjectUrl = GetElement(metadata, ns + "projectUrl"),
+				IconUrl = GetElement(metadata, ns + "iconUrl"),
+				Tags = GetElement(metadata, ns + "tags"),
+				ReleaseNotes = GetElement(metadata, ns + "releaseNotes"),
+				RequiresLicenseAcceptance = metadata.Element(ns + "requireLicenseAcceptance")?.Value != null && bool.Parse(metadata.Element(ns + "requireLicenseAcceptance")?.Value),
+				Dependencies = dependencies
+			};
 
 			return packageConfig;
 		}

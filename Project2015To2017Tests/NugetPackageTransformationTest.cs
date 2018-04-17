@@ -14,21 +14,21 @@ namespace Project2015To2017Tests
 		public void ConvertsNuspec()
 		{
 			var project = new ProjectReader()
-								.Read("TestFiles\\net46console.testcsproj")
-								.WithAssemblyAttributes(
-									new AssemblyAttributes(
-										assemblyName: "TestAssembly",
-										informationalVersion: "7.0",
-										copyright: "copyright from assembly",
-										description: "description from assembly",
-										company: "assembly author"
-									)
-								);
+								.Read("TestFiles\\net46console.testcsproj");
+
+			project.AssemblyAttributes =
+								new AssemblyAttributes {
+									AssemblyName = "TestAssembly",
+									InformationalVersion = "7.0",
+									Copyright = "copyright from assembly",
+									Description = "description from assembly",
+									Company = "assembly author"
+								};
 
 			var progress = new Progress<string>(x => { });
-			var transformedProject = new NugetPackageTransformation().Transform(project, progress);
+			new NugetPackageTransformation().Transform(project, progress);
 
-			var transformedPackageConfig = transformedProject.PackageConfiguration;
+			var transformedPackageConfig = project.PackageConfiguration;
 
 			Assert.IsNull(transformedPackageConfig.Id);
 			Assert.IsNull(transformedPackageConfig.Version);
@@ -45,29 +45,28 @@ namespace Project2015To2017Tests
 		public void ConvertsDependencies()
 		{
 			var project = new ProjectReader()
-								.Read("TestFiles\\net46console.testcsproj")
-								.WithPackageReferences(
-									new[]
-									{
-										new PackageReference
-										(
-											id : "Newtonsoft.Json",
-											version : "10.0.2"
-										),
-										new PackageReference
-										(
-											id : "Other.Package",
-											version : "1.0.2"
-										)
-									}
-								);
+								.Read("TestFiles\\net46console.testcsproj");
+
+			project.PackageReferences = new[]
+										{
+											new PackageReference
+											{
+												Id = "Newtonsoft.Json",
+												Version = "10.0.2"
+											},
+											new PackageReference
+											{
+												Id = "Other.Package",
+												Version = "1.0.2"
+											}
+										};
 
 			var progress = new Progress<string>(x => { });
 
-			var transformedProject = new NugetPackageTransformation().Transform(project, progress);
+			new NugetPackageTransformation().Transform(project, progress);
 
-			Assert.AreEqual("[10.0.2,11)", transformedProject.PackageReferences.Single(x => x.Id == "Newtonsoft.Json").Version);
-			Assert.AreEqual("1.0.2", transformedProject.PackageReferences.Single(x => x.Id == "Other.Package").Version);
+			Assert.AreEqual("[10.0.2,11)", project.PackageReferences.Single(x => x.Id == "Newtonsoft.Json").Version);
+			Assert.AreEqual("1.0.2", project.PackageReferences.Single(x => x.Id == "Other.Package").Version);
 		}
 	}
 }

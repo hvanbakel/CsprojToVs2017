@@ -85,13 +85,12 @@ namespace Project2015To2017
 				return null;
 			}
 
-			var legacyProject = new ProjectReader().Read(filePath, progress);
+			var project = new ProjectReader().Read(filePath, progress);
 
-			var transformedProject = _transformationsToApply
-										.Aggregate(
-											legacyProject,
-											(project, transform) => transform.Transform(project, progress)
-										);
+			foreach (var transform in _transformationsToApply)
+			{
+				transform.Transform(project, progress);
+			}
 
 			var projectFile = file.FullName;
 			if (!SaveBackup(projectFile, progress))
@@ -117,7 +116,7 @@ namespace Project2015To2017
 				}
 			}
 
-			return transformedProject;
+			return project;
 		}
 
 		internal static bool Validate(FileInfo file, IProgress<string> progress)

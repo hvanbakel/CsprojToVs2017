@@ -14,8 +14,7 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void HandlesNoPackagesConfig()
 		{
-			var project = new ProjectBuilder().ToImmutable();
-
+			var project = new Project();
 
 			var progress = new Progress<string>(x => { });
 
@@ -26,43 +25,41 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void DedupeReferencesFromPackages()
 		{
-			var project = new ProjectBuilder
+			var project = new Project
 			{
 				AssemblyReferences = new List<AssemblyReference>
 				{
-					new AssemblyReference
-						(
-						include : "Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL",
-						hintPath : @"..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll"
-					),
-					new AssemblyReference
-					(
-						include : "System.Data.DataSetExtensions"
-					),
-					new AssemblyReference
-					(
-						include : "Owin",
-						hintPath : @"..\packages\Owin.1.0\lib\net40\Owin.dll"
-					)
+					new AssemblyReference {
+						Include = "Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL",
+						HintPath = @"..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll"
+					},
+					new AssemblyReference {
+
+						Include = "System.Data.DataSetExtensions"
+					},
+					new AssemblyReference {
+					
+						Include = "Owin",
+						HintPath = @"..\packages\Owin.1.0\lib\net40\Owin.dll"
+					}
 				},
 				PackageReferences = new[]
 				{
-					new PackageReference
-					(
-						id : "Newtonsoft.Json",
-						version: "1.0.0"
-					)
+					new PackageReference {
+						Id = "Newtonsoft.Json",
+						Version = "1.0.0"
+					}
 				},
 				FilePath = new FileInfo(@".\dummy.csproj")
-			}.ToImmutable();
+			};
 
 			var transformation = new RemovePackageAssemblyReferencesTransformation();
 
 			var progress = new Progress<string>(x => { });
 
-			var transformedProj = transformation.Transform(project, progress);
+			transformation.Transform(project, progress);
 
-			Assert.AreEqual(2, transformedProj.AssemblyReferences.Count);
+			Assert.AreEqual(2, project.AssemblyReferences.Count);
 		}
 
 		[TestMethod]
@@ -77,11 +74,11 @@ namespace Project2015To2017Tests
 			var progress = new Progress<string>(x => { });
 
 			//Then attempt to clear any referencing the nuget packages folder
-			var adjustedProject = transformation.Transform(project, progress);
+			transformation.Transform(project, progress);
 
 			//The only one left which points to another folder
-			Assert.AreEqual(1, adjustedProject.AssemblyReferences.Count);
-			Assert.IsTrue(adjustedProject.AssemblyReferences[0].Include.StartsWith("Owin"));
+			Assert.AreEqual(1, project.AssemblyReferences.Count);
+			Assert.IsTrue(project.AssemblyReferences[0].Include.StartsWith("Owin"));
 		}
 	}
 }
