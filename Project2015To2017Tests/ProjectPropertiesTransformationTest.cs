@@ -223,6 +223,45 @@ namespace Project2015To2017Tests
 		}
 
 		[TestMethod]
+		public async Task ReadsSigningProperties()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Project.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>true</DelaySign>
+  </PropertyGroup>
+</Project>";
+
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+			Assert.AreEqual(true, project.SignAssembly);
+			Assert.AreEqual("Project.snk", project.AssemblyOriginatorKeyFile);
+			Assert.AreEqual(true, project.DelaySign);
+		}
+
+		[TestMethod]
+		public async Task ReadsDefaultSigningProperties()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+  </PropertyGroup>
+</Project>";
+
+			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+
+			Assert.AreEqual(false, project.SignAssembly);
+			Assert.AreEqual(null, project.AssemblyOriginatorKeyFile);
+			Assert.AreEqual(null, project.DelaySign);
+		}
+
+		[TestMethod]
 		[ExpectedException(typeof(NotSupportedException))]
 		public async Task ThrowsOnNoUnconditionalPropertyGroup()
 		{
