@@ -23,7 +23,25 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void CheckAnUnsupportedProjectTypeReturnsCorrectResult(string guidTypes, string testCase, bool expected)
 		{
-			var xmlDocument = CreateTestProject(guidTypes);
+			var xmlDocument = CreateTestProject("ProjectTypeGuids", guidTypes);
+
+			var actual = UnsupportedProjectTypes.IsUnsupportedProjectType(xmlDocument);
+
+			Assert.AreEqual(expected, actual, $"Failed for {testCase}: expected {expected} but returned {actual}");
+		}
+
+		/// <summary>
+		/// Run test cases
+		/// </summary>
+		/// <param name="guidTypes"></param>
+		/// <param name="testCase"></param>
+		/// <param name="expected"></param>
+		[DataRow("WindowsForms", "WinForms", true)]
+		[DataRow("", "Other", false)]
+		[TestMethod]
+		public void CheckAnUnsupportedProjectOutputReturnsCorrectResult(string outputType, string testCase, bool expected)
+		{
+			var xmlDocument = CreateTestProject("MyType", outputType);
 
 			var actual = UnsupportedProjectTypes.IsUnsupportedProjectType(xmlDocument);
 
@@ -40,19 +58,20 @@ namespace Project2015To2017Tests
 		}
 
 		/// <summary>
-		/// Create a test case using the given param
+		/// Create a test case using the given element name + value
 		/// </summary>
-		/// <param name="typeGuids"></param>
+		/// <param name="elementName">element name to add to PropertyGroup</param>
+		/// <param name="value">value to set</param>
 		/// <returns></returns>
-		private static XDocument CreateTestProject(string typeGuids)
+		private static XDocument CreateTestProject(string elementName, string value)
 		{
 			// parse empty template
 			var xmlDocument = XDocument.Parse(template);
-			if (!string.IsNullOrWhiteSpace(typeGuids))
+			if (!string.IsNullOrWhiteSpace(value))
 			{
 				XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
-				var propertyGroup = xmlDocument.Descendants(nsSys+"PropertyGroup").First();
-				propertyGroup.Add(new XElement(nsSys + "ProjectTypeGuids", typeGuids));
+				var propertyGroup = xmlDocument.Descendants(nsSys+ "PropertyGroup").First();
+				propertyGroup.Add(new XElement(nsSys + elementName, value));
 			}
 			return xmlDocument;
 		}

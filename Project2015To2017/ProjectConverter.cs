@@ -104,7 +104,7 @@ namespace Project2015To2017
 			// get ProjectTypeGuids and check for unsupported types
 			if (UnsupportedProjectTypes.IsUnsupportedProjectType(xmlDocument))
 			{
-				progress.Report("This project file has unsupported ProjectTypeGuids and should not be converted");
+				progress.Report("This project type is not supported for conversion.");
 				return null;
 			}
 
