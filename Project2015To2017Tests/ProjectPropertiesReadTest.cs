@@ -1,15 +1,15 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Xml.Linq;
 using System.Threading.Tasks;
 using System;
+using System.IO;
 using System.Linq;
 using Project2015To2017.Definition;
-using Project2015To2017;
+using Project2015To2017.Reading;
 
 namespace Project2015To2017Tests
 {
 	[TestClass]
-	public class ProjectPropertiesTransformationTest
+	public class ProjectPropertiesReadTest
 	{
 		[TestMethod]
 		public async Task ReadsTestProject()
@@ -40,7 +40,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(ApplicationType.TestProject, project.Type);
 			Assert.AreEqual("net46", project.TargetFrameworks[0]);
@@ -75,7 +75,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+            var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
             Assert.AreEqual(ApplicationType.TestProject, project.Type);
             Assert.AreEqual("net40", project.TargetFrameworks[0]);
@@ -92,7 +92,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(ApplicationType.ConsoleApplication, project.Type);
 			Assert.AreEqual("net46", project.TargetFrameworks[0]);
@@ -114,7 +114,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+            var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
             Assert.AreEqual(ApplicationType.ConsoleApplication, project.Type);
             Assert.AreEqual("net46", project.TargetFrameworks[0]);
@@ -131,7 +131,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
 			Assert.AreEqual("net462", project.TargetFrameworks[0]);
@@ -149,7 +149,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual("MyProject", project.RootNamespace);
 		}
@@ -166,7 +166,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual("MyProject", project.AssemblyName);
 		}
@@ -183,7 +183,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(true, project.Optimize);
 		}
@@ -200,7 +200,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(true, project.TreatWarningsAsErrors);
 		}
@@ -217,7 +217,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(true, project.AllowUnsafeBlocks);
 		}
@@ -236,7 +236,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(true, project.SignAssembly);
 			Assert.AreEqual("Project.snk", project.AssemblyOriginatorKeyFile);
@@ -254,7 +254,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(false, project.SignAssembly);
 			Assert.AreEqual(null, project.AssemblyOriginatorKeyFile);
@@ -274,7 +274,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			await ParseAndTransform(xml).ConfigureAwait(false);
 		}
 
 		[TestMethod]
@@ -289,7 +289,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			await ParseAndTransform(xml).ConfigureAwait(false);
 		}
 
 		[TestMethod]
@@ -303,7 +303,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(ApplicationType.WindowsApplication, project.Type);
 			Assert.AreEqual("net462", project.TargetFrameworks[0]);
@@ -329,7 +329,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.IsNull(project.TargetFrameworks);
         }
@@ -365,7 +365,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+            var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
             Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.AssemblyName);
             Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage", project.RootNamespace);
@@ -409,7 +409,7 @@ namespace Project2015To2017Tests
   </Target>
  </Project>";
 
-            var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+            var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
             Assert.AreEqual(1, project.Imports.Count);
             Assert.AreEqual(2, project.Targets.Count);
@@ -461,7 +461,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
  </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(1, project.AdditionalPropertyGroups.Count);
 			Assert.AreEqual(4, project.AdditionalPropertyGroups[0].Elements().Count());
@@ -504,7 +504,7 @@ if $(ConfigurationName) == Debug (
   </PropertyGroup>
  </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(1, project.BuildEvents.Count);
 		}
@@ -575,23 +575,24 @@ if $(ConfigurationName) == Debug (
   </PropertyGroup>
  </Project>";
 
-			var project = await ParseAndTransformAsync(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(3, project.Configurations.Count);
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Debug"));
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Release_CI"));
 		}
 
-		private static async Task<Project> ParseAndTransformAsync(string xml)
+		private static async Task<Project> ParseAndTransform(
+				string xml,
+				[System.Runtime.CompilerServices.CallerMemberName] string memberName = ""
+			)
 		{
-			var document = XDocument.Parse(xml);
+			var testCsProjFile = $"{memberName}_test.csproj";
 
-			var transformation = new ProjectPropertiesTransformation();
-			
-			var progress = new Progress<string>(x => { });
+			await File.WriteAllTextAsync(testCsProjFile, xml);
 
-			var project = new Project();
-			await transformation.TransformAsync(document, null, project, progress).ConfigureAwait(false);
+			var project = new ProjectReader().Read(testCsProjFile);
+
 			return project;
 		}
 	}

@@ -11,7 +11,7 @@ namespace Project2015To2017Tests
 		public void GenerateAssemblyInfoOnNothingSpecifiedTest()
 		{
 			var writer = new ProjectWriter();
-			var xmlNode = writer.CreateXml(new Project
+			var xmlNode = writer.CreateXml(new Project()
 			{
 				AssemblyAttributes = new AssemblyAttributes()
 			}, new System.IO.FileInfo("test.cs"));
@@ -27,10 +27,7 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				AssemblyAttributes = new AssemblyAttributes
-				{
-					Company = "Company"
-				}
+				AssemblyAttributes = new AssemblyAttributes {Company = "Company"}
 			}, new System.IO.FileInfo("test.cs"));
 
 			var generateAssemblyInfo = xmlNode.Element("PropertyGroup").Element("GenerateAssemblyInfo");

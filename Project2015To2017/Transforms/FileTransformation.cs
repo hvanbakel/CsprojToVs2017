@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
+using static Project2015To2017.Definition.Project;
 
-namespace Project2015To2017
+namespace Project2015To2017.Transforms
 {
 	internal sealed class FileTransformation : ITransformation
     {
-        private static readonly IReadOnlyList<string> ItemsToProject = new[]
+	    private static readonly IReadOnlyList<string> ItemsToProject = new[]
         {
             "None",
             "Content",
@@ -27,27 +27,44 @@ namespace Project2015To2017
 			"EmbeddedResource"
 		};
 
-        public Task TransformAsync(XDocument projectFile, DirectoryInfo projectFolder, Project definition, IProgress<string> progress)
-        {
-            XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
-            var itemGroups = projectFile
-                .Element(nsSys + "Project")
-                .Elements(nsSys + "ItemGroup");
+	    public void Transform(Project definition, IProgress<string> progress)
+		{
+			var items = definition.IncludeItems;
 
-            var compileManualIncludes = FindNonWildcardMatchedFiles(projectFolder, itemGroups, "*.cs", nsSys + "Compile", progress);
-            var otherIncludes = ItemsToProject.SelectMany(x => itemGroups.Elements(nsSys + x));
+			var compileManualIncludes = FindNonWildcardMatchedFiles(definition.ProjectFolder, items, "*.cs", XmlNamespace + "Compile", progress);
 
-            // Remove packages.config since those references were already added to the CSProj file.
-            otherIncludes.Where(x => x.Attribute("Include")?.Value == "packages.config").Remove();
-			otherIncludes.Where(x => x.Attribute("Include") != null && x.Attribute("Include").Value.EndsWith(".nuspec")).Remove();
-			otherIncludes.Where(x => x.Name == nsSys + "EmbeddedResource" && x.Attribute("Include") != null && x.Attribute("Include").Value.EndsWith(".resx")).Remove();
+            var otherIncludes = ItemsToProject.SelectMany<string, XElement>(x => items.Elements(XmlNamespace + x))
+										      .Where(KeepFileInclusion);
 
-			definition.ItemsToInclude = compileManualIncludes.Concat(otherIncludes).ToArray();
+			var itemsToInclude = compileManualIncludes
+									.Concat(otherIncludes)
+									.ToList()
+									.AsReadOnly();
 
-            return Task.CompletedTask;
+			definition.IncludeItems = itemsToInclude;
         }
 
-        private static IReadOnlyList<XElement> FindNonWildcardMatchedFiles(
+	    private static bool KeepFileInclusion(XElement x)
+	    {
+		    var include = x.Attribute("Include")?.Value;
+
+		    if (include == null)
+		    {
+			    return true;
+		    }
+
+		    return 
+				// Remove packages.config since those references were already added to the CSProj file.
+				include != "packages.config" &&
+				// Nuspec is no longer required
+				!include.EndsWith(".nuspec")
+				&&
+				//Resource files are added automatically
+				!(x.Name == XmlNamespace + "EmbeddedResource"
+					&& include.EndsWith(".resx"));
+	    }
+
+	    private static IReadOnlyList<XElement> FindNonWildcardMatchedFiles(
             DirectoryInfo projectFolder,
             IEnumerable<XElement> itemGroups,
             string wildcard,

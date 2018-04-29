@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Project2015To2017;
 using Project2015To2017.Definition;
+using Project2015To2017.Reading;
+using Project2015To2017.Transforms;
 
 namespace Project2015To2017Tests
 {
@@ -13,80 +14,73 @@ namespace Project2015To2017Tests
     public class PackageReferenceTransformationTest
     {
         [TestMethod]
-        public async Task AddsTestPackagesAsync()
+        public void AddsTestPackages()
         {
-            var project = new Project { Type = ApplicationType.TestProject, TargetFrameworks = new[] { "net45" } };
-            var transformation = new PackageReferenceTransformation();
+	        var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj");
 
-            var directoryInfo = new DirectoryInfo(".\\TestFiles");
-            var doc = XDocument.Load("TestFiles\\net46console.testcsproj");
-
-	        var progress = new Progress<string>(x => { });
-
-            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
-
-            Assert.AreEqual(10, project.PackageReferences.Count);
-            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
-            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk" && x.Version == "15.0.0"));
-            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "AutoMapper" && x.Version == "6.1.1" && x.IsDevelopmentDependency));
-        }
-
-        [TestMethod]
-        public async Task AcceptsNetStandardFrameworkAsync()
-        {
-            var project = new Project { Type = ApplicationType.TestProject, TargetFrameworks = new[] { "netstandard2.0" } };
-            var transformation = new PackageReferenceTransformation();
-
-            var directoryInfo = new DirectoryInfo(".\\TestFiles");
-            var doc = XDocument.Load("TestFiles\\net46console.testcsproj");
-
-	        var progress = new Progress<string>(x => { });
-
-            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
-
-            Assert.AreEqual(10, project.PackageReferences.Count);
-            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
-            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk" && x.Version == "15.0.0"));
-            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "AutoMapper" && x.Version == "6.1.1" && x.IsDevelopmentDependency));
-        }
-
-        [TestMethod]
-        public async Task DoesNotAddTestPackagesIfExistsAsync()
-        {
-            var project = new Project { Type = ApplicationType.TestProject, TargetFrameworks = new[] { "net45" } };
-            var transformation = new PackageReferenceTransformation();
-
-            var directoryInfo = new DirectoryInfo(".\\TestFiles");
-            var doc = XDocument.Parse(@"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <Import Project=""$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"" Condition=""Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"" />
-
-  <ItemGroup>
-    <PackageReference Include=""Microsoft.NET.Test.Sdk"" Version=""15.0.0"" />
-  </ItemGroup>
-</Project>
-");
+	        project.Type = ApplicationType.TestProject;
+	        project.TargetFrameworks = new[] { "net45" };
 			
+            var transformation = new PackageReferenceTransformation();
+
 	        var progress = new Progress<string>(x => { });
 
-            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
+            transformation.Transform(project, progress);
+
+            Assert.AreEqual(10, project.PackageReferences.Count);
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk" && x.Version == "15.0.0"));
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "AutoMapper" && x.Version == "6.1.1" && x.IsDevelopmentDependency));
+        }
+
+        [TestMethod]
+        public void AcceptsNetStandardFramework()
+        {
+	        var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj");
+
+	        project.Type = ApplicationType.TestProject;
+	        project.TargetFrameworks = new[] { "netstandard2.0" };
+			
+			var transformation = new PackageReferenceTransformation();
+
+	        var progress = new Progress<string>(x => { });
+
+            transformation.Transform(project, progress);
+
+            Assert.AreEqual(10, project.PackageReferences.Count);
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk" && x.Version == "15.0.0"));
+            Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "AutoMapper" && x.Version == "6.1.1" && x.IsDevelopmentDependency));
+        }
+
+        [TestMethod]
+        public void DoesNotAddTestPackagesIfExists()
+        {
+            var transformation = new PackageReferenceTransformation();
+
+			var project = new ProjectReader()
+								.Read(@"TestFiles\\containsTestSDK.testcsproj");
+
+	        project.TargetFrameworks = new[] { "net45" };
+
+	        var progress = new Progress<string>(x => { });
+
+            transformation.Transform(project, progress);
 
             Assert.AreEqual(6, project.PackageReferences.Count);
             Assert.AreEqual(0, project.PackageReferences.Count(x => x.Id == "MSTest.TestAdapter"));
         }
 
         [TestMethod]
-        public async Task TransformsPackagesAsync()
+        public void TransformsPackages()
         {
-            var project = new Project();
-            var transformation = new PackageReferenceTransformation();
+	        var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj");
 
-            var directoryInfo = new DirectoryInfo(".\\TestFiles");
-            var doc = XDocument.Load("TestFiles\\net46console.testcsproj");
+            var transformation = new PackageReferenceTransformation();
 
 	        var progress = new Progress<string>(x => { });
 
-            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
+            transformation.Transform(project, progress);
 
             Assert.AreEqual(7, project.PackageReferences.Count);
             Assert.AreEqual(2, project.PackageReferences.Count(x => x.IsDevelopmentDependency));
@@ -94,17 +88,14 @@ namespace Project2015To2017Tests
         }
 
         [TestMethod]
-        public async Task HandlesNonXmlAsync()
+        public void HandlesNonXml()
         {
-            var project = new Project();
+            var project = new ProjectReader().Read("OtherPackagesConfig\\net46console.testcsproj");
             var transformation = new PackageReferenceTransformation();
-
-            var directoryInfo = new DirectoryInfo(".\\OtherPackagesConfig");
-            var doc = XDocument.Load("OtherPackagesConfig\\net46console.testcsproj");
 
 	        var progress = new Progress<string>(x => { });
 
-            await transformation.TransformAsync(doc, directoryInfo, project, progress).ConfigureAwait(false);
+            transformation.Transform(project, progress);
         }
     }
 }
