@@ -31,6 +31,8 @@ namespace Project2015To2017
 				definition.AssemblyName = unconditionalPropertyGroups.Elements(nsSys + "AssemblyName").FirstOrDefault()?.Value;
 
 				definition.SignAssembly = "true".Equals(unconditionalPropertyGroups.Elements(nsSys + "SignAssembly").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
+				if (Boolean.TryParse(unconditionalPropertyGroups.Elements(nsSys + "DelaySign").FirstOrDefault()?.Value, out bool delaySign))
+					definition.DelaySign = delaySign;
 				definition.AssemblyOriginatorKeyFile = unconditionalPropertyGroups.Elements(nsSys + "AssemblyOriginatorKeyFile").FirstOrDefault()?.Value;
 
 				// Ref.: https://www.codeproject.com/Reference/720512/List-of-Visual-Studio-Project-Type-GUIDs

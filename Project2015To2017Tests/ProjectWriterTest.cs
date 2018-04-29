@@ -40,5 +40,46 @@ namespace Project2015To2017Tests
 			Assert.IsNotNull(generateAssemblyCompany);
 			Assert.AreEqual("false", generateAssemblyCompany.Value);
 		}
+
+		[TestMethod]
+		public void SkipDelaySignNull()
+		{
+			var writer = new ProjectWriter();
+			var xmlNode = writer.CreateXml(new Project
+			{
+				DelaySign = null
+			}, new System.IO.FileInfo("test.cs"));
+
+			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
+			Assert.IsNull(delaySign);
+		}
+
+		[TestMethod]
+		public void OutputDelaySignTrue()
+		{
+			var writer = new ProjectWriter();
+			var xmlNode = writer.CreateXml(new Project
+			{
+				DelaySign = true,
+			}, new System.IO.FileInfo("test.cs"));
+
+			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
+			Assert.IsNotNull(delaySign);
+			Assert.AreEqual("true", delaySign.Value);
+		}
+
+		[TestMethod]
+		public void OutputDelaySignFalse()
+		{
+			var writer = new ProjectWriter();
+			var xmlNode = writer.CreateXml(new Project
+			{
+				DelaySign = false,
+			}, new System.IO.FileInfo("test.cs"));
+
+			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
+			Assert.IsNotNull(delaySign);
+			Assert.AreEqual("false", delaySign.Value);
+		}
 	}
 }
