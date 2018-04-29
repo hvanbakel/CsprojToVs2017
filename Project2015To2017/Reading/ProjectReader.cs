@@ -26,6 +26,13 @@ namespace Project2015To2017.Reading
 				projectXml = XDocument.Load(stream);
 			}
 
+			// get ProjectTypeGuids and check for unsupported types
+			if (UnsupportedProjectTypes.IsUnsupportedProjectType(projectXml))
+			{
+				progress.Report("This project type is not supported for conversion.");
+				return null;
+			}
+
 			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
 			if (projectXml.Element(nsSys + "Project") == null)
 			{
