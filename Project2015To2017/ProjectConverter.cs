@@ -96,11 +96,6 @@ namespace Project2015To2017
 				transform.Transform(project, progress);
 			}
 
-			foreach (var transform in _transformationsToApply)
-			{
-				transform.Transform(project, progress);
-			}
-
 			var projectFile = file.FullName;
 			if (!SaveBackup(projectFile, progress))
 			{
