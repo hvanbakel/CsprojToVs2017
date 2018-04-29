@@ -24,6 +24,9 @@
     <None Include="TestFiles\readonly.testcsproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestFiles\containsTestSDK.testcsproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestFiles\unittest.testcsproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

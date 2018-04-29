@@ -1,17 +1,22 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
+
 namespace Project2015To2017.Definition
 {
     public sealed class PackageConfiguration
     {
-        public string Id { get; internal set; }
-        public string Version { get; internal set; }
-        public string Authors { get; internal set; }
-        public string Description { get; internal set; }
-        public string Copyright { get; internal set; }
-        public string LicenseUrl { get; internal set; }
-        public string ProjectUrl { get; internal set; }
-        public string IconUrl { get; internal set; }
-        public string Tags { get; internal set; }
-        public string ReleaseNotes { get; internal set; }
-        public bool RequiresLicenseAcceptance { get; internal set; }
+	    public string Id { get; set; }
+        public string Version { get; set; }
+        public string Authors { get; set; }
+        public string Description { get; set; }
+        public string Copyright { get; set; }
+        public string LicenseUrl { get; set; }
+        public string ProjectUrl { get; set; }
+        public string IconUrl { get; set; }
+        public string Tags { get; set; }
+        public string ReleaseNotes { get; set; }
+        public bool RequiresLicenseAcceptance { get; set; }
+	    public IList<XElement> Dependencies { get; set; }
     }
 }

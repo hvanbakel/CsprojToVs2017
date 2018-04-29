@@ -106,10 +106,10 @@ namespace Project2015To2017.Writing
             }
 
             // manual includes
-            if (project.ItemsToInclude?.Count > 0)
+            if (project.IncludeItems?.Count > 0)
             {
                 var includeGroup = new XElement("ItemGroup");
-                foreach (var include in project.ItemsToInclude.Select(RemoveAllNamespaces))
+                foreach (var include in project.IncludeItems.Select(RemoveAllNamespaces))
                 {
                     includeGroup.Add(include);
                 }
