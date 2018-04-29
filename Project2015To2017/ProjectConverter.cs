@@ -86,6 +86,15 @@ namespace Project2015To2017
 			}
 
 			var project = new ProjectReader().Read(filePath, progress);
+			if (project == null)
+			{
+				return null;
+			}
+
+			foreach (var transform in _transformationsToApply)
+			{
+				transform.Transform(project, progress);
+			}
 
 			foreach (var transform in _transformationsToApply)
 			{
