@@ -33,6 +33,10 @@ namespace Project2015To2017
 					string line;
 					while ((line = reader.ReadLine()) != null)
 					{
+						if(!line.Trim().StartsWith("Project(") {
+							continue;	
+						}
+						
 						var projectPath = line.Split('"').FirstOrDefault(x => x.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase));
 						if (projectPath != null)
 						{
