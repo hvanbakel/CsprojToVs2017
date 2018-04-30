@@ -9,6 +9,11 @@ namespace Project2015To2017.Transforms
 	{
 		public void Transform(Project definition, IProgress<string> progress)
 		{
+			if (definition.PackageConfiguration == null)
+			{
+				return;
+			}
+			
 			var packageConfig = PopulatePlaceHolders(
 									definition.PackageConfiguration,
 									definition.AssemblyAttributes
