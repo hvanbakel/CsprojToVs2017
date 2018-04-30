@@ -33,7 +33,7 @@ namespace Project2015To2017
 					string line;
 					while ((line = reader.ReadLine()) != null)
 					{
-						if(!line.Trim().StartsWith("Project(") {
+						if(!line.Trim().StartsWith("Project(")) {
 							continue;	
 						}
 						
