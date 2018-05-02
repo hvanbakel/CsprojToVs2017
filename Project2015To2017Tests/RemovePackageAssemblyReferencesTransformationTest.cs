@@ -109,6 +109,8 @@ namespace Project2015To2017Tests
 			//The only ones left which point to another folder
 			Assert.AreEqual(2, remainingImports.Count);
 			CollectionAssert.AreEqual(expectedRemaining, remainingImports);
+
+			Assert.IsFalse(project.Targets.Any());
 		}
 
 	}
