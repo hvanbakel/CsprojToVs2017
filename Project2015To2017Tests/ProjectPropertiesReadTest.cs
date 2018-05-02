@@ -370,7 +370,7 @@ namespace Project2015To2017Tests
             Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.AssemblyName);
             Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage", project.RootNamespace);
             Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
-			Assert.AreEqual(2, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(1, project.AdditionalPropertyGroups.Count);
         }
 
         [TestMethod]
@@ -465,7 +465,7 @@ namespace Project2015To2017Tests
 			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(1, project.AdditionalPropertyGroups.Count);
-			Assert.AreEqual(4, project.AdditionalPropertyGroups[0].Elements().Count());
+			Assert.AreEqual(36, project.AdditionalPropertyGroups[0].Elements().Count());
 		}
 
 		[TestMethod]
