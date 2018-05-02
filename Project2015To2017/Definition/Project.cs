@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
+using NuGet.Configuration;
 
 namespace Project2015To2017.Definition
 {
@@ -33,5 +34,27 @@ namespace Project2015To2017.Definition
 		public string AssemblyOriginatorKeyFile { get; set; }
 		public FileInfo FilePath { get; set; }
 		public DirectoryInfo ProjectFolder => FilePath.Directory;
+
+		/// <summary>
+		/// The directory where nuget stores its extracted packages for the project.
+		/// In general this is the 'packages' folder within the parent solution, but
+		/// it can be overridden, which is accounted for here.
+		/// </summary>
+		public DirectoryInfo NugetPackagesPath
+		{
+			get
+			{
+				var projectFolder = ProjectFolder.FullName;
+
+				var nuGetSettings = Settings.LoadDefaultSettings(projectFolder);
+				var repositoryPathSetting = SettingsUtility.GetRepositoryPath(nuGetSettings);
+
+				//return the explicitly set path, or if there isn't one, then assume the solution is one level
+				//above the project and therefore so is the 'packages' folder
+				var path = repositoryPathSetting ?? Path.GetFullPath(Path.Combine(projectFolder, @"..\packages"));
+
+				return new DirectoryInfo(path);
+			}
+		}
 	}
 }

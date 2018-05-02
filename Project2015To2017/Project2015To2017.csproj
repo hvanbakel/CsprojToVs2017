@@ -10,6 +10,6 @@
 
   <ItemGroup>
     <Folder Include="Properties\" />
-    <PackageReference Include="NuGet.Configuration" Version="4.6.0" />
+    <PackageReference Include="NuGet.Configuration" Version="4.6.2" />
   </ItemGroup>
 </Project>

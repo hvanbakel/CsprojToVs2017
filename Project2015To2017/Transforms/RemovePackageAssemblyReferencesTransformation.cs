@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using NuGet.Configuration;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
@@ -17,19 +16,19 @@ namespace Project2015To2017.Transforms
 
 			var projectPath = definition.ProjectFolder.FullName;
 
-			var nugetRepositoryPath = NuGetRepositoryPath(projectPath);
+			var nugetRepositoryPath = definition.NugetPackagesPath.FullName;
 
 			var packageReferenceIds = definition.PackageReferences.Select(x => x.Id).ToArray();
 
 			var packagePaths = packageReferenceIds.Select(packageId => Path.Combine(nugetRepositoryPath, packageId).ToLower())
-												  .ToArray();
+				.ToArray();
 
 			var filteredAssemblies = definition.AssemblyReferences
-											   .Where(assembly => !packagePaths.Any(
-														    packagePath => AssemblyMatchesPackage(assembly, packagePath)
-													 )
-											    )
-												.ToList();
+				.Where(assembly => !packagePaths.Any(
+						packagePath => AssemblyMatchesPackage(assembly, packagePath)
+					)
+				)
+				.ToList();
 
 			definition.AssemblyReferences = filteredAssemblies;
 
@@ -45,16 +44,6 @@ namespace Project2015To2017.Transforms
 
 				return fullHintPath.ToLower().StartsWith(packagePath);
 			}
-		}
-
-		private static string NuGetRepositoryPath(string projectFolder)
-		{
-			var nuGetSettings = Settings.LoadDefaultSettings(projectFolder);
-			var repositoryPathSetting = SettingsUtility.GetRepositoryPath(nuGetSettings);
-
-			//return the explicitly set path, or if there isn't one, then assume the solution is one level
-			//above the project and therefore so is the 'packages' folder
-			return repositoryPathSetting ?? Path.GetFullPath(Path.Combine(projectFolder, @"..\packages"));
 		}
 	}
 }

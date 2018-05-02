@@ -81,6 +81,27 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <!-- These should be left in as they haven't come from a package-->
+  <Import Project="C:\SomeTargets.props" />
+  <Import Project="C:\SomeTargets.targets" />
+
+  <Import Project="..\SomeOtherPackagesFolder\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\SomeOtherPackagesFolder\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\SomeOtherPackagesFolder\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\SomeOtherPackagesFolder\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
+  </Target>
+
+  <Import Project="..\SomeOtherPackagesFolder\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.props" Condition="Exists('..\SomeOtherPackagesFolder\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.props')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\SomeOtherPackagesFolder\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.props')" Text="$([System.String]::Format('$(ErrorText)', '..\SomeOtherPackagesFolder\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.props'))" />
+  </Target>
+
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
