@@ -19,6 +19,7 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<XElement> Targets { get; set; }
 		public IReadOnlyList<XElement> BuildEvents { get; set; }
 		public IReadOnlyList<string> Configurations { get; set; }
+		public IReadOnlyList<XElement> OtherPropertyGroups { get; set; }
 
 		public IReadOnlyList<string> TargetFrameworks { get; set; }
 		public ApplicationType Type { get; set; }

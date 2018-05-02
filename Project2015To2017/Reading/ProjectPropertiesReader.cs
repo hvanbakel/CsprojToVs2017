@@ -83,11 +83,13 @@ namespace Project2015To2017.Reading
 		{
 			var additionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") != null).ToList();
 			var versionControlElements = propertyGroups
-				.SelectMany(x => x.Elements().Where(e => e.Name.LocalName.StartsWith("Scc")))
-				.ToArray();
+				.SelectMany(x => x.Elements().Where(e => e.Name.LocalName.StartsWith("Scc")));
+			var otherElementsInPropertyGroupWithNoCondition = propertyGroups.Where(x => x.Attribute("Condition") == null)
+				.SelectMany(x => x.Elements());
+
 			if (versionControlElements != null)
 			{
-				additionalPropertyGroups.Add(new XElement("PropertyGroup", versionControlElements));
+				additionalPropertyGroups.Add(new XElement("PropertyGroup", versionControlElements.Concat(otherElementsInPropertyGroupWithNoCondition).ToArray()));
 			}
 
 			return additionalPropertyGroups;
