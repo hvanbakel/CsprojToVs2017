@@ -18,6 +18,7 @@ namespace Project2015To2017
 			new PackageReferenceTransformation(),
 			new AssemblyReferenceTransformation(),
 			new RemovePackageAssemblyReferencesTransformation(),
+			new RemovePackageImportsTransformation(),
 			new FileTransformation(),
 			new NugetPackageTransformation()
 		};
