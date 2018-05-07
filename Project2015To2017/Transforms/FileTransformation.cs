@@ -84,13 +84,16 @@ namespace Project2015To2017.Transforms
 
                     if (!Path.GetFullPath(Path.Combine(projectFolder.FullName, includeAttribute.Value)).StartsWith(projectFolder.FullName))
                     {
-	                    progress.Report($"Include cannot be done through wildcard, adding as separate include {compiledFile}.");
+	                    progress.Report("Include cannot be done through wildcard, " +
+	                                    $"adding as separate include:{Environment.NewLine}{compiledFile}.");
                         manualIncludes.Add(compiledFile);
                     }
                     else if (compiledFile.Attributes().Count() != 1)
                     {
-	                    progress.Report($"Include cannot be done through wildcard, adding as separate include {compiledFile}.");
+	                    progress.Report("Include cannot be done exclusively through wildcard, " +
+	                                    $"adding as separate update:{Environment.NewLine}{compiledFile}.");
                         manualIncludes.Add(compiledFile);
+	                    filesMatchingWildcard.Add(includeAttribute.Value);
                     }
                     else if (compiledFile.Elements().Count() != 0)
                     {
@@ -107,8 +110,10 @@ namespace Project2015To2017.Transforms
                         }
                         else
                         {
-	                        progress.Report($"Include cannot be done through wildcard, adding as separate include {compiledFile}.");
+	                        progress.Report("Include cannot be done exclusively through wildcard, " +
+	                                        $"adding as separate update:{Environment.NewLine}{compiledFile}.");
                             manualIncludes.Add(compiledFile);
+	                        filesMatchingWildcard.Add(includeAttribute.Value);
                         }
                     }
                     else
