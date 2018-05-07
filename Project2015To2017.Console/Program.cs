@@ -13,10 +13,11 @@ namespace Project2015To2017.Console
 		        return;
 	        }
 
-			var writer = new Project2015To2017.Writing.ProjectWriter();
+			var writer = new Writing.ProjectWriter();
 
 	        var convertedProjects = ProjectConverter.Convert(args[0], new Progress<string>(System.Console.WriteLine))
-													.Where(x => x != null);
+													.Where(x => x != null)
+													.ToList();
 
 	        if (!args.Contains("--dry-run"))
 	        {
