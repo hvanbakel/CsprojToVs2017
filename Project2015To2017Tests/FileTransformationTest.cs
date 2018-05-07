@@ -23,16 +23,31 @@ namespace Project2015To2017Tests
 
             transformation.Transform(project, progress);
 
-            Assert.AreEqual(6, project.IncludeItems.Count);
+	        var includeItems = project.IncludeItems;
 
-            Assert.AreEqual(1, project.IncludeItems.Count(x => x.Name == XmlNamespace + "Compile"));
-            Assert.AreEqual(2, project.IncludeItems.Count(x => x.Name == "Compile"));
-            Assert.AreEqual(2, project.IncludeItems.Count(x => x.Name == "Compile" && x.Attribute("Update") != null));
-            Assert.AreEqual(1, project.IncludeItems.Count(x => x.Name == XmlNamespace + "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
-            Assert.AreEqual(0, project.IncludeItems.Count(x => x.Name == XmlNamespace + "Content"));
-            Assert.AreEqual(2, project.IncludeItems.Count(x => x.Name == XmlNamespace + "None"));
+	        Assert.AreEqual(6, includeItems.Count);
 
-	        var warningLogEntries = logEntries.Where(x => x.StartsWith("File found") || x.StartsWith("File was included"));
+            Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
+            Assert.AreEqual(2, includeItems.Count(x => x.Name == "Compile"));
+            Assert.AreEqual(2, includeItems.Count(x => x.Name == "Compile" && x.Attribute("Update") != null));
+            Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
+            Assert.AreEqual(0, includeItems.Count(x => x.Name == XmlNamespace + "Content"));
+            Assert.AreEqual(2, includeItems.Count(x => x.Name == XmlNamespace + "None"));
+
+	        var resourceDesigner = includeItems.Single(
+								        x => x.Name == "Compile" && x.Attribute("Update")?.Value == @"Properties\Resources.Designer.cs"
+							        );
+
+	        var dependentUponElement = resourceDesigner.Elements().Single();
+
+			Assert.AreEqual("DependentUpon", dependentUponElement.Name);
+			Assert.AreEqual("Resources.resx", dependentUponElement.Value);
+
+	        var warningLogEntries = logEntries
+								        .Where(x => x.StartsWith("File found") || x.StartsWith("File was included"))
+								        //todo: would be good to be able to remove this condition and not warn on wildcard inclusions
+										//that are covered by main wildcard
+								        .Where(x => !x.ToUpper().Contains("WILDCARD"));
 
 			Assert.IsFalse(warningLogEntries.Any());
         }
