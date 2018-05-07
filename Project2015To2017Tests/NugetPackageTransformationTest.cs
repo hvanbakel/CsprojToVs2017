@@ -14,7 +14,7 @@ namespace Project2015To2017Tests
 		public void ConvertsNuspec()
 		{
 			var project = new ProjectReader()
-								.Read("TestFiles\\net46console.testcsproj");
+								.Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
 
 			project.AssemblyAttributes =
 								new AssemblyAttributes {
@@ -45,7 +45,7 @@ namespace Project2015To2017Tests
 		public void ConvertsDependencies()
 		{
 			var project = new ProjectReader()
-								.Read("TestFiles\\net46console.testcsproj");
+								.Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
 
 			project.PackageReferences = new[]
 										{
