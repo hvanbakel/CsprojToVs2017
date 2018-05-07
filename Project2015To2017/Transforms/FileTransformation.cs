@@ -33,7 +33,7 @@ namespace Project2015To2017.Transforms
 
 			var compileManualIncludes = FindNonWildcardMatchedFiles(definition.ProjectFolder, items, "*.cs", XmlNamespace + "Compile", progress);
 
-            var otherIncludes = ItemsToProject.SelectMany<string, XElement>(x => items.Elements(XmlNamespace + x))
+            var otherIncludes = ItemsToProject.SelectMany(x => items.Elements(XmlNamespace + x))
 										      .Where(KeepFileInclusion);
 
 			var itemsToInclude = compileManualIncludes
