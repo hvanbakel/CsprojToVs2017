@@ -27,21 +27,20 @@ namespace Project2015To2017Tests
 
 	        Assert.AreEqual(9, includeItems.Count);
 
-            Assert.AreEqual(4, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
-            Assert.AreEqual(2, includeItems.Count(x => x.Name == "Compile"));
-            Assert.AreEqual(6, includeItems.Count(x => (x.Name == "Compile" || x.Name == XmlNamespace + "Compile") && x.Attribute("Update") != null));
+            Assert.AreEqual(6, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
+            Assert.AreEqual(6, includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Update") != null));
             Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
             Assert.AreEqual(0, includeItems.Count(x => x.Name == XmlNamespace + "Content"));
             Assert.AreEqual(2, includeItems.Count(x => x.Name == XmlNamespace + "None"));
 
 	        var resourceDesigner = includeItems.Single(
-								        x => x.Name == "Compile"
+								        x => x.Name == XmlNamespace + "Compile"
 								             && x.Attribute("Update")?.Value == @"Properties\Resources.Designer.cs"
 							        );
 
-	        var dependentUponElement = resourceDesigner.Elements().Single();
-
-			Assert.AreEqual("DependentUpon", dependentUponElement.Name);
+			Assert.AreEqual(3, resourceDesigner.Elements().Count());
+	        var dependentUponElement = resourceDesigner.Elements().Single(x=> x.Name == XmlNamespace + "DependentUpon");
+			
 			Assert.AreEqual("Resources.resx", dependentUponElement.Value);
 
 	        var sourceWithDesigner = includeItems.Single(
