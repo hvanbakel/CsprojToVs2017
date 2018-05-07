@@ -16,7 +16,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void AddsTestPackages()
         {
-	        var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj");
+	        var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
 
 	        project.Type = ApplicationType.TestProject;
 	        project.TargetFrameworks = new[] { "net45" };
@@ -36,7 +36,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void AcceptsNetStandardFramework()
         {
-	        var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj");
+	        var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
 
 	        project.Type = ApplicationType.TestProject;
 	        project.TargetFrameworks = new[] { "netstandard2.0" };
@@ -59,7 +59,7 @@ namespace Project2015To2017Tests
             var transformation = new PackageReferenceTransformation();
 
 			var project = new ProjectReader()
-								.Read(@"TestFiles\\containsTestSDK.testcsproj");
+								.Read(@"TestFiles\\OtherTestProjects\\containsTestSDK.testcsproj");
 
 	        project.TargetFrameworks = new[] { "net45" };
 
@@ -74,7 +74,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void TransformsPackages()
         {
-	        var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj");
+	        var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
 
             var transformation = new PackageReferenceTransformation();
 

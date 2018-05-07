@@ -68,7 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Folder\FileInFolder.cs" />
-    <Compile Include="..\FileTransformationTest.cs" />
+    <Compile Include="..\..\FileTransformationTest.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -86,8 +86,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-	<EmbeddedResource Include="unittest.testcsproj" />
-	<EmbeddedResource Include="..\FileTransformationTest.resx" />
+	<EmbeddedResource Include="..\unittest.testcsproj" />
+	<EmbeddedResource Include="..\..\FileTransformationTest.resx" />
     <EmbeddedResource Include="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -97,14 +97,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+    <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SomeOtherProject\SomeOtherProject.csproj">
+    <ProjectReference Include="..\..\SomeOtherProject\SomeOtherProject.csproj">
       <Project>{E5D98CC4-93A3-450D-B33E-F9CAD02BBD8C}</Project>
       <Name>SomeOtherProject</Name>
     </ProjectReference>
-    <ProjectReference Include="..\YetAnotherProject\YetAnotherProject.csproj">
+    <ProjectReference Include="..\..\YetAnotherProject\YetAnotherProject.csproj">
       <Project>{E5D98CC5-93A3-450D-B33E-F9CAD02BBD8C}</Project>
       <Name>YetAnotherProject</Name>
     </ProjectReference>
