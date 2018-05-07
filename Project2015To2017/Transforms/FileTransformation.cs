@@ -132,7 +132,7 @@ namespace Project2015To2017.Transforms
 
             foreach (var nonListedFile in filesInFolder.Except(knownFullPaths))
             {
-                if (nonListedFile.StartsWith(Path.Combine(projectFolder.FullName + "\\obj"), StringComparison.OrdinalIgnoreCase))
+                if (nonListedFile.StartsWith(Path.Combine(projectFolder.FullName + "\\obj\\"), StringComparison.OrdinalIgnoreCase))
                 {
                     // skip the generated files in obj
                     continue;
