@@ -44,7 +44,10 @@ namespace Project2015To2017.Reading
 			
 			var assemblyReferences = LoadAssemblyReferences(projectXml, progress);
 			var projectReferences = LoadProjectReferences(projectXml, progress);
-			var packageReferences = LoadPackageReferences(fileInfo, projectXml, progress);
+
+			var packagesConfigFile = FindPackagesConfigFile(fileInfo, progress);
+
+			var packageReferences = LoadPackageReferences(projectXml, packagesConfigFile, progress);
 
 			var includes = LoadFileIncludes(projectXml);
 
@@ -57,11 +60,10 @@ namespace Project2015To2017.Reading
 				ProjectReferences = projectReferences,
 				PackageReferences = packageReferences,
 				IncludeItems = includes,
-				PackageConfiguration = packageConfig
+				PackageConfiguration = packageConfig,
+				PackagesConfigFile = packagesConfigFile
 			};
 
-			//todo: change this to use a pure method like the other loaders
-			//probably by collecting properties into a class
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
 
 			var assemblyAttributes = LoadAssemblyAttributes(fileInfo, projectDefinition.AssemblyName, progress);
@@ -71,16 +73,24 @@ namespace Project2015To2017.Reading
 			return projectDefinition;
 		}
 
-		private List<PackageReference> LoadPackageReferences(FileInfo projectFile, XDocument projectXml, IProgress<string> progress)
+		private FileInfo FindPackagesConfigFile(FileInfo projectFile, IProgress<string> progress)
 		{
-			var packagesConfig = projectFile.Directory.GetFiles("packages.config", SearchOption.TopDirectoryOnly);
+			var packagesConfig = new FileInfo(Path.Combine(projectFile.Directory.FullName, "packages.config"));
 
-			var packageReferences = new List<PackageReference>();
-
-			if (packagesConfig == null || packagesConfig.Length == 0)
+			if (!packagesConfig.Exists)
 			{
 				progress.Report("Packages.config file not found.");
+				return null;
 			}
+			else
+			{
+				return packagesConfig;
+			}
+		}
+
+		private List<PackageReference> LoadPackageReferences(XDocument projectXml, FileInfo packagesConfig, IProgress<string> progress)
+		{
+			var packageReferences = new List<PackageReference>();
 
 			try
 			{
@@ -113,15 +123,15 @@ namespace Project2015To2017.Reading
 			return packageReferences;
 		}
 
-		private static IEnumerable<PackageReference> PackageConfigPackages(FileInfo[] packagesConfig)
+		private static IEnumerable<PackageReference> PackageConfigPackages(FileInfo packagesConfig)
 		{
-			if (packagesConfig == null || !packagesConfig.Any())
+			if (packagesConfig == null)
 			{
 				return Enumerable.Empty<PackageReference>();
 			}
 
 			XDocument packagesConfigDoc;
-			using (var stream = File.Open(packagesConfig[0].FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+			using (var stream = File.Open(packagesConfig.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
 				packagesConfigDoc = XDocument.Load(stream);
 			}

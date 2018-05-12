@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
 
@@ -12,52 +11,86 @@ namespace Project2015To2017.Writing
     {
         public void Write(Project project, IProgress<string> progress)
         {
-	        var projectFile = project.FilePath;
-
-	        if (!DoBackups(projectFile, progress))
+	        if (!DoBackups(project, progress))
 	        {
+		        progress.Report("Couldn't do backup, so not applying any changes");
 		        return;
 	        }
 
-	        var projectNode = CreateXml(project, projectFile);
+	        var projectNode = CreateXml(project);
 
-            using (var filestream = File.Open(projectFile.FullName, FileMode.Create))
-            using (var streamWriter = new StreamWriter(filestream, Encoding.UTF8))
-            {
-                streamWriter.Write(projectNode.ToString());
-            }
+			File.WriteAllText(project.FilePath.FullName, projectNode.ToString());
+
+	        DeleteUnusedFiles(project);
         }
 
-	    private static bool DoBackups(FileInfo projectFile, IProgress<string> progress)
+	    private static bool DoBackups(Project project, IProgress<string> progress)
 	    {
-		    if (!SaveBackup(projectFile, progress))
+		    var projectFile = project.FilePath;
+
+		    var backupFolder = CreateBackupFolder(projectFile, progress);
+
+		    if (backupFolder == null)
 		    {
 			    return false;
 		    }
 
-		    var packagesFile = Path.Combine(projectFile.DirectoryName, "packages.config");
-		    if (File.Exists(packagesFile))
-		    {
-			    if (!RenameFile(packagesFile, progress))
-			    {
-				    return false;
-			    }
-		    }
+			progress.Report($"Backing up to {backupFolder.FullName}");
 
-		    var nuspecFile = projectFile.FullName.Replace(".csproj", ".nuspec");
-		    if (File.Exists(nuspecFile))
-		    {
-			    if (!RenameFile(nuspecFile, progress))
-			    {
-				    return false;
-			    }
-		    }
+		    projectFile.CopyTo(Path.Combine(backupFolder.FullName, projectFile.Name));
+
+		    var packagesFile = project.PackagesConfigFile;
+		    packagesFile?.CopyTo(Path.Combine(backupFolder.FullName, packagesFile.Name));
+
+		    var nuspecFile = project.PackageConfiguration?.NuspecFile;
+		    nuspecFile?.CopyTo(Path.Combine(backupFolder.FullName, nuspecFile.Name));
 
 		    return true;
 	    }
 
-	    internal XElement CreateXml(Project project, FileInfo outputFile)
-        {
+	    private static DirectoryInfo CreateBackupFolder(FileInfo projectFile, IProgress<string> progress)
+	    {
+			//Find a suitable backup directory that doesn't already exist
+		    var backupDir = ChooseBackupFolder();
+
+		    if (backupDir == null)
+		    {
+			    return null;
+		    }
+
+		    Directory.CreateDirectory(backupDir);
+
+			return new DirectoryInfo(backupDir);
+
+		    string ChooseBackupFolder()
+		    {
+			    var baseDir = projectFile.DirectoryName;
+			    var trialDir = Path.Combine(baseDir, "Backup");
+
+			    if (!Directory.Exists(trialDir))
+			    {
+				    return trialDir;
+			    }
+
+			    var MaxIndex = 100;
+
+			    var foundBackupDir = Enumerable.Range(1, MaxIndex)
+											   .Select(x => Path.Combine(baseDir, $"Backup{x}"))
+											   .FirstOrDefault(x => !Directory.Exists(x));
+
+			    if (foundBackupDir == null)
+			    {
+				    progress.Report("Exhausted search for possible backup folder");
+			    }
+
+			    return foundBackupDir;
+		    }
+	    }
+
+	    internal XElement CreateXml(Project project)
+	    {
+		    var outputFile = project.FilePath;
+
             var projectNode = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"));
 
             projectNode.Add(GetMainPropertyGroup(project, outputFile));
@@ -325,41 +358,12 @@ namespace Project2015To2017.Writing
             }
         }
 
-	    private static bool SaveBackup(FileInfo filename, IProgress<string> progress)
+	    private void DeleteUnusedFiles(Project project)
 	    {
-		    var output = false;
+		    project.PackageConfiguration?.NuspecFile?.Delete();
 
-		    var backupFileName = filename + ".old";
-		    if (File.Exists(backupFileName))
-		    {
-			    progress.Report($"Cannot create backup file. Please delete {backupFileName}.");
-		    }
-		    else
-		    {
-			    File.Copy(filename.FullName, filename + ".old");
-			    output = true;
-		    }
-
-		    return output;
+		    project.PackagesConfigFile?.Delete();
 	    }
 
-	    private static bool RenameFile(string filename, IProgress<string> progress)
-	    {
-		    var output = false;
-
-		    var backupFileName = filename + ".old";
-		    if (File.Exists(backupFileName))
-		    {
-			    progress.Report($"Cannot create backup file. Please delete {backupFileName}.");
-		    }
-		    else
-		    {
-			    // todo Consider using TF VC or Git?
-			    File.Move(filename, filename + ".old");
-			    output = true;
-		    }
-
-		    return output;
-	    }
     }
 }

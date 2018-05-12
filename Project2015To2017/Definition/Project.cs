@@ -56,5 +56,7 @@ namespace Project2015To2017.Definition
 				return new DirectoryInfo(path);
 			}
 		}
+
+		public FileInfo PackagesConfigFile { get; set; }
 	}
 }
