@@ -15,7 +15,9 @@ namespace Project2015To2017.Console
 
 			var writer = new Writing.ProjectWriter();
 
-	        var convertedProjects = ProjectConverter.Convert(args[0], new Progress<string>(System.Console.WriteLine))
+	        var progress = new Progress<string>(System.Console.WriteLine);
+
+	        var convertedProjects = ProjectConverter.Convert(args[0], progress)
 													.Where(x => x != null)
 													.ToList();
 
@@ -23,7 +25,7 @@ namespace Project2015To2017.Console
 	        {
 		        foreach (var project in convertedProjects)
 		        {
-			        writer.Write(project);
+			        writer.Write(project, progress);
 		        }
 	        }
         }
