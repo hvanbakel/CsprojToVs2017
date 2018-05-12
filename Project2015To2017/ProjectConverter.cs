@@ -79,7 +79,6 @@ namespace Project2015To2017
 
 			// Process only the given project file
 			yield return ProcessFile(target, progress);
-			yield break;
 		}
 
 		private static Definition.Project ProcessFile(string filePath, IProgress<string> progress)
@@ -101,30 +100,6 @@ namespace Project2015To2017
 				transform.Transform(project, progress);
 			}
 
-			var projectFile = file.FullName;
-			if (!SaveBackup(projectFile, progress))
-			{
-				return null;
-			}
-
-			var packagesFile = Path.Combine(file.DirectoryName, "packages.config");
-			if (File.Exists(packagesFile))
-			{
-				if (!RenameFile(packagesFile, progress))
-				{
-					return null;
-				}
-			}
-
-			var nuspecFile = file.FullName.Replace("csproj", "nuspec");
-			if (File.Exists(nuspecFile))
-			{
-				if (!RenameFile(nuspecFile, progress))
-				{
-					return null;
-				}
-			}
-
 			return project;
 		}
 
@@ -144,43 +119,5 @@ namespace Project2015To2017
 
 			return true;
 		}
-
-		private static bool SaveBackup(string filename, IProgress<string> progress)
-		{
-			var output = false;
-
-			var backupFileName = filename + ".old";
-			if (File.Exists(backupFileName))
-			{
-				progress.Report($"Cannot create backup file. Please delete {backupFileName}.");
-			}
-			else
-			{
-				File.Copy(filename, filename + ".old");
-				output = true;
-			}
-
-			return output;
-		}
-
-		private static bool RenameFile(string filename, IProgress<string> progress)
-		{
-			var output = false;
-
-			var backupFileName = filename + ".old";
-			if (File.Exists(backupFileName))
-			{
-				progress.Report($"Cannot create backup file. Please delete {backupFileName}.");
-			}
-			else
-			{
-				// todo Consider using TF VC or Git?
-				File.Move(filename, filename + ".old");
-				output = true;
-			}
-
-			return output;
-		}
-
 	}
 }
