@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Xml.Linq;
 
 namespace Project2015To2017.Definition
@@ -18,5 +18,6 @@ namespace Project2015To2017.Definition
         public string ReleaseNotes { get; set; }
         public bool RequiresLicenseAcceptance { get; set; }
 	    public IList<XElement> Dependencies { get; set; }
+	    public FileInfo NuspecFile { get; set; }
     }
 }

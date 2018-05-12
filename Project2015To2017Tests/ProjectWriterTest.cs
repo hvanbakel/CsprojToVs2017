@@ -11,10 +11,11 @@ namespace Project2015To2017Tests
 		public void GenerateAssemblyInfoOnNothingSpecifiedTest()
 		{
 			var writer = new ProjectWriter();
-			var xmlNode = writer.CreateXml(new Project()
+			var xmlNode = writer.CreateXml(new Project
 			{
-				AssemblyAttributes = new AssemblyAttributes()
-			}, new System.IO.FileInfo("test.cs"));
+				AssemblyAttributes = new AssemblyAttributes(),
+				FilePath = new System.IO.FileInfo("test.cs")
+			});
 
 			var generateAssemblyInfo = xmlNode.Element("PropertyGroup").Element("GenerateAssemblyInfo");
 			Assert.IsNotNull(generateAssemblyInfo);
@@ -27,8 +28,9 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				AssemblyAttributes = new AssemblyAttributes {Company = "Company"}
-			}, new System.IO.FileInfo("test.cs"));
+				AssemblyAttributes = new AssemblyAttributes {Company = "Company"},
+				FilePath = new System.IO.FileInfo("test.cs")
+			});
 
 			var generateAssemblyInfo = xmlNode.Element("PropertyGroup").Element("GenerateAssemblyInfo");
 			Assert.IsNull(generateAssemblyInfo);
@@ -44,8 +46,9 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				DelaySign = null
-			}, new System.IO.FileInfo("test.cs"));
+				DelaySign = null,
+				FilePath = new System.IO.FileInfo("test.cs")
+			});
 
 			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
 			Assert.IsNull(delaySign);
@@ -58,7 +61,8 @@ namespace Project2015To2017Tests
 			var xmlNode = writer.CreateXml(new Project
 			{
 				DelaySign = true,
-			}, new System.IO.FileInfo("test.cs"));
+				FilePath = new System.IO.FileInfo("test.cs")
+			});
 
 			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
 			Assert.IsNotNull(delaySign);
@@ -72,7 +76,8 @@ namespace Project2015To2017Tests
 			var xmlNode = writer.CreateXml(new Project
 			{
 				DelaySign = false,
-			}, new System.IO.FileInfo("test.cs"));
+				FilePath = new System.IO.FileInfo("test.cs")
+			});
 
 			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
 			Assert.IsNotNull(delaySign);

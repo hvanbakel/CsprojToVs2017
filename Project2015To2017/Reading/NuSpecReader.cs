@@ -28,10 +28,12 @@ namespace Project2015To2017.Reading
 				return null;
 			}
 
-			progress.Report($"Reading package info from nuspec {nuspecFiles[0].FullName}.");
+			var nuspecFile = nuspecFiles[0];
+
+			progress.Report($"Reading package info from nuspec {nuspecFile.FullName}.");
 
 			XDocument nuspec;
-			using (var filestream = File.Open(nuspecFiles[0].FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+			using (var filestream = File.Open(nuspecFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
 				nuspec = XDocument.Load(filestream);
 			}
@@ -52,6 +54,8 @@ namespace Project2015To2017.Reading
 				progress.Report("Error reading package info from nuspec.");
 				return null;
 			}
+
+			packageConfig.NuspecFile = nuspecFile;
 
 			return packageConfig;
 		}
