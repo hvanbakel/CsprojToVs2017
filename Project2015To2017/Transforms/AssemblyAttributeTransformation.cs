@@ -24,6 +24,8 @@ namespace Project2015To2017.Transforms
 				return new XElement[0];
 			}
 
+			var versioningProperties = VersioningProperties(assemblyAttributes);
+
 			var attributes = new[]
 			{
 				Tuple.Create("GenerateAssemblyTitleAttribute", assemblyAttributes.Title),
@@ -31,11 +33,8 @@ namespace Project2015To2017.Transforms
 				Tuple.Create("GenerateAssemblyDescriptionAttribute", assemblyAttributes.Description),
 				Tuple.Create("GenerateAssemblyProductAttribute", assemblyAttributes.Product),
 				Tuple.Create("GenerateAssemblyCopyrightAttribute", assemblyAttributes.Copyright),
-				Tuple.Create("GenerateAssemblyInformationalVersionAttribute", assemblyAttributes.InformationalVersion),
-				Tuple.Create("GenerateAssemblyVersionAttribute", assemblyAttributes.Version),
-				Tuple.Create("GenerateAssemblyFileVersionAttribute", assemblyAttributes.FileVersion),
 				Tuple.Create("GenerateAssemblyConfigurationAttribute", assemblyAttributes.Configuration)
-			};
+			}.Concat(versioningProperties);
 
 			var childNodes = attributes
 								.Where(x => x.Item2 != null)
@@ -44,6 +43,9 @@ namespace Project2015To2017.Transforms
 
 			if (childNodes.Length == 0)
 			{
+				//Assume that the assembly info is coming from another file
+				//which we don't have sight of so leave it up to consumer to
+				//convert over if they wish
 				return new [] {new XElement("GenerateAssemblyInfo", "false")};
 			}
 			else
@@ -52,5 +54,14 @@ namespace Project2015To2017.Transforms
 			}
 		}
 
+		private static Tuple<string, string>[] VersioningProperties(AssemblyAttributes assemblyAttributes)
+		{
+			return new[]
+			{
+				Tuple.Create("GenerateAssemblyInformationalVersionAttribute", assemblyAttributes.InformationalVersion),
+				Tuple.Create("GenerateAssemblyVersionAttribute", assemblyAttributes.Version),
+				Tuple.Create("GenerateAssemblyFileVersionAttribute", assemblyAttributes.FileVersion)
+			};
+		}
 	}
 }

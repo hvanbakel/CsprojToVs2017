@@ -16,7 +16,7 @@ namespace Project2015To2017.Transforms
 			
 			var packageConfig = PopulatePlaceHolders(
 									definition.PackageConfiguration,
-									definition.AssemblyAttributes
+									definition
 								);
 
 			ConstrainPackageReferences(
@@ -59,11 +59,13 @@ namespace Project2015To2017.Transforms
 			}
 		}
 
-		private PackageConfiguration PopulatePlaceHolders(PackageConfiguration rawPackageConfig, AssemblyAttributes assemblyAttributes)
+		private PackageConfiguration PopulatePlaceHolders(PackageConfiguration rawPackageConfig, Project project)
 		{
+			var assemblyAttributes = project.AssemblyAttributes;
+
 			return new PackageConfiguration
 			{
-				Id = PopulatePlaceHolder("id", rawPackageConfig.Id, assemblyAttributes.AssemblyName),
+				Id = PopulatePlaceHolder("id", rawPackageConfig.Id, project.AssemblyName),
 				Version = PopulatePlaceHolder("version", rawPackageConfig.Version, assemblyAttributes.InformationalVersion ?? assemblyAttributes.Version),
 				Authors = PopulatePlaceHolder("author", rawPackageConfig.Authors, assemblyAttributes.Company),
 				Description = PopulatePlaceHolder("description", rawPackageConfig.Description, assemblyAttributes.Description),

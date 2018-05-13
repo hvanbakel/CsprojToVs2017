@@ -59,6 +59,6 @@ namespace Project2015To2017.Definition
 
 		public FileInfo PackagesConfigFile { get; set; }
 
-		public IReadOnlyList<XElement> AssemblyAttributeProperties { get; set; }
+		public IReadOnlyList<XElement> AssemblyAttributeProperties { get; set; } = new List<XElement>().AsReadOnly();
 	}
 }

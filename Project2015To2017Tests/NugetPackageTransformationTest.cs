@@ -16,9 +16,10 @@ namespace Project2015To2017Tests
 			var project = new ProjectReader()
 								.Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
 
+			project.AssemblyName = "TestAssembly";
+
 			project.AssemblyAttributes =
 								new AssemblyAttributes {
-									AssemblyName = "TestAssembly",
 									InformationalVersion = "7.0",
 									Copyright = "copyright from assembly",
 									Description = "description from assembly",

@@ -61,13 +61,12 @@ namespace Project2015To2017.Reading
 				PackageReferences = packageReferences,
 				IncludeItems = includes,
 				PackageConfiguration = packageConfig,
-				PackagesConfigFile = packagesConfigFile,
-				AssemblyAttributeProperties = new List<XElement>().AsReadOnly()
+				PackagesConfigFile = packagesConfigFile
 			};
 
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
 
-			var assemblyAttributes = LoadAssemblyAttributes(fileInfo, projectDefinition.AssemblyName, progress);
+			var assemblyAttributes = LoadAssemblyAttributes(fileInfo, progress);
 
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
 
@@ -166,7 +165,7 @@ namespace Project2015To2017.Reading
 
 
 		private AssemblyAttributes LoadAssemblyAttributes(
-				FileInfo projectFile, string assemblyName, IProgress<string> progress
+				FileInfo projectFile, IProgress<string> progress
 			)
 		{
 			var projectFolder = projectFile.Directory;
@@ -183,7 +182,6 @@ namespace Project2015To2017.Reading
 
 				return new AssemblyAttributes
 				{
-					AssemblyName = assemblyName ?? projectFolder.Name,
 					Description = GetAttributeValue<AssemblyDescriptionAttribute>(text),
 					Title = GetAttributeValue<AssemblyTitleAttribute>(text),
 					Company = GetAttributeValue<AssemblyCompanyAttribute>(text),
