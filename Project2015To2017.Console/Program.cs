@@ -13,8 +13,6 @@ namespace Project2015To2017.Console
 		        return;
 	        }
 
-			var writer = new Writing.ProjectWriter();
-
 	        var progress = new Progress<string>(System.Console.WriteLine);
 
 	        var convertedProjects = ProjectConverter.Convert(args[0], progress)
@@ -23,6 +21,7 @@ namespace Project2015To2017.Console
 
 	        if (!args.Contains("--dry-run"))
 	        {
+		        var writer = new Writing.ProjectWriter();
 		        foreach (var project in convertedProjects)
 		        {
 			        writer.Write(project, progress);
