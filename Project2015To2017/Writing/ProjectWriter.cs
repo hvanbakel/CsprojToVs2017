@@ -9,6 +9,10 @@ namespace Project2015To2017.Writing
 {
 	public class ProjectWriter
     {
+		public Action<FileSystemInfo> DeleteOperation { get; set; }
+
+	    public Action<FileSystemInfo> CheckoutOperation { get; set; }
+
         public void Write(Project project, IProgress<string> progress)
         {
 	        if (!DoBackups(project, progress))
@@ -18,6 +22,8 @@ namespace Project2015To2017.Writing
 	        }
 
 	        var projectNode = CreateXml(project);
+
+	        CheckoutOperation?.Invoke(project.FilePath);
 
 			File.WriteAllText(project.FilePath.FullName, projectNode.ToString());
 
@@ -360,9 +366,18 @@ namespace Project2015To2017.Writing
 
 	    private void DeleteUnusedFiles(Project project)
 	    {
-		    project.PackageConfiguration?.NuspecFile?.Delete();
+		    var filesToDelete = new[]
+		    {
+			    project.PackageConfiguration?.NuspecFile,
+			    project.PackagesConfigFile
+		    }.Where(x => x != null);
 
-		    project.PackagesConfigFile?.Delete();
+		    var deleteOperation = DeleteOperation ?? (fileOrFolder => fileOrFolder.Delete());
+
+		    foreach (var fileInfo in filesToDelete)
+		    {
+			    deleteOperation(fileInfo);
+		    }
 	    }
 
     }
