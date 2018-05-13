@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
 
@@ -20,7 +19,8 @@ namespace Project2015To2017
 			new RemovePackageAssemblyReferencesTransformation(),
 			new RemovePackageImportsTransformation(),
 			new FileTransformation(),
-			new NugetPackageTransformation()
+			new NugetPackageTransformation(),
+			new AssemblyAttributeTransformation()
 		};
 
 		public static IEnumerable<Definition.Project> Convert(string target, IProgress<string> progress)
