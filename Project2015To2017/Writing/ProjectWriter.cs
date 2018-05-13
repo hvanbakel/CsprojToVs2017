@@ -271,7 +271,8 @@ namespace Project2015To2017.Writing
                     break;
             }
 
-            AddAssemblyAttributeNodes(mainPropertyGroup, project.AssemblyAttributes);
+			mainPropertyGroup.Add(project.AssemblyAttributeProperties);
+            
             AddPackageNodes(mainPropertyGroup, project.PackageConfiguration, project.AssemblyAttributes);
 
             return mainPropertyGroup;
@@ -305,40 +306,7 @@ namespace Project2015To2017.Writing
             }
         }
 
-        private void AddAssemblyAttributeNodes(XElement mainPropertyGroup, AssemblyAttributes assemblyAttributes)
-        {
-            if (assemblyAttributes == null)
-            {
-                return;
-            }
 
-            var attributes = new[]
-            {
-                new KeyValuePair<string, string>("GenerateAssemblyTitleAttribute", assemblyAttributes.Title),
-                new KeyValuePair<string, string>("GenerateAssemblyCompanyAttribute", assemblyAttributes.Company),
-                new KeyValuePair<string, string>("GenerateAssemblyDescriptionAttribute", assemblyAttributes.Description),
-                new KeyValuePair<string, string>("GenerateAssemblyProductAttribute", assemblyAttributes.Product),
-                new KeyValuePair<string, string>("GenerateAssemblyCopyrightAttribute", assemblyAttributes.Copyright),
-                new KeyValuePair<string, string>("GenerateAssemblyInformationalVersionAttribute", assemblyAttributes.InformationalVersion),
-                new KeyValuePair<string, string>("GenerateAssemblyVersionAttribute", assemblyAttributes.Version),
-                new KeyValuePair<string, string>("GenerateAssemblyFileVersionAttribute", assemblyAttributes.FileVersion),
-                new KeyValuePair<string, string>("GenerateAssemblyConfigurationAttribute", assemblyAttributes.Configuration)
-            };
-
-            var childNodes = attributes
-                .Where(x => x.Value != null)
-                .Select(x => new XElement(x.Key, "false"))
-                .ToArray();
-
-            if (childNodes.Length == 0)
-            {
-                mainPropertyGroup.Add(new XElement("GenerateAssemblyInfo", "false"));
-            }
-            else
-            {
-                mainPropertyGroup.Add(childNodes);
-            }
-        }
 
         private void AddIfNotNull(XElement node, string elementName, string value)
         {
