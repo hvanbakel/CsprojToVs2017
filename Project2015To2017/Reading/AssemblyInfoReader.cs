@@ -22,9 +22,12 @@ namespace Project2015To2017.Reading
 
 			if (assemblyInfoFiles.Length == 1)
 			{
-				progress.Report($"Reading assembly info from {assemblyInfoFiles[0].FullName}.");
+				var assemblyInfoFile = assemblyInfoFiles[0];
+				var assemblyInfoFileName = assemblyInfoFile.FullName;
 
-				var text = File.ReadAllText(assemblyInfoFiles[0].FullName);
+				progress.Report($"Reading assembly info from {assemblyInfoFileName}.");
+
+				var text = File.ReadAllText(assemblyInfoFileName);
 
 				var tree = CSharpSyntaxTree.ParseText(text);
  
@@ -32,10 +35,9 @@ namespace Project2015To2017.Reading
 
 				var assemblyAttributes = new AssemblyAttributes
 				{
+					File = assemblyInfoFile,
 					FileContents = root
 				};
-
-				var title = assemblyAttributes.Title;
 
 				return assemblyAttributes;
 			}

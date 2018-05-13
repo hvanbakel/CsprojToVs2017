@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
@@ -59,7 +60,9 @@ namespace Project2015To2017.Definition
 			get => GetAttribute(typeof(AssemblyFileVersionAttribute));
 			set => SetAttribute(typeof(AssemblyFileVersionAttribute), value);
 		}
-		
+
+		public FileInfo File { get; set; }
+
 		private (AttributeListSyntax attList, AttributeSyntax att) FindAttribute(Type attributeType)
 		{
 			//Find the specified attribute and which attribute list it is in

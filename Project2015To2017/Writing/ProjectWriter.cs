@@ -8,110 +8,146 @@ using Project2015To2017.Definition;
 namespace Project2015To2017.Writing
 {
 	public class ProjectWriter
-    {
+	{
 		public Action<FileSystemInfo> DeleteOperation { get; set; }
+												= file => file.Delete();
 
-	    public Action<FileSystemInfo> CheckoutOperation { get; set; }
+		public Action<FileSystemInfo> CheckoutOperation { get; set; }
+												= _ => { };
 
-        public void Write(Project project, IProgress<string> progress)
-        {
-	        if (!DoBackups(project, progress))
-	        {
-		        progress.Report("Couldn't do backup, so not applying any changes");
-		        return;
-	        }
+		public void Write(Project project, IProgress<string> progress)
+		{
+			if (!DoBackups(project, progress))
+			{
+				progress.Report("Couldn't do backup, so not applying any changes");
+				return;
+			}
 
-	        var projectNode = CreateXml(project);
+			WriteProjectFile(project);
 
-	        CheckoutOperation?.Invoke(project.FilePath);
+			WriteAssemblyInfoFile(project);
+
+			DeleteUnusedFiles(project);
+		}
+
+		private void WriteProjectFile(Project project)
+		{
+			var projectNode = CreateXml(project);
+
+			CheckoutOperation.Invoke(project.FilePath);
 
 			File.WriteAllText(project.FilePath.FullName, projectNode.ToString());
+		}
 
-	        DeleteUnusedFiles(project);
-        }
+		private void WriteAssemblyInfoFile(Project project)
+		{
+			var assemblyAttributes = project.AssemblyAttributes;
+			var file = assemblyAttributes?.File;
 
-	    private static bool DoBackups(Project project, IProgress<string> progress)
-	    {
-		    var projectFile = project.FilePath;
+			if (assemblyAttributes == null || file == null)
+			{
+				return;
+			}
 
-		    var backupFolder = CreateBackupFolder(projectFile, progress);
+			var currentContents = File.ReadAllText(file.FullName);
+			var newContents = assemblyAttributes.FileContents.ToFullString();
 
-		    if (backupFolder == null)
-		    {
-			    return false;
-		    }
+			if (newContents == currentContents)
+			{
+				//Nothing to do
+				return;
+			}
+
+			CheckoutOperation.Invoke(file);
+
+			File.WriteAllText(file.FullName, newContents);
+		}
+
+		private static bool DoBackups(Project project, IProgress<string> progress)
+		{
+			var projectFile = project.FilePath;
+
+			var backupFolder = CreateBackupFolder(projectFile, progress);
+
+			if (backupFolder == null)
+			{
+				return false;
+			}
 
 			progress.Report($"Backing up to {backupFolder.FullName}");
 
-		    projectFile.CopyTo(Path.Combine(backupFolder.FullName, projectFile.Name));
+			projectFile.CopyTo(Path.Combine(backupFolder.FullName, projectFile.Name));
 
-		    var packagesFile = project.PackagesConfigFile;
-		    packagesFile?.CopyTo(Path.Combine(backupFolder.FullName, packagesFile.Name));
+			var packagesFile = project.PackagesConfigFile;
+			packagesFile?.CopyTo(Path.Combine(backupFolder.FullName, packagesFile.Name));
 
-		    var nuspecFile = project.PackageConfiguration?.NuspecFile;
-		    nuspecFile?.CopyTo(Path.Combine(backupFolder.FullName, nuspecFile.Name));
+			var nuspecFile = project.PackageConfiguration?.NuspecFile;
+			nuspecFile?.CopyTo(Path.Combine(backupFolder.FullName, nuspecFile.Name));
 
-		    return true;
-	    }
+			var assemblyInfoFile = project.AssemblyAttributes?.File;
+			assemblyInfoFile?.CopyTo(Path.Combine(backupFolder.FullName, assemblyInfoFile.Name));
 
-	    private static DirectoryInfo CreateBackupFolder(FileInfo projectFile, IProgress<string> progress)
-	    {
+			return true;
+		}
+
+		private static DirectoryInfo CreateBackupFolder(FileInfo projectFile, IProgress<string> progress)
+		{
 			//Find a suitable backup directory that doesn't already exist
-		    var backupDir = ChooseBackupFolder();
+			var backupDir = ChooseBackupFolder();
 
-		    if (backupDir == null)
-		    {
-			    return null;
-		    }
+			if (backupDir == null)
+			{
+				return null;
+			}
 
-		    Directory.CreateDirectory(backupDir);
+			Directory.CreateDirectory(backupDir);
 
 			return new DirectoryInfo(backupDir);
 
-		    string ChooseBackupFolder()
-		    {
-			    var baseDir = projectFile.DirectoryName;
-			    var trialDir = Path.Combine(baseDir, "Backup");
+			string ChooseBackupFolder()
+			{
+				var baseDir = projectFile.DirectoryName;
+				var trialDir = Path.Combine(baseDir, "Backup");
 
-			    if (!Directory.Exists(trialDir))
-			    {
-				    return trialDir;
-			    }
+				if (!Directory.Exists(trialDir))
+				{
+					return trialDir;
+				}
 
-			    var MaxIndex = 100;
+				var MaxIndex = 100;
 
-			    var foundBackupDir = Enumerable.Range(1, MaxIndex)
+				var foundBackupDir = Enumerable.Range(1, MaxIndex)
 											   .Select(x => Path.Combine(baseDir, $"Backup{x}"))
 											   .FirstOrDefault(x => !Directory.Exists(x));
 
-			    if (foundBackupDir == null)
-			    {
-				    progress.Report("Exhausted search for possible backup folder");
-			    }
+				if (foundBackupDir == null)
+				{
+					progress.Report("Exhausted search for possible backup folder");
+				}
 
-			    return foundBackupDir;
-		    }
-	    }
+				return foundBackupDir;
+			}
+		}
 
-	    internal XElement CreateXml(Project project)
-	    {
-		    var outputFile = project.FilePath;
+		internal XElement CreateXml(Project project)
+		{
+			var outputFile = project.FilePath;
 
-            var projectNode = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"));
+			var projectNode = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"));
 
-            projectNode.Add(GetMainPropertyGroup(project, outputFile));
+			projectNode.Add(GetMainPropertyGroup(project, outputFile));
 
-            if (project.AdditionalPropertyGroups != null)
-            {
-                projectNode.Add(project.AdditionalPropertyGroups.Select(RemoveAllNamespaces));
-            }
+			if (project.AdditionalPropertyGroups != null)
+			{
+				projectNode.Add(project.AdditionalPropertyGroups.Select(RemoveAllNamespaces));
+			}
 
-            if (project.Imports != null)
-            {
-                foreach (var import in project.Imports.Select(RemoveAllNamespaces))
-                {
-                    projectNode.Add(import);
-                }
+			if (project.Imports != null)
+			{
+				foreach (var import in project.Imports.Select(RemoveAllNamespaces))
+				{
+					projectNode.Add(import);
+				}
 			}
 
 			if (project.Targets != null)
@@ -133,220 +169,216 @@ namespace Project2015To2017.Writing
 			}
 
 			if (project.ProjectReferences?.Count > 0)
-            {
-                var itemGroup = new XElement("ItemGroup");
-                foreach (var projectReference in project.ProjectReferences)
-                {
-                    var projectReferenceElement = new XElement("ProjectReference",
-                            new XAttribute("Include", projectReference.Include));
+			{
+				var itemGroup = new XElement("ItemGroup");
+				foreach (var projectReference in project.ProjectReferences)
+				{
+					var projectReferenceElement = new XElement("ProjectReference",
+							new XAttribute("Include", projectReference.Include));
 
-                    if (!string.IsNullOrWhiteSpace(projectReference.Aliases) && projectReference.Aliases != "global")
-                    {
-                        projectReferenceElement.Add(new XElement("Aliases", projectReference.Aliases));
-                    }
+					if (!string.IsNullOrWhiteSpace(projectReference.Aliases) && projectReference.Aliases != "global")
+					{
+						projectReferenceElement.Add(new XElement("Aliases", projectReference.Aliases));
+					}
 
-                    itemGroup.Add(projectReferenceElement);
-                }
+					itemGroup.Add(projectReferenceElement);
+				}
 
-                projectNode.Add(itemGroup);
-            }
+				projectNode.Add(itemGroup);
+			}
 
-            if (project.PackageReferences?.Count > 0)
-            {
-                var nugetReferences = new XElement("ItemGroup");
-                foreach (var packageReference in project.PackageReferences)
-                {
-                    var reference = new XElement("PackageReference", new XAttribute("Include", packageReference.Id), new XAttribute("Version", packageReference.Version));
-                    if (packageReference.IsDevelopmentDependency)
-                    {
-                        reference.Add(new XElement("PrivateAssets", "all"));
-                    }
+			if (project.PackageReferences?.Count > 0)
+			{
+				var nugetReferences = new XElement("ItemGroup");
+				foreach (var packageReference in project.PackageReferences)
+				{
+					var reference = new XElement("PackageReference", new XAttribute("Include", packageReference.Id), new XAttribute("Version", packageReference.Version));
+					if (packageReference.IsDevelopmentDependency)
+					{
+						reference.Add(new XElement("PrivateAssets", "all"));
+					}
 
-                    nugetReferences.Add(reference);
-                }
+					nugetReferences.Add(reference);
+				}
 
-                projectNode.Add(nugetReferences);
-            }
+				projectNode.Add(nugetReferences);
+			}
 
-            if (project.AssemblyReferences?.Count > 0)
-            {
-                var assemblyReferences = new XElement("ItemGroup");
-                foreach (var assemblyReference in project.AssemblyReferences.Where(x => !IsDefaultIncludedAssemblyReference(x.Include)))
-                {
-                    assemblyReferences.Add(MakeAssemblyReference(assemblyReference));
-                }
+			if (project.AssemblyReferences?.Count > 0)
+			{
+				var assemblyReferences = new XElement("ItemGroup");
+				foreach (var assemblyReference in project.AssemblyReferences.Where(x => !IsDefaultIncludedAssemblyReference(x.Include)))
+				{
+					assemblyReferences.Add(MakeAssemblyReference(assemblyReference));
+				}
 
-                projectNode.Add(assemblyReferences);
-            }
+				projectNode.Add(assemblyReferences);
+			}
 
-            // manual includes
-            if (project.IncludeItems?.Count > 0)
-            {
-                var includeGroup = new XElement("ItemGroup");
-                foreach (var include in project.IncludeItems.Select(RemoveAllNamespaces))
-                {
-                    includeGroup.Add(include);
-                }
+			// manual includes
+			if (project.IncludeItems?.Count > 0)
+			{
+				var includeGroup = new XElement("ItemGroup");
+				foreach (var include in project.IncludeItems.Select(RemoveAllNamespaces))
+				{
+					includeGroup.Add(include);
+				}
 
-                projectNode.Add(includeGroup);
-            }
+				projectNode.Add(includeGroup);
+			}
 
-            return projectNode;
-        }
+			return projectNode;
+		}
 
-        private static XElement MakeAssemblyReference(AssemblyReference assemblyReference)
-        {
-            var output = new XElement("Reference", new XAttribute("Include", assemblyReference.Include));
+		private static XElement MakeAssemblyReference(AssemblyReference assemblyReference)
+		{
+			var output = new XElement("Reference", new XAttribute("Include", assemblyReference.Include));
 
-            if (assemblyReference.HintPath != null)
-            {
-                output.Add(new XElement("HintPath", assemblyReference.HintPath));
-            }
-            if (assemblyReference.Private != null)
-            {
-                output.Add(new XElement("Private", assemblyReference.Private));
-            }
-            if (assemblyReference.SpecificVersion != null)
-            {
-                output.Add(new XElement("SpecificVersion", assemblyReference.SpecificVersion));
-            }
-            if (assemblyReference.EmbedInteropTypes != null)
-            {
-                output.Add(new XElement("EmbedInteropTypes", assemblyReference.EmbedInteropTypes));
-            }
+			if (assemblyReference.HintPath != null)
+			{
+				output.Add(new XElement("HintPath", assemblyReference.HintPath));
+			}
+			if (assemblyReference.Private != null)
+			{
+				output.Add(new XElement("Private", assemblyReference.Private));
+			}
+			if (assemblyReference.SpecificVersion != null)
+			{
+				output.Add(new XElement("SpecificVersion", assemblyReference.SpecificVersion));
+			}
+			if (assemblyReference.EmbedInteropTypes != null)
+			{
+				output.Add(new XElement("EmbedInteropTypes", assemblyReference.EmbedInteropTypes));
+			}
 
-            return output;
-        }
+			return output;
+		}
 
-        private static XElement RemoveAllNamespaces(XElement e)
-        {
-            return new XElement(e.Name.LocalName,
-              (from n in e.Nodes()
-               select ((n is XElement) ? RemoveAllNamespaces((XElement)n) : n)),
-                  (e.HasAttributes) ?
-                    (from a in e.Attributes()
-                     where (!a.IsNamespaceDeclaration)
-                     select new XAttribute(a.Name.LocalName, a.Value)) : null);
-        }
+		private static XElement RemoveAllNamespaces(XElement e)
+		{
+			return new XElement(e.Name.LocalName,
+			  (from n in e.Nodes()
+			   select ((n is XElement) ? RemoveAllNamespaces((XElement)n) : n)),
+				  (e.HasAttributes) ?
+					(from a in e.Attributes()
+					 where (!a.IsNamespaceDeclaration)
+					 select new XAttribute(a.Name.LocalName, a.Value)) : null);
+		}
 
-        private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
-        {
-            return new[]
-            {
-                "System",
-                "System.Core",
-                "System.Data",
-                "System.Drawing",
-                "System.IO.Compression.FileSystem",
-                "System.Numerics",
-                "System.Runtime.Serialization",
-                "System.Xml",
-                "System.Xml.Linq"
-            }.Contains(assemblyReference);
-        }
+		private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
+		{
+			return new[]
+			{
+				"System",
+				"System.Core",
+				"System.Data",
+				"System.Drawing",
+				"System.IO.Compression.FileSystem",
+				"System.Numerics",
+				"System.Runtime.Serialization",
+				"System.Xml",
+				"System.Xml.Linq"
+			}.Contains(assemblyReference);
+		}
 
-        private XElement GetMainPropertyGroup(Project project, FileInfo outputFile)
-        {
-            var mainPropertyGroup = new XElement("PropertyGroup");
+		private XElement GetMainPropertyGroup(Project project, FileInfo outputFile)
+		{
+			var mainPropertyGroup = new XElement("PropertyGroup");
 
-            AddTargetFrameworks(mainPropertyGroup, project.TargetFrameworks);
+			AddTargetFrameworks(mainPropertyGroup, project.TargetFrameworks);
 
 			AddIfNotNull(mainPropertyGroup, "Configurations", string.Join(";", project.Configurations ?? Array.Empty<string>()));
 			AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : null);
-            AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : null);
-            AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.RootNamespace : null);
-            AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.AssemblyName : null);
-            AddIfNotNull(mainPropertyGroup, "AllowUnsafeBlocks", project.AllowUnsafeBlocks ? "true" : null);
-            AddIfNotNull(mainPropertyGroup, "SignAssembly", project.SignAssembly ? "true" : null);
+			AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : null);
+			AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.RootNamespace : null);
+			AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.AssemblyName : null);
+			AddIfNotNull(mainPropertyGroup, "AllowUnsafeBlocks", project.AllowUnsafeBlocks ? "true" : null);
+			AddIfNotNull(mainPropertyGroup, "SignAssembly", project.SignAssembly ? "true" : null);
 			AddIfNotNull(mainPropertyGroup, "DelaySign", project.DelaySign.HasValue ? (project.DelaySign.Value ? "true" : "false") : null);
-            AddIfNotNull(mainPropertyGroup, "AssemblyOriginatorKeyFile", project.AssemblyOriginatorKeyFile);
+			AddIfNotNull(mainPropertyGroup, "AssemblyOriginatorKeyFile", project.AssemblyOriginatorKeyFile);
 
-            switch (project.Type)
-            {
-                case ApplicationType.ConsoleApplication:
-                    mainPropertyGroup.Add(new XElement("OutputType", "Exe"));
-                    break;
-                case ApplicationType.WindowsApplication:
-                    mainPropertyGroup.Add(new XElement("OutputType", "WinExe"));
-                    break;
-            }
+			switch (project.Type)
+			{
+				case ApplicationType.ConsoleApplication:
+					mainPropertyGroup.Add(new XElement("OutputType", "Exe"));
+					break;
+				case ApplicationType.WindowsApplication:
+					mainPropertyGroup.Add(new XElement("OutputType", "WinExe"));
+					break;
+			}
 
 			mainPropertyGroup.Add(project.AssemblyAttributeProperties);
-            
-            AddPackageNodes(mainPropertyGroup, project.PackageConfiguration, project.AssemblyAttributes);
 
-            return mainPropertyGroup;
-        }
+			AddPackageNodes(mainPropertyGroup, project.PackageConfiguration, project.AssemblyAttributes);
 
-        private void AddPackageNodes(XElement mainPropertyGroup, PackageConfiguration packageConfiguration, AssemblyAttributes attributes)
-        {
-            if (packageConfiguration == null)
-            {
-                return;
-            }
+			return mainPropertyGroup;
+		}
 
-            AddIfNotNull(mainPropertyGroup, "Company", attributes?.Company);
-            AddIfNotNull(mainPropertyGroup, "Authors", packageConfiguration.Authors);
-            AddIfNotNull(mainPropertyGroup, "Copyright", packageConfiguration.Copyright);
-            AddIfNotNull(mainPropertyGroup, "Description", packageConfiguration.Description);
-            AddIfNotNull(mainPropertyGroup, "PackageIconUrl", packageConfiguration.IconUrl);
-            AddIfNotNull(mainPropertyGroup, "PackageId", packageConfiguration.Id);
-            AddIfNotNull(mainPropertyGroup, "PackageLicenseUrl", packageConfiguration.LicenseUrl);
-            AddIfNotNull(mainPropertyGroup, "PackageProjectUrl", packageConfiguration.ProjectUrl);
-            AddIfNotNull(mainPropertyGroup, "PackageReleaseNotes", packageConfiguration.ReleaseNotes);
-            AddIfNotNull(mainPropertyGroup, "PackageTags", packageConfiguration.Tags);
-            AddIfNotNull(mainPropertyGroup, "Version", packageConfiguration.Version);
+		private void AddPackageNodes(XElement mainPropertyGroup, PackageConfiguration packageConfiguration, AssemblyAttributes attributes)
+		{
+			if (packageConfiguration == null)
+			{
+				return;
+			}
 
-            if(packageConfiguration.Id != null && packageConfiguration.Tags == null)
-                mainPropertyGroup.Add(new XElement("PackageTags", "Library"));
+			AddIfNotNull(mainPropertyGroup, "Company", attributes?.Company);
+			AddIfNotNull(mainPropertyGroup, "Authors", packageConfiguration.Authors);
+			AddIfNotNull(mainPropertyGroup, "Copyright", packageConfiguration.Copyright);
+			AddIfNotNull(mainPropertyGroup, "Description", packageConfiguration.Description);
+			AddIfNotNull(mainPropertyGroup, "PackageIconUrl", packageConfiguration.IconUrl);
+			AddIfNotNull(mainPropertyGroup, "PackageId", packageConfiguration.Id);
+			AddIfNotNull(mainPropertyGroup, "PackageLicenseUrl", packageConfiguration.LicenseUrl);
+			AddIfNotNull(mainPropertyGroup, "PackageProjectUrl", packageConfiguration.ProjectUrl);
+			AddIfNotNull(mainPropertyGroup, "PackageReleaseNotes", packageConfiguration.ReleaseNotes);
+			AddIfNotNull(mainPropertyGroup, "PackageTags", packageConfiguration.Tags);
+			AddIfNotNull(mainPropertyGroup, "Version", packageConfiguration.Version);
 
-            if (packageConfiguration.RequiresLicenseAcceptance)
-            {
-                mainPropertyGroup.Add(new XElement("PackageRequireLicenseAcceptance", "true"));
-            }
-        }
+			if (packageConfiguration.Id != null && packageConfiguration.Tags == null)
+				mainPropertyGroup.Add(new XElement("PackageTags", "Library"));
 
+			if (packageConfiguration.RequiresLicenseAcceptance)
+			{
+				mainPropertyGroup.Add(new XElement("PackageRequireLicenseAcceptance", "true"));
+			}
+		}
 
+		private void AddIfNotNull(XElement node, string elementName, string value)
+		{
+			if (!string.IsNullOrWhiteSpace(value))
+			{
+				node.Add(new XElement(elementName, value));
+			}
+		}
 
-        private void AddIfNotNull(XElement node, string elementName, string value)
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                node.Add(new XElement(elementName, value));
-            }
-        }
+		private void AddTargetFrameworks(XElement mainPropertyGroup, IReadOnlyList<string> targetFrameworks)
+		{
+			if (targetFrameworks == null)
+			{
+				return;
+			}
+			else if (targetFrameworks.Count > 1)
+			{
+				AddIfNotNull(mainPropertyGroup, "TargetFrameworks", string.Join(";", targetFrameworks));
+			}
+			else
+			{
+				AddIfNotNull(mainPropertyGroup, "TargetFramework", targetFrameworks[0]);
+			}
+		}
 
-        private void AddTargetFrameworks(XElement mainPropertyGroup, IReadOnlyList<string> targetFrameworks)
-        {
-            if (targetFrameworks == null)
-            {
-                return;
-            }
-            else if (targetFrameworks.Count > 1)
-            {
-                AddIfNotNull(mainPropertyGroup, "TargetFrameworks", string.Join(";", targetFrameworks));
-            }
-            else
-            {
-                AddIfNotNull(mainPropertyGroup, "TargetFramework", targetFrameworks[0]);
-            }
-        }
+		private void DeleteUnusedFiles(Project project)
+		{
+			var filesToDelete = new[]
+			{
+				project.PackageConfiguration?.NuspecFile,
+				project.PackagesConfigFile
+			}.Where(x => x != null);
 
-	    private void DeleteUnusedFiles(Project project)
-	    {
-		    var filesToDelete = new[]
-		    {
-			    project.PackageConfiguration?.NuspecFile,
-			    project.PackagesConfigFile
-		    }.Where(x => x != null);
+			foreach (var fileInfo in filesToDelete)
+			{
+				DeleteOperation(fileInfo);
+			}
+		}
 
-		    var deleteOperation = DeleteOperation ?? (fileOrFolder => fileOrFolder.Delete());
-
-		    foreach (var fileInfo in filesToDelete)
-		    {
-			    deleteOperation(fileInfo);
-		    }
-	    }
-
-    }
+	}
 }

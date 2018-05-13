@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
@@ -9,7 +10,7 @@ namespace Project2015To2017.Transforms
 	{
 		public void Transform(Project definition, IProgress<string> progress)
 		{
-			var attributeNodes = AssemblyAttributeNodes(definition.AssemblyAttributes);
+			var attributeNodes = AssemblyAttributeNodes(definition.AssemblyAttributes, progress);
 
 			definition.AssemblyAttributeProperties = definition.AssemblyAttributeProperties
 															   .Concat(attributeNodes)
@@ -17,12 +18,14 @@ namespace Project2015To2017.Transforms
 															   .AsReadOnly();
 		}
 
-		private XElement[] AssemblyAttributeNodes(AssemblyAttributes assemblyAttributes)
+		private static XElement[] AssemblyAttributeNodes(AssemblyAttributes assemblyAttributes, IProgress<string> progress)
 		{
 			if (assemblyAttributes == null)
 			{
 				return new XElement[0];
 			}
+
+			progress.Report("Moving attributes from AssemblyInfo to project file");
 
 			var versioningProperties = VersioningProperties(assemblyAttributes);
 
@@ -34,11 +37,12 @@ namespace Project2015To2017.Transforms
 				Tuple.Create("GenerateAssemblyProductAttribute", assemblyAttributes.Product),
 				Tuple.Create("GenerateAssemblyCopyrightAttribute", assemblyAttributes.Copyright),
 				Tuple.Create("GenerateAssemblyConfigurationAttribute", assemblyAttributes.Configuration)
-			}.Concat(versioningProperties);
+			};
 
 			var childNodes = attributes
 								.Where(x => x.Item2 != null)
 								.Select(x => new XElement(x.Item1, "false"))
+								.Concat(versioningProperties)
 								.ToArray();
 
 			if (childNodes.Length == 0)
@@ -54,14 +58,32 @@ namespace Project2015To2017.Transforms
 			}
 		}
 
-		private static Tuple<string, string>[] VersioningProperties(AssemblyAttributes assemblyAttributes)
+		private static IEnumerable<XElement> VersioningProperties(AssemblyAttributes assemblyAttributes)
 		{
-			return new[]
+			if (assemblyAttributes.InformationalVersion != null)
 			{
-				Tuple.Create("GenerateAssemblyInformationalVersionAttribute", assemblyAttributes.InformationalVersion),
-				Tuple.Create("GenerateAssemblyVersionAttribute", assemblyAttributes.Version),
-				Tuple.Create("GenerateAssemblyFileVersionAttribute", assemblyAttributes.FileVersion)
-			};
+				yield return new XElement("Version", assemblyAttributes.InformationalVersion);
+			}
+
+			if (assemblyAttributes.Version != null)
+			{
+				yield return new XElement("AssemblyVersion", assemblyAttributes.Version);
+			}
+
+			if (assemblyAttributes.FileVersion != null)
+			{
+				yield return new XElement("FileVersion", assemblyAttributes.FileVersion);
+			}
+			//The AssemblyInfo behaviour was to fallback on the AssemblyVersion for the file version
+			//but in the new format, this doesn't happen so we explicitly copy the value across
+			else if (assemblyAttributes.Version != null)
+			{
+				yield return new XElement("FileVersion", assemblyAttributes.Version);
+			}
+
+			assemblyAttributes.InformationalVersion = null;
+			assemblyAttributes.Version = null;
+			assemblyAttributes.FileVersion = null;
 		}
 	}
 }
