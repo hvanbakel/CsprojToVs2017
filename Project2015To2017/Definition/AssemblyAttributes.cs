@@ -105,7 +105,15 @@ namespace Project2015To2017.Definition
 				}
 
 				var newAttList = att.attList.RemoveNode(att.att, SyntaxRemoveOptions.KeepNoTrivia);
-				newAttLists = FileContents.AttributeLists.Replace(att.attList, newAttList);
+
+				if (newAttList.Attributes.Any())
+				{
+					newAttLists = FileContents.AttributeLists.Replace(att.attList, newAttList);
+				}
+				else
+				{
+					newAttLists = FileContents.AttributeLists.Remove(att.attList);
+				}
 			}
 			else if (att.att == null)
 			{
@@ -151,15 +159,7 @@ namespace Project2015To2017.Definition
 
 		private bool Equals(AssemblyAttributes other)
 		{
-			return string.Equals(Title, other.Title)
-				   && string.Equals(Company, other.Company)
-				   && string.Equals(Product, other.Product)
-				   && string.Equals(Copyright, other.Copyright)
-				   && string.Equals(InformationalVersion, other.InformationalVersion)
-				   && string.Equals(Version, other.Version)
-				   && string.Equals(Description, other.Description)
-				   && string.Equals(Configuration, other.Configuration)
-				   && string.Equals(FileVersion, other.FileVersion);
+			return FileContents.ToFullString() == other.FileContents.ToFullString();
 		}
 
 		public override bool Equals(object obj)
