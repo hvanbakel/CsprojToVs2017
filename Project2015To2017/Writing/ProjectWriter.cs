@@ -15,9 +15,9 @@ namespace Project2015To2017.Writing
 		public Action<FileSystemInfo> CheckoutOperation { get; set; }
 												= _ => { };
 
-		public void Write(Project project, IProgress<string> progress)
+		public void Write(Project project, bool makeBackups, IProgress<string> progress)
 		{
-			if (!DoBackups(project, progress))
+			if (makeBackups && !DoBackups(project, progress))
 			{
 				progress.Report("Couldn't do backup, so not applying any changes");
 				return;

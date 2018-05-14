@@ -27,10 +27,12 @@ namespace Project2015To2017.Console
 
 			if (!args.Contains("--dry-run"))
 			{
+				var doBackup = !args.Contains("--no-backup");
+
 				var writer = new Writing.ProjectWriter();
 				foreach (var project in convertedProjects)
 				{
-					writer.Write(project, progress);
+					writer.Write(project, doBackup, progress);
 				}
 			}
 		}
