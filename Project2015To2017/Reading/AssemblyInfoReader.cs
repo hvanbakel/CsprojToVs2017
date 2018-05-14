@@ -1,8 +1,11 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+using static Project2015To2017.Definition.Project;
 
 using Project2015To2017.Definition;
 
@@ -11,16 +14,29 @@ namespace Project2015To2017.Reading
 	public class AssemblyInfoReader
 	{
 		public AssemblyAttributes Read(
-			FileInfo projectFile, IProgress<string> progress
+			Project project, IProgress<string> progress
 		)
 		{
-			var projectFolder = projectFile.Directory;
+			var projectPath = project.ProjectFolder.FullName;
 
-			var assemblyInfoFiles = projectFolder
-										.EnumerateFiles("AssemblyInfo.cs", SearchOption.AllDirectories)
-										.ToArray();
+			var compileElements = project.IncludeItems
+										 .SelectMany(x => x.Elements(XmlNamespace + "Compile"))
+										 .ToList();
 
-			if (assemblyInfoFiles.Length == 1)
+			var assemblyInfoFiles = compileElements
+										   .Attributes("Include")
+										   .Select(x => x.Value.ToString())
+										   .Where(x => !x.Contains("*"))
+										   .Select(x =>
+												{
+													var filePath = Path.IsPathRooted(x) ? x : Path.GetFullPath(Path.Combine(projectPath, x));
+													return new FileInfo(filePath);
+												}
+											)
+										   .Where(x => x.Name.ToLower() == "assemblyinfo.cs")
+										   .ToList();
+
+			if (assemblyInfoFiles.Count == 1)
 			{
 				var assemblyInfoFile = assemblyInfoFiles[0];
 				var assemblyInfoFileName = assemblyInfoFile.FullName;
@@ -30,7 +46,7 @@ namespace Project2015To2017.Reading
 				var text = File.ReadAllText(assemblyInfoFileName);
 
 				var tree = CSharpSyntaxTree.ParseText(text);
- 
+
 				var root = (CompilationUnitSyntax)tree.GetRoot();
 
 				var assemblyAttributes = new AssemblyAttributes

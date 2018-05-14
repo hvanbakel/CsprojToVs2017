@@ -64,7 +64,7 @@ namespace Project2015To2017.Reading
 
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
 
-			var assemblyAttributes = new AssemblyInfoReader().Read(fileInfo, progress);
+			var assemblyAttributes = new AssemblyInfoReader().Read(projectDefinition, progress);
 
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
 
