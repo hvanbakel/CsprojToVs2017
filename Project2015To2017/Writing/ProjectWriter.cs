@@ -76,16 +76,16 @@ namespace Project2015To2017.Writing
 
 			progress.Report($"Backing up to {backupFolder.FullName}");
 
-			projectFile.CopyTo(Path.Combine(backupFolder.FullName, projectFile.Name));
+			projectFile.CopyTo(Path.Combine(backupFolder.FullName,  $"{projectFile.Name}.old"));
 
 			var packagesFile = project.PackagesConfigFile;
-			packagesFile?.CopyTo(Path.Combine(backupFolder.FullName, packagesFile.Name));
+			packagesFile?.CopyTo(Path.Combine(backupFolder.FullName, $"{packagesFile.Name}.old"));
 
 			var nuspecFile = project.PackageConfiguration?.NuspecFile;
-			nuspecFile?.CopyTo(Path.Combine(backupFolder.FullName, nuspecFile.Name));
+			nuspecFile?.CopyTo(Path.Combine(backupFolder.FullName, $"{nuspecFile.Name}.old"));
 
 			var assemblyInfoFile = project.AssemblyAttributes?.File;
-			assemblyInfoFile?.CopyTo(Path.Combine(backupFolder.FullName, assemblyInfoFile.Name));
+			assemblyInfoFile?.CopyTo(Path.Combine(backupFolder.FullName, $"{assemblyInfoFile.Name}.old"));
 
 			return true;
 		}
