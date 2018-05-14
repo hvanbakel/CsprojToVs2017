@@ -178,7 +178,7 @@ namespace Project2015To2017.Reading
 
 				var specificVersion = GetElementValue(referenceElement, "SpecificVersion");
 
-				var hintPath = GetElementValue(referenceElement, "HintPath"); ;
+				var hintPath = GetElementValue(referenceElement, "HintPath");
 
 				var isPrivate = GetElementValue(referenceElement, "Private");
 
