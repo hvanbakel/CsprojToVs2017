@@ -122,5 +122,52 @@ namespace Project2015To2017Tests
 
 			Assert.AreEqual(expectedAttributes, project.AssemblyAttributes);
 		}
+
+		[TestMethod]
+		public void PackagePropertiesOverrideAssemblyInfo()
+		{
+			var project = new Project
+			{
+				AssemblyAttributes = BaseAssemblyAttributes(),
+				PackageConfiguration = new PackageConfiguration()
+				{
+					Copyright = "Some different copyright",
+					Description = "Some other description",
+					Version = "1.5.2-otherVersion"
+				}
+			};
+
+			var transform = new AssemblyAttributeTransformation();
+
+			transform.Transform(project, new Progress<string>());
+
+			var expectedProperties = new[]
+				{
+					new XElement("AssemblyTitle", "The Title"),
+					new XElement("Company", "TheCompany Inc."),
+					new XElement("Description", "Some other description"),
+					new XElement("Product", "The Product"),
+					new XElement("Copyright", "Some different copyright"),
+					new XElement("GenerateAssemblyConfigurationAttribute", false),
+					new XElement("Version", "1.5.2-otherVersion"),
+					new XElement("AssemblyVersion", "1.0.4.2"),
+					new XElement("FileVersion", "1.1.7.9")
+				}
+				.Select(x => x.ToString())
+				.ToList();
+
+			var actualProperties = project.AssemblyAttributeProperties
+										  .Select(x => x.ToString())
+										  .ToList();
+
+			CollectionAssert.AreEquivalent(expectedProperties, actualProperties);
+
+			var expectedAttributes = new AssemblyAttributes
+			{
+				Configuration = "SomeConfiguration"
+			};
+
+			Assert.AreEqual(expectedAttributes, project.AssemblyAttributes);
+		}
 	}
 }

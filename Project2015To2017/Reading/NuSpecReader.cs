@@ -72,16 +72,8 @@ namespace Project2015To2017.Reading
 			}
 
 			var id = metadata.Element(ns + "id")?.Value;
-			if (id == "$id$")
-			{
-				id = null;
-			}
 
 			var version = metadata.Element(ns + "version")?.Value;
-			if (version == "$version$")
-			{
-				version = null;
-			}
 
 			var dependencies = metadata.Element(ns + "dependencies")
 									   ?.Elements(ns + "dependency")

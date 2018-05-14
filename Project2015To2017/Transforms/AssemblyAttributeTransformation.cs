@@ -10,7 +10,11 @@ namespace Project2015To2017.Transforms
 	{
 		public void Transform(Project definition, IProgress<string> progress)
 		{
-			var attributeNodes = AssemblyAttributeNodes(definition.AssemblyAttributes, progress);
+			var attributeNodes = AssemblyAttributeNodes(
+									definition.AssemblyAttributes,
+									definition.PackageConfiguration,
+									progress
+								);
 
 			definition.AssemblyAttributeProperties = definition.AssemblyAttributeProperties
 															   .Concat(attributeNodes)
@@ -18,7 +22,11 @@ namespace Project2015To2017.Transforms
 															   .AsReadOnly();
 		}
 
-		private static XElement[] AssemblyAttributeNodes(AssemblyAttributes assemblyAttributes, IProgress<string> progress)
+		private static XElement[] AssemblyAttributeNodes(
+									AssemblyAttributes assemblyAttributes,
+									PackageConfiguration packageConfig,
+									IProgress<string> progress
+								 )
 		{
 			if (assemblyAttributes == null)
 			{
@@ -27,8 +35,8 @@ namespace Project2015To2017.Transforms
 
 			progress.Report("Moving attributes from AssemblyInfo to project file");
 
-			var versioningProperties = VersioningProperties(assemblyAttributes);
-			var otherProperties = OtherProperties(assemblyAttributes);
+			var versioningProperties = VersioningProperties(assemblyAttributes, packageConfig, progress);
+			var otherProperties = OtherProperties(assemblyAttributes, packageConfig, progress);
 
 			var childNodes = otherProperties
 								.Concat(versioningProperties)
@@ -47,7 +55,8 @@ namespace Project2015To2017.Transforms
 			}
 		}
 
-		private static IEnumerable<XElement> OtherProperties(AssemblyAttributes assemblyAttributes)
+		private static IEnumerable<XElement> OtherProperties(AssemblyAttributes assemblyAttributes,
+			PackageConfiguration packageConfig, IProgress<string> progress)
 		{
 			var toReturn = Properties()
 								.Where(x => x != null)
@@ -65,9 +74,11 @@ namespace Project2015To2017.Transforms
 			{
 				yield return XElement(assemblyAttributes.Title, "AssemblyTitle");
 				yield return XElement(assemblyAttributes.Company, "Company");
-				yield return XElement(assemblyAttributes.Description, "Description");
 				yield return XElement(assemblyAttributes.Product, "Product");
-				yield return XElement(assemblyAttributes.Copyright, "Copyright");
+
+				//And a couple of properties which can be superceded by the package config
+				yield return XElement(assemblyAttributes.Description, packageConfig?.Description, "Description", progress);
+				yield return XElement(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", progress);
 
 				if (assemblyAttributes.Configuration != null)
 				{
@@ -79,7 +90,28 @@ namespace Project2015To2017.Transforms
 			}
 		}
 
-		private static List<XElement> VersioningProperties(AssemblyAttributes assemblyAttributes)
+		private static XElement XElement(string assemblyInfoValue, string packageConfigValue,
+											string description, IProgress<string> progress)
+		{
+			if (packageConfigValue != null && packageConfigValue != assemblyInfoValue)
+			{
+				if (assemblyInfoValue != null)
+				{
+					progress.Report(
+						$"Taking nuspec {description} property value {packageConfigValue} " +
+						$"over AssemblyInfo value {assemblyInfoValue}");
+				}
+
+				return XElement(packageConfigValue, description);
+			}
+			else
+			{
+				return XElement(assemblyInfoValue, description);
+			}
+		}
+
+		private static List<XElement> VersioningProperties(AssemblyAttributes assemblyAttributes,
+			PackageConfiguration packageConfig, IProgress<string> progress)
 		{
 			var toReturn = Properties()
 								.Where(x => x != null)
@@ -93,7 +125,7 @@ namespace Project2015To2017.Transforms
 
 			IEnumerable<XElement> Properties()
 			{
-				yield return XElement(assemblyAttributes.InformationalVersion, "Version");
+				yield return XElement(assemblyAttributes.InformationalVersion, packageConfig?.Version, "Version", progress);
 				yield return XElement(assemblyAttributes.Version, "AssemblyVersion");
 
 				//The AssemblyInfo behaviour was to fallback on the AssemblyVersion for the file version

@@ -309,29 +309,27 @@ namespace Project2015To2017.Writing
 
 			mainPropertyGroup.Add(project.AssemblyAttributeProperties);
 
-			AddPackageNodes(mainPropertyGroup, project.PackageConfiguration, project.AssemblyAttributes);
+			AddPackageNodes(mainPropertyGroup, project.PackageConfiguration);
 
 			return mainPropertyGroup;
 		}
 
-		private void AddPackageNodes(XElement mainPropertyGroup, PackageConfiguration packageConfiguration, AssemblyAttributes attributes)
+		private void AddPackageNodes(XElement mainPropertyGroup, PackageConfiguration packageConfiguration)
 		{
 			if (packageConfiguration == null)
 			{
 				return;
 			}
 
-			AddIfNotNull(mainPropertyGroup, "Company", attributes?.Company);
+			//Add those properties not already covered by the project properties
+
 			AddIfNotNull(mainPropertyGroup, "Authors", packageConfiguration.Authors);
-			AddIfNotNull(mainPropertyGroup, "Copyright", packageConfiguration.Copyright);
-			AddIfNotNull(mainPropertyGroup, "Description", packageConfiguration.Description);
 			AddIfNotNull(mainPropertyGroup, "PackageIconUrl", packageConfiguration.IconUrl);
 			AddIfNotNull(mainPropertyGroup, "PackageId", packageConfiguration.Id);
 			AddIfNotNull(mainPropertyGroup, "PackageLicenseUrl", packageConfiguration.LicenseUrl);
 			AddIfNotNull(mainPropertyGroup, "PackageProjectUrl", packageConfiguration.ProjectUrl);
 			AddIfNotNull(mainPropertyGroup, "PackageReleaseNotes", packageConfiguration.ReleaseNotes);
 			AddIfNotNull(mainPropertyGroup, "PackageTags", packageConfiguration.Tags);
-			AddIfNotNull(mainPropertyGroup, "Version", packageConfiguration.Version);
 
 			if (packageConfiguration.Id != null && packageConfiguration.Tags == null)
 				mainPropertyGroup.Add(new XElement("PackageTags", "Library"));

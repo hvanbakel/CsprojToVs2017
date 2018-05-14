@@ -21,6 +21,8 @@ namespace Project2015To2017Tests
 			project.AssemblyAttributes =
 								new AssemblyAttributes {
 									InformationalVersion = "7.0",
+									Version = "8.0",
+									FileVersion = "9.0",
 									Copyright = "copyright from assembly",
 									Description = "description from assembly",
 									Company = "assembly author"
@@ -32,7 +34,7 @@ namespace Project2015To2017Tests
 			var transformedPackageConfig = project.PackageConfiguration;
 
 			Assert.IsNull(transformedPackageConfig.Id);
-			Assert.IsNull(transformedPackageConfig.Version);
+			Assert.AreEqual("7.0", transformedPackageConfig.Version);
 			Assert.AreEqual("some author", transformedPackageConfig.Authors);
 			Assert.AreEqual("copyright from assembly", transformedPackageConfig.Copyright);
 			Assert.IsTrue(transformedPackageConfig.RequiresLicenseAcceptance);
@@ -40,6 +42,29 @@ namespace Project2015To2017Tests
 			Assert.AreEqual("some tags API", transformedPackageConfig.Tags);
 			Assert.AreEqual("someurl", transformedPackageConfig.LicenseUrl);
 			Assert.AreEqual("Some long\n        text\n        with newlines", transformedPackageConfig.ReleaseNotes.Trim());
+		}
+
+		[TestMethod]
+		public void ConvertsNuspecWithNoInformationalVersion()
+		{
+			var project = new ProjectReader()
+				.Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
+
+			project.AssemblyAttributes =
+				new AssemblyAttributes {
+					Version = "8.0",
+					FileVersion = "9.0",
+					Copyright = "copyright from assembly",
+					Description = "description from assembly",
+					Company = "assembly author"
+				};
+
+			var progress = new Progress<string>(x => { });
+			new NugetPackageTransformation().Transform(project, progress);
+
+			var transformedPackageConfig = project.PackageConfiguration;
+
+			Assert.AreEqual("8.0", transformedPackageConfig.Version);
 		}
 
 		[TestMethod]
