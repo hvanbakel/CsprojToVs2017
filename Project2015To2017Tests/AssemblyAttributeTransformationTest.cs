@@ -15,8 +15,8 @@ namespace Project2015To2017Tests
 			{
 				Company = "TheCompany Inc.",
 				Configuration = "SomeConfiguration",
-				Copyright = "A Copyright notice",
-				Description = "A description notice",
+				Copyright = "A Copyright notice  ©",
+				Description = "A description",
 				FileVersion = "1.1.7.9",
 				InformationalVersion = "1.8.4.3-beta.1",
 				Version = "1.0.4.2",
@@ -57,11 +57,11 @@ namespace Project2015To2017Tests
 
 			var expectedProperties = new[]
 			{
-				new XElement("GenerateAssemblyTitleAttribute", false),
-				new XElement("GenerateAssemblyCompanyAttribute", false),
-				new XElement("GenerateAssemblyDescriptionAttribute", false),
-				new XElement("GenerateAssemblyProductAttribute", false),
-				new XElement("GenerateAssemblyCopyrightAttribute", false),
+				new XElement("AssemblyTitle", "The Title"),
+				new XElement("Company", "TheCompany Inc."),
+				new XElement("Description", "A description"),
+				new XElement("Product", "The Product"),
+				new XElement("Copyright", "A Copyright notice  ©"),
 				new XElement("GenerateAssemblyConfigurationAttribute", false),
 				new XElement("Version", "1.8.4.3-beta.1"),
 				new XElement("AssemblyVersion", "1.0.4.2"),
@@ -76,10 +76,10 @@ namespace Project2015To2017Tests
 
 			CollectionAssert.AreEquivalent(expectedProperties, actualProperties);
 
-			var expectedAttributes = BaseAssemblyAttributes();
-			expectedAttributes.InformationalVersion = null;
-			expectedAttributes.Version = null;
-			expectedAttributes.FileVersion = null;
+			var expectedAttributes = new AssemblyAttributes
+									{
+										Configuration = "SomeConfiguration"
+									};
 
 			Assert.AreEqual(expectedAttributes, project.AssemblyAttributes);
 		}
