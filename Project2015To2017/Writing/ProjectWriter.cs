@@ -10,18 +10,53 @@ namespace Project2015To2017.Writing
 {
 	public class ProjectWriter
     {
-        public void Write(Project project)
+        public void Write(Project project, IProgress<string> progress)
         {
-            var projectNode = CreateXml(project, project.FilePath);
+	        var projectFile = project.FilePath;
 
-            using (var filestream = File.Open(project.FilePath.FullName, FileMode.Create))
+	        if (!DoBackups(projectFile, progress))
+	        {
+		        return;
+	        }
+
+	        var projectNode = CreateXml(project, projectFile);
+
+            using (var filestream = File.Open(projectFile.FullName, FileMode.Create))
             using (var streamWriter = new StreamWriter(filestream, Encoding.UTF8))
             {
                 streamWriter.Write(projectNode.ToString());
             }
         }
 
-        internal XElement CreateXml(Project project, FileInfo outputFile)
+	    private static bool DoBackups(FileInfo projectFile, IProgress<string> progress)
+	    {
+		    if (!SaveBackup(projectFile, progress))
+		    {
+			    return false;
+		    }
+
+		    var packagesFile = Path.Combine(projectFile.DirectoryName, "packages.config");
+		    if (File.Exists(packagesFile))
+		    {
+			    if (!RenameFile(packagesFile, progress))
+			    {
+				    return false;
+			    }
+		    }
+
+		    var nuspecFile = projectFile.FullName.Replace(".csproj", ".nuspec");
+		    if (File.Exists(nuspecFile))
+		    {
+			    if (!RenameFile(nuspecFile, progress))
+			    {
+				    return false;
+			    }
+		    }
+
+		    return true;
+	    }
+
+	    internal XElement CreateXml(Project project, FileInfo outputFile)
         {
             var projectNode = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"));
 
@@ -289,5 +324,42 @@ namespace Project2015To2017.Writing
                 AddIfNotNull(mainPropertyGroup, "TargetFramework", targetFrameworks[0]);
             }
         }
+
+	    private static bool SaveBackup(FileInfo filename, IProgress<string> progress)
+	    {
+		    var output = false;
+
+		    var backupFileName = filename + ".old";
+		    if (File.Exists(backupFileName))
+		    {
+			    progress.Report($"Cannot create backup file. Please delete {backupFileName}.");
+		    }
+		    else
+		    {
+			    File.Copy(filename.FullName, filename + ".old");
+			    output = true;
+		    }
+
+		    return output;
+	    }
+
+	    private static bool RenameFile(string filename, IProgress<string> progress)
+	    {
+		    var output = false;
+
+		    var backupFileName = filename + ".old";
+		    if (File.Exists(backupFileName))
+		    {
+			    progress.Report($"Cannot create backup file. Please delete {backupFileName}.");
+		    }
+		    else
+		    {
+			    // todo Consider using TF VC or Git?
+			    File.Move(filename, filename + ".old");
+			    output = true;
+		    }
+
+		    return output;
+	    }
     }
 }
