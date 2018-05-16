@@ -40,6 +40,7 @@ namespace Project2015To2017.Reading
 
 			var namespaces = new XNamespace[]
 			{
+				"",
 				"http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd",
 				"http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd",
 				"http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd"
