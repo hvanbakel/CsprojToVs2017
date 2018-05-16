@@ -13,8 +13,8 @@ namespace Project2015To2017Tests
         {
 	        var progress = new Progress<string>(x => { });
 
-            File.SetAttributes("TestFiles\\readonly.testcsproj", FileAttributes.ReadOnly);
-            Assert.IsFalse(ProjectConverter.Validate(new FileInfo("TestFiles\\readonly.testcsproj"), progress));
+            File.SetAttributes("TestFiles\\OtherTestProjects\\readonly.testcsproj", FileAttributes.ReadOnly);
+            Assert.IsFalse(ProjectConverter.Validate(new FileInfo("TestFiles\\OtherTestProjects\\readonly.testcsproj"), progress));
         }
 
         [TestMethod]
@@ -23,7 +23,7 @@ namespace Project2015To2017Tests
 			
 	        var progress = new Progress<string>(x => { });
 
-            Assert.IsFalse(ProjectConverter.Validate(new FileInfo("TestFiles\\nonexistent.testcsproj"), progress));
+            Assert.IsFalse(ProjectConverter.Validate(new FileInfo("TestFiles\\OtherTestProjects\\nonexistent.testcsproj"), progress));
         }
     }
 }
