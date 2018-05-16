@@ -23,30 +23,46 @@ namespace Project2015To2017.Writing
 				return;
 			}
 
-			WriteProjectFile(project);
+			if (!WriteProjectFile(project, progress))
+			{
+				progress.Report("Aborting as could not write to project file");
+				return;
+			}
 
-			WriteAssemblyInfoFile(project);
+			if (!WriteAssemblyInfoFile(project, progress))
+			{
+				progress.Report("Aborting as could not write to assembly info file");
+				return;
+			}
 
 			DeleteUnusedFiles(project);
 		}
 
-		private void WriteProjectFile(Project project)
+		private bool WriteProjectFile(Project project, IProgress<string> progress)
 		{
 			var projectNode = CreateXml(project);
 
-			CheckoutOperation.Invoke(project.FilePath);
+			var projectFile = project.FilePath;
+			CheckoutOperation.Invoke(projectFile);
 
-			File.WriteAllText(project.FilePath.FullName, projectNode.ToString());
+			if (projectFile.IsReadOnly)
+			{
+				progress.Report($"{projectFile} is readonly, please make the file writable first (checkout from source control?).");
+				return false;
+			}
+
+			File.WriteAllText(projectFile.FullName, projectNode.ToString());
+			return true;
 		}
 
-		private void WriteAssemblyInfoFile(Project project)
+		private bool WriteAssemblyInfoFile(Project project, IProgress<string> progress)
 		{
 			var assemblyAttributes = project.AssemblyAttributes;
 			var file = assemblyAttributes?.File;
 
 			if (assemblyAttributes == null || file == null)
 			{
-				return;
+				return true;
 			}
 
 			var currentContents = File.ReadAllText(file.FullName);
@@ -55,12 +71,20 @@ namespace Project2015To2017.Writing
 			if (newContents == currentContents)
 			{
 				//Nothing to do
-				return;
+				return true;
 			}
 
 			CheckoutOperation.Invoke(file);
 
+			if (file.IsReadOnly)
+			{
+				progress.Report($"{file} is readonly, please make the file writable first (checkout from source control?).");
+				return false;
+			}
+
 			File.WriteAllText(file.FullName, newContents);
+
+			return true;
 		}
 
 		private static bool DoBackups(Project project, IProgress<string> progress)

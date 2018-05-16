@@ -138,12 +138,6 @@ namespace Project2015To2017
 				return false;
 			}
 
-			if (file.IsReadOnly)
-			{
-				progress.Report($"File {file.FullName} is readonly, please make the file writable first (checkout from source control?).");
-				return false;
-			}
-
 			return true;
 		}
 	}
