@@ -14,7 +14,7 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void TransformsAssemblyReferences()
 		{
-			var project = new ProjectReader().Read("TestFiles\\net46console.testcsproj");
+			var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
 			var transformation = new AssemblyReferenceTransformation();
 
 			var progress = new Progress<string>(x => { });

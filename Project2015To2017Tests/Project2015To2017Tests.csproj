@@ -1,11 +1,43 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="TestFiles\FileInclusion\Resources.resx\**" />
+    <EmbeddedResource Remove="TestFiles\FileInclusion\Resources.resx\**" />
+    <None Remove="TestFiles\FileInclusion\Resources.resx\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="TestFiles\AssemblyInfo.cs" />
+    <Compile Remove="TestFiles\FileInclusion\AnotherFile.cs" />
+    <Compile Remove="TestFiles\FileInclusion\Folder\FileIncludedByWildcard.cs" />
+    <Compile Remove="TestFiles\FileInclusion\Folder\FileInFolder.cs" />
+    <Compile Remove="TestFiles\FileInclusion\IncludedFile.cs" />
+    <Compile Remove="TestFiles\FileInclusion\Program.cs" />
+    <Compile Remove="TestFiles\FileInclusion\Properties\AssemblyInfo.cs" />
+    <Compile Remove="TestFiles\FileInclusion\Properties\Resources.Designer.cs" />
+    <Compile Remove="TestFiles\FileInclusion\Resources.Designer.cs" />
+    <Compile Remove="TestFiles\FileInclusion\SourceFileWithDesigner.cs" />
+    <Compile Remove="TestFiles\FileInclusion\SourceFileWithDesigner.Designer.cs" />
+    <Compile Remove="TestFiles\FileInclusion\WildcardFolder\WildcardSubFolder\SubFolderWildcardFile.cs" />
+    <Compile Remove="TestFiles\OtherTestProjects\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="TestFiles\FileInclusion\Properties\Resources.resx" />
+    <EmbeddedResource Remove="TestFiles\FileInclusion\Resources.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="TestFiles\FileInclusion\AnotherFile.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\FileInclusion\Program.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -15,22 +47,67 @@
     <None Include="OtherPackagesConfig\net46console.testcsproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestFiles\AssemblyInfo.cs">
+    <None Include="TestFiles\FileInclusion\fileinclusion.testcsproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestFiles\fileinclusion.testcsproj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestFiles\readonly.testcsproj">
+    <None Include="TestFiles\FileInclusion\Folder\FileIncludedByWildcard.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestFiles\containsTestSDK.testcsproj">
+    <None Include="TestFiles\FileInclusion\Folder\FileInFolder.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestFiles\unittest.testcsproj">
+    <None Include="TestFiles\FileInclusion\IncludedFile.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestFiles\net46console.testcsproj">
+    <None Include="TestFiles\FileInclusion\Properties\AssemblyInfo.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\FileInclusion\Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\FileInclusion\Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="TestFiles\FileInclusion\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </None>
+	  <None Include="TestFiles\FileInclusion\Resources.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>Resources.resx</DependentUpon>
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+    <None Include="TestFiles\FileInclusion\SourceFileWithDesigner.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\FileInclusion\SourceFileWithDesigner.Designer.cs">
+      <DependentUpon>SourceFileWithDesigner.cs</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <None Include="TestFiles\FileInclusion\WildcardFolder\WildcardSubFolder\SubFolderWildcardFile.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\OtherTestProjects\AssemblyInfo.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\OtherTestProjects\containsTestSDK.testcsproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\OtherTestProjects\net46console.testcsproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\OtherTestProjects\readonly.testcsproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\OtherTestProjects\unittest.testcsproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -56,15 +133,6 @@
     <Compile Update="TestFiles\Folder\FileInFolder.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="TestFiles\IncludedFile.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="TestFiles\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -77,7 +145,16 @@
     <None Update="TestFiles\AltNugetConfig\ProjectFolder\packages.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="TestFiles\packages.config">
+    <None Update="TestFiles\FileInclusion\app.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\FileInclusion\packages.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\OtherTestProjects\packages.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\OtherTestProjects\test.nuspec">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestFiles\test.nuspec">
@@ -97,6 +174,7 @@
     <EmbeddedResource Update="TestFiles\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 
