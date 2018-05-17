@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
@@ -12,7 +12,10 @@
 
   <ItemGroup>
     <Compile Remove="TestFiles\AssemblyInfo.cs" />
+    <Compile Remove="TestFiles\AssemblyInfoHandling\ClassDataLeft\Properties\AssemblyInfo.cs" />
     <Compile Remove="TestFiles\AssemblyInfoHandling\Empty\Properties\AssemblyInfo.cs" />
+    <Compile Remove="TestFiles\AssemblyInfoHandling\Redundant\AssemblyInfo.cs" />
+    <Compile Remove="TestFiles\AssemblyInfoHandling\Redundant\Properties\AssemblyInfo.cs" />
     <Compile Remove="TestFiles\FileInclusion\AnotherFile.cs" />
     <Compile Remove="TestFiles\FileInclusion\Folder\FileIncludedByWildcard.cs" />
     <Compile Remove="TestFiles\FileInclusion\Folder\FileInFolder.cs" />
@@ -33,10 +36,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="TestFiles\AssemblyInfoHandling\Empty\net46console.testcsproj">
+    <None Include="TestFiles\AssemblyInfoHandling\ClassDataLeft\Properties\AssemblyInfo.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestFiles\AssemblyInfoHandling\Empty\Properties\AssemblyInfo.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\AssemblyInfoHandling\Redundant\Properties\AssemblyInfo.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestFiles\FileInclusion\AnotherFile.cs">

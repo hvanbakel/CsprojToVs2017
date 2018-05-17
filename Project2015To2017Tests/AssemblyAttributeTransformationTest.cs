@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Definition;
 using Project2015To2017.Transforms;
@@ -32,7 +34,7 @@ namespace Project2015To2017Tests
 			var project = new Project
 			{
 				AssemblyAttributes = new AssemblyAttributes(),
-				FilePath = new System.IO.FileInfo("test.cs"),
+				FilePath = new FileInfo("test.cs"),
 				Deletions = new List<FileSystemInfo>()
 			};
 
@@ -188,7 +190,6 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project
 			{
-				FilePath = new FileInfo(@"TestFiles\AssemblyInfoHandling\Empty\net46console.testcsproj"),
 				Deletions = new List<FileSystemInfo>()
 			};
 
@@ -203,6 +204,54 @@ namespace Project2015To2017Tests
 			transform.Transform(project, new Progress<string>());
 
 		    CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
+		}
+
+		[TestMethod]
+		public void RedundantAssemblyInfoIsDeleted()
+		{
+			var project = new Project
+			{
+				Deletions = new List<FileSystemInfo>()
+			};
+
+			var assemblyInfoFile = new FileInfo(@"TestFiles\AssemblyInfoHandling\Redundant\Properties\AssemblyInfo.cs");
+			project.AssemblyAttributes = new AssemblyAttributes
+			{
+				File = assemblyInfoFile,
+				FileContents = (CompilationUnitSyntax)CSharpSyntaxTree.ParseText(
+									File.ReadAllText(assemblyInfoFile.FullName)
+								).GetRoot()
+			};
+
+			var transform = new AssemblyAttributeTransformation();
+
+			transform.Transform(project, new Progress<string>());
+
+			CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
+		}
+
+		[TestMethod]
+		public void ClassInAssemblyInfoIsNotDeleted()
+		{
+			var project = new Project
+			{
+				Deletions = new List<FileSystemInfo>()
+			};
+
+			var assemblyInfoFile = new FileInfo(@"TestFiles\AssemblyInfoHandling\ClassDataLeft\Properties\AssemblyInfo.cs");
+			project.AssemblyAttributes = new AssemblyAttributes
+			{
+				File = assemblyInfoFile,
+				FileContents = (CompilationUnitSyntax)CSharpSyntaxTree.ParseText(
+					File.ReadAllText(assemblyInfoFile.FullName)
+				).GetRoot()
+			};
+
+			var transform = new AssemblyAttributeTransformation();
+
+			transform.Transform(project, new Progress<string>());
+
+			CollectionAssert.DoesNotContain(project.Deletions.ToList(), assemblyInfoFile);
 		}
 	}
 }
