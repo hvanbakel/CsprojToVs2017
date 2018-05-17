@@ -10,7 +10,7 @@ namespace Project2015To2017.Writing
 	public class ProjectWriter
 	{
 		public Action<FileSystemInfo> DeleteOperation { get; set; }
-												= file => file.Delete();
+												= fileOrFolder => fileOrFolder.Delete();
 
 		public Action<FileSystemInfo> CheckoutOperation { get; set; }
 												= _ => { };
@@ -35,7 +35,7 @@ namespace Project2015To2017.Writing
 				return;
 			}
 
-			DeleteUnusedFiles(project);
+			DeleteUnusedFiles(project, progress);
 		}
 
 		private bool WriteProjectFile(Project project, IProgress<string> progress)
@@ -388,16 +388,23 @@ namespace Project2015To2017.Writing
 			}
 		}
 
-		private void DeleteUnusedFiles(Project project)
+		private void DeleteUnusedFiles(Project project, IProgress<string> progress)
 		{
 			var filesToDelete = new[]
 			{
 				project.PackageConfiguration?.NuspecFile,
 				project.PackagesConfigFile
-			}.Where(x => x != null);
+			}.Where(x => x != null)
+			.Concat(project.Deletions);
 
 			foreach (var fileInfo in filesToDelete)
 			{
+				if(fileInfo is DirectoryInfo directory && directory.EnumerateFileSystemInfos().Any())
+				{
+					progress.Report($"Directory {fileInfo.FullName} is not empty so will not delete");
+					continue;
+				}
+
 				DeleteOperation(fileInfo);
 			}
 		}

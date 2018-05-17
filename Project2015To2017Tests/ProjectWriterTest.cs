@@ -1,12 +1,41 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Definition;
+using Project2015To2017.Reading;
 using Project2015To2017.Writing;
 
 namespace Project2015To2017Tests
 {
 	[TestClass]
-    public class ProjectWriterTest
+	public class ProjectWriterTest
 	{
+		[TestMethod]
+		public void ValidatesFileIsWritable()
+		{
+			var messageNum = 0;
+			var progress = new Progress<string>(x =>
+			{
+				if (messageNum++ == 0)
+				{
+					Assert.AreEqual(
+						@"TestFiles\OtherTestProjects\readonly.testcsproj is readonly, please make the file writable first (checkout from source control?).",
+						x);
+				}
+			});
+			
+
+			File.SetAttributes("TestFiles\\OtherTestProjects\\readonly.testcsproj", FileAttributes.ReadOnly);
+
+			var writer = new ProjectWriter();
+
+			var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\readonly.testcsproj");
+
+			writer.Write(project, false, progress);
+		}
+
 		[TestMethod]
 		public void SkipDelaySignNull()
 		{
@@ -49,6 +78,124 @@ namespace Project2015To2017Tests
 			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
 			Assert.IsNotNull(delaySign);
 			Assert.AreEqual("false", delaySign.Value);
+		}
+
+
+		[TestMethod]
+		public void DeletedFileIsProcessed()
+		{
+			var filesToDelete = new FileSystemInfo[]
+			{
+				new FileInfo(@"TestFiles\Deletions\a.txt")
+			};
+
+			var actualDeletedFiles = new List<FileSystemInfo>();
+
+			//Just simulate deletion so we can just check the list
+			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
+
+			var writer = new ProjectWriter { DeleteOperation = Deletion };
+
+			writer.Write(
+				new Project
+				{
+					FilePath = new FileInfo(@"TestFiles\Deletions\Test1.csproj"),
+					Deletions = filesToDelete.ToList().AsReadOnly()
+				},
+				false, new Progress<string>()
+			);
+
+			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
+		}
+
+		[TestMethod]
+		public void DeletedFolderIsProcessed()
+		{
+			//delete the dummy file we put in to make sure the folder was copied over
+			File.Delete(@"TestFiles\Deletions\EmptyFolder\a.txt");
+
+			var filesToDelete = new FileSystemInfo[]
+			{
+				new DirectoryInfo(@"TestFiles\Deletions\EmptyFolder")
+			};
+
+			var actualDeletedFiles = new List<FileSystemInfo>();
+
+			//Just simulate deletion so we can just check the list
+			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
+
+			var writer = new ProjectWriter { DeleteOperation = Deletion };
+
+			writer.Write(
+				new Project
+				{
+					FilePath = new FileInfo(@"TestFiles\Deletions\Test2.csproj"),
+					Deletions = filesToDelete.ToList().AsReadOnly()
+				},
+				false, new Progress<string>()
+			);
+
+			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
+		}
+
+		[TestMethod]
+		public void DeletedNonEmptyFolderIsProcessedIfCleared()
+		{
+			var filesToDelete = new FileSystemInfo[]
+			{
+				new FileInfo(@"TestFiles\Deletions\NonEmptyFolder\a.txt"),
+				new DirectoryInfo(@"TestFiles\Deletions\NonEmptyFolder")
+			};
+
+			var actualDeletedFiles = new List<FileSystemInfo>();
+
+			//Just simulate deletion so we can just check the list
+			void Deletion(FileSystemInfo info)
+			{
+				//need to actually delete this one so the folder can be deleted
+				info.Delete();
+				actualDeletedFiles.Add(info);
+			}
+
+			var writer = new ProjectWriter { DeleteOperation = Deletion };
+
+			writer.Write(
+				new Project
+				{
+					FilePath = new FileInfo(@"TestFiles\Deletions\Test3.csproj"),
+					Deletions = filesToDelete.ToList().AsReadOnly()
+				},
+				false, new Progress<string>()
+			);
+
+			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
+		}
+
+		[TestMethod]
+		public void DeletedNonEmptyFolderIsNotProcessed()
+		{
+			var filesToDelete = new FileSystemInfo[]
+			{
+				new DirectoryInfo(@"TestFiles\Deletions\NonEmptyFolder2")
+			};
+
+			var actualDeletedFiles = new List<FileSystemInfo>();
+
+			//Just simulate deletion so we can just check the list
+			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
+
+			var writer = new ProjectWriter { DeleteOperation = Deletion };
+
+			writer.Write(
+				new Project
+				{
+					FilePath = new FileInfo(@"TestFiles\Deletions\Test4.csproj"),
+					Deletions = filesToDelete.ToList().AsReadOnly()
+				},
+				false, new Progress<string>()
+			);
+
+			CollectionAssert.AreEqual(new FileSystemInfo[0], actualDeletedFiles);
 		}
 	}
 }

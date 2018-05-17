@@ -26,13 +26,26 @@ namespace Project2015To2017.Transforms
 															   .ToList()
 															   .AsReadOnly();
 
-			if (PointlessAssemblyInfo(definition.AssemblyAttributes))
+			if (definition.AssemblyAttributes.File != null && PointlessAssemblyInfo(definition.AssemblyAttributes))
 			{
 				definition.Deletions = definition
 										.Deletions
 										.Concat(new[] { definition.AssemblyAttributes.File })
 										.ToList().AsReadOnly();
+
+				if (AssemblyInfoFolderEmpty(definition.AssemblyAttributes))
+				{
+					definition.Deletions = definition
+						.Deletions
+						.Concat(new[] { definition.AssemblyAttributes.File.Directory })
+						.ToList().AsReadOnly();
+				}
 			}
+		}
+
+		private bool AssemblyInfoFolderEmpty(AssemblyAttributes assemblyAttributes)
+		{
+			return !assemblyAttributes.File.Directory.EnumerateFileSystemInfos().Any();
 		}
 
 		private bool PointlessAssemblyInfo(AssemblyAttributes assemblyAttributes)
