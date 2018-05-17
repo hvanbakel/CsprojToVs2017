@@ -10,6 +10,11 @@ namespace Project2015To2017.Transforms
 	{
 		public void Transform(Project definition, IProgress<string> progress)
 		{
+			if (definition.AssemblyAttributes == null)
+			{
+				return;
+			}
+
 			var attributeNodes = AssemblyAttributeNodes(
 									definition.AssemblyAttributes,
 									definition.PackageConfiguration,
@@ -20,6 +25,21 @@ namespace Project2015To2017.Transforms
 															   .Concat(attributeNodes)
 															   .ToList()
 															   .AsReadOnly();
+
+			if (PointlessAssemblyInfo(definition.AssemblyAttributes))
+			{
+				definition.Deletions = definition
+										.Deletions
+										.Concat(new[] { definition.AssemblyAttributes.File })
+										.ToList().AsReadOnly();
+			}
+		}
+
+		private bool PointlessAssemblyInfo(AssemblyAttributes assemblyAttributes)
+		{
+			var file = assemblyAttributes.FileContents;
+
+			return !file.Members.Any() && !file.AttributeLists.Any();
 		}
 
 		private static XElement[] AssemblyAttributeNodes(
@@ -28,10 +48,7 @@ namespace Project2015To2017.Transforms
 									IProgress<string> progress
 								 )
 		{
-			if (assemblyAttributes == null)
-			{
-				return new XElement[0];
-			}
+			
 
 			progress.Report("Moving attributes from AssemblyInfo to project file");
 
@@ -131,7 +148,7 @@ namespace Project2015To2017.Transforms
 				//The AssemblyInfo behaviour was to fallback on the AssemblyVersion for the file version
 				//but in the new format, this doesn't happen so we explicitly copy the value across
 				yield return XElement(assemblyAttributes.FileVersion, "FileVersion") ??
-				             XElement(assemblyAttributes.Version, "FileVersion");
+							 XElement(assemblyAttributes.Version, "FileVersion");
 			}
 		}
 

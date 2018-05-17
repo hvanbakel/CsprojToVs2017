@@ -59,7 +59,8 @@ namespace Project2015To2017.Reading
 				PackageReferences = packageReferences,
 				IncludeItems = includes,
 				PackageConfiguration = packageConfig,
-				PackagesConfigFile = packagesConfigFile
+				PackagesConfigFile = packagesConfigFile,
+				Deletions = new List<FileSystemInfo>()
 			};
 
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);

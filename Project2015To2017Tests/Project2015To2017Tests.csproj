@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Compile Remove="TestFiles\AssemblyInfo.cs" />
+    <Compile Remove="TestFiles\AssemblyInfoHandling\Empty\Properties\AssemblyInfo.cs" />
     <Compile Remove="TestFiles\FileInclusion\AnotherFile.cs" />
     <Compile Remove="TestFiles\FileInclusion\Folder\FileIncludedByWildcard.cs" />
     <Compile Remove="TestFiles\FileInclusion\Folder\FileInFolder.cs" />
@@ -32,6 +33,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="TestFiles\AssemblyInfoHandling\Empty\net46console.testcsproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\AssemblyInfoHandling\Empty\Properties\AssemblyInfo.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestFiles\FileInclusion\AnotherFile.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Definition;
 using Project2015To2017.Transforms;
-
 namespace Project2015To2017Tests
 {
 	[TestClass]
@@ -21,7 +22,8 @@ namespace Project2015To2017Tests
 				InformationalVersion = "1.8.4.3-beta.1",
 				Version = "1.0.4.2",
 				Product = "The Product",
-				Title = "The Title"
+				Title = "The Title",
+				File = new FileInfo("DummyAssemblyInfo.cs")
 			};
 
 		[TestMethod]
@@ -30,7 +32,8 @@ namespace Project2015To2017Tests
 			var project = new Project
 			{
 				AssemblyAttributes = new AssemblyAttributes(),
-				FilePath = new System.IO.FileInfo("test.cs")
+				FilePath = new System.IO.FileInfo("test.cs"),
+				Deletions = new List<FileSystemInfo>()
 			};
 
 			var transform = new AssemblyAttributeTransformation();
@@ -41,6 +44,8 @@ namespace Project2015To2017Tests
 			Assert.IsNotNull(generateAssemblyInfo);
 			Assert.AreEqual("GenerateAssemblyInfo", generateAssemblyInfo.Name);
 			Assert.AreEqual("false", generateAssemblyInfo.Value);
+			
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
 		[TestMethod]
@@ -48,7 +53,8 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project
 			{
-				AssemblyAttributes = BaseAssemblyAttributes()
+				AssemblyAttributes = BaseAssemblyAttributes(),
+				Deletions = new List<FileSystemInfo>()
 			};
 
 			var transform = new AssemblyAttributeTransformation();
@@ -82,6 +88,8 @@ namespace Project2015To2017Tests
 									};
 
 			Assert.AreEqual(expectedAttributes, project.AssemblyAttributes);
+			
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
 		[TestMethod]
@@ -95,7 +103,8 @@ namespace Project2015To2017Tests
 					//FileVersion should use this. In old projects, this happens automatically
 					//but the converter needs to explicitly copy it
 					Version = "1.0.4.2"
-				}
+				},
+				Deletions = new List<FileSystemInfo>()
 			};
 
 			var transform = new AssemblyAttributeTransformation();
@@ -121,6 +130,8 @@ namespace Project2015To2017Tests
 			var expectedAttributes = new AssemblyAttributes();
 
 			Assert.AreEqual(expectedAttributes, project.AssemblyAttributes);
+			
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
 		[TestMethod]
@@ -134,7 +145,8 @@ namespace Project2015To2017Tests
 					Copyright = "Some different copyright",
 					Description = "Some other description",
 					Version = "1.5.2-otherVersion"
-				}
+				},
+				Deletions = new List<FileSystemInfo>()
 			};
 
 			var transform = new AssemblyAttributeTransformation();
@@ -168,6 +180,29 @@ namespace Project2015To2017Tests
 			};
 
 			Assert.AreEqual(expectedAttributes, project.AssemblyAttributes);
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
+		}
+
+		[TestMethod]
+		public void EmptyAssemblyInfoIsDeleted()
+		{
+			var project = new Project
+			{
+				FilePath = new FileInfo(@"TestFiles\AssemblyInfoHandling\Empty\net46console.testcsproj"),
+				Deletions = new List<FileSystemInfo>()
+			};
+
+			var assemblyInfoFile = new FileInfo(@"TestFiles\AssemblyInfoHandling\Empty\Properties\AssemblyInfo.cs");
+			project.AssemblyAttributes = new AssemblyAttributes
+			{
+				File = assemblyInfoFile
+			};
+
+			var transform = new AssemblyAttributeTransformation();
+
+			transform.Transform(project, new Progress<string>());
+
+		    CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
 		}
 	}
 }
