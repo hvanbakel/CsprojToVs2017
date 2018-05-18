@@ -60,7 +60,7 @@ namespace Project2015To2017.Writing
 			var assemblyAttributes = project.AssemblyAttributes;
 			var file = assemblyAttributes?.File;
 
-			if (assemblyAttributes == null || file == null)
+			if (assemblyAttributes == null || file == null || project.Deletions.Any(x => file.FullName == x.FullName))
 			{
 				return true;
 			}
