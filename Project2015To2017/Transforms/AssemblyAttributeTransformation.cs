@@ -33,7 +33,7 @@ namespace Project2015To2017.Transforms
 										.Concat(new[] { definition.AssemblyAttributes.File })
 										.ToList().AsReadOnly();
 
-				if (AssemblyInfoFolderEmpty(definition.AssemblyAttributes))
+				if (AssemblyInfoFolderJustAssemblyInfo(definition.AssemblyAttributes))
 				{
 					definition.Deletions = definition
 						.Deletions
@@ -43,9 +43,10 @@ namespace Project2015To2017.Transforms
 			}
 		}
 
-		private bool AssemblyInfoFolderEmpty(AssemblyAttributes assemblyAttributes)
+		private bool AssemblyInfoFolderJustAssemblyInfo(AssemblyAttributes assemblyAttributes)
 		{
-			return !assemblyAttributes.File.Directory.EnumerateFileSystemInfos().Any();
+			//Look if only the assembly info file is in the directory
+			return assemblyAttributes.File.Directory.EnumerateFileSystemInfos().Count() <= 1;
 		}
 
 		private bool PointlessAssemblyInfo(AssemblyAttributes assemblyAttributes)
