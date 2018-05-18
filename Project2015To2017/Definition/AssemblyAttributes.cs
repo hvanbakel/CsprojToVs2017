@@ -84,7 +84,7 @@ namespace Project2015To2017.Definition
 					.LastOrDefault();
 		}
 
-		private string GetAttribute(Type attributeType)
+		public string GetAttribute(Type attributeType)
 		{
 			var att = FindAttribute(attributeType).att;
 
@@ -93,7 +93,7 @@ namespace Project2015To2017.Definition
 			return att?.ArgumentList.Arguments.Single().ToString().Trim('"');
 		}
 
-		private void SetAttribute(Type attributeType, string value)
+		public void SetAttribute(Type attributeType, string value)
 		{
 			var att = FindAttribute(attributeType);
 
