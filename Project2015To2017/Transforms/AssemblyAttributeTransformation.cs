@@ -137,7 +137,7 @@ namespace Project2015To2017.Transforms
 			}
 			else
 			{
-				return XElement(assemblyInfoValue, description);
+				return assemblyInfoValue == null ? null : XElement(assemblyInfoValue, description);
 			}
 		}
 
@@ -168,14 +168,7 @@ namespace Project2015To2017.Transforms
 
 		private static XElement XElement(string attribute, string name)
 		{
-			if (attribute != null)
-			{
-				return new XElement(name, attribute);
-			}
-			else
-			{
-				return null;
-			}
+			return attribute != null ? new XElement(name, attribute) : null;
 		}
 	}
 }
