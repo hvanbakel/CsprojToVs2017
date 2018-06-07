@@ -164,7 +164,14 @@ namespace Project2015To2017.Reading
 										.EnumerateFiles("AssemblyInfo.cs", SearchOption.AllDirectories)
 										.ToArray();
 
-			if (assemblyInfoFiles.Length == 1)
+			if (assemblyInfoFiles.Length == 0)
+			{
+				return new AssemblyAttributes
+				{
+					AssemblyName = assemblyName ?? projectFolder.Name
+				};
+			}
+			else if (assemblyInfoFiles.Length == 1)
 			{
 				progress.Report($"Reading assembly info from {assemblyInfoFiles[0].FullName}.");
 
