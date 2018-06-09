@@ -23,4 +23,7 @@ Or
 Or
 `Project2015To2017.Console.exe "D:\Path\To\My\Directory"`
 
-After confirming this is an old style project file, it will start performing the conversion. When it has gathered all the data it needs it first creates a backup of the old project file (suffixed with .old) and then generates a new project file in the new format. 
+After confirming this is an old style project file, it will start performing the conversion. When it has gathered all the data it needs it first creates a backup of the old project file (suffixed with .old) and then generates a new project file in the new format.
+
+## Flags
+* `--dry-run` will not update any files, just outputs all the messages
