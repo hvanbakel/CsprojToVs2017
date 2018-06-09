@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Definition;
+using Project2015To2017.Transforms;
 using Project2015To2017.Writing;
 
 namespace Project2015To2017Tests
