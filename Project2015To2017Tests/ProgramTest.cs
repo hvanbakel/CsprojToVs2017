@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,21 +13,62 @@ namespace Project2015To2017Tests
 	[TestClass]
 	public class ProgramTest
 	{
+		private class SyncProgress : IProgress<string>
+		{
+			private Action<string> Action { get; }
+
+			public SyncProgress(Action<string> action)
+			{
+				Action = action;
+			}
+
+			public void Report(string value)
+			{
+				Action(value);
+			}
+		}
+
 		[TestMethod]
 		public void ValidatesFileIsWritable()
 		{
 			var logs = new List<string>();
 
-			var progress = new Progress<string>(logs.Add);
+			var progress = new SyncProgress(logs.Add);
 
 			var projectFile = "TestFiles\\OtherTestProjects\\readonly.testcsproj";
-			File.SetAttributes(projectFile, FileAttributes.ReadOnly);
+			var copiedProjectFile = $"{projectFile}.readonly";
 
-			var project = new ProjectReader().Read(projectFile);
+			if (File.Exists(copiedProjectFile))
+			{
+				File.SetAttributes(copiedProjectFile, FileAttributes.Normal);
+				File.Delete(copiedProjectFile);
+			}
 
-			new ProjectWriter().Write(project, makeBackups: false, progress);
+			try
+			{
+				File.Copy(projectFile, copiedProjectFile);
 
-			Assert.IsTrue(logs.Any(x => x.Contains("Aborting as could not write to project file")));
+				File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
+
+				var project = new ProjectReader().Read(copiedProjectFile, progress);
+
+				Assert.IsFalse(logs.Any(x => x.Contains("Aborting as could not write to project file")));
+
+				var writer = new ProjectWriter { DeleteOperation = _ => { } };
+
+				writer.Write(project, makeBackups: false, progress);
+
+				Assert.IsTrue(logs.Any(x => x.Contains("Aborting as could not write to project file")));
+			}
+			finally
+			{
+				if (File.Exists(copiedProjectFile))
+				{
+					File.SetAttributes(copiedProjectFile, FileAttributes.Normal);
+					File.Delete(copiedProjectFile);
+				}
+			}
+
 		}
 
 		[TestMethod]
@@ -34,22 +76,45 @@ namespace Project2015To2017Tests
 		{
 			var logs = new List<string>();
 
-			var progress = new Progress<string>(logs.Add);
+			var progress = new SyncProgress(logs.Add);
 
 			var projectFile = "TestFiles\\OtherTestProjects\\readonly.testcsproj";
+			var copiedProjectFile = $"{projectFile}.readonly2";
 
-			File.SetAttributes(projectFile, FileAttributes.ReadOnly);
-
-			var project = new ProjectReader().Read(projectFile);
-
-			var projectWriter = new ProjectWriter
+			if (File.Exists(copiedProjectFile))
 			{
-				CheckoutOperation = file => File.SetAttributes(projectFile, FileAttributes.Normal)
-			};
+				File.SetAttributes(copiedProjectFile, FileAttributes.Normal);
+				File.Delete(copiedProjectFile);
+			}
 
-			projectWriter.Write(project, makeBackups: false, progress);
+			try
+			{
 
-			Assert.IsFalse(logs.Any(x => x.Contains("Aborting as could not write to project file")));
+				File.Copy(projectFile, copiedProjectFile);
+
+				File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
+
+				var project = new ProjectReader().Read(copiedProjectFile, progress);
+
+				var projectWriter = new ProjectWriter
+				{
+					CheckoutOperation = file => File.SetAttributes(file.FullName, FileAttributes.Normal),
+					DeleteOperation = _ => { }
+				};
+
+				projectWriter.Write(project, makeBackups: false, progress);
+
+				Assert.IsFalse(logs.Any(x => x.Contains("Aborting as could not write to project file")));
+
+			}
+			finally
+			{
+				if (File.Exists(copiedProjectFile))
+				{
+					File.SetAttributes(copiedProjectFile, FileAttributes.Normal);
+					File.Delete(copiedProjectFile);
+				}
+			}
 		}
 
 		[TestMethod]
