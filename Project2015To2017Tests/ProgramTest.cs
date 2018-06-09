@@ -20,9 +20,13 @@ namespace Project2015To2017Tests
 			var progress = new Progress<string>(logs.Add);
 
 			var projectFile = "TestFiles\\OtherTestProjects\\readonly.testcsproj";
-			File.SetAttributes(projectFile, FileAttributes.ReadOnly);
+			var copiedProjectFile = $"{projectFile}.readonly";
 
-			var project = new ProjectReader().Read(projectFile);
+			File.Copy(projectFile, copiedProjectFile);
+
+			File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
+
+			var project = new ProjectReader().Read(copiedProjectFile);
 
 			new ProjectWriter().Write(project, makeBackups: false, progress);
 
@@ -37,10 +41,13 @@ namespace Project2015To2017Tests
 			var progress = new Progress<string>(logs.Add);
 
 			var projectFile = "TestFiles\\OtherTestProjects\\readonly.testcsproj";
+			var copiedProjectFile = $"{projectFile}.readonly2";
 
-			File.SetAttributes(projectFile, FileAttributes.ReadOnly);
+			File.Copy(projectFile, copiedProjectFile);
 
-			var project = new ProjectReader().Read(projectFile);
+			File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
+
+			var project = new ProjectReader().Read(copiedProjectFile);
 
 			var projectWriter = new ProjectWriter
 			{
