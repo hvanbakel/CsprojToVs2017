@@ -125,6 +125,9 @@
     <Compile Update="TestFiles\AssemblyInfo.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Update="TestFiles\FileInclusion\SourceFileWithDesigner.Designer.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Update="TestFiles\Folder\FileInFolder.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
