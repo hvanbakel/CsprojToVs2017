@@ -59,7 +59,8 @@ namespace Project2015To2017.Reading
 				PackageReferences = packageReferences,
 				IncludeItems = includes,
 				PackageConfiguration = packageConfig,
-				PackagesConfigFile = packagesConfigFile
+				PackagesConfigFile = packagesConfigFile,
+				AssemblyAttributeProperties = new List<XElement>().AsReadOnly()
 			};
 
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
