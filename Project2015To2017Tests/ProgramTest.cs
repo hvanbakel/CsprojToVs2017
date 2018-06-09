@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017;
 using Project2015To2017.Reading;
@@ -12,15 +13,39 @@ namespace Project2015To2017Tests
 	[TestClass]
 	public class ProgramTest
 	{
+		private class SyncProgress : IProgress<string>
+		{
+			private Action<string> Action { get; }
+
+			public SyncProgress(Action<string> action)
+			{
+				Action = action;
+			}
+
+			public void Report(string value)
+			{
+				Action(value);
+			}
+		}
+
 		[TestMethod]
 		public void ValidatesFileIsWritable()
 		{
 			var logs = new List<string>();
 
-			var progress = new Progress<string>(logs.Add);
+			var progress = new SyncProgress(x=>
+			{
+				logs.Add(x);
+			});
 
 			var projectFile = "TestFiles\\OtherTestProjects\\readonly.testcsproj";
 			var copiedProjectFile = $"{projectFile}.readonly";
+
+			if (File.Exists(copiedProjectFile))
+			{
+				File.SetAttributes(copiedProjectFile, FileAttributes.Normal);
+				File.Delete(copiedProjectFile);
+			}
 
 			File.Copy(projectFile, copiedProjectFile);
 
@@ -38,10 +63,16 @@ namespace Project2015To2017Tests
 		{
 			var logs = new List<string>();
 
-			var progress = new Progress<string>(logs.Add);
+			var progress = new SyncProgress(logs.Add);
 
 			var projectFile = "TestFiles\\OtherTestProjects\\readonly.testcsproj";
 			var copiedProjectFile = $"{projectFile}.readonly2";
+
+			if (File.Exists(copiedProjectFile))
+			{
+				File.SetAttributes(copiedProjectFile, FileAttributes.Normal);
+				File.Delete(copiedProjectFile);
+			}
 
 			File.Copy(projectFile, copiedProjectFile);
 
@@ -51,7 +82,7 @@ namespace Project2015To2017Tests
 
 			var projectWriter = new ProjectWriter
 			{
-				CheckoutOperation = file => File.SetAttributes(projectFile, FileAttributes.Normal)
+				CheckoutOperation = file => File.SetAttributes(file.FullName, FileAttributes.Normal)
 			};
 
 			projectWriter.Write(project, makeBackups: false, progress);
