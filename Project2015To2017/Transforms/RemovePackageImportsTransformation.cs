@@ -9,6 +9,8 @@ namespace Project2015To2017.Transforms
 {
 	internal sealed class RemovePackageImportsTransformation : ITransformation
 	{
+		private static string fullConditionPath;
+
 		public void Transform(Project definition, IProgress<string> progress)
 		{
 			if (definition.PackageReferences == null || definition.PackageReferences.Count == 0)
@@ -120,7 +122,7 @@ namespace Project2015To2017.Transforms
 
 				var conditionPath = errorCondition.Value.Replace("!Exists('", "").Replace("')", "");
 
-				var fullConditionPath = Path.IsPathRooted(conditionPath)
+				fullConditionPath = Path.IsPathRooted(conditionPath)
 					? conditionPath
 					: Path.GetFullPath(Path.Combine(projectPath, conditionPath));
 
