@@ -86,14 +86,10 @@
 	  </None>
     <None Include="TestFiles\FileInclusion\SourceFileWithDesigner.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>SourceFileWithDesigner.Designer.cs</LastGenOutput>
     </None>
     <None Include="TestFiles\FileInclusion\SourceFileWithDesigner.Designer.cs">
       <DependentUpon>SourceFileWithDesigner.cs</DependentUpon>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
     </None>
 
     <None Include="TestFiles\FileInclusion\WildcardFolder\WildcardSubFolder\SubFolderWildcardFile.cs">
