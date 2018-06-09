@@ -60,7 +60,7 @@ namespace Project2015To2017.Reading
 				IncludeItems = includes,
 				PackageConfiguration = packageConfig,
 				PackagesConfigFile = packagesConfigFile,
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
 				AssemblyAttributeProperties = new List<XElement>().AsReadOnly()
 			};
 
