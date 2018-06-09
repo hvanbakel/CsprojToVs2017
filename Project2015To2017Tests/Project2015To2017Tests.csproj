@@ -21,7 +21,6 @@
     <Compile Remove="TestFiles\FileInclusion\Properties\Resources.Designer.cs" />
     <Compile Remove="TestFiles\FileInclusion\Resources.Designer.cs" />
     <Compile Remove="TestFiles\FileInclusion\SourceFileWithDesigner.cs" />
-    <Compile Remove="TestFiles\FileInclusion\SourceFileWithDesigner.Designer.cs" />
     <Compile Remove="TestFiles\FileInclusion\WildcardFolder\WildcardSubFolder\SubFolderWildcardFile.cs" />
     <Compile Remove="TestFiles\OtherTestProjects\AssemblyInfo.cs" />
   </ItemGroup>
@@ -132,6 +131,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="TestFiles\AssemblyInfo.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="TestFiles\FileInclusion\SourceFileWithDesigner.Designer.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="TestFiles\Folder\FileInFolder.cs">
