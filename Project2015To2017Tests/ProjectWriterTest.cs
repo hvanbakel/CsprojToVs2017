@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Definition;
+using Project2015To2017.Transforms;
 using Project2015To2017.Writing;
 
 namespace Project2015To2017Tests
@@ -10,12 +14,18 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void GenerateAssemblyInfoOnNothingSpecifiedTest()
 		{
-			var writer = new ProjectWriter();
-			var xmlNode = writer.CreateXml(new Project
+			var project = new Project
 			{
 				AssemblyAttributes = new AssemblyAttributes(),
+				AssemblyAttributeProperties = new List<XElement>().AsReadOnly(),
 				FilePath = new System.IO.FileInfo("test.cs")
-			});
+			};
+
+			var transform = new AssemblyAttributeTransformation();
+
+			transform.Transform(project, new Progress<string>());
+
+			var xmlNode = new ProjectWriter().CreateXml(project);
 
 			var generateAssemblyInfo = xmlNode.Element("PropertyGroup").Element("GenerateAssemblyInfo");
 			Assert.IsNotNull(generateAssemblyInfo);
@@ -25,12 +35,18 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void GeneratesAssemblyInfoNodesWhenSpecifiedTest()
 		{
-			var writer = new ProjectWriter();
-			var xmlNode = writer.CreateXml(new Project
+			var project = new Project
 			{
 				AssemblyAttributes = new AssemblyAttributes {Company = "Company"},
+				AssemblyAttributeProperties = new List<XElement>().AsReadOnly(),
 				FilePath = new System.IO.FileInfo("test.cs")
-			});
+			};
+			
+			var transform = new AssemblyAttributeTransformation();
+
+			transform.Transform(project, new Progress<string>());
+
+			var xmlNode = new ProjectWriter().CreateXml(project);
 
 			var generateAssemblyInfo = xmlNode.Element("PropertyGroup").Element("GenerateAssemblyInfo");
 			Assert.IsNull(generateAssemblyInfo);
