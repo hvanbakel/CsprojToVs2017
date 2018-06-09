@@ -26,7 +26,7 @@ namespace Project2015To2017Tests
 						x);
 				}
 			});
-			
+
 
 			File.SetAttributes("TestFiles\\OtherTestProjects\\readonly.testcsproj", FileAttributes.ReadOnly);
 
@@ -184,10 +184,13 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void DeletedNonEmptyFolderIsProcessedIfCleared()
 		{
+			var folder = @"TestFiles\Deletions\NonEmptyFolder";
+			var file = @"TestFiles\Deletions\NonEmptyFolder\a.txt";
+
 			var filesToDelete = new FileSystemInfo[]
 			{
-				new FileInfo(@"TestFiles\Deletions\NonEmptyFolder\a.txt"),
-				new DirectoryInfo(@"TestFiles\Deletions\NonEmptyFolder")
+					new FileInfo(file),
+					new DirectoryInfo(folder)
 			};
 
 			var actualDeletedFiles = new List<FileSystemInfo>();
@@ -200,18 +203,34 @@ namespace Project2015To2017Tests
 				actualDeletedFiles.Add(info);
 			}
 
-			var writer = new ProjectWriter { DeleteOperation = Deletion };
+			try
+			{
+				var writer = new ProjectWriter { DeleteOperation = Deletion };
 
-			writer.Write(
-				new Project
+				writer.Write(
+					new Project
+					{
+						FilePath = new FileInfo(@"TestFiles\Deletions\Test3.csproj"),
+						Deletions = filesToDelete.ToList().AsReadOnly()
+					},
+					false, new Progress<string>()
+				);
+
+				CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
+			}
+			finally
+			{
+				//Restore the directory and file back to how it was before test
+				if (!Directory.Exists(folder))
 				{
-					FilePath = new FileInfo(@"TestFiles\Deletions\Test3.csproj"),
-					Deletions = filesToDelete.ToList().AsReadOnly()
-				},
-				false, new Progress<string>()
-			);
+					Directory.CreateDirectory(folder);
+				}
 
-			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
+				if (!File.Exists(file))
+				{
+					File.Create(file);
+				}
+			}
 		}
 
 		[TestMethod]
