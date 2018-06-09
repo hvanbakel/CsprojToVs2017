@@ -61,6 +61,7 @@ namespace Project2015To2017.Reading
 				PackageConfiguration = packageConfig,
 				PackagesConfigFile = packagesConfigFile,
 				Deletions = new List<FileSystemInfo>()
+				AssemblyAttributeProperties = new List<XElement>().AsReadOnly()
 			};
 
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);

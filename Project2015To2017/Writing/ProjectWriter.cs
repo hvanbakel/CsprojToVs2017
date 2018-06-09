@@ -182,7 +182,7 @@ namespace Project2015To2017.Writing
 				}
 			}
 
-			if (project.BuildEvents != null)
+			if (project.BuildEvents != null && project.BuildEvents.Any())
 			{
 				var propertyGroup = new XElement("PropertyGroup");
 				projectNode.Add(propertyGroup);
