@@ -12,7 +12,7 @@ namespace Project2015To2017.Reading
 		public PackageConfiguration Read(FileInfo projectFile, IProgress<string> progress)
 		{
 			var nuspecFiles = projectFile.Directory
-										 .EnumerateFiles("*.nuspec", SearchOption.AllDirectories)
+										 .EnumerateFiles("*.nuspec", SearchOption.TopDirectoryOnly)
 										 .Where(x => !x.FullName.Contains(@"\obj\"))										
 										 .ToArray();
 
