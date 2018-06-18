@@ -129,6 +129,9 @@
 	<None Include="TestFiles\OtherTestProjects\containsTestSDK.testcsproj">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
+	<None Include="TestFiles\OtherTestProjects\readonly.testcsproj">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
 	<None Include="TestFiles\OtherTestProjects\net46console.testcsproj">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>

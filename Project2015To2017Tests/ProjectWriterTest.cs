@@ -26,19 +26,10 @@ namespace Project2015To2017Tests
 				FilePath = new System.IO.FileInfo("test.cs")
 			});
 
-			XDocument projectXml;
-			using (var stream = File.Open("TestFiles\\OtherTestProjects\\net46console.testcsproj", FileMode.Open, FileAccess.Read, FileShare.Read))
-			{
-				projectXml = XDocument.Load(stream);
-			}
-
-			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
-			if (projectXml.Element(nsSys + "Project") == null)
-			{
-				Assert.Fail("Schema issue? " + (nsSys + "Project") + "  " + projectXml.Root.Name.Namespace + projectXml.Root.Name.LocalName);
-			}
-
-			var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
+			var copiedProjectFile = $"TestFiles\\OtherTestProjects\\{nameof(ValidatesFileIsWritable)}.readonly";
+			File.Copy("TestFiles\\OtherTestProjects\\readonly.testcsproj", copiedProjectFile);
+			File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
+			var project = new ProjectReader().Read(copiedProjectFile);
 
 			var messageNum = 0;
 			var progress = new Progress<string>(x =>
@@ -46,7 +37,7 @@ namespace Project2015To2017Tests
 				if (messageNum++ == 0)
 				{
 					Assert.AreEqual(
-						@"TestFiles\OtherTestProjects\net46console.testcsproj is readonly, please make the file writable first (checkout from source control?).",
+						@"TestFiles\OtherTestProjects\readonly.testcsproj is readonly, please make the file writable first (checkout from source control?).",
 						x);
 				}
 			});
