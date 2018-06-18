@@ -35,12 +35,10 @@ namespace Project2015To2017Tests
 			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
 			if (projectXml.Element(nsSys + "Project") == null)
 			{
-				Assert.Fail("Schema issue? " + (nsSys + "Project"));
+				Assert.Fail("Schema issue? " + (nsSys + "Project") + "  " + projectXml.Root.Name.Namespace + projectXml.Root.Name.LocalName);
 			}
 
 			var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\readonly.testcsproj");
-
-			Assert.IsNotNull(project, "Project is null, why appveyor... why");
 
 			var messageNum = 0;
 			var progress = new Progress<string>(x =>
