@@ -212,7 +212,7 @@ namespace Project2015To2017.Writing
 
             AddTargetFrameworks(mainPropertyGroup, project.TargetFrameworks);
 
-			AddIfNotNull(mainPropertyGroup, "Configurations", string.Join(";", project.Configurations ?? Array.Empty<string>()));
+			AddIfNotNull(mainPropertyGroup, "Configurations", string.Join(";", project.Configurations?.Distinct() ?? Array.Empty<string>()));
 			AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : null);
             AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : null);
             AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.RootNamespace : null);
