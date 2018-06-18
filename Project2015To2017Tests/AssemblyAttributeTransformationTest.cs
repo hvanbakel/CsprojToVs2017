@@ -89,7 +89,7 @@ namespace Project2015To2017Tests
 										Configuration = "SomeConfiguration"
 									};
 
-			Assert.AreEqual(expectedAttributes, project.AssemblyAttributes);
+			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
 			
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
@@ -131,7 +131,7 @@ namespace Project2015To2017Tests
 
 			var expectedAttributes = new AssemblyAttributes();
 
-			Assert.AreEqual(expectedAttributes, project.AssemblyAttributes);
+			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
 			
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
@@ -181,7 +181,7 @@ namespace Project2015To2017Tests
 				Configuration = "SomeConfiguration"
 			};
 
-			Assert.AreEqual(expectedAttributes, project.AssemblyAttributes);
+			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 

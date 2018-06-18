@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Project2015To2017.Definition
 {
-	public sealed class AssemblyAttributes
+	public sealed class AssemblyAttributes : IEquatable<AssemblyAttributes>
 	{
 		public CompilationUnitSyntax FileContents { get; set; }
 			= (CompilationUnitSyntax)CSharpSyntaxTree.ParseText(@"").GetRoot();
@@ -159,16 +159,14 @@ namespace Project2015To2017.Definition
 			return fullName.Substring(0, fullName.Length - 9);
 		}
 
-		private bool Equals(AssemblyAttributes other)
+		public bool Equals(AssemblyAttributes other)
 		{
-			return FileContents.ToFullString() == other.FileContents.ToFullString();
-		}
+			if (other == null)
+			{
+				return false;
+			}
 
-		public override bool Equals(object obj)
-		{
-			if (obj is null) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			return obj is AssemblyAttributes attributes && Equals(attributes);
+			return this.FileContents.ToFullString() == other.FileContents.ToFullString();
 		}
 	}
 }
