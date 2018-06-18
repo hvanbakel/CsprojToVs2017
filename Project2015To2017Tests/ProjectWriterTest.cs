@@ -32,16 +32,10 @@ namespace Project2015To2017Tests
 				projectXml = XDocument.Load(stream);
 			}
 
-			// get ProjectTypeGuids and check for unsupported types
-			if (Project2015To2017.UnsupportedProjectTypes.IsUnsupportedProjectType(projectXml))
-			{
-				Assert.Fail("Project type is not supported?");
-			}
-
 			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
 			if (projectXml.Element(nsSys + "Project") == null)
 			{
-				Assert.Fail("Schema issue?");
+				Assert.Fail("Schema issue? " + (nsSys + "Project"));
 			}
 
 			var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\readonly.testcsproj");
