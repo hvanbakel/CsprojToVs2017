@@ -89,7 +89,6 @@ namespace Project2015To2017Tests
 
 			try
 			{
-
 				File.Copy(projectFile, copiedProjectFile);
 
 				File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
@@ -101,7 +100,6 @@ namespace Project2015To2017Tests
 				projectWriter.Write(project, makeBackups: false, progress);
 
 				Assert.IsFalse(logs.Any(x => x.Contains("Aborting as could not write to project file")));
-
 			}
 			finally
 			{
