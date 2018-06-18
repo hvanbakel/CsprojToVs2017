@@ -37,7 +37,7 @@ namespace Project2015To2017Tests
 				if (messageNum++ == 0)
 				{
 					Assert.AreEqual(
-						$@"TestFiles\OtherTestProjects\{nameof(ValidatesFileIsWritable)} is readonly, please make the file writable first (checkout from source control?).",
+						$@"TestFiles\OtherTestProjects\{nameof(ValidatesFileIsWritable)}.readonly is readonly, please make the file writable first (checkout from source control?).",
 						x);
 				}
 			});
