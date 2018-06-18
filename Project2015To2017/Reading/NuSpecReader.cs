@@ -28,16 +28,19 @@ namespace Project2015To2017.Reading
 				return null;
 			}
 
-			progress.Report($"Reading package info from nuspec {nuspecFiles[0].FullName}.");
+			var nuspecFile = nuspecFiles[0];
+
+			progress.Report($"Reading package info from nuspec {nuspecFile.FullName}.");
 
 			XDocument nuspec;
-			using (var filestream = File.Open(nuspecFiles[0].FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+			using (var filestream = File.Open(nuspecFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
 				nuspec = XDocument.Load(filestream);
 			}
 
 			var namespaces = new XNamespace[]
 			{
+				"",
 				"http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd",
 				"http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd",
 				"http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd"
@@ -52,6 +55,8 @@ namespace Project2015To2017.Reading
 				progress.Report("Error reading package info from nuspec.");
 				return null;
 			}
+
+			packageConfig.NuspecFile = nuspecFile;
 
 			return packageConfig;
 		}
@@ -68,16 +73,8 @@ namespace Project2015To2017.Reading
 			}
 
 			var id = metadata.Element(ns + "id")?.Value;
-			if (id == "$id$")
-			{
-				id = null;
-			}
 
 			var version = metadata.Element(ns + "version")?.Value;
-			if (version == "$version$")
-			{
-				version = null;
-			}
 
 			var dependencies = metadata.Element(ns + "dependencies")
 									   ?.Elements(ns + "dependency")

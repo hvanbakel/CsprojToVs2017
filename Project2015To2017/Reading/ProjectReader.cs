@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
@@ -44,7 +42,10 @@ namespace Project2015To2017.Reading
 			
 			var assemblyReferences = LoadAssemblyReferences(projectXml, progress);
 			var projectReferences = LoadProjectReferences(projectXml, progress);
-			var packageReferences = LoadPackageReferences(fileInfo, projectXml, progress);
+
+			var packagesConfigFile = FindPackagesConfigFile(fileInfo, progress);
+
+			var packageReferences = LoadPackageReferences(projectXml, packagesConfigFile, progress);
 
 			var includes = LoadFileIncludes(projectXml);
 
@@ -57,31 +58,38 @@ namespace Project2015To2017.Reading
 				ProjectReferences = projectReferences,
 				PackageReferences = packageReferences,
 				IncludeItems = includes,
-				PackageConfiguration = packageConfig
+				PackageConfiguration = packageConfig,
+				PackagesConfigFile = packagesConfigFile,
+				Deletions = Array.Empty<FileSystemInfo>(),
+				AssemblyAttributeProperties = Array.Empty<XElement>()
 			};
 
-			//todo: change this to use a pure method like the other loaders
-			//probably by collecting properties into a class
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
 
-			var assemblyAttributes = LoadAssemblyAttributes(fileInfo, projectDefinition.AssemblyName, progress);
+			var assemblyAttributes = new AssemblyInfoReader().Read(projectDefinition, progress);
 
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
 
 			return projectDefinition;
 		}
 
-		private List<PackageReference> LoadPackageReferences(FileInfo projectFile, XDocument projectXml, IProgress<string> progress)
+		private FileInfo FindPackagesConfigFile(FileInfo projectFile, IProgress<string> progress)
 		{
-			var packagesConfig = projectFile.Directory.GetFiles("packages.config", SearchOption.TopDirectoryOnly);
+			var packagesConfig = new FileInfo(Path.Combine(projectFile.Directory.FullName, "packages.config"));
 
-			var packageReferences = new List<PackageReference>();
-
-			if (packagesConfig == null || packagesConfig.Length == 0)
+			if (!packagesConfig.Exists)
 			{
 				progress.Report("Packages.config file not found.");
+				return null;
 			}
+			else
+			{
+				return packagesConfig;
+			}
+		}
 
+		private IReadOnlyList<PackageReference> LoadPackageReferences(XDocument projectXml, FileInfo packagesConfig, IProgress<string> progress)
+		{
 			try
 			{
 				var existingPackageReferences = projectXml.Root.Elements(XmlNamespace + "ItemGroup")
@@ -93,10 +101,10 @@ namespace Project2015To2017.Reading
 																	IsDevelopmentDependency = x.Element(XmlNamespace + "PrivateAssets") != null
 																});
 
-				var packageConfigPackages = PackageConfigPackages(packagesConfig);
+				var packageConfigPackages = ExtractReferencesFromPackagesConfig(packagesConfig);
 
 
-				packageReferences = packageConfigPackages
+				var packageReferences = packageConfigPackages
 										.Concat(existingPackageReferences)
 										.ToList();
 
@@ -104,24 +112,26 @@ namespace Project2015To2017.Reading
 				{
 					progress.Report($"Found nuget reference to {reference.Id}, version {reference.Version}.");
 				}
+
+				return packageReferences;
 			}
 			catch (XmlException e)
 			{
 				progress.Report($"Got xml exception reading packages.config: " + e.Message);
 			}
 
-			return packageReferences;
+			return Array.Empty<PackageReference>();
 		}
 
-		private static IEnumerable<PackageReference> PackageConfigPackages(FileInfo[] packagesConfig)
+		private static IEnumerable<PackageReference> ExtractReferencesFromPackagesConfig(FileInfo packagesConfig)
 		{
-			if (packagesConfig == null || !packagesConfig.Any())
+			if (packagesConfig == null)
 			{
 				return Enumerable.Empty<PackageReference>();
 			}
 
 			XDocument packagesConfigDoc;
-			using (var stream = File.Open(packagesConfig[0].FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+			using (var stream = File.Open(packagesConfig.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
 				packagesConfigDoc = XDocument.Load(stream);
 			}
@@ -153,70 +163,6 @@ namespace Project2015To2017.Reading
 			return projectReferences;
 		}
 
-
-		private AssemblyAttributes LoadAssemblyAttributes(
-				FileInfo projectFile, string assemblyName, IProgress<string> progress
-			)
-		{
-			var projectFolder = projectFile.Directory;
-
-			var assemblyInfoFiles = projectFolder
-										.EnumerateFiles("AssemblyInfo.cs", SearchOption.AllDirectories)
-										.ToArray();
-
-			if (assemblyInfoFiles.Length == 0)
-			{
-				return new AssemblyAttributes
-				{
-					AssemblyName = assemblyName ?? projectFolder.Name
-				};
-			}
-			else if (assemblyInfoFiles.Length == 1)
-			{
-				progress.Report($"Reading assembly info from {assemblyInfoFiles[0].FullName}.");
-
-				var text = File.ReadAllText(assemblyInfoFiles[0].FullName);
-
-				return new AssemblyAttributes
-				{
-					AssemblyName = assemblyName ?? projectFolder.Name,
-					Description = GetAttributeValue<AssemblyDescriptionAttribute>(text),
-					Title = GetAttributeValue<AssemblyTitleAttribute>(text),
-					Company = GetAttributeValue<AssemblyCompanyAttribute>(text),
-					Product = GetAttributeValue<AssemblyProductAttribute>(text),
-					Copyright = GetAttributeValue<AssemblyCopyrightAttribute>(text),
-					InformationalVersion = GetAttributeValue<AssemblyInformationalVersionAttribute>(text),
-					Version = GetAttributeValue<AssemblyVersionAttribute>(text),
-					FileVersion = GetAttributeValue<AssemblyFileVersionAttribute>(text),
-					Configuration = GetAttributeValue<AssemblyConfigurationAttribute>(text)
-				};
-			}
-			else
-			{
-				progress.Report($@"Could not read from assemblyinfo, multiple assemblyinfo files found: 
-{string.Join(Environment.NewLine, assemblyInfoFiles.Select(x => x.FullName))}.");
-			}
-
-			return null;
-		}
-
-		private string GetAttributeValue<T>(string text)
-			where T : Attribute
-		{
-			var attributeTypeName = typeof(T).Name;
-			var attributeName = attributeTypeName.Substring(0, attributeTypeName.Length - 9);
-
-			var regex = new Regex($@"\[assembly:.*{attributeName}\(\""(?<value>.*)\""\)]", RegexOptions.Compiled);
-
-			// TODO parse this in roslyn so we actually know that it's not comments.
-			var match = regex.Match(text);
-			if (match.Groups.Count > 1)
-			{
-				return match.Groups[1].Value;
-			}
-			return null;
-		}
-
 		private List<AssemblyReference> LoadAssemblyReferences(XDocument projectXml, IProgress<string> progress)
 		{
 			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
@@ -234,7 +180,7 @@ namespace Project2015To2017.Reading
 
 				var specificVersion = GetElementValue(referenceElement, "SpecificVersion");
 
-				var hintPath = GetElementValue(referenceElement, "HintPath"); ;
+				var hintPath = GetElementValue(referenceElement, "HintPath");
 
 				var isPrivate = GetElementValue(referenceElement, "Private");
 

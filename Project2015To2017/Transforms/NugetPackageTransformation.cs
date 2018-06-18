@@ -14,22 +14,14 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 			
-			var packageConfig = PopulatePlaceHolders(
-									definition.PackageConfiguration,
-									definition.AssemblyAttributes
-								);
+			var packageConfig = PopulatePlaceHolders(definition.PackageConfiguration, definition);
 
-			ConstrainPackageReferences(
-				definition.PackageReferences, packageConfig
-			);
+			ConstrainPackageReferences(definition.PackageReferences, packageConfig);
 
 			definition.PackageConfiguration = packageConfig;
 		}
 
-		private static void ConstrainPackageReferences(
-				IReadOnlyList<PackageReference> rawPackageReferences,
-				PackageConfiguration packageConfig
-			)
+		private static void ConstrainPackageReferences(IReadOnlyList<PackageReference> rawPackageReferences, PackageConfiguration packageConfig)
 		{
 			var dependencies = packageConfig.Dependencies;
 			if (dependencies == null || rawPackageReferences == null)
@@ -39,31 +31,32 @@ namespace Project2015To2017.Transforms
 
 			var packageIdConstraints = dependencies.Select(dependency =>
 			{
-				var packageId = dependency.Attribute("id").Value;
-				var constraint = dependency.Attribute("version").Value;
-
-				return new { packageId, constraint };
-			}).ToList();
+				return new
+				{
+					PackageId = dependency.Attribute("id").Value,
+					Version = dependency.Attribute("version").Value
+				};
+			}).ToArray();
 
 			foreach (var packageReference in rawPackageReferences)
 			{
-				var matchingPackage = packageIdConstraints
-										.SingleOrDefault(dependency =>
-											packageReference.Id.Equals(dependency.packageId, StringComparison.OrdinalIgnoreCase)
-										);
+				var matchingPackage = packageIdConstraints.SingleOrDefault(dependency => packageReference.Id.Equals(dependency.PackageId, StringComparison.OrdinalIgnoreCase));
 
 				if (matchingPackage != null)
 				{
-					packageReference.Version = matchingPackage.constraint;
+					packageReference.Version = matchingPackage.Version;
 				}
 			}
 		}
 
-		private PackageConfiguration PopulatePlaceHolders(PackageConfiguration rawPackageConfig, AssemblyAttributes assemblyAttributes)
+		private PackageConfiguration PopulatePlaceHolders(PackageConfiguration rawPackageConfig, Project project)
 		{
+			var assemblyAttributes = project.AssemblyAttributes;
+
 			return new PackageConfiguration
 			{
-				Id = PopulatePlaceHolder("id", rawPackageConfig.Id, assemblyAttributes.AssemblyName),
+				//Id does not need to be specified in new project format if it is just the same as the assembly name
+				Id = rawPackageConfig.Id == "$id$" ? null : rawPackageConfig.Id,
 				Version = PopulatePlaceHolder("version", rawPackageConfig.Version, assemblyAttributes.InformationalVersion ?? assemblyAttributes.Version),
 				Authors = PopulatePlaceHolder("author", rawPackageConfig.Authors, assemblyAttributes.Company),
 				Description = PopulatePlaceHolder("description", rawPackageConfig.Description, assemblyAttributes.Description),

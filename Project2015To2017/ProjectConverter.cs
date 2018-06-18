@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
 
@@ -20,10 +19,23 @@ namespace Project2015To2017
 			new RemovePackageAssemblyReferencesTransformation(),
 			new RemovePackageImportsTransformation(),
 			new FileTransformation(),
-			new NugetPackageTransformation()
+			new NugetPackageTransformation(),
+			new AssemblyAttributeTransformation()
 		};
 
-		public static IEnumerable<Definition.Project> Convert(string target, IProgress<string> progress)
+		public static IEnumerable<Definition.Project> Convert(
+			string target,
+			IProgress<string> progress)
+		{
+			return Convert(target, new List<ITransformation>(), new List<ITransformation>(), progress);
+		}
+
+		public static IEnumerable<Definition.Project> Convert(
+				string target,
+				IReadOnlyList<ITransformation> preTransforms,
+				IReadOnlyList<ITransformation> postTransforms,
+				IProgress<string> progress
+			)
 		{
 			if (Path.GetExtension(target).Equals(".sln", StringComparison.OrdinalIgnoreCase))
 			{
@@ -49,7 +61,7 @@ namespace Project2015To2017
 							}
 							else
 							{
-								yield return ProcessFile(fullPath, progress);
+								yield return ProcessFile(fullPath, preTransforms, postTransforms, progress);
 							}
 						}
 					}
@@ -64,24 +76,29 @@ namespace Project2015To2017
 				var projectFiles = Directory.EnumerateFiles(target, "*.csproj", SearchOption.AllDirectories).ToArray();
 				if (projectFiles.Length == 0)
 				{
-					progress.Report($"Please specify a project file.");
+					progress.Report("Please specify a project file.");
 					yield break;
 				}
 				progress.Report($"Multiple project files found under directory {target}:");
 				progress.Report(string.Join(Environment.NewLine, projectFiles));
 				foreach (var projectFile in projectFiles)
 				{
-					yield return ProcessFile(projectFile, progress);
+					yield return ProcessFile(projectFile, preTransforms, postTransforms, progress);
 				}
 
 				yield break;
 			}
 
 			// Process only the given project file
-			yield return ProcessFile(target, progress);
+			yield return ProcessFile(target, preTransforms, postTransforms, progress);
 		}
 
-		private static Definition.Project ProcessFile(string filePath, IProgress<string> progress)
+		private static Definition.Project ProcessFile(
+				string filePath,
+				IReadOnlyList<ITransformation> preTransforms,
+				IReadOnlyList<ITransformation> postTransforms,
+				IProgress<string> progress
+			)
 		{
 			var file = new FileInfo(filePath);
 			if (!Validate(file, progress))
@@ -95,7 +112,17 @@ namespace Project2015To2017
 				return null;
 			}
 
+			foreach (var transform in preTransforms)
+			{
+				transform.Transform(project, progress);
+			}
+
 			foreach (var transform in _transformationsToApply)
+			{
+				transform.Transform(project, progress);
+			}
+
+			foreach (var transform in postTransforms)
 			{
 				transform.Transform(project, progress);
 			}
@@ -108,12 +135,6 @@ namespace Project2015To2017
 			if (!file.Exists)
 			{
 				progress.Report($"File {file.FullName} could not be found.");
-				return false;
-			}
-
-			if (file.IsReadOnly)
-			{
-				progress.Report($"File {file.FullName} is readonly, please make the file writable first (checkout from source control?).");
 				return false;
 			}
 

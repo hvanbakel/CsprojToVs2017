@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
@@ -36,6 +37,11 @@ namespace Project2015To2017.Definition
 		public DirectoryInfo ProjectFolder => FilePath.Directory;
 
 		/// <summary>
+		/// Files or folders that should be deleted as part of the conversion
+		/// </summary>
+		public IReadOnlyList<FileSystemInfo> Deletions { get; set; }
+
+		/// <summary>
 		/// The directory where nuget stores its extracted packages for the project.
 		/// In general this is the 'packages' folder within the parent solution, but
 		/// it can be overridden, which is accounted for here.
@@ -56,5 +62,9 @@ namespace Project2015To2017.Definition
 				return new DirectoryInfo(path);
 			}
 		}
+
+		public FileInfo PackagesConfigFile { get; set; }
+
+		public IReadOnlyList<XElement> AssemblyAttributeProperties { get; set; } = Array.Empty<XElement>();
 	}
 }

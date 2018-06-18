@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>title</title>
+    <authors>some author</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>a nice description.</description>
+    <summary>That description, shortened.</summary>
+    <tags>some tags API</tags>
+    <copyright>$copyright$</copyright>
+    <licenseUrl>someurl</licenseUrl>
+    <releaseNotes>
+        Some long
+        text
+        with newlines
+    </releaseNotes>
+    <dependencies>
+      <dependency id="newtonsoft.json" version="[10.0.2,11)" />
+    </dependencies>
+  </metadata>
+</package>
