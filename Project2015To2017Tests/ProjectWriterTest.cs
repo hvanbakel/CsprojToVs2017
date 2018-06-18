@@ -27,6 +27,8 @@ namespace Project2015To2017Tests
 
 			var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\readonly.testcsproj");
 
+			Assert.IsNotNull(project, "Project is null, why appveyor... why");
+
 			var messageNum = 0;
 			var progress = new Progress<string>(x =>
 			{
