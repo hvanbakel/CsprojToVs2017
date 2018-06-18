@@ -27,7 +27,7 @@ namespace Project2015To2017Tests
 			});
 
 			XDocument projectXml;
-			using (var stream = File.Open("TestFiles\\OtherTestProjects\\readonly.testcsproj", FileMode.Open, FileAccess.Read, FileShare.Read))
+			using (var stream = File.Open("TestFiles\\OtherTestProjects\\net46console.testcsproj", FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
 				projectXml = XDocument.Load(stream);
 			}
@@ -38,7 +38,7 @@ namespace Project2015To2017Tests
 				Assert.Fail("Schema issue? " + (nsSys + "Project") + "  " + projectXml.Root.Name.Namespace + projectXml.Root.Name.LocalName);
 			}
 
-			var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\readonly.testcsproj");
+			var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
 
 			var messageNum = 0;
 			var progress = new Progress<string>(x =>
@@ -46,7 +46,7 @@ namespace Project2015To2017Tests
 				if (messageNum++ == 0)
 				{
 					Assert.AreEqual(
-						@"TestFiles\OtherTestProjects\readonly.testcsproj is readonly, please make the file writable first (checkout from source control?).",
+						@"TestFiles\OtherTestProjects\net46console.testcsproj is readonly, please make the file writable first (checkout from source control?).",
 						x);
 				}
 			});

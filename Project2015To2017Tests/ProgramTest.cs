@@ -35,7 +35,7 @@ namespace Project2015To2017Tests
 
 			var progress = new SyncProgress(logs.Add);
 
-			var projectFile = "TestFiles\\OtherTestProjects\\readonly.testcsproj";
+			var projectFile = "TestFiles\\OtherTestProjects\\net46console.testcsproj";
 			var copiedProjectFile = $"{projectFile}.readonly";
 
 			if (File.Exists(copiedProjectFile))
@@ -78,7 +78,7 @@ namespace Project2015To2017Tests
 
 			var progress = new SyncProgress(logs.Add);
 
-			var projectFile = "TestFiles\\OtherTestProjects\\readonly.testcsproj";
+			var projectFile = "TestFiles\\OtherTestProjects\\net46console.testcsproj";
 			var copiedProjectFile = $"{projectFile}.readonly2";
 
 			if (File.Exists(copiedProjectFile))
