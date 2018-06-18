@@ -9,6 +9,7 @@ using Project2015To2017.Reading;
 using Project2015To2017.Writing;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 
 namespace Project2015To2017Tests
 {
@@ -24,6 +25,24 @@ namespace Project2015To2017Tests
 				AssemblyAttributes = new AssemblyAttributes(),
 				FilePath = new System.IO.FileInfo("test.cs")
 			});
+
+			XDocument projectXml;
+			using (var stream = File.Open("TestFiles\\OtherTestProjects\\readonly.testcsproj", FileMode.Open, FileAccess.Read, FileShare.Read))
+			{
+				projectXml = XDocument.Load(stream);
+			}
+
+			// get ProjectTypeGuids and check for unsupported types
+			if (Project2015To2017.UnsupportedProjectTypes.IsUnsupportedProjectType(projectXml))
+			{
+				Assert.Fail("Project type is not supported?");
+			}
+
+			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
+			if (projectXml.Element(nsSys + "Project") == null)
+			{
+				Assert.Fail("Schema issue?");
+			}
 
 			var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\readonly.testcsproj");
 
