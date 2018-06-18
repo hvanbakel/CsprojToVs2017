@@ -60,8 +60,8 @@ namespace Project2015To2017.Reading
 				IncludeItems = includes,
 				PackageConfiguration = packageConfig,
 				PackagesConfigFile = packagesConfigFile,
-				Deletions = new List<FileSystemInfo>(),
-				AssemblyAttributeProperties = new List<XElement>().AsReadOnly()
+				Deletions = Array.Empty<FileSystemInfo>(),
+				AssemblyAttributeProperties = Array.Empty<XElement>()
 			};
 
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
@@ -88,10 +88,8 @@ namespace Project2015To2017.Reading
 			}
 		}
 
-		private List<PackageReference> LoadPackageReferences(XDocument projectXml, FileInfo packagesConfig, IProgress<string> progress)
+		private IReadOnlyList<PackageReference> LoadPackageReferences(XDocument projectXml, FileInfo packagesConfig, IProgress<string> progress)
 		{
-			var packageReferences = new List<PackageReference>();
-
 			try
 			{
 				var existingPackageReferences = projectXml.Root.Elements(XmlNamespace + "ItemGroup")
@@ -103,10 +101,10 @@ namespace Project2015To2017.Reading
 																	IsDevelopmentDependency = x.Element(XmlNamespace + "PrivateAssets") != null
 																});
 
-				var packageConfigPackages = PackageConfigPackages(packagesConfig);
+				var packageConfigPackages = ExtractReferencesFromPackagesConfig(packagesConfig);
 
 
-				packageReferences = packageConfigPackages
+				var packageReferences = packageConfigPackages
 										.Concat(existingPackageReferences)
 										.ToList();
 
@@ -114,16 +112,18 @@ namespace Project2015To2017.Reading
 				{
 					progress.Report($"Found nuget reference to {reference.Id}, version {reference.Version}.");
 				}
+
+				return packageReferences;
 			}
 			catch (XmlException e)
 			{
 				progress.Report($"Got xml exception reading packages.config: " + e.Message);
 			}
 
-			return packageReferences;
+			return Array.Empty<PackageReference>();
 		}
 
-		private static IEnumerable<PackageReference> PackageConfigPackages(FileInfo packagesConfig)
+		private static IEnumerable<PackageReference> ExtractReferencesFromPackagesConfig(FileInfo packagesConfig)
 		{
 			if (packagesConfig == null)
 			{

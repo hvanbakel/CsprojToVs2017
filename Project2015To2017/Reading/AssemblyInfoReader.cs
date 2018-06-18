@@ -4,23 +4,18 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-using static Project2015To2017.Definition.Project;
-
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Reading
 {
 	public class AssemblyInfoReader
 	{
-		public AssemblyAttributes Read(
-			Project project, IProgress<string> progress
-		)
+		public AssemblyAttributes Read(Project project, IProgress<string> progress)
 		{
 			var projectPath = project.ProjectFolder.FullName;
 
 			var compileElements = project.IncludeItems
-										 .SelectMany(x => x.Elements(XmlNamespace + "Compile"))
+										 .SelectMany(x => x.Elements(Project.XmlNamespace + "Compile"))
 										 .ToList();
 
 			var assemblyInfoFiles = compileElements

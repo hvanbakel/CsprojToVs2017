@@ -100,11 +100,7 @@ namespace Project2015To2017Tests
 			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
 			void Checkout(FileSystemInfo info) => checkedOutFiles.Add(info);
 
-			var writer = new ProjectWriter
-			{
-				DeleteOperation = Deletion,
-				CheckoutOperation = Checkout,
-			};
+			var writer = new ProjectWriter(Deletion, Checkout);
 
 			writer.Write(
 				new Project
@@ -115,7 +111,7 @@ namespace Project2015To2017Tests
 						File = assemblyInfoFile,
 						Company = "A Company"
 					},
-					Deletions = filesToDelete.ToList().AsReadOnly()
+					Deletions = filesToDelete.ToArray()
 				},
 				false, new Progress<string>()
 			);
@@ -137,13 +133,13 @@ namespace Project2015To2017Tests
 			//Just simulate deletion so we can just check the list
 			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
 
-			var writer = new ProjectWriter { DeleteOperation = Deletion };
+			var writer = new ProjectWriter(Deletion, _ => { });
 
 			writer.Write(
 				new Project
 				{
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test1.csproj"),
-					Deletions = filesToDelete.ToList().AsReadOnly()
+					Deletions = filesToDelete.ToArray()
 				},
 				false, new Progress<string>()
 			);
@@ -167,13 +163,13 @@ namespace Project2015To2017Tests
 			//Just simulate deletion so we can just check the list
 			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
 
-			var writer = new ProjectWriter { DeleteOperation = Deletion };
+			var writer = new ProjectWriter(Deletion, _ => { });
 
 			writer.Write(
 				new Project
 				{
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test2.csproj"),
-					Deletions = filesToDelete.ToList().AsReadOnly()
+					Deletions = filesToDelete.ToArray()
 				},
 				false, new Progress<string>()
 			);
@@ -205,13 +201,13 @@ namespace Project2015To2017Tests
 
 			try
 			{
-				var writer = new ProjectWriter { DeleteOperation = Deletion };
+				var writer = new ProjectWriter(Deletion, _ => { });
 
 				writer.Write(
 					new Project
 					{
 						FilePath = new FileInfo(@"TestFiles\Deletions\Test3.csproj"),
-						Deletions = filesToDelete.ToList().AsReadOnly()
+						Deletions = filesToDelete.ToArray()
 					},
 					false, new Progress<string>()
 				);
@@ -246,13 +242,13 @@ namespace Project2015To2017Tests
 			//Just simulate deletion so we can just check the list
 			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
 
-			var writer = new ProjectWriter { DeleteOperation = Deletion };
+			var writer = new ProjectWriter(Deletion, _ => { });
 
 			writer.Write(
 				new Project
 				{
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test4.csproj"),
-					Deletions = filesToDelete.ToList().AsReadOnly()
+					Deletions = filesToDelete.ToArray()
 				},
 				false, new Progress<string>()
 			);

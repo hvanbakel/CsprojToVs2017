@@ -36,8 +36,7 @@ namespace Project2015To2017.Transforms
 
 			var adjustedPackageReferences = existingPackageReferences
 												.Concat(testReferences)
-												.ToList()
-												.AsReadOnly();
+												.ToArray();
 
 			foreach (var reference in testReferences)
 			{

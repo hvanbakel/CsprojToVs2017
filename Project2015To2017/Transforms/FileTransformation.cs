@@ -38,8 +38,7 @@ namespace Project2015To2017.Transforms
 
 			var itemsToInclude = compileManualIncludes
 									.Concat(otherIncludes)
-									.ToList()
-									.AsReadOnly();
+									.ToArray();
 
 			definition.IncludeItems = itemsToInclude;
 		}

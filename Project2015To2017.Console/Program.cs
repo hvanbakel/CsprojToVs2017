@@ -29,7 +29,7 @@ namespace Project2015To2017.Console
 			{
 				var doBackup = !args.Contains("--no-backup");
 
-				var writer = new Writing.ProjectWriter();
+				var writer = new Writing.ProjectWriter(x => x.Delete(), _ => { });
 				foreach (var project in convertedProjects)
 				{
 					writer.Write(project, doBackup, progress);

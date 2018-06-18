@@ -9,11 +9,19 @@ namespace Project2015To2017.Writing
 {
 	public class ProjectWriter
 	{
-		public Action<FileSystemInfo> DeleteOperation { get; set; }
-												= fileOrFolder => fileOrFolder.Delete();
+		private readonly Action<FileSystemInfo> deleteFileOperation;
+		private readonly Action<FileSystemInfo> checkoutOperation;
 
-		public Action<FileSystemInfo> CheckoutOperation { get; set; }
-												= _ => { };
+		public ProjectWriter()
+			: this(_ => { }, _ => { })
+		{
+		}
+
+		public ProjectWriter(Action<FileSystemInfo> deleteFileOperation, Action<FileSystemInfo> checkoutOperation)
+		{
+			this.deleteFileOperation = deleteFileOperation;
+			this.checkoutOperation = checkoutOperation;
+		}
 
 		public void Write(Project project, bool makeBackups, IProgress<string> progress)
 		{
@@ -43,7 +51,7 @@ namespace Project2015To2017.Writing
 			var projectNode = CreateXml(project);
 
 			var projectFile = project.FilePath;
-			CheckoutOperation.Invoke(projectFile);
+			this.checkoutOperation(projectFile);
 
 			if (projectFile.IsReadOnly)
 			{
@@ -74,7 +82,7 @@ namespace Project2015To2017.Writing
 				return true;
 			}
 
-			CheckoutOperation.Invoke(file);
+			this.checkoutOperation(file);
 
 			if (file.IsReadOnly)
 			{
@@ -405,7 +413,7 @@ namespace Project2015To2017.Writing
 					continue;
 				}
 
-				DeleteOperation(fileInfo);
+				this.deleteFileOperation(fileInfo);
 			}
 		}
 

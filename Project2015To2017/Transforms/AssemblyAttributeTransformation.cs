@@ -15,30 +15,23 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			var attributeNodes = AssemblyAttributeNodes(
-									definition.AssemblyAttributes,
-									definition.PackageConfiguration,
-									progress
-								);
-
 			definition.AssemblyAttributeProperties = definition.AssemblyAttributeProperties
-															   .Concat(attributeNodes)
-															   .ToList()
-															   .AsReadOnly();
+				.Concat(AssemblyAttributeNodes(definition.AssemblyAttributes, definition.PackageConfiguration, progress))
+				.ToArray();
 
 			if (definition.AssemblyAttributes.File != null && PointlessAssemblyInfo(definition.AssemblyAttributes))
 			{
 				definition.Deletions = definition
-										.Deletions
-										.Concat(new[] { definition.AssemblyAttributes.File })
-										.ToList().AsReadOnly();
+					.Deletions
+					.Concat(new[] { definition.AssemblyAttributes.File })
+					.ToArray();
 
 				if (AssemblyInfoFolderJustAssemblyInfo(definition.AssemblyAttributes))
 				{
 					definition.Deletions = definition
 						.Deletions
 						.Concat(new[] { definition.AssemblyAttributes.File.Directory })
-						.ToList().AsReadOnly();
+						.ToArray();
 				}
 			}
 		}
@@ -56,22 +49,14 @@ namespace Project2015To2017.Transforms
 			return !file.Members.Any() && !file.AttributeLists.Any();
 		}
 
-		private static XElement[] AssemblyAttributeNodes(
-									AssemblyAttributes assemblyAttributes,
-									PackageConfiguration packageConfig,
-									IProgress<string> progress
-								 )
+		private static IReadOnlyList<XElement> AssemblyAttributeNodes(AssemblyAttributes assemblyAttributes, PackageConfiguration packageConfig, IProgress<string> progress)
 		{
-			
-
 			progress.Report("Moving attributes from AssemblyInfo to project file");
 
 			var versioningProperties = VersioningProperties(assemblyAttributes, packageConfig, progress);
 			var otherProperties = OtherProperties(assemblyAttributes, packageConfig, progress);
 
-			var childNodes = otherProperties
-								.Concat(versioningProperties)
-								.ToArray();
+			var childNodes = otherProperties.Concat(versioningProperties).ToArray();
 
 			if (childNodes.Length == 0)
 			{
@@ -86,12 +71,27 @@ namespace Project2015To2017.Transforms
 			}
 		}
 
-		private static IEnumerable<XElement> OtherProperties(AssemblyAttributes assemblyAttributes,
+		private static IReadOnlyList<XElement> OtherProperties(AssemblyAttributes assemblyAttributes,
 			PackageConfiguration packageConfig, IProgress<string> progress)
 		{
-			var toReturn = Properties()
-								.Where(x => x != null)
-								.ToList();
+			var toReturn = new[]
+			{
+				CreateElementIfNotNull(assemblyAttributes.Title, "AssemblyTitle"),
+				CreateElementIfNotNull(assemblyAttributes.Company, "Company"),
+				CreateElementIfNotNull(assemblyAttributes.Product, "Product"),
+
+				//And a couple of properties which can be superceded by the package config
+				CreateElementIfNotNull(assemblyAttributes.Description, packageConfig?.Description, "Description", progress),
+				CreateElementIfNotNull(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", progress),
+
+				assemblyAttributes.Configuration != null
+					?
+					//If it is included, chances are that the developer has used
+					//preprocessor flags which we can't yet process
+					//so just leave it in AssemblyInfo file
+					new XElement("GenerateAssemblyConfigurationAttribute", false)
+					: null
+			}.Where(x => x != null).ToArray();
 
 			assemblyAttributes.Title = null;
 			assemblyAttributes.Company = null;
@@ -100,29 +100,9 @@ namespace Project2015To2017.Transforms
 			assemblyAttributes.Copyright = null;
 
 			return toReturn;
-
-			IEnumerable<XElement> Properties()
-			{
-				yield return XElement(assemblyAttributes.Title, "AssemblyTitle");
-				yield return XElement(assemblyAttributes.Company, "Company");
-				yield return XElement(assemblyAttributes.Product, "Product");
-
-				//And a couple of properties which can be superceded by the package config
-				yield return XElement(assemblyAttributes.Description, packageConfig?.Description, "Description", progress);
-				yield return XElement(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", progress);
-
-				if (assemblyAttributes.Configuration != null)
-				{
-					//If it is included, chances are that the developer has used
-					//preprocessor flags which we can't yet process
-					//so just leave it in AssemblyInfo file
-					yield return new XElement("GenerateAssemblyConfigurationAttribute", false);
-				}
-			}
 		}
 
-		private static XElement XElement(string assemblyInfoValue, string packageConfigValue,
-											string description, IProgress<string> progress)
+		private static XElement CreateElementIfNotNull(string assemblyInfoValue, string packageConfigValue, string description, IProgress<string> progress)
 		{
 			if (packageConfigValue != null && packageConfigValue != assemblyInfoValue)
 			{
@@ -133,40 +113,35 @@ namespace Project2015To2017.Transforms
 						$"over AssemblyInfo value {assemblyInfoValue}");
 				}
 
-				return XElement(packageConfigValue, description);
+				return CreateElementIfNotNull(packageConfigValue, description);
 			}
 			else
 			{
-				return assemblyInfoValue == null ? null : XElement(assemblyInfoValue, description);
+				return assemblyInfoValue == null ? null : CreateElementIfNotNull(assemblyInfoValue, description);
 			}
 		}
 
-		private static List<XElement> VersioningProperties(AssemblyAttributes assemblyAttributes,
+		private static IReadOnlyList<XElement> VersioningProperties(AssemblyAttributes assemblyAttributes,
 			PackageConfiguration packageConfig, IProgress<string> progress)
 		{
-			var toReturn = Properties()
-								.Where(x => x != null)
-								.ToList();
+			var toReturn = new[]
+			{
+				CreateElementIfNotNull(assemblyAttributes.InformationalVersion, packageConfig?.Version, "Version", progress),
+				CreateElementIfNotNull(assemblyAttributes.Version, "AssemblyVersion"),
+
+				//The AssemblyInfo behaviour was to fallback on the AssemblyVersion for the file version
+				//but in the new format, this doesn't happen so we explicitly copy the value across
+				CreateElementIfNotNull(assemblyAttributes.FileVersion, "FileVersion") ?? CreateElementIfNotNull(assemblyAttributes.Version, "FileVersion")
+			}.Where(x => x != null).ToArray();
 
 			assemblyAttributes.InformationalVersion = null;
 			assemblyAttributes.Version = null;
 			assemblyAttributes.FileVersion = null;
 
 			return toReturn;
-
-			IEnumerable<XElement> Properties()
-			{
-				yield return XElement(assemblyAttributes.InformationalVersion, packageConfig?.Version, "Version", progress);
-				yield return XElement(assemblyAttributes.Version, "AssemblyVersion");
-
-				//The AssemblyInfo behaviour was to fallback on the AssemblyVersion for the file version
-				//but in the new format, this doesn't happen so we explicitly copy the value across
-				yield return XElement(assemblyAttributes.FileVersion, "FileVersion") ??
-							 XElement(assemblyAttributes.Version, "FileVersion");
-			}
 		}
 
-		private static XElement XElement(string attribute, string name)
+		private static XElement CreateElementIfNotNull(string attribute, string name)
 		{
 			return attribute != null ? new XElement(name, attribute) : null;
 		}

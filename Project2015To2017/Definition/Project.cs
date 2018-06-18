@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
@@ -64,6 +65,6 @@ namespace Project2015To2017.Definition
 
 		public FileInfo PackagesConfigFile { get; set; }
 
-		public IReadOnlyList<XElement> AssemblyAttributeProperties { get; set; } = new List<XElement>().AsReadOnly();
+		public IReadOnlyList<XElement> AssemblyAttributeProperties { get; set; } = Array.Empty<XElement>();
 	}
 }
