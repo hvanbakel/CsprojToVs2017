@@ -13,7 +13,6 @@ namespace Project2015To2017.Reading
 		{
 			var nuspecFiles = projectFile.Directory
 										 .EnumerateFiles("*.nuspec", SearchOption.AllDirectories)
-										 .Where(x => !x.FullName.Contains(@"\obj\"))										
 										 .ToArray();
 
 			if (nuspecFiles.Length == 0)
