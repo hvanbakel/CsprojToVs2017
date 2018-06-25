@@ -67,7 +67,8 @@ namespace Project2015To2017.Transforms
 				Tags = rawPackageConfig.Tags,
 				ReleaseNotes = rawPackageConfig.ReleaseNotes,
 				RequiresLicenseAcceptance = rawPackageConfig.RequiresLicenseAcceptance,
-				Dependencies = rawPackageConfig.Dependencies
+				Dependencies = rawPackageConfig.Dependencies,
+				NuspecFile = rawPackageConfig.NuspecFile
 			};
 		}
 
