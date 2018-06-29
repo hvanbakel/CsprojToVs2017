@@ -55,15 +55,30 @@ namespace Project2015To2017.Definition
 				var nuGetSettings = Settings.LoadDefaultSettings(projectFolder);
 				var repositoryPathSetting = SettingsUtility.GetRepositoryPath(nuGetSettings);
 
-				//return the explicitly set path, or if there isn't one, then assume the solution is one level
-				//above the project and therefore so is the 'packages' folder
-				var path = repositoryPathSetting ?? Path.GetFullPath(Path.Combine(projectFolder, @"..\packages"));
+				//return the explicitly set path, or if there isn't one, then use the solution's path if one was provided.
+				//Otherwise assume a solution is one level above the project and therefore so is the 'packages' folder
+				if (repositoryPathSetting != null)
+				{
+					return new DirectoryInfo(repositoryPathSetting);
+				}
+
+				if (Solution != null)
+				{
+					return Solution.NugetPackagesPath;
+				}
+
+				var path = Path.GetFullPath(Path.Combine(projectFolder, @"..\packages"));
 
 				return new DirectoryInfo(path);
 			}
 		}
 
 		public FileInfo PackagesConfigFile { get; set; }
+
+		/// <summary>
+		/// The solution in which this project was found, if any.
+		/// </summary>
+		public Solution Solution { get; set; }
 
 		public IReadOnlyList<XElement> AssemblyAttributeProperties { get; set; } = Array.Empty<XElement>();
 	}
