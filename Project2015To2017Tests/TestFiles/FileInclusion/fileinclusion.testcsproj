@@ -87,6 +87,9 @@
 	  <DesignTime>True</DesignTime>
 	  <DependentUpon>Resources.resx</DependentUpon>
 	</Compile>
+	<Compile Include="..\OtherTestProjects\OtherTestClass.cs">
+	  <Link>OtherTestClass.cs</Link>
+	</Compile>
   </ItemGroup>
   <ItemGroup>
 	<EmbeddedResource Include="Properties\Resources.resx">
