@@ -15,9 +15,17 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			definition.AssemblyAttributeProperties = definition.AssemblyAttributeProperties
-				.Concat(AssemblyAttributeNodes(definition.AssemblyAttributes, definition.PackageConfiguration, progress))
-				.ToArray();
+			if (definition.GenerateAssemblyInfo)
+			{
+				definition.AssemblyAttributeProperties = definition.AssemblyAttributeProperties
+					.Concat(AssemblyAttributeNodes(definition.AssemblyAttributes, definition.PackageConfiguration, progress))
+					.ToArray();
+			}
+			else
+			{
+				progress.Report("Keep AssemblyInfo");
+				definition.AssemblyAttributeProperties = new[] { new XElement("GenerateAssemblyInfo", "false") };
+			}
 
 			if (definition.AssemblyAttributes.File != null && PointlessAssemblyInfo(definition.AssemblyAttributes))
 			{

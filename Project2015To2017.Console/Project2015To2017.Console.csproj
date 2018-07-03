@@ -1,11 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net46;netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks>net461;netcoreapp1.1</TargetFrameworks>
     <RootNamespace>Project2015To2017.Console</RootNamespace>
     <AssemblyName>Project2015To2017.Console</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.2.1" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Project2015To2017\Project2015To2017.csproj" />
