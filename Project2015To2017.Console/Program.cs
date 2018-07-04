@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using CommandLine;
+using Project2015To2017.Definition;
+using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Console
 {
@@ -22,18 +24,16 @@ namespace Project2015To2017.Console
 			var progress = new Progress<string>(System.Console.WriteLine);
 #endif
 
-			var convertedProjects = new List<Definition.Project>();
+			var convertedProjects = new List<Project>();
+			//apply options as an PreTransform
+			var preTransforms = new List<ITransformation> { options };
 			foreach (string file in options.Files)
 			{
-				convertedProjects.AddRange(ProjectConverter.Convert(file, progress)
-															.Where(x => x != null)
-															.ToList());
-			}
-
-			//change options
-			foreach (var project in convertedProjects)
-			{
-				options.UpdateProject(project);
+				var projects = ProjectConverter
+					.Convert(file, preTransforms, new List<ITransformation>(), progress)
+					.Where(x => x != null)
+					.ToList();
+				convertedProjects.AddRange(projects);
 			}
 
 			if (!options.DryRun)

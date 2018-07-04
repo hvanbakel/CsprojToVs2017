@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
 using Project2015To2017.Definition;
+using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Console
 {
-	public class Options
+	public class Options: ITransformation
 	{
 		[Value(0)]
 		public IEnumerable<string> Files { get; set; }
@@ -23,16 +24,17 @@ namespace Project2015To2017.Console
 		[Option('t', "target-frameworks", Separator = ';', HelpText = "Specific target frameworks")]
 		public IEnumerable<string> TargetFrameworks { get; set; }
 
-		public void UpdateProject(Project project)
+		public void Transform(Project definition, IProgress<string> progress)
 		{
-			if (project == null)
+			if (definition == null)
 				return;
 
-			project.GenerateAssemblyInfo = !AssemblyInfo;
+			definition.GenerateAssemblyInfo = !AssemblyInfo;
 			if (null != TargetFrameworks && TargetFrameworks.Any())
 			{
-				project.TargetFrameworks = TargetFrameworks.ToList();
+				definition.TargetFrameworks = TargetFrameworks.ToList();
 			}
+			progress?.Report("Options applied");
 		}
 	}
 }
