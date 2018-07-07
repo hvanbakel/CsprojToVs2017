@@ -78,7 +78,20 @@ namespace Project2015To2017.Transforms
 				if (includeAttribute != null && !includeAttribute.Value.Contains("*"))
 				{
 					var compiledFileAttributes = compiledFile.Attributes().Where(a => a.Name != "Include").ToList();
-					compiledFileAttributes.Add(new XAttribute("Update", includeAttribute.Value));
+
+					//keep Link as an Include
+					var linkElement = compiledFile.Elements().FirstOrDefault(a => a.Name.LocalName == "Link");
+					if (null != linkElement)
+					{
+						compiledFileAttributes.Add(new XAttribute("Include", includeAttribute.Value));
+						compiledFileAttributes.Add(new XAttribute("Link", linkElement.Value));
+						linkElement.Remove();
+					}
+					else
+					{
+						compiledFileAttributes.Add(new XAttribute("Update", includeAttribute.Value));
+					}
+
 					compiledFile.ReplaceAttributes(compiledFileAttributes);
 
 					if (!Path.GetFullPath(Path.Combine(projectFolder.FullName, includeAttribute.Value)).StartsWith(projectFolder.FullName))

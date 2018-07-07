@@ -25,11 +25,12 @@ namespace Project2015To2017Tests
 
 	        var includeItems = project.IncludeItems;
 
-	        Assert.AreEqual(9, includeItems.Count);
+	        Assert.AreEqual(10, includeItems.Count);
 
-            Assert.AreEqual(6, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
-            Assert.AreEqual(6, includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Update") != null));
-            Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
+            Assert.AreEqual(7, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
+			Assert.AreEqual(6, includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Update") != null));
+			Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Include") != null));
+			Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
             Assert.AreEqual(0, includeItems.Count(x => x.Name == XmlNamespace + "Content"));
             Assert.AreEqual(2, includeItems.Count(x => x.Name == XmlNamespace + "None"));
 
@@ -43,7 +44,15 @@ namespace Project2015To2017Tests
 			
 			Assert.AreEqual("Resources.resx", dependentUponElement.Value);
 
-	        var sourceWithDesigner = includeItems.Single(
+			var linkedFile = includeItems.Single(
+										x => x.Name == XmlNamespace + "Compile"
+											 && x.Attribute("Include")?.Value == @"..\OtherTestProjects\OtherTestClass.cs"
+									);
+			var linkAttribute = linkedFile.Attributes().FirstOrDefault(a => a.Name == "Link");
+			Assert.IsNotNull(linkAttribute);
+			Assert.AreEqual("OtherTestClass.cs", linkAttribute.Value);
+
+			var sourceWithDesigner = includeItems.Single(
 								        x => x.Name == XmlNamespace + "Compile"
 								             && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.cs"
 							        );
