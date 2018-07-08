@@ -30,10 +30,7 @@ namespace Project2015To2017.Console
 				return;
 
 			definition.GenerateAssemblyInfo = !AssemblyInfo;
-			if (null != TargetFrameworks && TargetFrameworks.Any())
-			{
-				definition.TargetFrameworks = TargetFrameworks.ToList();
-			}
+			
 			progress?.Report("Options applied");
 		}
 	}

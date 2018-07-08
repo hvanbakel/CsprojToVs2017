@@ -25,9 +25,15 @@ namespace Project2015To2017.Console
 #endif
 
 			var convertedProjects = new List<Project>();
-			//apply options as an PreTransform
-			var preTransforms = new List<ITransformation> { options };
-			foreach (string file in options.Files)
+
+			//apply some optional pre-transforms
+			var preTransforms = new List<ITransformation>
+			{
+				new TargetFrameworkTransformation(options.TargetFrameworks.ToList().AsReadOnly()),
+				options
+			};
+
+			foreach (var file in options.Files)
 			{
 				var projects = ProjectConverter
 					.Convert(file, preTransforms, new List<ITransformation>(), progress)
