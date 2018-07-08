@@ -18,7 +18,7 @@ namespace Project2015To2017.Console
 		[Option('n', "no-backup", Default = false, HelpText = "Will not create a backup folder")]
 		public bool NoBackup { get; set; } = false;
 
-		[Option('a', "assembly-info", Default = false, HelpText = "Keep Assemnly Info in a file")]
+		[Option('a', "assembly-info", Default = false, HelpText = "Keep Assembly Info in a file")]
 		public bool AssemblyInfo { get; set; } = false;
 
 		[Option('t', "target-frameworks", Separator = ';', HelpText = "Specific target frameworks")]
