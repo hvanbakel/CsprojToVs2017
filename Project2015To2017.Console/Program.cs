@@ -26,17 +26,16 @@ namespace Project2015To2017.Console
 
 			var convertedProjects = new List<Project>();
 
-			//apply some optional pre-transforms
+			//apply an optional pre-transform to change the target framework
 			var preTransforms = new List<ITransformation>
 			{
-				new TargetFrameworkTransformation(options.TargetFrameworks.ToList().AsReadOnly()),
-				options
+				new TargetFrameworkTransformation(options.TargetFrameworks.ToList().AsReadOnly())
 			};
 
 			foreach (var file in options.Files)
 			{
 				var projects = ProjectConverter
-					.Convert(file, preTransforms, new List<ITransformation>(), progress)
+					.Convert(file, options.ConversionOptions, preTransforms, new List<ITransformation>(), progress)
 					.Where(x => x != null)
 					.ToList();
 				convertedProjects.AddRange(projects);

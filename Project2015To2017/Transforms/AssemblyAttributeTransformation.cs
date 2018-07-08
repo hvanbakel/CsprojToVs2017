@@ -8,6 +8,8 @@ namespace Project2015To2017.Transforms
 {
 	public class AssemblyAttributeTransformation : ITransformation
 	{
+		public bool KeepAssemblyInfoFile { get; set; }
+
 		public void Transform(Project definition, IProgress<string> progress)
 		{
 			if (definition.AssemblyAttributes == null)
@@ -15,7 +17,7 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			if (definition.GenerateAssemblyInfo)
+			if (!KeepAssemblyInfoFile)
 			{
 				definition.AssemblyAttributeProperties = definition.AssemblyAttributeProperties
 					.Concat(AssemblyAttributeNodes(definition.AssemblyAttributes, definition.PackageConfiguration, progress))

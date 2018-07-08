@@ -1,13 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using CommandLine;
-using Project2015To2017.Definition;
-using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Console
 {
-	public class Options: ITransformation
+	public class Options
 	{
 		[Value(0)]
 		public IEnumerable<string> Files { get; set; }
@@ -24,14 +20,6 @@ namespace Project2015To2017.Console
 		[Option('t', "target-frameworks", Separator = ';', HelpText = "Specific target frameworks")]
 		public IEnumerable<string> TargetFrameworks { get; set; }
 
-		public void Transform(Project definition, IProgress<string> progress)
-		{
-			if (definition == null)
-				return;
-
-			definition.GenerateAssemblyInfo = !AssemblyInfo;
-			
-			progress?.Report("Options applied");
-		}
+		public ConversionOptions ConversionOptions => new ConversionOptions {KeepAssemblyInfo = AssemblyInfo};
 	}
 }
