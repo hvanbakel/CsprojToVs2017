@@ -55,13 +55,15 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project
 			{
-				GenerateAssemblyInfo = false,
 				AssemblyAttributes = BaseAssemblyAttributes(),
 				FilePath = new FileInfo("test.cs"),
 				Deletions = new List<FileSystemInfo>()
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation
+			{
+				KeepAssemblyInfoFile = true
+			};
 			
 			transform.Transform(project, new Progress<string>());
 

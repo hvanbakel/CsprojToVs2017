@@ -1,13 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using CommandLine;
-using Project2015To2017.Definition;
-using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Console
 {
-	public class Options: ITransformation
+	public class Options
 	{
 		[Value(0)]
 		public IEnumerable<string> Files { get; set; }
@@ -18,23 +14,12 @@ namespace Project2015To2017.Console
 		[Option('n', "no-backup", Default = false, HelpText = "Will not create a backup folder")]
 		public bool NoBackup { get; set; } = false;
 
-		[Option('a', "assembly-info", Default = false, HelpText = "Keep Assemnly Info in a file")]
+		[Option('a', "assembly-info", Default = false, HelpText = "Keep Assembly Info in a file")]
 		public bool AssemblyInfo { get; set; } = false;
 
 		[Option('t', "target-frameworks", Separator = ';', HelpText = "Specific target frameworks")]
 		public IEnumerable<string> TargetFrameworks { get; set; }
 
-		public void Transform(Project definition, IProgress<string> progress)
-		{
-			if (definition == null)
-				return;
-
-			definition.GenerateAssemblyInfo = !AssemblyInfo;
-			if (null != TargetFrameworks && TargetFrameworks.Any())
-			{
-				definition.TargetFrameworks = TargetFrameworks.ToList();
-			}
-			progress?.Report("Options applied");
-		}
+		public ConversionOptions ConversionOptions => new ConversionOptions {KeepAssemblyInfo = AssemblyInfo};
 	}
 }
