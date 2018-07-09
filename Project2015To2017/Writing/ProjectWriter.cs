@@ -328,6 +328,7 @@ namespace Project2015To2017.Writing
 			AddIfNotNull(mainPropertyGroup, "SignAssembly", project.SignAssembly ? "true" : null);
 			AddIfNotNull(mainPropertyGroup, "DelaySign", project.DelaySign.HasValue ? (project.DelaySign.Value ? "true" : "false") : null);
 			AddIfNotNull(mainPropertyGroup, "AssemblyOriginatorKeyFile", project.AssemblyOriginatorKeyFile);
+			AddIfNotNull(mainPropertyGroup, "AppendTargetFrameworkToOutputPath", project.AppendTargetFrameworkToOutputPath ? null : "false");
 
 			switch (project.Type)
 			{

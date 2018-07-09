@@ -21,11 +21,15 @@ namespace Project2015To2017.Console
 		[Option('t', "target-frameworks", Separator = ';', HelpText = "Specific target frameworks")]
 		public IEnumerable<string> TargetFrameworks { get; set; }
 
+		[Option('o', "output-path", Default = false, HelpText = "Will not create a subfolder with the target framework in the output path")]
+		public bool NoTargetFrameworkToOutputPath { get; set; } = false;
+
 		public ConversionOptions ConversionOptions
 			=> new ConversionOptions
 			{
 				KeepAssemblyInfo = AssemblyInfo,
-				TargetFrameworks = TargetFrameworks?.ToList()
+				TargetFrameworks = TargetFrameworks?.ToList(),
+				AppendTargetFrameworkToOutputPath = !NoTargetFrameworkToOutputPath
 			};
 	}
 }

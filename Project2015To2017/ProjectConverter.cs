@@ -17,7 +17,9 @@ namespace Project2015To2017
 		{
 			return new ITransformation[]
 			{
-				new TargetFrameworkTransformation(conversionOptions.TargetFrameworks),
+				new TargetFrameworkTransformation(
+					conversionOptions.TargetFrameworks,
+					conversionOptions.AppendTargetFrameworkToOutputPath),
 				new PackageReferenceTransformation(),
 				new AssemblyReferenceTransformation(),
 				new RemovePackageAssemblyReferencesTransformation(),

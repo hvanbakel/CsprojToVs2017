@@ -24,6 +24,7 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<XElement> OtherPropertyGroups { get; set; }
 
 		public IReadOnlyList<string> TargetFrameworks { get; set; }
+		public bool AppendTargetFrameworkToOutputPath { get; set; } = true;
 		public ApplicationType Type { get; set; }
 		public bool Optimize { get; set; }
 		public bool TreatWarningsAsErrors { get; set; }

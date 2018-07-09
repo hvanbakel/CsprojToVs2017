@@ -6,10 +6,23 @@ using Project2015To2017.Transforms;
 
 namespace Project2015To2017Tests
 {
-
 	[TestClass]
 	public class TargetFrameworkTransformationTest
 	{
+		[TestMethod]
+		public void HandlesProjectNull()
+		{
+			Project project = null;
+			var targetFrameworks = new List<string> { "netstandard2.0" };
+
+			var progress = new Progress<string>(x => { });
+
+			var transformation = new TargetFrameworkTransformation(targetFrameworks);
+			transformation.Transform(project, progress);
+
+			Assert.IsNull(project);
+		}
+
 		[TestMethod]
 		public void HandlesProjectTargetFrameworksNull()
 		{
@@ -115,6 +128,35 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(2, project.TargetFrameworks.Count);
 			Assert.AreEqual("netstandard2.0", project.TargetFrameworks[0]);
 			Assert.AreEqual("net47", project.TargetFrameworks[1]);
+		}
+
+		[TestMethod]
+		public void HandlesOptionAppendTargetFrameworkToOutputPathTrue()
+		{
+			var project = new Project();
+			IReadOnlyList<string> targetFrameworks = null;
+			var appendTargetFrameworkToOutputPath = true;
+
+			var progress = new Progress<string>(x => { });
+
+			var transformation = new TargetFrameworkTransformation(targetFrameworks, appendTargetFrameworkToOutputPath);
+			transformation.Transform(project, progress);
+
+			Assert.AreEqual(true, project.AppendTargetFrameworkToOutputPath);
+		}
+		[TestMethod]
+		public void HandlesOptionAppendTargetFrameworkToOutputPathFalse()
+		{
+			var project = new Project();
+			IReadOnlyList<string> targetFrameworks = null;
+			var appendTargetFrameworkToOutputPath = false;
+
+			var progress = new Progress<string>(x => { });
+
+			var transformation = new TargetFrameworkTransformation(targetFrameworks, appendTargetFrameworkToOutputPath);
+			transformation.Transform(project, progress);
+
+			Assert.AreEqual(false, project.AppendTargetFrameworkToOutputPath);
 		}
 	}
 }

@@ -14,5 +14,9 @@ namespace Project2015To2017
 		/// multi target frameworks
 		/// </summary>
 		public IReadOnlyList<string> TargetFrameworks { get; set; }
+		/// <summary>
+		/// Append the target framework to the output path
+		/// </summary>
+		public bool AppendTargetFrameworkToOutputPath { get; set; } = true;
 	}
 }

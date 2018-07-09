@@ -364,5 +364,33 @@ namespace Project2015To2017Tests
 
 			CollectionAssert.AreEqual(new FileSystemInfo[0], actualDeletedFiles);
 		}
+
+		[TestMethod]
+		public void OutputAppendTargetFrameworkToOutputPathTrue()
+		{
+			var writer = new ProjectWriter();
+			var xmlNode = writer.CreateXml(new Project
+			{
+				AppendTargetFrameworkToOutputPath = true,
+				FilePath = new System.IO.FileInfo("test.cs")
+			});
+
+			var appendTargetFrameworkToOutputPath = xmlNode.Element("PropertyGroup").Element("AppendTargetFrameworkToOutputPath");
+			Assert.IsNull(appendTargetFrameworkToOutputPath);
+		}
+		[TestMethod]
+		public void OutputAppendTargetFrameworkToOutputPathFalse()
+		{
+			var writer = new ProjectWriter();
+			var xmlNode = writer.CreateXml(new Project
+			{
+				AppendTargetFrameworkToOutputPath = false,
+				FilePath = new System.IO.FileInfo("test.cs")
+			});
+
+			var appendTargetFrameworkToOutputPath = xmlNode.Element("PropertyGroup").Element("AppendTargetFrameworkToOutputPath");
+			Assert.IsNotNull(appendTargetFrameworkToOutputPath);
+			Assert.AreEqual("false", appendTargetFrameworkToOutputPath.Value);
+		}
 	}
 }
