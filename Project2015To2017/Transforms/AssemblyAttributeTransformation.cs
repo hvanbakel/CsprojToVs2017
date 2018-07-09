@@ -8,7 +8,15 @@ namespace Project2015To2017.Transforms
 {
 	public class AssemblyAttributeTransformation : ITransformation
 	{
-		public bool KeepAssemblyInfoFile { get; set; }
+		public AssemblyAttributeTransformation() : this(false)
+		{
+		}
+		public AssemblyAttributeTransformation(bool keepAssemblyInfoFile)
+		{
+			KeepAssemblyInfoFile = keepAssemblyInfoFile;
+		}
+
+		public bool KeepAssemblyInfoFile { get; }
 
 		public void Transform(Project definition, IProgress<string> progress)
 		{

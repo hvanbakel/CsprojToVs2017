@@ -17,16 +17,14 @@ namespace Project2015To2017
 		{
 			return new ITransformation[]
 			{
+				new TargetFrameworkTransformation(conversionOptions.TargetFrameworks),
 				new PackageReferenceTransformation(),
 				new AssemblyReferenceTransformation(),
 				new RemovePackageAssemblyReferencesTransformation(),
 				new RemovePackageImportsTransformation(),
 				new FileTransformation(),
 				new NugetPackageTransformation(),
-				new AssemblyAttributeTransformation
-				{
-					KeepAssemblyInfoFile = conversionOptions.KeepAssemblyInfo
-				}
+				new AssemblyAttributeTransformation(conversionOptions.KeepAssemblyInfo)
 			};
 		}
 

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using CommandLine;
 using Project2015To2017.Definition;
-using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Console
 {
@@ -26,16 +25,10 @@ namespace Project2015To2017.Console
 
 			var convertedProjects = new List<Project>();
 
-			//apply an optional pre-transform to change the target framework
-			var preTransforms = new List<ITransformation>
-			{
-				new TargetFrameworkTransformation(options.TargetFrameworks.ToList().AsReadOnly())
-			};
-
 			foreach (var file in options.Files)
 			{
 				var projects = ProjectConverter
-					.Convert(file, options.ConversionOptions, preTransforms, new List<ITransformation>(), progress)
+					.Convert(file, options.ConversionOptions, progress)
 					.Where(x => x != null)
 					.ToList();
 				convertedProjects.AddRange(projects);

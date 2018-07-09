@@ -60,10 +60,7 @@ namespace Project2015To2017Tests
 				Deletions = new List<FileSystemInfo>()
 			};
 
-			var transform = new AssemblyAttributeTransformation
-			{
-				KeepAssemblyInfoFile = true
-			};
+			var transform = new AssemblyAttributeTransformation(true);
 			
 			transform.Transform(project, new Progress<string>());
 

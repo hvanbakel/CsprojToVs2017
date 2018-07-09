@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using CommandLine;
 
 namespace Project2015To2017.Console
@@ -20,6 +21,11 @@ namespace Project2015To2017.Console
 		[Option('t', "target-frameworks", Separator = ';', HelpText = "Specific target frameworks")]
 		public IEnumerable<string> TargetFrameworks { get; set; }
 
-		public ConversionOptions ConversionOptions => new ConversionOptions {KeepAssemblyInfo = AssemblyInfo};
+		public ConversionOptions ConversionOptions
+			=> new ConversionOptions
+			{
+				KeepAssemblyInfo = AssemblyInfo,
+				TargetFrameworks = TargetFrameworks?.ToList()
+			};
 	}
 }
