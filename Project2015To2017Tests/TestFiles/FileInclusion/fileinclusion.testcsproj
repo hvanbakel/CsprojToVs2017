@@ -70,6 +70,9 @@
 	<Compile Include="Folder\FileInFolder.cs" />
 	<Compile Include="AnotherFile.cs" AnotherAttribute="AttrValue" />
 	<Compile Include="..\..\FileTransformationTest.cs" />
+	<Compile Include="SourceFileSubTypeCode.cs">
+	  <SubType>Code</SubType>
+	</Compile>
 	<Compile Include="SourceFileWithDesigner.cs">
 	  <SubType>Component</SubType>
 	</Compile>
@@ -97,6 +100,7 @@
 	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	</EmbeddedResource>
 	<EmbeddedResource Include="..\unittest.testcsproj" />
+	<EmbeddedResource Include="SourceFileAsResource.cs" />
 	<EmbeddedResource Include="..\..\FileTransformationTest.resx" />
 	<EmbeddedResource Include="Resources.resx">
 	  <Generator>ResXFileCodeGenerator</Generator>

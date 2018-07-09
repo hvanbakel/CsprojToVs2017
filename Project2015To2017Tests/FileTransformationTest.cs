@@ -25,12 +25,13 @@ namespace Project2015To2017Tests
 
 	        var includeItems = project.IncludeItems;
 
-	        Assert.AreEqual(10, includeItems.Count);
+	        Assert.AreEqual(13, includeItems.Count);
 
-            Assert.AreEqual(7, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
+            Assert.AreEqual(9, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
 			Assert.AreEqual(6, includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Update") != null));
 			Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Include") != null));
-			Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
+			Assert.AreEqual(2, includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Remove") != null));
+			Assert.AreEqual(2, includeItems.Count(x => x.Name == XmlNamespace + "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
             Assert.AreEqual(0, includeItems.Count(x => x.Name == XmlNamespace + "Content"));
             Assert.AreEqual(2, includeItems.Count(x => x.Name == XmlNamespace + "None"));
 
@@ -79,8 +80,17 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(2, fileWithAnotherAttribute.Attributes().Count());
 			Assert.AreEqual("AttrValue", fileWithAnotherAttribute.Attribute("AnotherAttribute")?.Value);
 
-				//<Compile Include="AnotherFile.cs" AnotherAttribute="AttrValue" />
-	        var warningLogEntries = logEntries
+			var removeMatchingWildcard = includeItems.Where(
+											x => x.Name == XmlNamespace + "Compile"
+												&& x.Attribute("Remove")?.Value != null
+										);
+			Assert.IsNotNull(removeMatchingWildcard);
+			Assert.AreEqual(2, removeMatchingWildcard.Count());
+			Assert.IsTrue(removeMatchingWildcard.Any(x => x.Attribute("Remove")?.Value == "SourceFileAsResource.cs"));
+			Assert.IsTrue(removeMatchingWildcard.Any(x => x.Attribute("Remove")?.Value == "Class1.cs"));
+
+			//<Compile Include="AnotherFile.cs" AnotherAttribute="AttrValue" />
+			var warningLogEntries = logEntries
 								        .Where(x => x.StartsWith("File found") || x.StartsWith("File was included"))
 								        //todo: would be good to be able to remove this condition and not warn on wildcard inclusions
 										//that are covered by main wildcard

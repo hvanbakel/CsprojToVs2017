@@ -31,10 +31,10 @@ namespace Project2015To2017.Transforms
 		{
 			var items = definition.IncludeItems;
 
-			var compileManualIncludes = FindNonWildcardMatchedFiles(definition.ProjectFolder, items, "*.cs", XmlNamespace + "Compile", progress);
-
 			var otherIncludes = ItemsToProject.SelectMany(x => items.Elements(XmlNamespace + x))
 											  .Where(KeepFileInclusion);
+
+			var compileManualIncludes = FindNonWildcardMatchedFiles(definition.ProjectFolder, items, "*.cs", XmlNamespace + "Compile", otherIncludes, progress);
 
 			var itemsToInclude = compileManualIncludes
 									.Concat(otherIncludes)
@@ -68,6 +68,7 @@ namespace Project2015To2017.Transforms
 			IEnumerable<XElement> itemGroups,
 			string wildcard,
 			XName elementName,
+			IEnumerable<XElement> otherIncludes,
 			IProgress<string> progress)
 		{
 			var manualIncludes = new List<XElement>();
@@ -112,7 +113,12 @@ namespace Project2015To2017.Transforms
 						progress.Report("Include cannot be done exclusively through wildcard, " +
 										$"adding as separate update:{Environment.NewLine}{compiledFile}.");
 
-						manualIncludes.Add(compiledFile);
+						//add only if it is not <SubType>Code</SubType>
+						var subType = compiledFile.Elements().FirstOrDefault(x => x.Name.LocalName == "SubType");
+						if (subType == null || subType.Value != "Code")
+						{
+							manualIncludes.Add(compiledFile);
+						}
 
 						filesMatchingWildcard.Add(includeAttribute.Value);
 					}
@@ -127,15 +133,30 @@ namespace Project2015To2017.Transforms
 				}
 			}
 
-			var filesInFolder = projectFolder.EnumerateFiles(wildcard, SearchOption.AllDirectories).Select(x => x.FullName.ToUpper()).ToArray();
+			var filesInFolder = projectFolder.EnumerateFiles(wildcard, SearchOption.AllDirectories).Select(x => x.FullName).ToArray();
 			var knownFullPaths = manualIncludes
 				.Select(x => x.Attribute("Include")?.Value)
 				.Where(x => x != null)
 				.Concat(filesMatchingWildcard)
-				.Select(x => Path.GetFullPath(Path.Combine(projectFolder.FullName, x)).ToUpper())
-				.ToArray();
+				.Select(x => Path.GetFullPath(Path.Combine(projectFolder.FullName, x)))
+				.ToList();
 
-			foreach (var nonListedFile in filesInFolder.Except(knownFullPaths))
+			//remove otherInludes
+			var otherIncludeFilesMatchingWildcard = otherIncludes
+				.Select(x => x.Attribute("Include")?.Value)
+				.Where(x => x != null)
+				.Where(x => x.EndsWith(wildcard.TrimStart('*'), StringComparison.OrdinalIgnoreCase))
+				.ToArray();
+			foreach (var otherIncludeMatchingWildcard in otherIncludeFilesMatchingWildcard)
+			{
+				var removeOtherInclude = new XElement(XmlNamespace + "Compile");
+				removeOtherInclude.Add(new XAttribute("Remove", otherIncludeMatchingWildcard));
+				manualIncludes.Add(removeOtherInclude);
+				
+				knownFullPaths.Add(Path.GetFullPath(Path.Combine(projectFolder.FullName, otherIncludeMatchingWildcard)));
+			}
+
+			foreach (var nonListedFile in filesInFolder.Except(knownFullPaths, StringComparer.OrdinalIgnoreCase))
 			{
 				if (nonListedFile.StartsWith(Path.Combine(projectFolder.FullName + "\\obj\\"), StringComparison.OrdinalIgnoreCase))
 				{
