@@ -50,7 +50,7 @@ namespace Project2015To2017.Definition
 		{
 			get
 			{
-				var projectFolder = ProjectFolder.FullName;
+				var projectFolder = this.ProjectFolder.FullName;
 
 				var nuGetSettings = Settings.LoadDefaultSettings(projectFolder);
 				var repositoryPathSetting = SettingsUtility.GetRepositoryPath(nuGetSettings);
@@ -62,9 +62,9 @@ namespace Project2015To2017.Definition
 					return new DirectoryInfo(repositoryPathSetting);
 				}
 
-				if (Solution != null)
+				if (this.Solution != null)
 				{
-					return Solution.NugetPackagesPath;
+					return this.Solution.NugetPackagesPath;
 				}
 
 				var path = Path.GetFullPath(Path.Combine(projectFolder, @"..\packages"));
