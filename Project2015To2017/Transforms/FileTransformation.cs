@@ -31,8 +31,7 @@ namespace Project2015To2017.Transforms
 		{
 			var items = definition.IncludeItems;
 
-			var otherIncludes = ItemsToProject.SelectMany(x => items.Elements(XmlNamespace + x))
-											  .Where(KeepFileInclusion);
+			var otherIncludes = ItemsToProject.SelectMany(x => items.Elements(XmlNamespace + x)).Where(KeepFileInclusion);
 
 			var compileManualIncludes = FindNonWildcardMatchedFiles(definition.ProjectFolder, items, "*.cs", XmlNamespace + "Compile", otherIncludes, progress);
 
@@ -141,12 +140,13 @@ namespace Project2015To2017.Transforms
 				.Select(x => Path.GetFullPath(Path.Combine(projectFolder.FullName, x)))
 				.ToList();
 
-			//remove otherInludes
+			//remove otherIncludes
 			var otherIncludeFilesMatchingWildcard = otherIncludes
 				.Select(x => x.Attribute("Include")?.Value)
 				.Where(x => x != null)
 				.Where(x => x.EndsWith(wildcard.TrimStart('*'), StringComparison.OrdinalIgnoreCase))
 				.ToArray();
+
 			foreach (var otherIncludeMatchingWildcard in otherIncludeFilesMatchingWildcard)
 			{
 				var removeOtherInclude = new XElement(XmlNamespace + "Compile");
