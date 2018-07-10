@@ -18,6 +18,7 @@
     <Compile Remove="TestFiles\AssemblyInfoHandling\Redundant\AssemblyInfo.cs" />
     <Compile Remove="TestFiles\AssemblyInfoHandling\Redundant\Properties\AssemblyInfo.cs" />
     <Compile Remove="TestFiles\FileInclusion\AnotherFile.cs" />
+    <Compile Remove="TestFiles\FileInclusion\Class1.cs" />
     <Compile Remove="TestFiles\FileInclusion\Folder\FileIncludedByWildcard.cs" />
     <Compile Remove="TestFiles\FileInclusion\Folder\FileInFolder.cs" />
     <Compile Remove="TestFiles\FileInclusion\IncludedFile.cs" />
@@ -25,6 +26,8 @@
     <Compile Remove="TestFiles\FileInclusion\Properties\AssemblyInfo.cs" />
     <Compile Remove="TestFiles\FileInclusion\Properties\Resources.Designer.cs" />
     <Compile Remove="TestFiles\FileInclusion\Resources.Designer.cs" />
+    <Compile Remove="TestFiles\FileInclusion\SourceFileAsResource.cs" />
+    <Compile Remove="TestFiles\FileInclusion\SourceFileSubTypeCode.cs" />
     <Compile Remove="TestFiles\FileInclusion\SourceFileWithDesigner.cs" />
     <Compile Remove="TestFiles\FileInclusion\WildcardFolder\WildcardSubFolder\SubFolderWildcardFile.cs" />
     <Compile Remove="TestFiles\OtherTestProjects\AssemblyInfo.cs" />
@@ -58,6 +61,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestFiles\FileInclusion\AnotherFile.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\FileInclusion\SourceFileSubTypeCode.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\FileInclusion\Class1.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestFiles\FileInclusion\Program.cs">
@@ -106,6 +115,9 @@
 	  <DesignTime>True</DesignTime>
 	  <AutoGen>True</AutoGen>
 	  <DependentUpon>Resources.resx</DependentUpon>
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Include="TestFiles\FileInclusion\SourceFileAsResource.cs">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
 	<None Include="TestFiles\FileInclusion\SourceFileWithDesigner.cs">

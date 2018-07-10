@@ -244,7 +244,10 @@ namespace Project2015To2017.Writing
 					assemblyReferences.Add(MakeAssemblyReference(assemblyReference));
 				}
 
-				projectNode.Add(assemblyReferences);
+				if (assemblyReferences.HasElements)
+				{
+					projectNode.Add(assemblyReferences);
+				}
 			}
 
 			// manual includes
