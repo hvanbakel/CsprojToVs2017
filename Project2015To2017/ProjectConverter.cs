@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
 
@@ -40,30 +41,27 @@ namespace Project2015To2017
 			if (Path.GetExtension(target).Equals(".sln", StringComparison.OrdinalIgnoreCase))
 			{
 				progress.Report("Solution parsing started.");
-				using (var reader = new StreamReader(File.OpenRead(target)))
+				var solution = new SolutionReader().Read(target, progress);
+				if (solution == null)
 				{
-					var file = new FileInfo(target);
-					string line;
-					while ((line = reader.ReadLine()) != null)
+					yield break;
+				}
+
+				if (solution.ProjectPaths?.Count > 0)
+				{
+					foreach (var projectPath in solution.ProjectPaths)
 					{
-						if(!line.Trim().StartsWith("Project(")) {
-							continue;	
-						}
-						
-						var projectPath = line.Split('"').FirstOrDefault(x => x.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase));
-						if (projectPath != null)
+						progress.Report("Project found: " + projectPath);
+						var fullPath = Path.Combine(solution.SolutionFolder.FullName, projectPath);
+						if (!File.Exists(fullPath))
 						{
-							progress.Report("Project found: " + projectPath);
-							var fullPath = Path.Combine(file.Directory.FullName, projectPath);
-							if (!File.Exists(fullPath))
-							{
-								progress.Report("Project file not found at: " + fullPath);
-							}
-							else
-							{
-								yield return ProcessFile(fullPath, preTransforms, postTransforms, progress);
-							}
+							progress.Report("Project file not found at: " + fullPath);
 						}
+						else
+						{
+							yield return ProcessFile(fullPath, solution, preTransforms, postTransforms, progress);
+						}
+
 					}
 				}
 
@@ -83,18 +81,19 @@ namespace Project2015To2017
 				progress.Report(string.Join(Environment.NewLine, projectFiles));
 				foreach (var projectFile in projectFiles)
 				{
-					yield return ProcessFile(projectFile, preTransforms, postTransforms, progress);
+					yield return ProcessFile(projectFile, null, preTransforms, postTransforms, progress);
 				}
 
 				yield break;
 			}
 
 			// Process only the given project file
-			yield return ProcessFile(target, preTransforms, postTransforms, progress);
+			yield return ProcessFile(target, null, preTransforms, postTransforms, progress);
 		}
 
 		private static Definition.Project ProcessFile(
 				string filePath,
+				Solution solution,
 				IReadOnlyList<ITransformation> preTransforms,
 				IReadOnlyList<ITransformation> postTransforms,
 				IProgress<string> progress
@@ -111,6 +110,8 @@ namespace Project2015To2017
 			{
 				return null;
 			}
+
+			project.Solution = solution;
 
 			foreach (var transform in preTransforms)
 			{
