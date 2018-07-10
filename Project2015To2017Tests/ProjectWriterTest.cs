@@ -366,6 +366,28 @@ namespace Project2015To2017Tests
 		}
 
 		[TestMethod]
+		public void PreventEmptyAssemblyReferences()
+		{
+			var project = new Project
+			{
+				AssemblyReferences = new List<AssemblyReference>
+				{
+					new AssemblyReference()
+					{
+						Include = "System"
+					}
+				},
+				FilePath = new System.IO.FileInfo("test.cs")
+			};
+
+			var writer = new ProjectWriter(_ => { }, _ => { });
+
+			var xmlNode = writer.CreateXml(project);
+			
+			Assert.IsNull(xmlNode.Element("ItemGroup"));
+		}
+
+		[TestMethod]
 		public void OutputAppendTargetFrameworkToOutputPathTrue()
 		{
 			var writer = new ProjectWriter();

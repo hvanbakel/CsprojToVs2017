@@ -66,31 +66,27 @@ namespace Project2015To2017
 			if (Path.GetExtension(target).Equals(".sln", StringComparison.OrdinalIgnoreCase))
 			{
 				progress.Report("Solution parsing started.");
-				using (var reader = new StreamReader(File.OpenRead(target)))
+				var solution = new SolutionReader().Read(target, progress);
+				if (solution == null)
 				{
-					var file = new FileInfo(target);
-					string line;
-					while ((line = reader.ReadLine()) != null)
+					yield break;
+				}
+
+				if (solution.ProjectPaths?.Count > 0)
+				{
+					foreach (var projectPath in solution.ProjectPaths)
 					{
-						if (!line.Trim().StartsWith("Project("))
+						progress.Report("Project found: " + projectPath);
+						var fullPath = Path.Combine(solution.SolutionFolder.FullName, projectPath);
+						if (!File.Exists(fullPath))
 						{
-							continue;
+							progress.Report("Project file not found at: " + fullPath);
+						}
+						else
+						{
+							yield return ProcessFile(fullPath, solution, conversionOptions, preTransforms, postTransforms, progress);
 						}
 
-						var projectPath = line.Split('"').FirstOrDefault(x => x.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase));
-						if (projectPath != null)
-						{
-							progress.Report("Project found: " + projectPath);
-							var fullPath = Path.Combine(file.Directory.FullName, projectPath);
-							if (!File.Exists(fullPath))
-							{
-								progress.Report("Project file not found at: " + fullPath);
-							}
-							else
-							{
-								yield return ProcessFile(fullPath, conversionOptions, preTransforms, postTransforms, progress);
-							}
-						}
 					}
 				}
 
@@ -110,21 +106,24 @@ namespace Project2015To2017
 				progress.Report(string.Join(Environment.NewLine, projectFiles));
 				foreach (var projectFile in projectFiles)
 				{
-					yield return ProcessFile(projectFile, conversionOptions, preTransforms, postTransforms, progress);
+					yield return ProcessFile(projectFile, null, conversionOptions, preTransforms, postTransforms, progress);
 				}
 
 				yield break;
 			}
 
 			// Process only the given project file
-			yield return ProcessFile(target, conversionOptions, preTransforms, postTransforms, progress);
+			yield return ProcessFile(target, null, conversionOptions, preTransforms, postTransforms, progress);
 		}
 
-		private static Project ProcessFile(string filePath,
-			ConversionOptions conversionOptions,
-			IReadOnlyList<ITransformation> preTransforms,
-			IReadOnlyList<ITransformation> postTransforms,
-			IProgress<string> progress)
+		private static Definition.Project ProcessFile(
+				string filePath,
+				Solution solution,
+				ConversionOptions conversionOptions,
+				IReadOnlyList<ITransformation> preTransforms,
+				IReadOnlyList<ITransformation> postTransforms,
+				IProgress<string> progress
+			)
 		{
 			var file = new FileInfo(filePath);
 			if (!Validate(file, progress))
@@ -137,6 +136,8 @@ namespace Project2015To2017
 			{
 				return null;
 			}
+
+			project.Solution = solution;
 
 			foreach (var transform in preTransforms)
 			{
