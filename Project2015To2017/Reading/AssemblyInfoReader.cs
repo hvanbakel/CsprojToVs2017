@@ -28,37 +28,51 @@ namespace Project2015To2017.Reading
 													return new FileInfo(filePath);
 												}
 											)
-										   .Where(x => x.Name.ToLower() == "assemblyinfo.cs")
+										   .Where(IsAssemblyInfoFile)
 										   .ToList();
 
-			if (assemblyInfoFiles.Count == 1)
+			if (assemblyInfoFiles.Count == 0)
 			{
-				var assemblyInfoFile = assemblyInfoFiles[0];
-				var assemblyInfoFileName = assemblyInfoFile.FullName;
+				progress.Report($@"Could not read from assemblyinfo, no assemblyinfo file found");
 
-				progress.Report($"Reading assembly info from {assemblyInfoFileName}.");
-
-				var text = File.ReadAllText(assemblyInfoFileName);
-
-				var tree = CSharpSyntaxTree.ParseText(text);
-
-				var root = (CompilationUnitSyntax)tree.GetRoot();
-
-				var assemblyAttributes = new AssemblyAttributes
-				{
-					File = assemblyInfoFile,
-					FileContents = root
-				};
-
-				return assemblyAttributes;
-			}
-			else
-			{
-				progress.Report($@"Could not read from assemblyinfo, multiple assemblyinfo files found: 
-{string.Join(Environment.NewLine, assemblyInfoFiles.Select(x => x.FullName))}.");
+				return null;
 			}
 
-			return null;
+			if (assemblyInfoFiles.Count > 1)
+			{
+				var fileList = string.Join($",{Environment.NewLine}", assemblyInfoFiles.Select(x => x.FullName));
+				progress.Report($@"Could not read from assemblyinfo, multiple assemblyinfo files found:{Environment.NewLine}{fileList}");
+
+				project.HasMultipleAssemblyInfoFiles = true;
+				return null;
+			}
+
+			var assemblyInfoFile = assemblyInfoFiles[0];
+			var assemblyInfoFileName = assemblyInfoFile.FullName;
+
+			progress.Report($"Reading assembly info from {assemblyInfoFileName}.");
+
+			var text = File.ReadAllText(assemblyInfoFileName);
+
+			var tree = CSharpSyntaxTree.ParseText(text);
+
+			var root = (CompilationUnitSyntax) tree.GetRoot();
+
+			var assemblyAttributes = new AssemblyAttributes
+			{
+				File = assemblyInfoFile,
+				FileContents = root
+			};
+
+			return assemblyAttributes;
+		}
+
+		private static bool IsAssemblyInfoFile(FileInfo x)
+		{
+			var nameLower = x.Name.ToLower();
+			if (nameLower == "assemblyinfo.cs")
+				return true;
+			return nameLower.EndsWith(".cs") && nameLower.Contains("assemblyinfo");
 		}
 	}
 }

@@ -12,6 +12,8 @@ namespace Project2015To2017.Transforms
 		{
 			if (definition.AssemblyAttributes == null)
 			{
+				if (definition.HasMultipleAssemblyInfoFiles)
+					definition.AssemblyAttributeProperties = new[] { new XElement("GenerateAssemblyInfo", "false") };
 				return;
 			}
 
@@ -65,10 +67,8 @@ namespace Project2015To2017.Transforms
 				//convert over if they wish
 				return new[] { new XElement("GenerateAssemblyInfo", "false") };
 			}
-			else
-			{
-				return childNodes;
-			}
+
+			return childNodes;
 		}
 
 		private static IReadOnlyList<XElement> OtherProperties(AssemblyAttributes assemblyAttributes,

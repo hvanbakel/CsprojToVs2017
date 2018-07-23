@@ -19,8 +19,6 @@ namespace Project2015To2017.Transforms
 			var assemblyReferences =
 					definition
 						.AssemblyReferences
-						//This reference is obsolete.
-						?.Where(x => !x.Include.Equals("Microsoft.CSharp", StringComparison.OrdinalIgnoreCase))
 						//We don't need to keep any references to package files as these are
 						//now generated dynamically at build time
 						.Where(assemblyReference => !packageIds.Contains(assemblyReference.Include))
