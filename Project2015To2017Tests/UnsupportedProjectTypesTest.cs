@@ -36,7 +36,7 @@ namespace Project2015To2017Tests
 		/// <param name="guidTypes"></param>
 		/// <param name="testCase"></param>
 		/// <param name="expected"></param>
-		[DataRow("WindowsForms", "WinForms", true)]
+		[DataRow("WindowsForms", "WinForms", false)]
 		[DataRow("", "Other", false)]
 		[TestMethod]
 		public void CheckAnUnsupportedProjectOutputReturnsCorrectResult(string outputType, string testCase, bool expected)

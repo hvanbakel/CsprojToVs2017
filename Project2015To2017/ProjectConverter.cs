@@ -21,7 +21,8 @@ namespace Project2015To2017
 			new RemovePackageImportsTransformation(),
 			new FileTransformation(),
 			new NugetPackageTransformation(),
-			new AssemblyAttributeTransformation()
+			new AssemblyAttributeTransformation(),
+			new XamlPagesTransformation(),
 		};
 
 		public static IEnumerable<Definition.Project> Convert(
