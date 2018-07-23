@@ -23,7 +23,11 @@ namespace Project2015To2017.Transforms
 				return;
 			if (null != TargetFrameworks && TargetFrameworks.Any())
 			{
-				definition.TargetFrameworks = TargetFrameworks;
+				definition.TargetFrameworks.Clear();
+				foreach (var targetFramework in TargetFrameworks)
+				{
+					definition.TargetFrameworks.Add(targetFramework);
+				}
 			}
 			definition.AppendTargetFrameworkToOutputPath = AppendTargetFrameworkToOutputPath;
 		}

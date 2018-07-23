@@ -22,31 +22,11 @@ namespace Project2015To2017Tests
 
 			Assert.IsNull(project);
 		}
-
-		[TestMethod]
-		public void HandlesProjectTargetFrameworksNull()
-		{
-			var project = new Project()
-			{
-				TargetFrameworks = null
-			};
-			var targetFrameworks = new List<string> { "netstandard2.0" };
-
-			var progress = new Progress<string>(x => { });
-
-			var transformation = new TargetFrameworkTransformation(targetFrameworks);
-			transformation.Transform(project, progress);
-
-			Assert.AreEqual(1, project.TargetFrameworks.Count);
-			Assert.AreEqual("netstandard2.0", project.TargetFrameworks[0]);
-		}
+		
 		[TestMethod]
 		public void HandlesProjectTargetFrameworksEmpty()
 		{
-			var project = new Project()
-			{
-				TargetFrameworks = new List<string>()
-			};
+			var project = new Project();
 			var targetFrameworks = new List<string> { "netstandard2.0" };
 
 			var progress = new Progress<string>(x => { });
@@ -63,7 +43,7 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project()
 			{
-				TargetFrameworks = new List<string> { "net46" }
+				TargetFrameworks = { "net46" }
 			};
 			IReadOnlyList<string> targetFrameworks = null;
 
@@ -80,7 +60,7 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project()
 			{
-				TargetFrameworks = new List<string> { "net46" }
+				TargetFrameworks = { "net46" }
 			};
 			var targetFrameworks = new List<string>();
 
@@ -98,7 +78,7 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project()
 			{
-				TargetFrameworks = new List<string> { "net46" }
+				TargetFrameworks = { "net46" }
 			};
 			var targetFrameworks = new List<string> { "netstandard2.0" };
 
@@ -116,7 +96,7 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project()
 			{
-				TargetFrameworks = new List<string> { "net46" }
+				TargetFrameworks = { "net46" }
 			};
 			var targetFrameworks = new List<string> { "netstandard2.0", "net47" };
 

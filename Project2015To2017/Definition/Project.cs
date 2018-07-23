@@ -21,9 +21,10 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<XElement> Targets { get; set; }
 		public IReadOnlyList<XElement> BuildEvents { get; set; }
 		public IReadOnlyList<string> Configurations { get; set; }
+		public IReadOnlyList<string> Platforms { get; set; }
 		public IReadOnlyList<XElement> OtherPropertyGroups { get; set; }
 
-		public IReadOnlyList<string> TargetFrameworks { get; set; }
+		public IList<string> TargetFrameworks { get; } = new List<string>();
 		public bool AppendTargetFrameworkToOutputPath { get; set; } = true;
 		public ApplicationType Type { get; set; }
 		public bool Optimize { get; set; }
