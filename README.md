@@ -31,6 +31,6 @@ After confirming this is an old style project file, it will start performing the
 ## Flags
 * `--dry-run` will not update any files, just outputs all the messages
 * `--no-backup` will not create a backup folder
-* `--assembly-info` keep Assemnly Info in a file
+* `--assembly-info` keep Assembly Info in a file
 * `--target-frameworks` specific target frameworks
 * `--output-path` will not create a subfolder with the target framework in the output path
