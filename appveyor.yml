@@ -15,11 +15,14 @@ build:
 before_test:
 - cmd: Dotnet test "Project2015To2017Tests\Project2015To2017Tests.csproj"
 after_build:
-- cmd: dotnet publish -f netcoreapp1.1 -c Release -o ./out/netcoreapp1.1 ./Project2015To2017.Console/Project2015To2017.Console.csproj
+- cmd: dotnet pack -f netcoreapp2.1 -c Release ./Project2015To2017.Console/Project2015To2017.Console.csproj
+- cmd: dotnet publish -f netcoreapp2.1 -c Release -o ./out/netcoreapp2.1 ./Project2015To2017.Console/Project2015To2017.Console.csproj
 - cmd: dotnet publish -f net461 -c Release -o ./out/net461 ./Project2015To2017.Console/Project2015To2017.Console.csproj
 - cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.zip ./Project2015To2017.Console/out/*
 
 artifacts:
+  - path: ./Project2015To2017/bin/$(configuration)/Project2015To2017.Cli.1.0.0.nupkg
+    name: global-tool
   - path: ./Project2015To2017/out/CSProj2015To2017.zip
     name: out-zip
   - path: Project2015To2017\bin\$(configuration)\Project2015To2017.**.nupkg
@@ -31,6 +34,12 @@ deploy:
     secure: i6ZaMLxF/Jbkh7SgDJuFIwpcrXl1BcNI5vd5Re33EEQV7PrZ71F6MpuIDF7glY/o
   skip_symbols: false
   artifact: nupkg
+  
+- provider: NuGet
+  api_key:
+    secure: +o0/XtevmiegEOJLY9u6bm57gbFvGT/0mraL78vBCtEjNkdjWkZEQGxiL//UP88S
+  skip_symbols: false
+  artifact: global-tool
     
 - provider: GitHub  
   release: CSProj2015To2017-v$(APPVEYOR_BUILD_VERSION)

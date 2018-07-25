@@ -1,18 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFrameworks>net461;netcoreapp1.1</TargetFrameworks>
-    <RootNamespace>Project2015To2017.Console</RootNamespace>
-    <AssemblyName>Project2015To2017.Console</AssemblyName>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
+		<RootNamespace>Project2015To2017.Console</RootNamespace>
+		<AssemblyName>Project2015To2017.Console</AssemblyName>
+		<PackageId>Project2015To2017.Cli</PackageId>
+		<Authors>hvanbakel et. al.</Authors>
+		<Product>Project2015To2017.Cli</Product>
+		<Description>Tool for converting a csproj file for VS2015 to VS2017 and beyond.</Description>
+		<PackageProjectUrl>https://github.com/hvanbakel/CsprojToVs2017</PackageProjectUrl>
+		<PackageLicenseUrl>https://github.com/hvanbakel/CsprojToVs2017/blob/master/LICENSE</PackageLicenseUrl>
+		<RepositoryUrl>https://github.com/hvanbakel/CsprojToVs2017</RepositoryUrl>
+		<Copyright>Copyright Hans van Bakel</Copyright>
+		<PackageTags>dotnet csproj conversion vs2015 vs2017</PackageTags>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.2.1" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+		<ToolCommandName>csproj-to-2017</ToolCommandName>
+		<PackAsTool>True</PackAsTool>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Project2015To2017\Project2015To2017.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommandLineParser" Version="2.2.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Project2015To2017\Project2015To2017.csproj" />
+	</ItemGroup>
 
 </Project>
