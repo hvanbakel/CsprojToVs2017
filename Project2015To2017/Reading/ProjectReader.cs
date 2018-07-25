@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -13,7 +14,7 @@ namespace Project2015To2017.Reading
 	{
 		public Project Read(string filePath)
 		{
-			return Read(filePath, new Progress<string>(_ => {}));
+			return Read(filePath, new Progress<string>(_ => { }));
 		}
 
 		public Project Read(string filePath, IProgress<string> progress)
@@ -39,7 +40,7 @@ namespace Project2015To2017.Reading
 			}
 
 			var fileInfo = new FileInfo(filePath);
-			
+
 			var assemblyReferences = LoadAssemblyReferences(projectXml, progress);
 			var projectReferences = LoadProjectReferences(projectXml, progress);
 
@@ -64,6 +65,8 @@ namespace Project2015To2017.Reading
 				AssemblyAttributeProperties = Array.Empty<XElement>()
 			};
 
+			HandleSpecialProjectTypes(progress, projectXml, projectDefinition);
+
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
 
 			var assemblyAttributes = new AssemblyInfoReader().Read(projectDefinition, progress);
@@ -71,6 +74,46 @@ namespace Project2015To2017.Reading
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
 
 			return projectDefinition;
+		}
+
+		private static void HandleSpecialProjectTypes(IProgress<string> progress, XContainer projectXml,
+			Project projectDefinition)
+		{
+			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
+
+			// get the MyType tag
+			var outputType = projectXml.Descendants(nsSys + "MyType").FirstOrDefault();
+			// WinForms applications
+			if (outputType?.Value == "WindowsForms")
+			{
+				progress.Report($"This is a Windows Forms project file, support is limited.");
+				projectDefinition.IsWindowsFormsProject = true;
+			}
+
+			// try to get project type - may not exist
+			var typeElement = projectXml.Descendants(nsSys + "ProjectTypeGuids").FirstOrDefault();
+			if (typeElement == null) return;
+
+			// parse the CSV list
+			var guidTypes = typeElement.Value
+				.Split(';')
+				.Select(x => x.Trim().ToUpperInvariant())
+				.ToImmutableHashSet();
+
+			// can be enabled in separate PR when simplification PR is merged
+#if false
+			if (guidTypes.Contains("{EFBA0AD7-5A72-4C68-AF49-83D382785DCF}"))
+				projectDefinition.TargetFrameworks.Add("xamarin.android");
+
+			if (guidTypes.Contains("{6BC8ED88-2882-458C-8E55-DFD12B67127B}"))
+				projectDefinition.TargetFrameworks.Add("xamarin.ios");
+
+			if (guidTypes.Contains("{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A}"))
+				projectDefinition.TargetFrameworks.Add("uap");
+#endif
+
+			if (guidTypes.Contains("{60DC8134-EBA5-43B8-BCC9-BB4BC16C2548}"))
+				projectDefinition.IsWindowsPresentationFoundationProject = true;
 		}
 
 		private FileInfo FindPackagesConfigFile(FileInfo projectFile, IProgress<string> progress)
@@ -88,25 +131,26 @@ namespace Project2015To2017.Reading
 			}
 		}
 
-		private IReadOnlyList<PackageReference> LoadPackageReferences(XDocument projectXml, FileInfo packagesConfig, IProgress<string> progress)
+		private IReadOnlyList<PackageReference> LoadPackageReferences(XDocument projectXml, FileInfo packagesConfig,
+			IProgress<string> progress)
 		{
 			try
 			{
 				var existingPackageReferences = projectXml.Root.Elements(XmlNamespace + "ItemGroup")
-															   .Elements(XmlNamespace + "PackageReference")
-															   .Select(x => new PackageReference
-																{
-																	Id = x.Attribute("Include").Value,
-																	Version = x.Attribute("Version")?.Value ?? x.Element(XmlNamespace + "Version").Value,
-																	IsDevelopmentDependency = x.Element(XmlNamespace + "PrivateAssets") != null
-																});
+					.Elements(XmlNamespace + "PackageReference")
+					.Select(x => new PackageReference
+					{
+						Id = x.Attribute("Include").Value,
+						Version = x.Attribute("Version")?.Value ?? x.Element(XmlNamespace + "Version").Value,
+						IsDevelopmentDependency = x.Element(XmlNamespace + "PrivateAssets") != null
+					});
 
 				var packageConfigPackages = ExtractReferencesFromPackagesConfig(packagesConfig);
 
 
 				var packageReferences = packageConfigPackages
-										.Concat(existingPackageReferences)
-										.ToList();
+					.Concat(existingPackageReferences)
+					.ToList();
 
 				foreach (var reference in packageReferences)
 				{
@@ -150,15 +194,15 @@ namespace Project2015To2017.Reading
 		private IReadOnlyList<ProjectReference> LoadProjectReferences(XDocument projectXml, IProgress<string> progress)
 		{
 			var projectReferences = projectXml
-									.Element(XmlNamespace + "Project")
-									.Elements(XmlNamespace + "ItemGroup")
-									.Elements(XmlNamespace + "ProjectReference")
-									.Select(x => new ProjectReference
-									{
-										Include = x.Attribute("Include").Value,
-										Aliases = x.Element(XmlNamespace + "Aliases")?.Value
-									})
-									.ToList();
+				.Element(XmlNamespace + "Project")
+				.Elements(XmlNamespace + "ItemGroup")
+				.Elements(XmlNamespace + "ProjectReference")
+				.Select(x => new ProjectReference
+				{
+					Include = x.Attribute("Include").Value,
+					Aliases = x.Element(XmlNamespace + "Aliases")?.Value
+				})
+				.ToList();
 
 			return projectReferences;
 		}
@@ -168,11 +212,11 @@ namespace Project2015To2017.Reading
 			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
 
 			return projectXml
-						.Element(nsSys + "Project")
-						?.Elements(nsSys + "ItemGroup")
-						.Elements(nsSys + "Reference")
-						.Select(FormatAssemblyReference)
-						.ToList();
+				.Element(nsSys + "Project")
+				?.Elements(nsSys + "ItemGroup")
+				.Elements(nsSys + "Reference")
+				.Select(FormatAssemblyReference)
+				.ToList();
 
 			AssemblyReference FormatAssemblyReference(XElement referenceElement)
 			{
@@ -186,7 +230,8 @@ namespace Project2015To2017.Reading
 
 				var embedInteropTypes = GetElementValue(referenceElement, "EmbedInteropTypes");
 
-				var output = new AssemblyReference {
+				var output = new AssemblyReference
+				{
 					Include = include,
 					EmbedInteropTypes = embedInteropTypes,
 					HintPath = hintPath,
@@ -204,14 +249,14 @@ namespace Project2015To2017.Reading
 
 			return element?.Value;
 		}
+
 		private static List<XElement> LoadFileIncludes(XDocument projectXml)
 		{
 			var items = projectXml
-								?.Element(XmlNamespace + "Project")
-								?.Elements(XmlNamespace + "ItemGroup")
-								.ToList()
-
-			                 ?? new List<XElement>();
+				            ?.Element(XmlNamespace + "Project")
+				            ?.Elements(XmlNamespace + "ItemGroup")
+				            .ToList()
+			            ?? new List<XElement>();
 
 			return items;
 		}
