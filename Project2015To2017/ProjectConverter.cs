@@ -26,7 +26,8 @@ namespace Project2015To2017
 				new RemovePackageImportsTransformation(),
 				new FileTransformation(),
 				new NugetPackageTransformation(),
-				new AssemblyAttributeTransformation(conversionOptions.KeepAssemblyInfo)
+				new AssemblyAttributeTransformation(conversionOptions.KeepAssemblyInfo),
+				new XamlPagesTransformation()
 			};
 		}
 

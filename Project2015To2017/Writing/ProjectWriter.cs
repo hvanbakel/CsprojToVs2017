@@ -9,6 +9,7 @@ namespace Project2015To2017.Writing
 {
 	public class ProjectWriter
 	{
+		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/1.6.41";
 		private readonly Action<FileSystemInfo> deleteFileOperation;
 		private readonly Action<FileSystemInfo> checkoutOperation;
 
@@ -165,7 +166,10 @@ namespace Project2015To2017.Writing
 		{
 			var outputFile = project.FilePath;
 
-			var projectNode = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"));
+			var netSdk = "Microsoft.NET.Sdk";
+			if (project.IsWindowsFormsProject || project.IsWindowsPresentationFoundationProject)
+				netSdk = SdkExtrasVersion;
+			var projectNode = new XElement("Project", new XAttribute("Sdk", netSdk));
 
 			projectNode.Add(GetMainPropertyGroup(project, outputFile));
 
@@ -337,6 +341,11 @@ namespace Project2015To2017.Writing
 			AddIfNotNull(mainPropertyGroup, "DelaySign", project.DelaySign.HasValue ? (project.DelaySign.Value ? "true" : "false") : null);
 			AddIfNotNull(mainPropertyGroup, "AssemblyOriginatorKeyFile", project.AssemblyOriginatorKeyFile);
 			AddIfNotNull(mainPropertyGroup, "AppendTargetFrameworkToOutputPath", project.AppendTargetFrameworkToOutputPath ? null : "false");
+
+			AddIfNotNull(mainPropertyGroup, "ExtrasEnableWpfProjectSetup",
+				project.IsWindowsPresentationFoundationProject ? "true" : null);
+			AddIfNotNull(mainPropertyGroup, "ExtrasEnableWinFormsProjectSetup",
+				project.IsWindowsFormsProject ? "true" : null);
 
 			switch (project.Type)
 			{
