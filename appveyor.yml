@@ -21,7 +21,7 @@ after_build:
 - cmd: dotnet build /p:Pack=true -c Release ./Project2015To2017.Console/Project2015To2017.Console.csproj
 
 artifacts:
-  - path: ./Project2015To2017.Console/bin/$(configuration)/Project2015To2017.Cli.*.nupkg
+  - path: ./Project2015To2017.Console/bin/$(configuration)/Project2015To2017.Cli.**.nupkg
     name: global-tool
   - path: ./Project2015To2017/out/CSProj2015To2017.zip
     name: out-zip
