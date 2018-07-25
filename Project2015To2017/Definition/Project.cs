@@ -37,6 +37,8 @@ namespace Project2015To2017.Definition
 		public FileInfo FilePath { get; set; }
 		public DirectoryInfo ProjectFolder => FilePath.Directory;
 
+		public bool HasMultipleAssemblyInfoFiles { get; set; }
+
 		/// <summary>
 		/// Files or folders that should be deleted as part of the conversion
 		/// </summary>
@@ -68,7 +70,7 @@ namespace Project2015To2017.Definition
 					return this.Solution.NugetPackagesPath;
 				}
 
-				var path = Path.GetFullPath(Path.Combine(projectFolder, @"..\packages"));
+				var path = Path.GetFullPath(Path.Combine(projectFolder, "..", "packages"));
 
 				return new DirectoryInfo(path);
 			}
