@@ -275,5 +275,28 @@ namespace Project2015To2017Tests
 
 			CollectionAssert.DoesNotContain(project.Deletions.ToList(), assemblyInfoFile);
 		}
+
+		[TestMethod]
+		public void GenerateAssemblyInfoFromMultipleFilesTest()
+		{
+			var project = new Project
+			{
+				AssemblyAttributes = null,
+				HasMultipleAssemblyInfoFiles = true,
+				FilePath = new FileInfo("test.cs"),
+				Deletions = new List<FileSystemInfo>()
+			};
+
+			var transform = new AssemblyAttributeTransformation();
+
+			transform.Transform(project, new Progress<string>());
+
+			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
+			Assert.IsNotNull(generateAssemblyInfo);
+			Assert.AreEqual("GenerateAssemblyInfo", generateAssemblyInfo.Name);
+			Assert.AreEqual("false", generateAssemblyInfo.Value);
+
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
+		}
 	}
 }

@@ -108,7 +108,7 @@ namespace Project2015To2017.Writing
 
 			progress.Report($"Backing up to {backupFolder.FullName}");
 
-			projectFile.CopyTo(Path.Combine(backupFolder.FullName,  $"{projectFile.Name}.old"));
+			projectFile.CopyTo(Path.Combine(backupFolder.FullName, $"{projectFile.Name}.old"));
 
 			var packagesFile = project.PackagesConfigFile;
 			packagesFile?.CopyTo(Path.Combine(backupFolder.FullName, $"{packagesFile.Name}.old"));
@@ -149,8 +149,8 @@ namespace Project2015To2017.Writing
 				var MaxIndex = 100;
 
 				var foundBackupDir = Enumerable.Range(1, MaxIndex)
-											   .Select(x => Path.Combine(baseDir, $"Backup{x}"))
-											   .FirstOrDefault(x => !Directory.Exists(x));
+					.Select(x => Path.Combine(baseDir, $"Backup{x}"))
+					.FirstOrDefault(x => !Directory.Exists(x));
 
 				if (foundBackupDir == null)
 				{
@@ -206,7 +206,7 @@ namespace Project2015To2017.Writing
 				foreach (var projectReference in project.ProjectReferences)
 				{
 					var projectReferenceElement = new XElement("ProjectReference",
-							new XAttribute("Include", projectReference.Include));
+						new XAttribute("Include", projectReference.Include));
 
 					if (!string.IsNullOrWhiteSpace(projectReference.Aliases) && projectReference.Aliases != "global")
 					{
@@ -224,7 +224,8 @@ namespace Project2015To2017.Writing
 				var nugetReferences = new XElement("ItemGroup");
 				foreach (var packageReference in project.PackageReferences)
 				{
-					var reference = new XElement("PackageReference", new XAttribute("Include", packageReference.Id), new XAttribute("Version", packageReference.Version));
+					var reference = new XElement("PackageReference", new XAttribute("Include", packageReference.Id),
+						new XAttribute("Version", packageReference.Version));
 					if (packageReference.IsDevelopmentDependency)
 					{
 						reference.Add(new XElement("PrivateAssets", "all"));
@@ -273,14 +274,17 @@ namespace Project2015To2017.Writing
 			{
 				output.Add(new XElement("HintPath", assemblyReference.HintPath));
 			}
+
 			if (assemblyReference.Private != null)
 			{
 				output.Add(new XElement("Private", assemblyReference.Private));
 			}
+
 			if (assemblyReference.SpecificVersion != null)
 			{
 				output.Add(new XElement("SpecificVersion", assemblyReference.SpecificVersion));
 			}
+
 			if (assemblyReference.EmbedInteropTypes != null)
 			{
 				output.Add(new XElement("EmbedInteropTypes", assemblyReference.EmbedInteropTypes));
@@ -292,12 +296,13 @@ namespace Project2015To2017.Writing
 		private static XElement RemoveAllNamespaces(XElement e)
 		{
 			return new XElement(e.Name.LocalName,
-			  (from n in e.Nodes()
-			   select ((n is XElement) ? RemoveAllNamespaces((XElement)n) : n)),
-				  (e.HasAttributes) ?
-					(from a in e.Attributes()
-					 where (!a.IsNamespaceDeclaration)
-					 select new XAttribute(a.Name.LocalName, a.Value)) : null);
+				(from n in e.Nodes()
+					select ((n is XElement) ? RemoveAllNamespaces((XElement) n) : n)),
+				(e.HasAttributes)
+					? (from a in e.Attributes()
+						where (!a.IsNamespaceDeclaration)
+						select new XAttribute(a.Name.LocalName, a.Value))
+					: null);
 		}
 
 		private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
@@ -403,15 +408,15 @@ namespace Project2015To2017.Writing
 		private void DeleteUnusedFiles(Project project, IProgress<string> progress)
 		{
 			var filesToDelete = new[]
-			{
-				project.PackageConfiguration?.NuspecFile,
-				project.PackagesConfigFile
-			}.Where(x => x != null)
-			.Concat(project.Deletions);
+				{
+					project.PackageConfiguration?.NuspecFile,
+					project.PackagesConfigFile
+				}.Where(x => x != null)
+				.Concat(project.Deletions);
 
 			foreach (var fileInfo in filesToDelete)
 			{
-				if(fileInfo is DirectoryInfo directory && directory.EnumerateFileSystemInfos().Any())
+				if (fileInfo is DirectoryInfo directory && directory.EnumerateFileSystemInfos().Any())
 				{
 					progress.Report($"Directory {fileInfo.FullName} is not empty so will not delete");
 					continue;
@@ -420,6 +425,5 @@ namespace Project2015To2017.Writing
 				this.deleteFileOperation(fileInfo);
 			}
 		}
-
 	}
 }
