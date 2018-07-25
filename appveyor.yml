@@ -15,7 +15,7 @@ build:
 before_test:
 - cmd: Dotnet test "Project2015To2017Tests\Project2015To2017Tests.csproj"
 after_build:
-- cmd: dotnet pack -c Release ./Project2015To2017.Console/Project2015To2017.Console.csproj
+- cmd: dotnet build /p:Pack=true -c Release ./Project2015To2017.Console/Project2015To2017.Console.csproj
 - cmd: dotnet publish -f netcoreapp2.1 -c Release -o ./out/netcoreapp2.1 ./Project2015To2017.Console/Project2015To2017.Console.csproj
 - cmd: dotnet publish -f net461 -c Release -o ./out/net461 ./Project2015To2017.Console/Project2015To2017.Console.csproj
 - cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.zip ./Project2015To2017.Console/out/*
