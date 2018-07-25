@@ -8,6 +8,16 @@ namespace Project2015To2017.Transforms
 {
 	public class AssemblyAttributeTransformation : ITransformation
 	{
+		public AssemblyAttributeTransformation() : this(false)
+		{
+		}
+		public AssemblyAttributeTransformation(bool keepAssemblyInfoFile)
+		{
+			KeepAssemblyInfoFile = keepAssemblyInfoFile;
+		}
+
+		public bool KeepAssemblyInfoFile { get; }
+
 		public void Transform(Project definition, IProgress<string> progress)
 		{
 			if (definition.AssemblyAttributes == null)
@@ -15,9 +25,17 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			definition.AssemblyAttributeProperties = definition.AssemblyAttributeProperties
-				.Concat(AssemblyAttributeNodes(definition.AssemblyAttributes, definition.PackageConfiguration, progress))
-				.ToArray();
+			if (!KeepAssemblyInfoFile)
+			{
+				definition.AssemblyAttributeProperties = definition.AssemblyAttributeProperties
+					.Concat(AssemblyAttributeNodes(definition.AssemblyAttributes, definition.PackageConfiguration, progress))
+					.ToArray();
+			}
+			else
+			{
+				progress.Report("Keep AssemblyInfo");
+				definition.AssemblyAttributeProperties = new[] { new XElement("GenerateAssemblyInfo", "false") };
+			}
 
 			if (definition.AssemblyAttributes.File != null && PointlessAssemblyInfo(definition.AssemblyAttributes))
 			{

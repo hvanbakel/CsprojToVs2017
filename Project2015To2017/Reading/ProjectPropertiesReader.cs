@@ -21,8 +21,6 @@ namespace Project2015To2017.Reading
 			}
 			else
 			{
-				var targetFramework = unconditionalPropertyGroups.Elements(XmlNamespace + "TargetFrameworkVersion").FirstOrDefault()?.Value;
-
 				project.Optimize = "true".Equals(unconditionalPropertyGroups.Elements(XmlNamespace + "Optimize").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
 				project.TreatWarningsAsErrors = "true".Equals(unconditionalPropertyGroups.Elements(XmlNamespace + "TreatWarningsAsErrors").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
 				project.AllowUnsafeBlocks = "true".Equals(unconditionalPropertyGroups.Elements(XmlNamespace + "AllowUnsafeBlocks").FirstOrDefault()?.Value, StringComparison.OrdinalIgnoreCase);
@@ -47,9 +45,11 @@ namespace Project2015To2017.Reading
 						propertyGroups.Elements(XmlNamespace + "OutputType").FirstOrDefault()?.Value);
 				}
 
-				if (targetFramework != null)
+				var targetFramework = unconditionalPropertyGroups.Elements(XmlNamespace + "TargetFrameworkVersion").FirstOrDefault();
+				if (targetFramework?.Value != null)
 				{
-					project.TargetFrameworks = new[] { ToTargetFramework(targetFramework) };
+					project.TargetFrameworks = new[] { ToTargetFramework(targetFramework.Value) };
+					targetFramework.Remove();
 				}
 			}
 

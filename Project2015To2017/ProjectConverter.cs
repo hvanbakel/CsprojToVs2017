@@ -13,16 +13,22 @@ namespace Project2015To2017
 {
 	public class ProjectConverter
 	{
-		private static readonly IReadOnlyList<ITransformation> _transformationsToApply = new ITransformation[]
+		private static IReadOnlyList<ITransformation> TransformationsToApply(ConversionOptions conversionOptions)
 		{
-			new PackageReferenceTransformation(),
-			new AssemblyReferenceTransformation(),
-			new RemovePackageAssemblyReferencesTransformation(),
-			new RemovePackageImportsTransformation(),
-			new FileTransformation(),
-			new NugetPackageTransformation(),
-			new AssemblyAttributeTransformation()
-		};
+			return new ITransformation[]
+			{
+				new TargetFrameworkTransformation(
+					conversionOptions.TargetFrameworks,
+					conversionOptions.AppendTargetFrameworkToOutputPath),
+				new PackageReferenceTransformation(),
+				new AssemblyReferenceTransformation(),
+				new RemovePackageAssemblyReferencesTransformation(),
+				new RemovePackageImportsTransformation(),
+				new FileTransformation(),
+				new NugetPackageTransformation(),
+				new AssemblyAttributeTransformation(conversionOptions.KeepAssemblyInfo)
+			};
+		}
 
 		public static IEnumerable<Definition.Project> Convert(
 			string target,
@@ -32,11 +38,30 @@ namespace Project2015To2017
 		}
 
 		public static IEnumerable<Definition.Project> Convert(
-				string target,
-				IReadOnlyList<ITransformation> preTransforms,
-				IReadOnlyList<ITransformation> postTransforms,
-				IProgress<string> progress
-			)
+			string target,
+			ConversionOptions conversionOptions,
+			IProgress<string> progress)
+		{
+			return Convert(target, conversionOptions, new List<ITransformation>(), new List<ITransformation>(), progress);
+		}
+
+		public static IEnumerable<Definition.Project> Convert(
+			string target,
+			IReadOnlyList<ITransformation> preTransforms,
+			IReadOnlyList<ITransformation> postTransforms,
+			IProgress<string> progress
+		)
+		{
+			return Convert(target, new ConversionOptions(), preTransforms, postTransforms, progress);
+		}
+
+		public static IEnumerable<Definition.Project> Convert(
+			string target,
+			ConversionOptions conversionOptions,
+			IReadOnlyList<ITransformation> preTransforms,
+			IReadOnlyList<ITransformation> postTransforms,
+			IProgress<string> progress
+		)
 		{
 			if (Path.GetExtension(target).Equals(".sln", StringComparison.OrdinalIgnoreCase))
 			{
@@ -59,7 +84,7 @@ namespace Project2015To2017
 						}
 						else
 						{
-							yield return ProcessFile(fullPath, solution, preTransforms, postTransforms, progress);
+							yield return ProcessFile(fullPath, solution, conversionOptions, preTransforms, postTransforms, progress);
 						}
 
 					}
@@ -81,19 +106,20 @@ namespace Project2015To2017
 				progress.Report(string.Join(Environment.NewLine, projectFiles));
 				foreach (var projectFile in projectFiles)
 				{
-					yield return ProcessFile(projectFile, null, preTransforms, postTransforms, progress);
+					yield return ProcessFile(projectFile, null, conversionOptions, preTransforms, postTransforms, progress);
 				}
 
 				yield break;
 			}
 
 			// Process only the given project file
-			yield return ProcessFile(target, null, preTransforms, postTransforms, progress);
+			yield return ProcessFile(target, null, conversionOptions, preTransforms, postTransforms, progress);
 		}
 
 		private static Definition.Project ProcessFile(
 				string filePath,
 				Solution solution,
+				ConversionOptions conversionOptions,
 				IReadOnlyList<ITransformation> preTransforms,
 				IReadOnlyList<ITransformation> postTransforms,
 				IProgress<string> progress
@@ -118,7 +144,7 @@ namespace Project2015To2017
 				transform.Transform(project, progress);
 			}
 
-			foreach (var transform in _transformationsToApply)
+			foreach (var transform in TransformationsToApply(conversionOptions))
 			{
 				transform.Transform(project, progress);
 			}

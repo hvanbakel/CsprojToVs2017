@@ -51,6 +51,28 @@ namespace Project2015To2017Tests
 		}
 
 		[TestMethod]
+		public void GenerateAssemblyInfoOption()
+		{
+			var project = new Project
+			{
+				AssemblyAttributes = BaseAssemblyAttributes(),
+				FilePath = new FileInfo("test.cs"),
+				Deletions = new List<FileSystemInfo>()
+			};
+
+			var transform = new AssemblyAttributeTransformation(true);
+			
+			transform.Transform(project, new Progress<string>());
+
+			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
+			Assert.IsNotNull(generateAssemblyInfo);
+			Assert.AreEqual("GenerateAssemblyInfo", generateAssemblyInfo.Name);
+			Assert.AreEqual("false", generateAssemblyInfo.Value);
+
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
+		}
+
+		[TestMethod]
 		public void MovesAttributesToCsProj()
 		{
 			var project = new Project

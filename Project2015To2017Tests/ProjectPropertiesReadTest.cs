@@ -465,7 +465,7 @@ namespace Project2015To2017Tests
 			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual(1, project.AdditionalPropertyGroups.Count);
-			Assert.AreEqual(36, project.AdditionalPropertyGroups[0].Elements().Count());
+			Assert.AreEqual(35, project.AdditionalPropertyGroups[0].Elements().Count());
 		}
 
 		[TestMethod]
