@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
@@ -13,22 +12,26 @@ namespace Project2015To2017.Transforms
 		}
 		public TargetFrameworkTransformation(IReadOnlyList<string> targetFrameworks, bool appendTargetFrameworkToOutputPath)
 		{
-			TargetFrameworks = targetFrameworks;
-			AppendTargetFrameworkToOutputPath = appendTargetFrameworkToOutputPath;
+			this.TargetFrameworks = targetFrameworks;
+			this.AppendTargetFrameworkToOutputPath = appendTargetFrameworkToOutputPath;
 		}
 
 		public void Transform(Project definition, IProgress<string> progress)
 		{
 			if (null == definition)
+			{
 				return;
-			if (null != TargetFrameworks && TargetFrameworks.Any())
+			}
+
+			if (this.TargetFrameworks != null && this.TargetFrameworks.Count > 0)
 			{
 				definition.TargetFrameworks.Clear();
-				foreach (var targetFramework in TargetFrameworks)
+				foreach (var targetFramework in this.TargetFrameworks)
 				{
 					definition.TargetFrameworks.Add(targetFramework);
 				}
 			}
+
 			definition.AppendTargetFrameworkToOutputPath = AppendTargetFrameworkToOutputPath;
 		}
 

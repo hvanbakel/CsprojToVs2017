@@ -19,8 +19,7 @@ namespace Project2015To2017.Reading
 			var unconditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") == null).ToArray();
 			if (unconditionalPropertyGroups.Length == 0)
 			{
-				throw new NotSupportedException(
-					"No unconditional property group found. Cannot determine important properties like target framework and others.");
+				throw new NotSupportedException("No unconditional property group found. Cannot determine important properties like target framework and others.");
 			}
 
 			project.Optimize =
@@ -44,10 +43,11 @@ namespace Project2015To2017.Reading
 				"true".Equals(
 					unconditionalPropertyGroups.Elements(XmlNamespace + "SignAssembly").FirstOrDefault()?.Value,
 					StringComparison.OrdinalIgnoreCase);
-			if (bool.TryParse(
-				unconditionalPropertyGroups.Elements(XmlNamespace + "DelaySign").FirstOrDefault()?.Value,
-				out bool delaySign))
+			if (bool.TryParse(unconditionalPropertyGroups.Elements(XmlNamespace + "DelaySign").FirstOrDefault()?.Value, out bool delaySign))
+			{
 				project.DelaySign = delaySign;
+			}
+
 			project.AssemblyOriginatorKeyFile = unconditionalPropertyGroups
 				.Elements(XmlNamespace + "AssemblyOriginatorKeyFile").FirstOrDefault()?.Value;
 
@@ -101,19 +101,23 @@ namespace Project2015To2017.Reading
 			var configurationsFromProperty = ParseFromProperty("Configurations");
 			var platformsFromProperty = ParseFromProperty("Platforms");
 
-			if (configurationsFromProperty != null)
+			var needConfigurations = configurationsFromProperty == null;
+			if (!needConfigurations)
 			{
 				foreach (var configuration in configurationsFromProperty)
+				{
 					configurationSet.Add(configuration);
+				}
 			}
 
-			if (platformsFromProperty != null)
+			var needPlatforms = platformsFromProperty == null;
+			if (!needPlatforms)
 			{
 				foreach (var platform in platformsFromProperty)
+				{
 					platformSet.Add(platform);
+				}
 			}
-
-			var (needConfigurations, needPlatforms) = (configurationsFromProperty == null, platformsFromProperty == null);
 
 			if (needConfigurations || needPlatforms)
 			{
@@ -130,13 +134,17 @@ namespace Project2015To2017.Reading
 					if (needConfigurations && conditionEvaluated.TryGetValue("Configuration", out var configurations))
 					{
 						foreach (var configuration in configurations)
+						{
 							configurationSet.Add(configuration);
+						}
 					}
 
 					if (needPlatforms && conditionEvaluated.TryGetValue("Platform", out var platforms))
 					{
 						foreach (var platform in platforms)
+						{
 							platformSet.Add(platform);
+						}
 					}
 				}
 			}
@@ -148,9 +156,9 @@ namespace Project2015To2017.Reading
 			return (configurationList, platformList);
 
 			string[] ParseFromProperty(string name) => unconditionalPropertyGroups.Elements(XmlNamespace + name)
-				.FirstOrDefault()
-				?.Value
-				.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+					.FirstOrDefault()
+					?.Value
+					.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		private static List<XElement> ReadAdditionalPropertyGroups(Project project, XElement[] propertyGroups)
@@ -186,10 +194,8 @@ namespace Project2015To2017.Reading
 					var parentCondition = propertyGroup.Attribute("Condition")?.Value.Trim() ?? "";
 					var hasParentCondition = parentCondition.Length > 1; // no sane condition is 1 char long
 					var parentConditionEvaluated = ConditionEvaluator.GetNonAmbiguousConditionContracts(parentCondition);
-					var parentConditionHasPlatform =
-						parentConditionEvaluated.TryGetValue("Platform", out var parentConditionPlatform);
-					var parentConditionHasConfiguration =
-						parentConditionEvaluated.TryGetValue("Configuration", out var parentConditionConfiguration);
+					var parentConditionHasPlatform = parentConditionEvaluated.TryGetValue("Platform", out var parentConditionPlatform);
+					var parentConditionHasConfiguration = parentConditionEvaluated.TryGetValue("Configuration", out var parentConditionConfiguration);
 					var parentConditionPlatformLower = parentConditionPlatform?.ToLowerInvariant();
 					var parentConditionConfigurationLower = parentConditionConfiguration?.ToLowerInvariant();
 					var isDebugOnly = parentConditionHasConfiguration && parentConditionConfigurationLower == "debug";
@@ -307,7 +313,10 @@ namespace Project2015To2017.Reading
 					bool ValidateEmptyConditionValue(XAttribute condition)
 					{
 						if (condition == null)
+						{
 							return true;
+						}
+
 						var value = condition.Value;
 						return (value.Count(x => x == '=') == 2) && value.Contains("''");
 					}
@@ -317,8 +326,13 @@ namespace Project2015To2017.Reading
 						var defines = value.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
 						var set = new HashSet<string>(defines);
 						foreach (var expecto in expected)
+						{
 							if (!set.Remove(expecto))
+							{
 								return false;
+							}
+						}
+
 						return set.Count == 0;
 					}
 				}
@@ -326,7 +340,9 @@ namespace Project2015To2017.Reading
 
 			// we cannot remove elements correctly while iterating through elements, 2nd pass is needed
 			foreach (var child in removeQueue)
+			{
 				child.Remove();
+			}
 		}
 
 		/// <summary>
@@ -340,12 +356,16 @@ namespace Project2015To2017.Reading
 			foreach (var propertyGroup in additionalPropertyGroups)
 			{
 				if (!HasEmptyCondition(propertyGroup))
+				{
 					continue;
+				}
 
 				foreach (var child in propertyGroup.Elements())
 				{
 					if (!HasEmptyCondition(child))
+					{
 						continue;
+					}
 
 					globalOverrides[child.Name.LocalName] = child.Value.Trim();
 				}
@@ -357,7 +377,9 @@ namespace Project2015To2017.Reading
 			{
 				var conditionAttribute = element.Attribute("Condition");
 				if (conditionAttribute == null)
+				{
 					return true;
+				}
 
 				var condition = conditionAttribute.Value.Trim() ?? "";
 
