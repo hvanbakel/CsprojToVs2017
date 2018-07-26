@@ -16,15 +16,27 @@ There are a number of things [that VS2017 handles differently](http://www.natemc
 5. Defining the NuGet package definition as part of the project file
 
 ## How it works
+### As a Net Core Global Tool
+Assuming you have net core 2.1 installed you can run this on the command line:
+`dotnet tool install Project2015To2017.Cli --global`
+This will install the tool for you to use it anywhere you would like. You can then call 
+
+### As a normal file download
 Using the tool is simple, it is a simple command line utility that has a single argument being the project file, solution file or folder you would like to convert.
 When you give it a directory path, the tool will discover all csproj files nested in it.
 
-For example
-`Project2015To2017.Console.exe "D:\Path\To\My\TestProject.csproj"`
+### Examples
+Below examples are for the global tool, for the normal file just replace `csproj-to-2017` with your executable.
+
+`csproj-to-2017 "D:\Path\To\My\TestProject.csproj"`
+
 Or
-`Project2015To2017.Console.exe "D:\Path\To\My\TestProject.sln"`
+
+`csproj-to-2017 "D:\Path\To\My\TestProject.sln"`
+
 Or
-`Project2015To2017.Console.exe "D:\Path\To\My\Directory"`
+
+`csproj-to-2017 "D:\Path\To\My\Directory"`
 
 After confirming this is an old style project file, it will start performing the conversion. When it has gathered all the data it needs it first creates a backup of the old files and puts them into a backup folder and then generates a new project file in the new format.
 
