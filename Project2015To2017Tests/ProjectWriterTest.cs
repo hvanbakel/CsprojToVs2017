@@ -43,7 +43,7 @@ namespace Project2015To2017Tests
 			});
 			writer.Write(project, false, progress);
 		}
-		
+
 
 		[TestMethod]
 		public async Task WritesDistinctConfigurations()
@@ -125,15 +125,15 @@ namespace Project2015To2017Tests
 
 			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
-			Assert.AreEqual(4, project.Configurations.Count);
-			Assert.AreEqual(2, project.Configurations.Count(x => x == "Debug"));
-			Assert.AreEqual(2, project.Configurations.Count(x => x == "Release"));
+			Assert.AreEqual(2, project.Configurations.Count);
+			Assert.AreEqual(1, project.Configurations.Count(x => x == "Debug"));
+			Assert.AreEqual(1, project.Configurations.Count(x => x == "Release"));
 
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(project);
 
 			var generatedConfigurations = xmlNode.Element("PropertyGroup").Element("Configurations");
-			Assert.AreEqual("Debug;Release", generatedConfigurations.Value);
+			Assert.IsNull(generatedConfigurations);
 		}
 
 		[TestMethod]
@@ -383,7 +383,7 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter(_ => { }, _ => { });
 
 			var xmlNode = writer.CreateXml(project);
-			
+
 			Assert.IsNull(xmlNode.Element("ItemGroup"));
 		}
 

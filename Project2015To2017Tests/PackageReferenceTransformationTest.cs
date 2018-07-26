@@ -1,9 +1,6 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
@@ -19,8 +16,8 @@ namespace Project2015To2017Tests
 	        var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
 
 	        project.Type = ApplicationType.TestProject;
-	        project.TargetFrameworks = new[] { "net45" };
-			
+	        project.TargetFrameworks.Add("net45");
+
             var transformation = new PackageReferenceTransformation();
 
 	        var progress = new Progress<string>(x => { });
@@ -39,8 +36,8 @@ namespace Project2015To2017Tests
 	        var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
 
 	        project.Type = ApplicationType.TestProject;
-	        project.TargetFrameworks = new[] { "netstandard2.0" };
-			
+	        project.TargetFrameworks.Add("netstandard2.0");
+
 			var transformation = new PackageReferenceTransformation();
 
 	        var progress = new Progress<string>(x => { });
@@ -61,7 +58,7 @@ namespace Project2015To2017Tests
 			var project = new ProjectReader()
 								.Read(@"TestFiles\\OtherTestProjects\\containsTestSDK.testcsproj");
 
-	        project.TargetFrameworks = new[] { "net45" };
+	        project.TargetFrameworks.Add("net45");
 
 	        var progress = new Progress<string>(x => { });
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -331,7 +332,18 @@ namespace Project2015To2017.Writing
 
 			AddTargetFrameworks(mainPropertyGroup, project.TargetFrameworks);
 
-			AddIfNotNull(mainPropertyGroup, "Configurations", string.Join(";", project.Configurations?.Distinct() ?? Array.Empty<string>()));
+			var configurations = project.Configurations ?? Array.Empty<string>();
+			if (configurations.Count != 0)
+				// ignore default "Debug;Release" configuration set
+				if (configurations.Count != 2 || !configurations.Contains("Debug") || !configurations.Contains("Release"))
+					AddIfNotNull(mainPropertyGroup, "Configurations", string.Join(";", configurations));
+
+			var platforms = project.Platforms ?? Array.Empty<string>();
+			if (platforms.Count != 0)
+				// ignore default "AnyCPU" platform set
+				if (platforms.Count != 1 || !platforms.Contains("AnyCPU"))
+					AddIfNotNull(mainPropertyGroup, "Platforms", string.Join(";", platforms));
+
 			AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : null);
 			AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : null);
 			AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.RootNamespace : null);
@@ -398,13 +410,14 @@ namespace Project2015To2017.Writing
 			}
 		}
 
-		private void AddTargetFrameworks(XElement mainPropertyGroup, IReadOnlyList<string> targetFrameworks)
+		private void AddTargetFrameworks(XElement mainPropertyGroup, IList<string> targetFrameworks)
 		{
-			if (targetFrameworks == null)
+			if (targetFrameworks == null || targetFrameworks.Count == 0)
 			{
 				return;
 			}
-			else if (targetFrameworks.Count > 1)
+
+			if (targetFrameworks.Count > 1)
 			{
 				AddIfNotNull(mainPropertyGroup, "TargetFrameworks", string.Join(";", targetFrameworks));
 			}

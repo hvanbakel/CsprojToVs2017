@@ -1,11 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <RootNamespace>Project2015To2017</RootNamespace>
     <AssemblyName>Project2015To2017</AssemblyName>
+	<Authors>hvanbakel et. al.</Authors>
+	<Product>Project2015To2017</Product>
+	<PackageProjectUrl>https://github.com/hvanbakel/CsprojToVs2017</PackageProjectUrl>
+	<PackageLicenseUrl>https://github.com/hvanbakel/CsprojToVs2017/blob/master/LICENSE</PackageLicenseUrl>
+	<RepositoryUrl>https://github.com/hvanbakel/CsprojToVs2017</RepositoryUrl>
+	<Copyright>Copyright Hans van Bakel</Copyright>
+	<PackageTags>dotnet csproj conversion vs2015 vs2017</PackageTags>
+	<Description>Tool for converting a csproj file for VS2015 to VS2017 and beyond.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.6.2</Version>
+    <Version>1.7.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
