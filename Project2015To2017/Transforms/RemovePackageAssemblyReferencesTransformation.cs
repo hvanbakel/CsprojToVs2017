@@ -16,7 +16,7 @@ namespace Project2015To2017.Transforms
 
 			var projectPath = definition.ProjectFolder.FullName;
 
-			var nugetRepositoryPath = definition.NugetPackagesPath.FullName;
+			var nugetRepositoryPath = definition.NuGetPackagesPath.FullName;
 
 			var packageReferenceIds = definition.PackageReferences.Select(x => x.Id).ToArray();
 

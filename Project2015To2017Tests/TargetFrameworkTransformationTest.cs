@@ -41,32 +41,31 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void HandlesOptionTargetFrameworksNull()
 		{
-			var project = new Project()
+			var project = new Project
 			{
 				TargetFrameworks = { "net46" }
 			};
-			IReadOnlyList<string> targetFrameworks = null;
-
+			
 			var progress = new Progress<string>(x => { });
 
-			var transformation = new TargetFrameworkTransformation(targetFrameworks);
+			var transformation = new TargetFrameworkTransformation(null);
 			transformation.Transform(project, progress);
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
 			Assert.AreEqual("net46", project.TargetFrameworks[0]);
 		}
+
 		[TestMethod]
 		public void HandlesOptionTargetFrameworksEmpty()
 		{
-			var project = new Project()
+			var project = new Project
 			{
 				TargetFrameworks = { "net46" }
 			};
-			var targetFrameworks = new List<string>();
 
 			var progress = new Progress<string>(x => { });
 
-			var transformation = new TargetFrameworkTransformation(targetFrameworks);
+			var transformation = new TargetFrameworkTransformation(new List<string>());
 			transformation.Transform(project, progress);
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
@@ -76,7 +75,7 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void HandlesOptionTargetFrameworks()
 		{
-			var project = new Project()
+			var project = new Project
 			{
 				TargetFrameworks = { "net46" }
 			};
@@ -94,7 +93,7 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void HandlesOptionTargetFrameworksMulti()
 		{
-			var project = new Project()
+			var project = new Project
 			{
 				TargetFrameworks = { "net46" }
 			};
@@ -114,26 +113,23 @@ namespace Project2015To2017Tests
 		public void HandlesOptionAppendTargetFrameworkToOutputPathTrue()
 		{
 			var project = new Project();
-			IReadOnlyList<string> targetFrameworks = null;
-			var appendTargetFrameworkToOutputPath = true;
 
 			var progress = new Progress<string>(x => { });
 
-			var transformation = new TargetFrameworkTransformation(targetFrameworks, appendTargetFrameworkToOutputPath);
+			var transformation = new TargetFrameworkTransformation(null, true);
 			transformation.Transform(project, progress);
 
 			Assert.AreEqual(true, project.AppendTargetFrameworkToOutputPath);
 		}
+
 		[TestMethod]
 		public void HandlesOptionAppendTargetFrameworkToOutputPathFalse()
 		{
 			var project = new Project();
-			IReadOnlyList<string> targetFrameworks = null;
-			var appendTargetFrameworkToOutputPath = false;
 
 			var progress = new Progress<string>(x => { });
 
-			var transformation = new TargetFrameworkTransformation(targetFrameworks, appendTargetFrameworkToOutputPath);
+			var transformation = new TargetFrameworkTransformation(null, false);
 			transformation.Transform(project, progress);
 
 			Assert.AreEqual(false, project.AppendTargetFrameworkToOutputPath);

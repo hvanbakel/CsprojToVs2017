@@ -1,11 +1,11 @@
+using Project2015To2017.Definition;
+using Project2015To2017.Reading;
+using Project2015To2017.Transforms;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Project2015To2017.Definition;
-using Project2015To2017.Reading;
-using Project2015To2017.Transforms;
 
 [assembly: InternalsVisibleTo("Project2015To2017Tests")]
 
@@ -31,14 +31,14 @@ namespace Project2015To2017
 			};
 		}
 
-		public static IEnumerable<Definition.Project> Convert(
+		public static IEnumerable<Project> Convert(
 			string target,
 			IProgress<string> progress)
 		{
 			return Convert(target, new List<ITransformation>(), new List<ITransformation>(), progress);
 		}
 
-		public static IEnumerable<Definition.Project> Convert(
+		public static IEnumerable<Project> Convert(
 			string target,
 			ConversionOptions conversionOptions,
 			IProgress<string> progress)
@@ -46,7 +46,7 @@ namespace Project2015To2017
 			return Convert(target, conversionOptions, new List<ITransformation>(), new List<ITransformation>(), progress);
 		}
 
-		public static IEnumerable<Definition.Project> Convert(
+		public static IEnumerable<Project> Convert(
 			string target,
 			IReadOnlyList<ITransformation> preTransforms,
 			IReadOnlyList<ITransformation> postTransforms,
@@ -56,7 +56,7 @@ namespace Project2015To2017
 			return Convert(target, new ConversionOptions(), preTransforms, postTransforms, progress);
 		}
 
-		public static IEnumerable<Definition.Project> Convert(
+		public static IEnumerable<Project> Convert(
 			string target,
 			ConversionOptions conversionOptions,
 			IReadOnlyList<ITransformation> preTransforms,
@@ -64,61 +64,99 @@ namespace Project2015To2017
 			IProgress<string> progress
 		)
 		{
-			if (Path.GetExtension(target).Equals(".sln", StringComparison.OrdinalIgnoreCase))
+			var extension = Path.GetExtension(target) ?? throw new ArgumentNullException(nameof(target));
+			if (extension.Length > 0)
 			{
-				progress.Report("Solution parsing started.");
-				var solution = new SolutionReader().Read(target, progress);
-				if (solution == null)
+				extension = extension.ToLowerInvariant();
+				switch (extension)
 				{
-					yield break;
+					case ".sln":
+						foreach (var project in ConvertSolution(target, conversionOptions, preTransforms, postTransforms, progress))
+						{
+							yield return project;
+						}
+						break;
+
+					case ".csproj":
+						var file = new FileInfo(target);
+						yield return ProcessFile(file, null, conversionOptions, preTransforms, postTransforms, progress);
+						break;
+
+					default:
+						progress.Report("Please specify a project or solution file.");
+						break;
 				}
 
-				if (solution.ProjectPaths?.Count > 0)
-				{
-					foreach (var projectPath in solution.ProjectPaths)
-					{
-						progress.Report("Project found: " + projectPath);
-						var fullPath = Path.Combine(solution.SolutionFolder.FullName, projectPath);
-						if (!File.Exists(fullPath))
-						{
-							progress.Report("Project file not found at: " + fullPath);
-						}
-						else
-						{
-							yield return ProcessFile(fullPath, solution, conversionOptions, preTransforms, postTransforms, progress);
-						}
+				yield break;
+			}
 
-					}
+			// Process the only solution in given directory
+			var solutionFiles = Directory.EnumerateFiles(target, "*.sln", SearchOption.TopDirectoryOnly).ToArray();
+			if (solutionFiles.Length == 1)
+			{
+				foreach (var project in ConvertSolution(solutionFiles[0], conversionOptions, preTransforms, postTransforms, progress))
+				{
+					yield return project;
 				}
 
 				yield break;
 			}
 
 			// Process all csprojs found in given directory
-			if (!Path.GetExtension(target).Equals(".csproj", StringComparison.OrdinalIgnoreCase))
+			var projectFiles = Directory.EnumerateFiles(target, "*.csproj", SearchOption.AllDirectories).ToArray();
+			if (projectFiles.Length == 0)
 			{
-				var projectFiles = Directory.EnumerateFiles(target, "*.csproj", SearchOption.AllDirectories).ToArray();
-				if (projectFiles.Length == 0)
-				{
-					progress.Report("Please specify a project file.");
-					yield break;
-				}
-				progress.Report($"Multiple project files found under directory {target}:");
-				progress.Report(string.Join(Environment.NewLine, projectFiles));
-				foreach (var projectFile in projectFiles)
-				{
-					yield return ProcessFile(projectFile, null, conversionOptions, preTransforms, postTransforms, progress);
-				}
-
+				progress.Report("Please specify a project file.");
 				yield break;
 			}
 
-			// Process only the given project file
-			yield return ProcessFile(target, null, conversionOptions, preTransforms, postTransforms, progress);
+			progress.Report($"Multiple project files found under directory {target}:");
+			progress.Report(string.Join(Environment.NewLine, projectFiles));
+			foreach (var projectFile in projectFiles)
+			{
+				// todo: rewrite both directory enumerations to use FileInfo instead of raw strings
+				yield return ProcessFile(new FileInfo(projectFile), null, conversionOptions, preTransforms, postTransforms, progress);
+			}
 		}
 
-		private static Definition.Project ProcessFile(
-				string filePath,
+		private static IEnumerable<Project> ConvertSolution(string target, ConversionOptions conversionOptions,
+			IReadOnlyList<ITransformation> preTransforms, IReadOnlyList<ITransformation> postTransforms, IProgress<string> progress)
+		{
+			progress.Report("Solution parsing started.");
+			var solution = SolutionReader.Instance.Read(target, progress);
+
+			if (solution?.ProjectPaths == null)
+			{
+				yield break;
+			}
+
+			foreach (var projectPath in solution.ProjectPaths)
+			{
+				progress.Report("Project found: " + projectPath.Include);
+				if (!projectPath.ProjectFile.Exists)
+				{
+					progress.Report("Project file not found at: " + projectPath.ProjectFile.FullName);
+				}
+				else
+				{
+					yield return ProcessFile(projectPath.ProjectFile, solution, conversionOptions, preTransforms, postTransforms,
+						progress);
+				}
+			}
+		}
+
+		[Obsolete]
+		private static Project ProcessFile(
+			string filePath,
+			Solution solution,
+			ConversionOptions conversionOptions,
+			IReadOnlyList<ITransformation> preTransforms,
+			IReadOnlyList<ITransformation> postTransforms,
+			IProgress<string> progress
+		) => ProcessFile(new FileInfo(filePath), solution, conversionOptions, preTransforms, postTransforms, progress);
+
+		private static Project ProcessFile(
+				FileInfo file,
 				Solution solution,
 				ConversionOptions conversionOptions,
 				IReadOnlyList<ITransformation> preTransforms,
@@ -126,13 +164,12 @@ namespace Project2015To2017
 				IProgress<string> progress
 			)
 		{
-			var file = new FileInfo(filePath);
 			if (!Validate(file, progress))
 			{
 				return null;
 			}
 
-			var project = new ProjectReader().Read(filePath, progress);
+			var project = new ProjectReader(file, progress).Read();
 			if (project == null)
 			{
 				return null;
@@ -160,13 +197,14 @@ namespace Project2015To2017
 
 		internal static bool Validate(FileInfo file, IProgress<string> progress)
 		{
-			if (!file.Exists)
+			if (file.Exists)
 			{
-				progress.Report($"File {file.FullName} could not be found.");
-				return false;
+				return true;
 			}
 
-			return true;
+			progress.Report($"File {file.FullName} could not be found.");
+			return false;
+
 		}
 	}
 }

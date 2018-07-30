@@ -68,7 +68,7 @@ namespace Project2015To2017Tests
 		{
 			var projFile = @"TestFiles\AltNugetConfig\ProjectFolder\net46console.testcsproj";
 
-			var project = new ProjectReader().Read(projFile);
+			var project = new ProjectReader(projFile).Read();
 
 			var transformation = new RemovePackageAssemblyReferencesTransformation();
 
@@ -87,7 +87,7 @@ namespace Project2015To2017Tests
 		{
 			var projFile = @"TestFiles\AltNugetConfig\ProjectFolder\net46console.testcsproj";
 
-			var project = new ProjectReader().Read(projFile);
+			var project = new ProjectReader(projFile).Read();
 
 			var transformation = new RemovePackageImportsTransformation();
 

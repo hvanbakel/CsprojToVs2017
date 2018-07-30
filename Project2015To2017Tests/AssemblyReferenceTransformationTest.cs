@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 using System.Linq;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
@@ -14,7 +15,7 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void TransformsAssemblyReferences()
 		{
-			var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
+			var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
 			var transformation = new AssemblyReferenceTransformation();
 
 			var progress = new Progress<string>(x => { });

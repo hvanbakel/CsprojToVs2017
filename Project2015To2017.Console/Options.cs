@@ -29,7 +29,7 @@ namespace Project2015To2017.Console
 			{
 				KeepAssemblyInfo = AssemblyInfo,
 				TargetFrameworks = TargetFrameworks?.ToList(),
-				AppendTargetFrameworkToOutputPath = !NoTargetFrameworkToOutputPath
+				AppendTargetFrameworkToOutputPath = !NoTargetFrameworkToOutputPath,
 			};
 	}
 }

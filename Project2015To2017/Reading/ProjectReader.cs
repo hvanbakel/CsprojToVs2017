@@ -1,3 +1,4 @@
+using Project2015To2017.Definition;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -5,79 +6,119 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using Project2015To2017.Definition;
 using static Project2015To2017.Definition.Project;
 
 namespace Project2015To2017.Reading
 {
 	public class ProjectReader
 	{
-		public Project Read(string filePath)
+		public ProjectReader()
 		{
-			return Read(filePath, new Progress<string>(_ => { }));
 		}
 
-		public Project Read(string filePath, IProgress<string> progress)
+		public ProjectReader(FileInfo projectFile, IProgress<string> progress = null)
 		{
+			ProjectPath = projectFile ?? throw new ArgumentNullException(nameof(projectFile));
+			if (progress != null)
+				ProgressReporter = progress;
+		}
+
+		public ProjectReader(string projectFilePath, IProgress<string> progress = null)
+		{
+			ProjectPath = new FileInfo(projectFilePath) ?? throw new ArgumentNullException(nameof(projectFilePath));
+			if (progress != null)
+				ProgressReporter = progress;
+		}
+
+		public static bool EnableCaching;
+
+		public FileInfo ProjectPath { get; set; }
+
+		public IProgress<string> ProgressReporter { get; set; } = new Progress<string>(_ => { });
+
+		[Obsolete]
+		public Project Read(string filePath, IProgress<string> progress = null)
+		{
+			ProjectPath = new FileInfo(filePath);
+			if (progress != null)
+				ProgressReporter = progress;
+
+			return Read();
+		}
+
+		/// <summary>
+		/// Process-lifetime-long cache of loaded projects
+		/// </summary>
+		private static readonly Dictionary<string, Project> _cache = new Dictionary<string, Project>();
+
+		public static void PurgeCache()
+		{
+			_cache.Clear();
+		}
+
+		public Project Read(bool loadModern = false)
+		{
+			var filePath = ProjectPath.FullName;
+			if (EnableCaching && _cache.TryGetValue(filePath, out var projectDefinition))
+			{
+				return projectDefinition;
+			}
+
 			XDocument projectXml;
 			using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
-				projectXml = XDocument.Load(stream);
+				projectXml = XDocument.Load(stream, LoadOptions.SetLineInfo);
 			}
 
 			// get ProjectTypeGuids and check for unsupported types
 			if (UnsupportedProjectTypes.IsUnsupportedProjectType(projectXml))
 			{
-				progress.Report("This project type is not supported for conversion.");
+				ProgressReporter.Report("This project type is not supported for conversion.");
 				return null;
 			}
 
-			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
-			if (projectXml.Element(nsSys + "Project") == null)
+			var isLegacy = projectXml.Element(XmlLegacyNamespace + "Project") != null;
+			if (!isLegacy)
 			{
-				progress.Report($"This is not a VS2015 project file.");
+				ProgressReporter.Report($"This is not a VS2015 project file.");
 				return null;
 			}
 
-			var fileInfo = new FileInfo(filePath);
+			var packageConfig = new NuSpecReader().Read(ProjectPath, ProgressReporter);
 
-			var assemblyReferences = LoadAssemblyReferences(projectXml, progress);
-			var projectReferences = LoadProjectReferences(projectXml, progress);
-
-			var packagesConfigFile = FindPackagesConfigFile(fileInfo, progress);
-
-			var packageReferences = LoadPackageReferences(projectXml, packagesConfigFile, progress);
-
-			var includes = LoadFileIncludes(projectXml);
-
-			var packageConfig = new NuSpecReader().Read(fileInfo, progress);
-
-			var projectDefinition = new Project
+			projectDefinition = new Project
 			{
-				FilePath = fileInfo,
-				AssemblyReferences = assemblyReferences,
-				ProjectReferences = projectReferences,
-				PackageReferences = packageReferences,
-				IncludeItems = includes,
+				FilePath = ProjectPath,
 				PackageConfiguration = packageConfig,
-				PackagesConfigFile = packagesConfigFile,
 				Deletions = Array.Empty<FileSystemInfo>(),
 				AssemblyAttributeProperties = Array.Empty<XElement>()
 			};
 
-			HandleSpecialProjectTypes(progress, projectXml, projectDefinition);
+			if (EnableCaching)
+			{
+				_cache.Add(filePath, projectDefinition);
+			}
+			
+			projectDefinition.AssemblyReferences = LoadAssemblyReferences(projectXml);
+			projectDefinition.ProjectReferences = LoadProjectReferences(projectXml);
+			projectDefinition.PackagesConfigFile = FindPackagesConfigFile(ProjectPath);
+			projectDefinition.PackageReferences = LoadPackageReferences(projectXml, projectDefinition.PackagesConfigFile);
+			projectDefinition.IncludeItems = LoadFileIncludes(projectXml);
+
+			ProcessProjectReferences(projectDefinition);
+
+			HandleSpecialProjectTypes(projectXml, projectDefinition);
 
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
 
-			var assemblyAttributes = new AssemblyInfoReader().Read(projectDefinition, progress);
+			var assemblyAttributes = new AssemblyInfoReader().Read(projectDefinition, ProgressReporter);
 
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
 
 			return projectDefinition;
 		}
 
-		private static void HandleSpecialProjectTypes(IProgress<string> progress, XContainer projectXml,
-			Project projectDefinition)
+		private void HandleSpecialProjectTypes(XContainer projectXml, Project projectDefinition)
 		{
 			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
 
@@ -86,7 +127,7 @@ namespace Project2015To2017.Reading
 			// WinForms applications
 			if (outputType?.Value == "WindowsForms")
 			{
-				progress.Report($"This is a Windows Forms project file, support is limited.");
+				ProgressReporter.Report($"This is a Windows Forms project file, support is limited.");
 				projectDefinition.IsWindowsFormsProject = true;
 			}
 
@@ -100,29 +141,42 @@ namespace Project2015To2017.Reading
 				.Select(x => x.Trim().ToUpperInvariant())
 				.ToImmutableHashSet();
 
-			// can be enabled in separate PR when simplification PR is merged
-#if false
 			if (guidTypes.Contains("{EFBA0AD7-5A72-4C68-AF49-83D382785DCF}"))
+			{
 				projectDefinition.TargetFrameworks.Add("xamarin.android");
+			}
 
 			if (guidTypes.Contains("{6BC8ED88-2882-458C-8E55-DFD12B67127B}"))
+			{
 				projectDefinition.TargetFrameworks.Add("xamarin.ios");
+			}
 
 			if (guidTypes.Contains("{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A}"))
+			{
 				projectDefinition.TargetFrameworks.Add("uap");
-#endif
+			}
 
 			if (guidTypes.Contains("{60DC8134-EBA5-43B8-BCC9-BB4BC16C2548}"))
+			{
 				projectDefinition.IsWindowsPresentationFoundationProject = true;
+			}
 		}
 
-		private FileInfo FindPackagesConfigFile(FileInfo projectFile, IProgress<string> progress)
+		private static void ProcessProjectReferences(Project projectDefinition)
+		{
+			foreach (var reference in projectDefinition.ProjectReferences)
+			{
+				reference.ProjectFile = new FileInfo(Path.Combine(projectDefinition.FilePath.Directory.FullName, reference.Include));
+			}
+		}
+
+		private FileInfo FindPackagesConfigFile(FileInfo projectFile)
 		{
 			var packagesConfig = new FileInfo(Path.Combine(projectFile.Directory.FullName, "packages.config"));
 
 			if (!packagesConfig.Exists)
 			{
-				progress.Report("Packages.config file not found.");
+				ProgressReporter.Report("Packages.config file not found.");
 				return null;
 			}
 			else
@@ -131,8 +185,7 @@ namespace Project2015To2017.Reading
 			}
 		}
 
-		private IReadOnlyList<PackageReference> LoadPackageReferences(XDocument projectXml, FileInfo packagesConfig,
-			IProgress<string> progress)
+		private IReadOnlyList<PackageReference> LoadPackageReferences(XDocument projectXml, FileInfo packagesConfig)
 		{
 			try
 			{
@@ -154,14 +207,14 @@ namespace Project2015To2017.Reading
 
 				foreach (var reference in packageReferences)
 				{
-					progress.Report($"Found nuget reference to {reference.Id}, version {reference.Version}.");
+					ProgressReporter.Report($"Found nuget reference to {reference.Id}, version {reference.Version}.");
 				}
 
 				return packageReferences;
 			}
 			catch (XmlException e)
 			{
-				progress.Report($"Got xml exception reading packages.config: " + e.Message);
+				ProgressReporter.Report($"Got xml exception reading packages.config: " + e.Message);
 			}
 
 			return Array.Empty<PackageReference>();
@@ -191,7 +244,7 @@ namespace Project2015To2017.Reading
 			return packageConfigPackages;
 		}
 
-		private IReadOnlyList<ProjectReference> LoadProjectReferences(XDocument projectXml, IProgress<string> progress)
+		private IReadOnlyList<ProjectReference> LoadProjectReferences(XDocument projectXml)
 		{
 			var projectReferences = projectXml
 				.Element(XmlNamespace + "Project")
@@ -207,7 +260,7 @@ namespace Project2015To2017.Reading
 			return projectReferences;
 		}
 
-		private List<AssemblyReference> LoadAssemblyReferences(XDocument projectXml, IProgress<string> progress)
+		private List<AssemblyReference> LoadAssemblyReferences(XDocument projectXml)
 		{
 			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
 
@@ -236,7 +289,8 @@ namespace Project2015To2017.Reading
 					EmbedInteropTypes = embedInteropTypes,
 					HintPath = hintPath,
 					Private = isPrivate,
-					SpecificVersion = specificVersion
+					SpecificVersion = specificVersion,
+					DefinitionElement = referenceElement,
 				};
 
 				return output;

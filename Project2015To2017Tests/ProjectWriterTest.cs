@@ -4,18 +4,18 @@ using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Definition;
-using Project2015To2017.Transforms;
 using Project2015To2017.Reading;
 using Project2015To2017.Writing;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 
 namespace Project2015To2017Tests
 {
 	[TestClass]
 	public class ProjectWriterTest
 	{
+        private static readonly string deletionsPath = Path.Combine("TestFiles", "Deletions");
+
 		[TestMethod]
 		public void ValidatesFileIsWritable()
 		{
@@ -23,13 +23,13 @@ namespace Project2015To2017Tests
 			var xmlNode = writer.CreateXml(new Project
 			{
 				AssemblyAttributes = new AssemblyAttributes(),
-				FilePath = new System.IO.FileInfo("test.cs")
+				FilePath = new FileInfo("test.cs")
 			});
 
-			var copiedProjectFile = $"TestFiles\\OtherTestProjects\\{nameof(ValidatesFileIsWritable)}.readonly";
-			File.Copy("TestFiles\\OtherTestProjects\\readonly.testcsproj", copiedProjectFile);
+			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects", $"{nameof(ValidatesFileIsWritable)}.readonly");
+			File.Copy(Path.Combine("TestFiles", "OtherTestProjects", "readonly.testcsproj"), copiedProjectFile);
 			File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
-			var project = new ProjectReader().Read(copiedProjectFile);
+			var project = new ProjectReader(copiedProjectFile).Read();
 
 			var messageNum = 0;
 			var progress = new Progress<string>(x =>
@@ -143,7 +143,7 @@ namespace Project2015To2017Tests
 			var xmlNode = writer.CreateXml(new Project
 			{
 				DelaySign = null,
-				FilePath = new System.IO.FileInfo("test.cs")
+				FilePath = new FileInfo("test.cs")
 			});
 
 			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
@@ -157,7 +157,7 @@ namespace Project2015To2017Tests
 			var xmlNode = writer.CreateXml(new Project
 			{
 				DelaySign = true,
-				FilePath = new System.IO.FileInfo("test.cs")
+				FilePath = new FileInfo("test.cs")
 			});
 
 			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
@@ -172,7 +172,7 @@ namespace Project2015To2017Tests
 			var xmlNode = writer.CreateXml(new Project
 			{
 				DelaySign = false,
-				FilePath = new System.IO.FileInfo("test.cs")
+				FilePath = new FileInfo("test.cs")
 			});
 
 			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
@@ -186,7 +186,7 @@ namespace Project2015To2017Tests
 
 			await File.WriteAllTextAsync(testCsProjFile, xml);
 
-			var project = new ProjectReader().Read(testCsProjFile);
+			var project = new ProjectReader(testCsProjFile).Read();
 
 			return project;
 		}
@@ -196,11 +196,11 @@ namespace Project2015To2017Tests
 		{
 			var filesToDelete = new FileSystemInfo[]
 			{
-				new FileInfo(@"TestFiles\Deletions\a.txt"),
-				new FileInfo(@"TestFiles\Deletions\AssemblyInfo.txt")
+				new FileInfo(Path.Combine(deletionsPath, "a.txt")),
+				new FileInfo(Path.Combine(deletionsPath, "AssemblyInfo.txt"))
 			};
 
-			var assemblyInfoFile = new FileInfo(@"TestFiles\Deletions\AssemblyInfo.txt");
+			var assemblyInfoFile = new FileInfo(Path.Combine(deletionsPath, "AssemblyInfo.txt"));
 
 			var actualDeletedFiles = new List<FileSystemInfo>();
 			var checkedOutFiles = new List<FileSystemInfo>();
@@ -214,7 +214,7 @@ namespace Project2015To2017Tests
 			writer.Write(
 				new Project
 				{
-					FilePath = new FileInfo(@"TestFiles\Deletions\Test1.csproj"),
+					FilePath = new FileInfo(Path.Combine(deletionsPath, "Test1.csproj")),
 					AssemblyAttributes = new AssemblyAttributes
 					{
 						File = assemblyInfoFile,
@@ -377,7 +377,7 @@ namespace Project2015To2017Tests
 						Include = "System"
 					}
 				},
-				FilePath = new System.IO.FileInfo("test.cs")
+				FilePath = new FileInfo("test.cs")
 			};
 
 			var writer = new ProjectWriter(_ => { }, _ => { });
@@ -394,7 +394,7 @@ namespace Project2015To2017Tests
 			var xmlNode = writer.CreateXml(new Project
 			{
 				AppendTargetFrameworkToOutputPath = true,
-				FilePath = new System.IO.FileInfo("test.cs")
+				FilePath = new FileInfo("test.cs")
 			});
 
 			var appendTargetFrameworkToOutputPath = xmlNode.Element("PropertyGroup").Element("AppendTargetFrameworkToOutputPath");
@@ -407,7 +407,7 @@ namespace Project2015To2017Tests
 			var xmlNode = writer.CreateXml(new Project
 			{
 				AppendTargetFrameworkToOutputPath = false,
-				FilePath = new System.IO.FileInfo("test.cs")
+				FilePath = new FileInfo("test.cs")
 			});
 
 			var appendTargetFrameworkToOutputPath = xmlNode.Element("PropertyGroup").Element("AppendTargetFrameworkToOutputPath");

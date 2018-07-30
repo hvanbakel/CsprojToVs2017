@@ -8,6 +8,8 @@ namespace Project2015To2017.Reading
 {
 	public class SolutionReader
 	{
+		public static readonly SolutionReader Instance = new SolutionReader();
+
 		public Solution Read(string filePath)
 		{
 			return Read(filePath, new Progress<string>(_ => { }));
@@ -16,7 +18,7 @@ namespace Project2015To2017.Reading
 		public Solution Read(string filePath, IProgress<string> progress)
 		{
 			var fileInfo = new FileInfo(filePath);
-			var projectPaths = new List<string>();
+			var projectPaths = new List<ProjectReference>();
 			using (var reader = new StreamReader(fileInfo.OpenRead()))
 			{
 				string line;
@@ -30,7 +32,12 @@ namespace Project2015To2017.Reading
 					var projectPath = line.Split('"').FirstOrDefault(x => x.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase));
 					if (projectPath != null)
 					{
-						projectPaths.Add(projectPath);
+						var reference = new ProjectReference
+						{
+							Include = projectPath,
+							ProjectFile = new FileInfo(Path.Combine(fileInfo.Directory.FullName, projectPath)),
+						};
+						projectPaths.Add(reference);
 					}
 				}
 			}

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<RootNamespace>Project2015To2017.Console</RootNamespace>
@@ -13,6 +13,7 @@
 		<Copyright>Copyright Hans van Bakel</Copyright>
 		<PackageTags>dotnet csproj conversion vs2015 vs2017</PackageTags>
 		<Version>1.7.0</Version>
+		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(Pack) != 'true'">
@@ -22,7 +23,6 @@
 	<PropertyGroup Condition="$(Pack) == 'true'">
 		<ToolCommandName>csproj-to-2017</ToolCommandName>
 		<PackAsTool>True</PackAsTool>
-		<OutputType>Exe</OutputType>
 		<TargetFramework>netcoreapp2.1</TargetFramework>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>

@@ -35,8 +35,8 @@ namespace Project2015To2017Tests
 
 			var progress = new SyncProgress(logs.Add);
 
-			var projectFile = "TestFiles\\OtherTestProjects\\readonly.testcsproj";
-			var copiedProjectFile = $"TestFiles\\OtherTestProjects\\{nameof(ValidatesFileIsWritable)}.readonly";
+			var projectFile = Path.Combine("TestFiles", "OtherTestProjects", "readonly.testcsproj");
+			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects", $"{nameof(ValidatesFileIsWritable)}.readonly");
 
 			if (File.Exists(copiedProjectFile))
 			{
@@ -50,7 +50,7 @@ namespace Project2015To2017Tests
 
 				File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
 
-				var project = new ProjectReader().Read(copiedProjectFile, progress);
+				var project = new ProjectReader(copiedProjectFile, progress).Read();
 
 				Assert.IsFalse(logs.Any(x => x.Contains("Aborting as could not write to project file")));
 
@@ -68,7 +68,6 @@ namespace Project2015To2017Tests
 					File.Delete(copiedProjectFile);
 				}
 			}
-
 		}
 
 		[TestMethod]
@@ -78,8 +77,8 @@ namespace Project2015To2017Tests
 
 			var progress = new SyncProgress(logs.Add);
 
-			var projectFile = "TestFiles\\OtherTestProjects\\readonly.testcsproj";
-			var copiedProjectFile = $"TestFiles\\OtherTestProjects\\{nameof(ValidatesFileIsWritableAfterCheckout)}.readonly";
+			var projectFile = Path.Combine("TestFiles", "OtherTestProjects", "readonly.testcsproj");
+			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects", $"{nameof(ValidatesFileIsWritableAfterCheckout)}.readonly");
 
 			if (File.Exists(copiedProjectFile))
 			{
@@ -93,7 +92,7 @@ namespace Project2015To2017Tests
 
 				File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
 
-				var project = new ProjectReader().Read(copiedProjectFile, progress);
+				var project = new ProjectReader(copiedProjectFile, progress).Read();
 
 				var projectWriter = new ProjectWriter(_ => { }, file => File.SetAttributes(file.FullName, FileAttributes.Normal));
 
@@ -114,10 +113,9 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void ValidatesFileExists()
 		{
-
 			var progress = new Progress<string>(x => { });
 
-			Assert.IsFalse(ProjectConverter.Validate(new FileInfo("TestFiles\\OtherTestProjects\\nonexistent.testcsproj"), progress));
+			Assert.IsFalse(ProjectConverter.Validate(new FileInfo(Path.Combine("TestFiles", "OtherTestProjects", "nonexistent.testcsproj")), progress));
 		}
 	}
 }

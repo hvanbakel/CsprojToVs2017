@@ -1,6 +1,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
+using System.IO;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
@@ -13,7 +14,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void AddsTestPackages()
         {
-	        var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
+	        var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
 
 	        project.Type = ApplicationType.TestProject;
 	        project.TargetFrameworks.Add("net45");
@@ -33,7 +34,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void AcceptsNetStandardFramework()
         {
-	        var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
+	        var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
 
 	        project.Type = ApplicationType.TestProject;
 	        project.TargetFrameworks.Add("netstandard2.0");
@@ -55,8 +56,7 @@ namespace Project2015To2017Tests
         {
             var transformation = new PackageReferenceTransformation();
 
-			var project = new ProjectReader()
-								.Read(@"TestFiles\\OtherTestProjects\\containsTestSDK.testcsproj");
+			var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "containsTestSDK.testcsproj")).Read();
 
 	        project.TargetFrameworks.Add("net45");
 
@@ -71,7 +71,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void TransformsPackages()
         {
-	        var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
+	        var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
 
             var transformation = new PackageReferenceTransformation();
 
@@ -87,7 +87,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void HandlesNonXml()
         {
-            var project = new ProjectReader().Read("OtherPackagesConfig\\net46console.testcsproj");
+            var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
             var transformation = new PackageReferenceTransformation();
 
 	        var progress = new Progress<string>(x => { });
