@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 using System.Linq;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
@@ -14,7 +15,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void TransformsFiles()
         {
-            var project = new ProjectReader().Read("TestFiles\\Fileinclusion\\fileinclusion.testcsproj");
+            var project = new ProjectReader(Path.Combine("TestFiles", "FileInclusion", "fileinclusion.testcsproj")).Read();
             var transformation = new FileTransformation();
 
 	        var logEntries = new List<string>();

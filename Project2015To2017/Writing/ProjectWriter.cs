@@ -218,6 +218,11 @@ namespace Project2015To2017.Writing
 						projectReferenceElement.Add(new XElement("Aliases", projectReference.Aliases));
 					}
 
+					if (projectReference.EmbedInteropTypes)
+					{
+						projectReferenceElement.Add(new XElement("EmbedInteropTypes", "true"));
+					}
+
 					itemGroup.Add(projectReferenceElement);
 				}
 

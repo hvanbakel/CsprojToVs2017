@@ -156,15 +156,19 @@ namespace Project2015To2017.Transforms
 				knownFullPaths.Add(Path.GetFullPath(Path.Combine(projectFolder.FullName, otherIncludeMatchingWildcard)));
 			}
 
-			foreach (var nonListedFile in filesInFolder.Except(knownFullPaths, StringComparer.OrdinalIgnoreCase))
+			// if (!project.IsModernProject)
 			{
-				if (nonListedFile.StartsWith(Path.Combine(projectFolder.FullName + "\\obj\\"), StringComparison.OrdinalIgnoreCase))
+				foreach (var nonListedFile in filesInFolder.Except(knownFullPaths, StringComparer.OrdinalIgnoreCase))
 				{
-					// skip the generated files in obj
-					continue;
-				}
+					if (nonListedFile.StartsWith(Path.Combine(projectFolder.FullName + "\\obj\\"),
+						StringComparison.OrdinalIgnoreCase))
+					{
+						// skip the generated files in obj
+						continue;
+					}
 
-				progress.Report($"File found which was not included, consider removing {nonListedFile}.");
+					progress.Report($"File found which was not included, consider removing {nonListedFile}.");
+				}
 			}
 
 			foreach (var fileNotOnDisk in knownFullPaths.Except(filesInFolder).Where(x => x.StartsWith(projectFolder.FullName, StringComparison.OrdinalIgnoreCase)))

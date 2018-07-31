@@ -1,5 +1,6 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 using System.Linq;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
@@ -8,13 +9,12 @@ using Project2015To2017.Transforms;
 namespace Project2015To2017Tests
 {
 	[TestClass]
-	public class NugetPackageTransformationTest
+	public class NuGetPackageTransformationTest
 	{
 		[TestMethod]
 		public void ConvertsNuspec()
 		{
-			var project = new ProjectReader()
-								.Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
+			var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
 
 			project.AssemblyName = "TestAssembly";
 
@@ -47,8 +47,7 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void ConvertsNuspecWithNoInformationalVersion()
 		{
-			var project = new ProjectReader()
-				.Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
+			var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
 
 			project.AssemblyAttributes =
 				new AssemblyAttributes {
@@ -70,8 +69,7 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void ConvertsDependencies()
 		{
-			var project = new ProjectReader()
-								.Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
+			var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
 
 			project.PackageReferences = new[]
 										{

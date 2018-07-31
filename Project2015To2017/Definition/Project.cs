@@ -8,7 +8,8 @@ namespace Project2015To2017.Definition
 {
 	public sealed class Project
 	{
-		public static readonly XNamespace XmlNamespace = "http://schemas.microsoft.com/developer/msbuild/2003";
+		public static readonly XNamespace XmlLegacyNamespace = "http://schemas.microsoft.com/developer/msbuild/2003";
+		public static readonly XNamespace XmlNamespace = XmlLegacyNamespace;
 
 		public IReadOnlyList<AssemblyReference> AssemblyReferences { get; set; }
 		public IReadOnlyList<ProjectReference> ProjectReferences { get; set; }
@@ -23,6 +24,8 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<string> Configurations { get; set; }
 		public IReadOnlyList<string> Platforms { get; set; }
 		public IReadOnlyList<XElement> OtherPropertyGroups { get; set; }
+
+		public XDocument ProjectDocument { get; set; }
 
 		public IList<string> TargetFrameworks { get; } = new List<string>();
 		public bool AppendTargetFrameworkToOutputPath { get; set; } = true;
@@ -46,11 +49,11 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<FileSystemInfo> Deletions { get; set; }
 
 		/// <summary>
-		/// The directory where nuget stores its extracted packages for the project.
+		/// The directory where NuGet stores its extracted packages for the project.
 		/// In general this is the 'packages' folder within the parent solution, but
 		/// it can be overridden, which is accounted for here.
 		/// </summary>
-		public DirectoryInfo NugetPackagesPath
+		public DirectoryInfo NuGetPackagesPath
 		{
 			get
 			{
@@ -68,7 +71,7 @@ namespace Project2015To2017.Definition
 
 				if (this.Solution != null)
 				{
-					return this.Solution.NugetPackagesPath;
+					return this.Solution.NuGetPackagesPath;
 				}
 
 				var path = Path.GetFullPath(Path.Combine(projectFolder, "..", "packages"));

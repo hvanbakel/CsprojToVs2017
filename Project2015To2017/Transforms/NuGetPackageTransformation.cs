@@ -29,13 +29,10 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			var packageIdConstraints = dependencies.Select(dependency =>
+			var packageIdConstraints = dependencies.Select(dependency => new
 			{
-				return new
-				{
-					PackageId = dependency.Attribute("id").Value,
-					Version = dependency.Attribute("version").Value
-				};
+				PackageId = dependency.Attribute("id").Value,
+				Version = dependency.Attribute("version").Value
 			}).ToArray();
 
 			foreach (var packageReference in rawPackageReferences)

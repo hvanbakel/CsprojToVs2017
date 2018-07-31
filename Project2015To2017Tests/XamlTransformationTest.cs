@@ -120,17 +120,17 @@ namespace Project2015To2017Tests
 
 			// App.xaml is NOT included due to ApplicationDefinition
 			// App.xaml.cs is NOT included due to <SubType>Code</SubType> (FileTransformation)
-			// Views\Shell.xaml.cs is included due to DependentUpon
-			// .\..\Views\Initialize.xaml.cs is included due to DependentUpon
+			// Views\Shell.xaml.cs is NOT included due to Compile+DependentUpon
+			// .\..\Views\Initialize.xaml.cs is included due to not in project folder
 			// Views\Shell.xaml is NOT included due to Page
 			// .\..\Views\Initialize.xaml is included due to Page not in project folder
 
-			Assert.AreEqual(3, includeItems.Count);
+			Assert.AreEqual(2, includeItems.Count);
 
 			Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "Page"));
 			Assert.AreEqual(0, includeItems.Count(x => x.Name == XmlNamespace + "ApplicationDefinition"));
-			Assert.AreEqual(2, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
-			Assert.AreEqual(2,
+			Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
+			Assert.AreEqual(1,
 				includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Update") != null));
 			Assert.AreEqual(0,
 				includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Include") != null));
@@ -148,7 +148,7 @@ namespace Project2015To2017Tests
 
 			await File.WriteAllTextAsync(testCsProjFile, xml);
 
-			var project = new ProjectReader().Read(testCsProjFile);
+			var project = new ProjectReader(testCsProjFile).Read();
 
 			return project;
 		}

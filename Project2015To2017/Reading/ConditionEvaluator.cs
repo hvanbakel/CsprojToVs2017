@@ -1,14 +1,11 @@
+using Project2015To2017.Reading.Conditionals;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Project2015To2017.Reading.Conditionals;
 
 namespace Project2015To2017.Reading
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public static class ConditionEvaluator
+	public static partial class ConditionEvaluator
 	{
 		#region MSBuild Conditional routine
 
@@ -32,7 +29,7 @@ namespace Project2015To2017.Reading
 				conditionedPropertiesTable, // List of possible values, keyed by property name
 			string leftValue, // The raw value on the left side of the operator
 			string rightValueExpanded // The fully expanded value on the right side
-			// of the operator.
+									  // of the operator.
 		)
 		{
 			if ((conditionedPropertiesTable != null) && (rightValueExpanded.Length > 0))
@@ -119,12 +116,17 @@ namespace Project2015To2017.Reading
 
 			// it makes little sense for condition to be that short
 			if (condition.Length < 2)
+			{
 				return res;
+			}
 
 			foreach (var keyValuePair in GetConditionValues(condition))
 			{
 				if (keyValuePair.Value.Count != 1)
+				{
 					continue;
+				}
+
 				res.Add(keyValuePair.Key, keyValuePair.Value[0]);
 			}
 
@@ -133,17 +135,27 @@ namespace Project2015To2017.Reading
 
 		public static Dictionary<string, List<string>> GetConditionValues(string condition)
 		{
-			var state = new ConditionEvaluationStateImpl();
+			if (condition.Length > 0)
+			{
+				condition = condition.Trim();
+			}
+
+			if (TryGetCachedOrCreateState(condition, out var state))
+			{
+				return state.ConditionedPropertiesInProject;
+			}
 
 			// it makes little sense for condition to be that short
 			if (condition.Length < 2)
+			{
 				return state.ConditionedPropertiesInProject;
+			}
 
 			var parser = new Parser();
 			try
 			{
-				var node = parser.Parse(condition, ParserOptions.AllowAll);
-				node.Evaluate(state); // return value ignored
+				state.Node = parser.Parse(condition, ParserOptions.AllowAll);
+				state.Node.Evaluate(state); // return value ignored
 			}
 			catch (Exception)
 			{
@@ -157,6 +169,8 @@ namespace Project2015To2017.Reading
 		{
 			/// <inheritdoc />
 			public Dictionary<string, List<string>> ConditionedPropertiesInProject { get; } = new Dictionary<string, List<string>>();
+
+			internal GenericExpressionNode Node { get; set; }
 
 			/// <inheritdoc />
 			public string ExpandIntoStringBreakEarly(string expression)

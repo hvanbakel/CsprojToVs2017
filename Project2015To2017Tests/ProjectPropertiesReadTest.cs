@@ -789,7 +789,7 @@ if $(ConfigurationName) == Debug (
 
 			await File.WriteAllTextAsync(testCsProjFile, xml);
 
-			var project = new ProjectReader().Read(testCsProjFile);
+			var project = new ProjectReader(testCsProjFile).Read();
 
 			return project;
 		}

@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Reading;
+using System.IO;
 
 namespace Project2015To2017Tests
 {
@@ -9,7 +10,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void FindsAttributes()
         {
-	        var project = new ProjectReader().Read("TestFiles\\OtherTestProjects\\net46console.testcsproj");
+	        var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
 
             Assert.IsNotNull(project.AssemblyAttributes.Company);
             Assert.IsNotNull(project.AssemblyAttributes.Copyright);
