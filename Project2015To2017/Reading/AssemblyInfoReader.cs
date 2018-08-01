@@ -15,7 +15,7 @@ namespace Project2015To2017.Reading
 			var projectPath = project.ProjectFolder.FullName;
 
 			var compileElements = project.IncludeItems
-										 .SelectMany(x => x.Elements(Project.XmlNamespace + "Compile"))
+										 .SelectMany(x => x.Elements(project.XmlNamespace + "Compile"))
 										 .ToList();
 
 			var assemblyInfoFiles = compileElements
@@ -29,6 +29,16 @@ namespace Project2015To2017.Reading
 												}
 											)
 										   .Where(IsAssemblyInfoFile)
+										   .Where(x =>
+												{
+													if (x.Exists)
+													{
+														return true;
+													}
+													progress.Report($@"AssemblyInfo file '{x.FullName}' not found");
+													return false;
+												}
+											)
 										   .ToList();
 
 			if (assemblyInfoFiles.Count == 0)

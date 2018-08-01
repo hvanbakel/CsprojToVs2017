@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
+using Project2015To2017.Definition;
+using static Project2015To2017.Definition.Project;
 
 namespace Project2015To2017
 {
@@ -16,13 +16,13 @@ namespace Project2015To2017
 		/// </summary>
 		/// <param name="xmlDocument">source project document to check</param>
 		/// <returns></returns>
-		public static bool IsUnsupportedProjectType(XDocument xmlDocument)
+		public static bool IsUnsupportedProjectType(Project project)
 		{
-			if (xmlDocument == null) throw new ArgumentNullException(nameof(xmlDocument));
-			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
+			if (project == null) throw new ArgumentNullException(nameof(project));
+			var xmlDocument = project.ProjectDocument;
 
 			// try to get project type - may not exist
-			var typeElement = xmlDocument.Descendants(nsSys + "ProjectTypeGuids").FirstOrDefault();
+			var typeElement = xmlDocument.Descendants(project.XmlNamespace + "ProjectTypeGuids").FirstOrDefault();
 			// no matching tag found, project should be okay to convert
 			if (typeElement == null) return false;
 

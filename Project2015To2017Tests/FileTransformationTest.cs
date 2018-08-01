@@ -28,26 +28,26 @@ namespace Project2015To2017Tests
 
 	        Assert.AreEqual(13, includeItems.Count);
 
-            Assert.AreEqual(9, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
-			Assert.AreEqual(6, includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Update") != null));
-			Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Include") != null));
-			Assert.AreEqual(2, includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Remove") != null));
-			Assert.AreEqual(2, includeItems.Count(x => x.Name == XmlNamespace + "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
-            Assert.AreEqual(0, includeItems.Count(x => x.Name == XmlNamespace + "Content"));
-            Assert.AreEqual(2, includeItems.Count(x => x.Name == XmlNamespace + "None"));
+            Assert.AreEqual(9, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile"));
+			Assert.AreEqual(6, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Update") != null));
+			Assert.AreEqual(1, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Include") != null));
+			Assert.AreEqual(2, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Remove") != null));
+			Assert.AreEqual(2, includeItems.Count(x => x.Name == project.XmlNamespace + "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
+            Assert.AreEqual(0, includeItems.Count(x => x.Name == project.XmlNamespace + "Content"));
+            Assert.AreEqual(2, includeItems.Count(x => x.Name == project.XmlNamespace + "None"));
 
 	        var resourceDesigner = includeItems.Single(
-								        x => x.Name == XmlNamespace + "Compile"
+								        x => x.Name == project.XmlNamespace + "Compile"
 								             && x.Attribute("Update")?.Value == @"Properties\Resources.Designer.cs"
 							        );
 
 			Assert.AreEqual(3, resourceDesigner.Elements().Count());
-	        var dependentUponElement = resourceDesigner.Elements().Single(x=> x.Name == XmlNamespace + "DependentUpon");
+	        var dependentUponElement = resourceDesigner.Elements().Single(x=> x.Name == project.XmlNamespace + "DependentUpon");
 			
 			Assert.AreEqual("Resources.resx", dependentUponElement.Value);
 
 			var linkedFile = includeItems.Single(
-										x => x.Name == XmlNamespace + "Compile"
+										x => x.Name == project.XmlNamespace + "Compile"
 											 && x.Attribute("Include")?.Value == @"..\OtherTestProjects\OtherTestClass.cs"
 									);
 			var linkAttribute = linkedFile.Attributes().FirstOrDefault(a => a.Name == "Link");
@@ -55,26 +55,26 @@ namespace Project2015To2017Tests
 			Assert.AreEqual("OtherTestClass.cs", linkAttribute.Value);
 
 			var sourceWithDesigner = includeItems.Single(
-								        x => x.Name == XmlNamespace + "Compile"
+								        x => x.Name == project.XmlNamespace + "Compile"
 								             && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.cs"
 							        );
 
 			var subTypeElement = sourceWithDesigner.Elements().Single();
-	        Assert.AreEqual(XmlNamespace + "SubType", subTypeElement.Name);
+	        Assert.AreEqual(project.XmlNamespace + "SubType", subTypeElement.Name);
 	        Assert.AreEqual("Component", subTypeElement.Value);
 
 	        var designerForSource = includeItems.Single(
-								        x => x.Name == XmlNamespace + "Compile"
+								        x => x.Name == project.XmlNamespace + "Compile"
 								             && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.Designer.cs"
 							        );
 
 	        var dependentUponElement2 = designerForSource.Elements().Single();
 
-	        Assert.AreEqual(XmlNamespace + "DependentUpon", dependentUponElement2.Name);
+	        Assert.AreEqual(project.XmlNamespace + "DependentUpon", dependentUponElement2.Name);
 	        Assert.AreEqual("SourceFileWithDesigner.cs", dependentUponElement2.Value);
 
 	        var fileWithAnotherAttribute = includeItems.Single(
-												x => x.Name == XmlNamespace + "Compile"
+												x => x.Name == project.XmlNamespace + "Compile"
 													&& x.Attribute("Update")?.Value == @"AnotherFile.cs"
 									        );
 
@@ -82,7 +82,7 @@ namespace Project2015To2017Tests
 			Assert.AreEqual("AttrValue", fileWithAnotherAttribute.Attribute("AnotherAttribute")?.Value);
 
 			var removeMatchingWildcard = includeItems.Where(
-											x => x.Name == XmlNamespace + "Compile"
+											x => x.Name == project.XmlNamespace + "Compile"
 												&& x.Attribute("Remove")?.Value != null
 										);
 			Assert.IsNotNull(removeMatchingWildcard);

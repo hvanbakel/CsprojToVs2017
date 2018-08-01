@@ -13,8 +13,16 @@ namespace Project2015To2017
 {
 	public class ProjectConverter
 	{
-		private static IReadOnlyList<ITransformation> TransformationsToApply(ConversionOptions conversionOptions)
+		private static IReadOnlyList<ITransformation> TransformationsToApply(ConversionOptions conversionOptions, Project project)
 		{
+			if (project.IsModernProject)
+			{
+				return new ITransformation[]
+				{
+					new FileTransformation(),
+				};
+			}
+
 			return new ITransformation[]
 			{
 				new TargetFrameworkTransformation(
@@ -125,7 +133,7 @@ namespace Project2015To2017
 			progress.Report("Solution parsing started.");
 			var solution = SolutionReader.Instance.Read(target, progress);
 
-			if (solution?.ProjectPaths == null)
+			if (solution.ProjectPaths == null)
 			{
 				yield break;
 			}
@@ -182,7 +190,7 @@ namespace Project2015To2017
 				transform.Transform(project, progress);
 			}
 
-			foreach (var transform in TransformationsToApply(conversionOptions))
+			foreach (var transform in TransformationsToApply(conversionOptions, project))
 			{
 				transform.Transform(project, progress);
 			}

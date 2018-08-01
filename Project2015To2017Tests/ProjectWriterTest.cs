@@ -333,7 +333,7 @@ namespace Project2015To2017Tests
 
 				if (!File.Exists(file))
 				{
-					File.Create(file);
+					File.WriteAllBytes(file, new byte[0] {});
 				}
 			}
 		}

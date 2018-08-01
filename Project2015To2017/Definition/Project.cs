@@ -9,7 +9,8 @@ namespace Project2015To2017.Definition
 	public sealed class Project
 	{
 		public static readonly XNamespace XmlLegacyNamespace = "http://schemas.microsoft.com/developer/msbuild/2003";
-		public static readonly XNamespace XmlNamespace = XmlLegacyNamespace;
+		public XNamespace XmlNamespace => IsModernProject ? XNamespace.None : XmlLegacyNamespace;
+		public bool IsModernProject { get; set; }
 
 		public IReadOnlyList<AssemblyReference> AssemblyReferences { get; set; }
 		public IReadOnlyList<ProjectReference> ProjectReferences { get; set; }

@@ -127,15 +127,15 @@ namespace Project2015To2017Tests
 
 			Assert.AreEqual(2, includeItems.Count);
 
-			Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "Page"));
-			Assert.AreEqual(0, includeItems.Count(x => x.Name == XmlNamespace + "ApplicationDefinition"));
-			Assert.AreEqual(1, includeItems.Count(x => x.Name == XmlNamespace + "Compile"));
+			Assert.AreEqual(1, includeItems.Count(x => x.Name == project.XmlNamespace + "Page"));
+			Assert.AreEqual(0, includeItems.Count(x => x.Name == project.XmlNamespace + "ApplicationDefinition"));
+			Assert.AreEqual(1, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile"));
 			Assert.AreEqual(1,
-				includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Update") != null));
+				includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Update") != null));
 			Assert.AreEqual(0,
-				includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Include") != null));
+				includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Include") != null));
 			Assert.AreEqual(0,
-				includeItems.Count(x => x.Name == XmlNamespace + "Compile" && x.Attribute("Remove") != null));
+				includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Remove") != null));
 		}
 
 		private static async Task<Project> ParseAndTransform(

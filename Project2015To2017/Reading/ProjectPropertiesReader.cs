@@ -13,7 +13,7 @@ namespace Project2015To2017.Reading
 	{
 		public static void PopulateProperties(Project project, XDocument projectXml)
 		{
-			var propertyGroups = projectXml.Element(XmlNamespace + "Project").Elements(XmlNamespace + "PropertyGroup")
+			var propertyGroups = projectXml.Element(project.XmlNamespace + "Project").Elements(project.XmlNamespace + "PropertyGroup")
 				.ToArray();
 
 			var unconditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") == null).ToArray();
@@ -23,35 +23,35 @@ namespace Project2015To2017.Reading
 			}
 
 			project.Optimize =
-				"true".Equals(unconditionalPropertyGroups.Elements(XmlNamespace + "Optimize").FirstOrDefault()?.Value,
+				"true".Equals(unconditionalPropertyGroups.Elements(project.XmlNamespace + "Optimize").FirstOrDefault()?.Value,
 					StringComparison.OrdinalIgnoreCase);
 			project.TreatWarningsAsErrors =
 				"true".Equals(
-					unconditionalPropertyGroups.Elements(XmlNamespace + "TreatWarningsAsErrors").FirstOrDefault()
+					unconditionalPropertyGroups.Elements(project.XmlNamespace + "TreatWarningsAsErrors").FirstOrDefault()
 						?.Value, StringComparison.OrdinalIgnoreCase);
 			project.AllowUnsafeBlocks =
 				"true".Equals(
-					unconditionalPropertyGroups.Elements(XmlNamespace + "AllowUnsafeBlocks").FirstOrDefault()?.Value,
+					unconditionalPropertyGroups.Elements(project.XmlNamespace + "AllowUnsafeBlocks").FirstOrDefault()?.Value,
 					StringComparison.OrdinalIgnoreCase);
 
-			project.RootNamespace = unconditionalPropertyGroups.Elements(XmlNamespace + "RootNamespace")
+			project.RootNamespace = unconditionalPropertyGroups.Elements(project.XmlNamespace + "RootNamespace")
 				.FirstOrDefault()?.Value;
-			project.AssemblyName = unconditionalPropertyGroups.Elements(XmlNamespace + "AssemblyName").FirstOrDefault()
+			project.AssemblyName = unconditionalPropertyGroups.Elements(project.XmlNamespace + "AssemblyName").FirstOrDefault()
 				?.Value;
 
 			project.SignAssembly =
 				"true".Equals(
-					unconditionalPropertyGroups.Elements(XmlNamespace + "SignAssembly").FirstOrDefault()?.Value,
+					unconditionalPropertyGroups.Elements(project.XmlNamespace + "SignAssembly").FirstOrDefault()?.Value,
 					StringComparison.OrdinalIgnoreCase);
-			if (bool.TryParse(unconditionalPropertyGroups.Elements(XmlNamespace + "DelaySign").FirstOrDefault()?.Value, out bool delaySign))
+			if (bool.TryParse(unconditionalPropertyGroups.Elements(project.XmlNamespace + "DelaySign").FirstOrDefault()?.Value, out bool delaySign))
 			{
 				project.DelaySign = delaySign;
 			}
 
 			project.AssemblyOriginatorKeyFile = unconditionalPropertyGroups
-				.Elements(XmlNamespace + "AssemblyOriginatorKeyFile").FirstOrDefault()?.Value;
+				.Elements(project.XmlNamespace + "AssemblyOriginatorKeyFile").FirstOrDefault()?.Value;
 
-			var targetFramework = unconditionalPropertyGroups.Elements(XmlNamespace + "TargetFrameworkVersion").FirstOrDefault();
+			var targetFramework = unconditionalPropertyGroups.Elements(project.XmlNamespace + "TargetFrameworkVersion").FirstOrDefault();
 			if (targetFramework?.Value != null)
 			{
 				project.TargetFrameworks.Add(ToTargetFramework(targetFramework.Value));
@@ -59,8 +59,8 @@ namespace Project2015To2017.Reading
 			}
 
 			// Ref.: https://www.codeproject.com/Reference/720512/List-of-Visual-Studio-Project-Type-GUIDs
-			if (unconditionalPropertyGroups.Elements(XmlNamespace + "TestProjectType").Any() ||
-			    unconditionalPropertyGroups.Elements(XmlNamespace + "ProjectTypeGuids").Any(e =>
+			if (unconditionalPropertyGroups.Elements(project.XmlNamespace + "TestProjectType").Any() ||
+			    unconditionalPropertyGroups.Elements(project.XmlNamespace + "ProjectTypeGuids").Any(e =>
 				    e.Value.IndexOf("3AC096D0-A1C2-E12C-1390-A8335801FDAB", StringComparison.OrdinalIgnoreCase) > -1))
 			{
 				project.Type = ApplicationType.TestProject;
@@ -68,23 +68,24 @@ namespace Project2015To2017.Reading
 			else
 			{
 				project.Type = ToApplicationType(
-					unconditionalPropertyGroups.Elements(XmlNamespace + "OutputType").FirstOrDefault()?.Value ??
-					propertyGroups.Elements(XmlNamespace + "OutputType").FirstOrDefault()?.Value);
+					unconditionalPropertyGroups.Elements(project.XmlNamespace + "OutputType").FirstOrDefault()?.Value ??
+					propertyGroups.Elements(project.XmlNamespace + "OutputType").FirstOrDefault()?.Value ??
+					(project.IsModernProject ? "library" : null));
 			}
 
-			(project.Configurations, project.Platforms) = ReadConditionals(unconditionalPropertyGroups, projectXml);
+			(project.Configurations, project.Platforms) = ReadConditionals(unconditionalPropertyGroups, project);
 
 			project.BuildEvents = propertyGroups.Elements().Where(x =>
-				x.Name == XmlNamespace + "PostBuildEvent" || x.Name == XmlNamespace + "PreBuildEvent").ToArray();
+				x.Name == project.XmlNamespace + "PostBuildEvent" || x.Name == project.XmlNamespace + "PreBuildEvent").ToArray();
 			project.AdditionalPropertyGroups = ReadAdditionalPropertyGroups(project, propertyGroups);
 
-			project.Imports = projectXml.Element(XmlNamespace + "Project").Elements(XmlNamespace + "Import").Where(x =>
+			project.Imports = projectXml.Element(project.XmlNamespace + "Project").Elements(project.XmlNamespace + "Import").Where(x =>
 				x.Attribute("Project")?.Value != @"$(MSBuildToolsPath)\Microsoft.CSharp.targets" &&
 				x.Attribute("Project")?.Value != @"$(MSBuildBinPath)\Microsoft.CSharp.targets" &&
 				x.Attribute("Project")?.Value !=
 				@"$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props").ToArray();
 
-			project.Targets = projectXml.Element(XmlNamespace + "Project").Elements(XmlNamespace + "Target").ToArray();
+			project.Targets = projectXml.Element(project.XmlNamespace + "Project").Elements(project.XmlNamespace + "Target").ToArray();
 
 			if (project.Type == ApplicationType.Unknown)
 			{
@@ -93,8 +94,10 @@ namespace Project2015To2017.Reading
 		}
 
 		private static (List<string>, List<string>) ReadConditionals(XElement[] unconditionalPropertyGroups,
-			XDocument projectXml)
+			Project project)
 		{
+			var projectXml = project.ProjectDocument;
+
 			var configurationSet = new HashSet<string>();
 			var platformSet = new HashSet<string>();
 
@@ -155,7 +158,7 @@ namespace Project2015To2017.Reading
 			platformList.Sort();
 			return (configurationList, platformList);
 
-			string[] ParseFromProperty(string name) => unconditionalPropertyGroups.Elements(XmlNamespace + name)
+			string[] ParseFromProperty(string name) => unconditionalPropertyGroups.Elements(project.XmlNamespace + name)
 					.FirstOrDefault()
 					?.Value
 					.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
