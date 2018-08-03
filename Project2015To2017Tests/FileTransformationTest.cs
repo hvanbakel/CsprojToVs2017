@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
-using static Project2015To2017.Definition.Project;
 
 namespace Project2015To2017Tests
 {

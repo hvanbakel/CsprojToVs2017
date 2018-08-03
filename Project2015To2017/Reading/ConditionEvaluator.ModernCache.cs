@@ -1,13 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.Runtime.Caching;
 
 namespace Project2015To2017.Reading
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public static partial class ConditionEvaluator
+	/// <summary>
+	/// 
+	/// </summary>
+	public static partial class ConditionEvaluator
     {
         private static bool TryGetCachedOrCreateState(string condition, out ConditionEvaluationStateImpl state)
         {

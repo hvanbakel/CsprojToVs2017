@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
-using static Project2015To2017.Definition.Project;
 
 namespace Project2015To2017.Reading
 {

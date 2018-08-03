@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
-using static Project2015To2017.Definition.Project;
 
 namespace Project2015To2017.Transforms
 {

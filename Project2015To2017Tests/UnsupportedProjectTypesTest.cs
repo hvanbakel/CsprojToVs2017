@@ -4,7 +4,6 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017;
 using Project2015To2017.Definition;
-using static Project2015To2017.Definition.Project;
 
 namespace Project2015To2017Tests
 {
@@ -70,8 +69,8 @@ namespace Project2015To2017Tests
 			var xmlDocument = XDocument.Parse(template);
 			if (!string.IsNullOrWhiteSpace(value))
 			{
-				var propertyGroup = xmlDocument.Descendants(XmlLegacyNamespace + "PropertyGroup").First();
-				propertyGroup.Add(new XElement(XmlLegacyNamespace + elementName, value));
+				var propertyGroup = xmlDocument.Descendants(Project.XmlLegacyNamespace + "PropertyGroup").First();
+				propertyGroup.Add(new XElement(Project.XmlLegacyNamespace + elementName, value));
 			}
 			return new Project { ProjectDocument = xmlDocument };
 		}
