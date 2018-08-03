@@ -27,7 +27,7 @@ namespace Project2015To2017.Transforms
 				return (fsi is DirectoryInfo d) ? (d.FullName.TrimEnd('\\') + "\\") : fsi.FullName;
 			}
 
-			var fromPath = GetPath(@from);
+			var fromPath = GetPath(from);
 			var toPath = GetPath(to);
 
 			var fromUri = new Uri(fromPath);

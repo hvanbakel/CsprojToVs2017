@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
-using static Project2015To2017.Definition.Project;
 
 namespace Project2015To2017.Transforms
 {
@@ -31,9 +30,10 @@ namespace Project2015To2017.Transforms
 		{
 			var items = definition.IncludeItems;
 
-			var otherIncludes = ItemsToProject.SelectMany(x => items.Elements(XmlNamespace + x)).Where(KeepFileInclusion);
+			var otherIncludes = ItemsToProject.SelectMany(x => items.Elements(definition.XmlNamespace + x)).Where(
+				element => KeepFileInclusion(element, definition));
 
-			var compileManualIncludes = FindNonWildcardMatchedFiles(definition.ProjectFolder, items, "*.cs", XmlNamespace + "Compile", otherIncludes, progress);
+			var compileManualIncludes = FindNonWildcardMatchedFiles(definition, items, "*.cs", definition.XmlNamespace + "Compile", otherIncludes, progress);
 
 			var itemsToInclude = compileManualIncludes
 									.Concat(otherIncludes)
@@ -42,7 +42,7 @@ namespace Project2015To2017.Transforms
 			definition.IncludeItems = itemsToInclude;
 		}
 
-		private static bool KeepFileInclusion(XElement x)
+		private static bool KeepFileInclusion(XElement x, Project project)
 		{
 			var include = x.Attribute("Include")?.Value;
 
@@ -58,18 +58,19 @@ namespace Project2015To2017.Transforms
 				!include.EndsWith(".nuspec")
 				&&
 				//Resource files are added automatically
-				!(x.Name == XmlNamespace + "EmbeddedResource"
+				!(x.Name == project.XmlNamespace + "EmbeddedResource"
 					&& include.EndsWith(".resx"));
 		}
 
 		private static IReadOnlyList<XElement> FindNonWildcardMatchedFiles(
-			DirectoryInfo projectFolder,
+			Project project,
 			IEnumerable<XElement> itemGroups,
 			string wildcard,
 			XName elementName,
 			IEnumerable<XElement> otherIncludes,
 			IProgress<string> progress)
 		{
+			var projectFolder = project.ProjectFolder;
 			var manualIncludes = new List<XElement>();
 			var filesMatchingWildcard = new List<string>();
 			foreach (var compiledFile in itemGroups.Elements(elementName))
@@ -149,14 +150,14 @@ namespace Project2015To2017.Transforms
 
 			foreach (var otherIncludeMatchingWildcard in otherIncludeFilesMatchingWildcard)
 			{
-				var removeOtherInclude = new XElement(XmlNamespace + "Compile");
+				var removeOtherInclude = new XElement(project.XmlNamespace + "Compile");
 				removeOtherInclude.Add(new XAttribute("Remove", otherIncludeMatchingWildcard));
 				manualIncludes.Add(removeOtherInclude);
 				
 				knownFullPaths.Add(Path.GetFullPath(Path.Combine(projectFolder.FullName, otherIncludeMatchingWildcard)));
 			}
 
-			// if (!project.IsModernProject)
+			if (!project.IsModernProject)
 			{
 				foreach (var nonListedFile in filesInFolder.Except(knownFullPaths, StringComparer.OrdinalIgnoreCase))
 				{

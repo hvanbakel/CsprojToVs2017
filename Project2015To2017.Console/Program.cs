@@ -38,6 +38,8 @@ namespace Project2015To2017.Console
 				convertedProjects.AddRange(projects);
 			}
 
+			System.Console.Out.Flush();
+
 			if (options.DryRun)
 			{
 				return;
@@ -48,9 +50,20 @@ namespace Project2015To2017.Console
 			var writer = new Writing.ProjectWriter(x => x.Delete(), _ => { });
 			foreach (var project in convertedProjects)
 			{
+				if (project.IsModernProject)
+				{
+					if (progress is IProgress<string> progressImpl)
+					{
+						progressImpl.Report($"Skipping CPS project '{project.FilePath.Name}'...");
+					}
+					continue;
+				}
+
 				writer.Write(project, doBackup, progress);
 			}
 
+			System.Console.Out.Flush();
+			
 			ProjectReader.PurgeCache();
 		}
 	}

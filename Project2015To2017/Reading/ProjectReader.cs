@@ -25,7 +25,8 @@ namespace Project2015To2017.Reading
 
 		public ProjectReader(string projectFilePath, IProgress<string> progress = null)
 		{
-			ProjectPath = new FileInfo(projectFilePath) ?? throw new ArgumentNullException(nameof(projectFilePath));
+			projectFilePath = projectFilePath ?? throw new ArgumentNullException(nameof(projectFilePath));
+			ProjectPath = new FileInfo(projectFilePath);
 			if (progress != null)
 				ProgressReporter = progress;
 		}
@@ -56,7 +57,7 @@ namespace Project2015To2017.Reading
 			_cache.Clear();
 		}
 
-		public Project Read(bool loadModern = false)
+		public Project Read()
 		{
 			var filePath = ProjectPath.FullName;
 			if (EnableCaching && _cache.TryGetValue(filePath, out var projectDefinition))
@@ -70,17 +71,11 @@ namespace Project2015To2017.Reading
 				projectXml = XDocument.Load(stream, LoadOptions.SetLineInfo);
 			}
 
-			// get ProjectTypeGuids and check for unsupported types
-			if (UnsupportedProjectTypes.IsUnsupportedProjectType(projectXml))
-			{
-				ProgressReporter.Report("This project type is not supported for conversion.");
-				return null;
-			}
-
 			var isLegacy = projectXml.Element(XmlLegacyNamespace + "Project") != null;
-			if (!isLegacy)
+			var isModern = projectXml.Element(XNamespace.None + "Project") != null;
+			if (!isModern && !isLegacy)
 			{
-				ProgressReporter.Report($"This is not a VS2015 project file.");
+				ProgressReporter.Report("This is not a MSBuild (Visual Studio) project file.");
 				return null;
 			}
 
@@ -88,22 +83,31 @@ namespace Project2015To2017.Reading
 
 			projectDefinition = new Project
 			{
+				IsModernProject = isModern,
 				FilePath = ProjectPath,
+				ProjectDocument = projectXml,
 				PackageConfiguration = packageConfig,
 				Deletions = Array.Empty<FileSystemInfo>(),
 				AssemblyAttributeProperties = Array.Empty<XElement>()
 			};
+
+			// get ProjectTypeGuids and check for unsupported types
+			if (UnsupportedProjectTypes.IsUnsupportedProjectType(projectDefinition))
+			{
+				ProgressReporter.Report("This project type is not supported for conversion.");
+				return null;
+			}
 
 			if (EnableCaching)
 			{
 				_cache.Add(filePath, projectDefinition);
 			}
 			
-			projectDefinition.AssemblyReferences = LoadAssemblyReferences(projectXml);
-			projectDefinition.ProjectReferences = LoadProjectReferences(projectXml);
+			projectDefinition.AssemblyReferences = LoadAssemblyReferences(projectDefinition);
+			projectDefinition.ProjectReferences = LoadProjectReferences(projectDefinition);
 			projectDefinition.PackagesConfigFile = FindPackagesConfigFile(ProjectPath);
-			projectDefinition.PackageReferences = LoadPackageReferences(projectXml, projectDefinition.PackagesConfigFile);
-			projectDefinition.IncludeItems = LoadFileIncludes(projectXml);
+			projectDefinition.PackageReferences = LoadPackageReferences(projectDefinition);
+			projectDefinition.IncludeItems = LoadFileIncludes(projectDefinition);
 
 			ProcessProjectReferences(projectDefinition);
 
@@ -118,22 +122,23 @@ namespace Project2015To2017.Reading
 			return projectDefinition;
 		}
 
-		private void HandleSpecialProjectTypes(XContainer projectXml, Project projectDefinition)
+		private void HandleSpecialProjectTypes(XContainer projectXml, Project project)
 		{
-			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
-
 			// get the MyType tag
-			var outputType = projectXml.Descendants(nsSys + "MyType").FirstOrDefault();
+			var outputType = projectXml.Descendants(project.XmlNamespace + "MyType").FirstOrDefault();
 			// WinForms applications
 			if (outputType?.Value == "WindowsForms")
 			{
 				ProgressReporter.Report($"This is a Windows Forms project file, support is limited.");
-				projectDefinition.IsWindowsFormsProject = true;
+				project.IsWindowsFormsProject = true;
 			}
 
 			// try to get project type - may not exist
-			var typeElement = projectXml.Descendants(nsSys + "ProjectTypeGuids").FirstOrDefault();
-			if (typeElement == null) return;
+			var typeElement = projectXml.Descendants(project.XmlNamespace + "ProjectTypeGuids").FirstOrDefault();
+			if (typeElement == null)
+			{
+				return;
+			}
 
 			// parse the CSV list
 			var guidTypes = typeElement.Value
@@ -143,22 +148,22 @@ namespace Project2015To2017.Reading
 
 			if (guidTypes.Contains("{EFBA0AD7-5A72-4C68-AF49-83D382785DCF}"))
 			{
-				projectDefinition.TargetFrameworks.Add("xamarin.android");
+				project.TargetFrameworks.Add("xamarin.android");
 			}
 
 			if (guidTypes.Contains("{6BC8ED88-2882-458C-8E55-DFD12B67127B}"))
 			{
-				projectDefinition.TargetFrameworks.Add("xamarin.ios");
+				project.TargetFrameworks.Add("xamarin.ios");
 			}
 
 			if (guidTypes.Contains("{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A}"))
 			{
-				projectDefinition.TargetFrameworks.Add("uap");
+				project.TargetFrameworks.Add("uap");
 			}
 
 			if (guidTypes.Contains("{60DC8134-EBA5-43B8-BCC9-BB4BC16C2548}"))
 			{
-				projectDefinition.IsWindowsPresentationFoundationProject = true;
+				project.IsWindowsPresentationFoundationProject = true;
 			}
 		}
 
@@ -185,17 +190,19 @@ namespace Project2015To2017.Reading
 			}
 		}
 
-		private IReadOnlyList<PackageReference> LoadPackageReferences(XDocument projectXml, FileInfo packagesConfig)
+		private IReadOnlyList<PackageReference> LoadPackageReferences(Project project)
 		{
+			var projectXml = project.ProjectDocument;
+			var packagesConfig = project.PackagesConfigFile;
 			try
 			{
-				var existingPackageReferences = projectXml.Root.Elements(XmlNamespace + "ItemGroup")
-					.Elements(XmlNamespace + "PackageReference")
+				var existingPackageReferences = projectXml.Root.Elements(project.XmlNamespace + "ItemGroup")
+					.Elements(project.XmlNamespace + "PackageReference")
 					.Select(x => new PackageReference
 					{
 						Id = x.Attribute("Include").Value,
-						Version = x.Attribute("Version")?.Value ?? x.Element(XmlNamespace + "Version").Value,
-						IsDevelopmentDependency = x.Element(XmlNamespace + "PrivateAssets") != null
+						Version = x.Attribute("Version")?.Value ?? x.Element(project.XmlNamespace + "Version").Value,
+						IsDevelopmentDependency = x.Element(project.XmlNamespace + "PrivateAssets") != null
 					});
 
 				var packageConfigPackages = ExtractReferencesFromPackagesConfig(packagesConfig);
@@ -244,30 +251,29 @@ namespace Project2015To2017.Reading
 			return packageConfigPackages;
 		}
 
-		private IReadOnlyList<ProjectReference> LoadProjectReferences(XDocument projectXml)
+		private IReadOnlyList<ProjectReference> LoadProjectReferences(Project project)
 		{
-			var projectReferences = projectXml
-				.Element(XmlNamespace + "Project")
-				.Elements(XmlNamespace + "ItemGroup")
-				.Elements(XmlNamespace + "ProjectReference")
+			var projectReferences = project.ProjectDocument
+				.Element(project.XmlNamespace + "Project")
+				.Elements(project.XmlNamespace + "ItemGroup")
+				.Elements(project.XmlNamespace + "ProjectReference")
 				.Select(x => new ProjectReference
 				{
 					Include = x.Attribute("Include").Value,
-					Aliases = x.Element(XmlNamespace + "Aliases")?.Value
+					Aliases = x.Element(project.XmlNamespace + "Aliases")?.Value,
+					EmbedInteropTypes = string.Equals(x.Element(project.XmlNamespace + "EmbedInteropTypes")?.Value, "true", StringComparison.OrdinalIgnoreCase)
 				})
 				.ToList();
 
 			return projectReferences;
 		}
 
-		private List<AssemblyReference> LoadAssemblyReferences(XDocument projectXml)
+		private List<AssemblyReference> LoadAssemblyReferences(Project project)
 		{
-			XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
-
-			return projectXml
-				.Element(nsSys + "Project")
-				?.Elements(nsSys + "ItemGroup")
-				.Elements(nsSys + "Reference")
+			return project.ProjectDocument
+				.Element(project.XmlNamespace + "Project")
+				?.Elements(project.XmlNamespace + "ItemGroup")
+				.Elements(project.XmlNamespace + "Reference")
 				.Select(FormatAssemblyReference)
 				.ToList();
 
@@ -304,13 +310,13 @@ namespace Project2015To2017.Reading
 			return element?.Value;
 		}
 
-		private static List<XElement> LoadFileIncludes(XDocument projectXml)
+		private static List<XElement> LoadFileIncludes(Project project)
 		{
-			var items = projectXml
-				            ?.Element(XmlNamespace + "Project")
-				            ?.Elements(XmlNamespace + "ItemGroup")
-				            .ToList()
-			            ?? new List<XElement>();
+			var items = project.ProjectDocument
+							?.Element(project.XmlNamespace + "Project")
+							?.Elements(project.XmlNamespace + "ItemGroup")
+							.ToList()
+						?? new List<XElement>();
 
 			return items;
 		}
