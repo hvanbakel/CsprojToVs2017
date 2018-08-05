@@ -3,12 +3,12 @@ using Project2015To2017.Analysis.Diagnostics;
 
 namespace Project2015To2017.Analysis
 {
-	public class DiagnosticSet : HashSet<DiagnosticBase>
+	public class DiagnosticSet : HashSet<IDiagnostic>
 	{
-		public static readonly DiagnosticBase W001 = new W001IllegalProjectTypeDiagnostic();
+		public static readonly IDiagnostic W001 = new W001IllegalProjectTypeDiagnostic();
 		// W002 is not a real diagnostic
-		public static readonly DiagnosticBase W010 = new W010ConfigurationsMismatchDiagnostic();
-		public static readonly DiagnosticBase W020 = new W020MicrosoftCSharpDiagnostic();
+		public static readonly IDiagnostic W010 = new W010ConfigurationsMismatchDiagnostic();
+		public static readonly IDiagnostic W020 = new W020MicrosoftCSharpDiagnostic();
 
 		public static readonly DiagnosticSet AllDefault = new DiagnosticSet
 		{

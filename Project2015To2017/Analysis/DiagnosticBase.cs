@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -6,49 +7,14 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis
 {
-	public abstract class DiagnosticBase : IEquatable<DiagnosticBase>
+	public abstract class DiagnosticBase : IEquatable<DiagnosticBase>, IDiagnostic
 	{
-		private AnalysisOptions _options;
-		private IReporter _reporter;
-		public uint Id { get; }
-
-		protected internal AnalysisOptions Options
-		{
-			get => _options;
-			set => _options = value ?? throw new ArgumentNullException(nameof(value));
-		}
-
-		protected internal IReporter Reporter
-		{
-			get => _reporter;
-			set => _reporter = value ?? throw new ArgumentNullException(nameof(value));
-		}
+		public abstract uint Id { get; }
 
 		public virtual bool SkipForLegacyProject => false;
 		public virtual bool SkipForModernProject => false;
 
-		/// <inheritdoc />
-		protected DiagnosticBase(uint id)
-		{
-			Id = id;
-		}
-
-		protected abstract void AnalyzeImpl(Project project);
-
-		public void Analyze(Project project)
-		{
-			if (_options == null)
-			{
-				throw new IllegalDiagnosticStateException("Analyzer options are not set.");
-			}
-
-			if (_reporter == null)
-			{
-				throw new IllegalDiagnosticStateException("Reporter to use is not set.");
-			}
-
-			AnalyzeImpl(project);
-		}
+		public abstract IReadOnlyList<IDiagnosticResult> Analyze(Project project);
 
 		/// <summary>
 		/// Report found issue using user-selected means of logging
@@ -57,7 +23,7 @@ namespace Project2015To2017.Analysis
 		/// <param name="element">XML element that is the source of the issue</param>
 		/// <param name="source">File or directory for user reference</param>
 		/// <param name="sourceLine">File line for user reference</param>
-		protected void Report(string message, XElement element = null, FileSystemInfo source = null, uint sourceLine = uint.MaxValue)
+		protected DiagnosticResult CreateDiagnosticResult(string message, XElement element = null, FileSystemInfo source = null, uint sourceLine = uint.MaxValue)
 		{
 			if (source == null && sourceLine != uint.MaxValue)
 			{
@@ -69,10 +35,17 @@ namespace Project2015To2017.Analysis
 				sourceLine = (uint) elementOnLine.LineNumber;
 			}
 
-			Reporter.Report(DiagnosticCode, message, source, sourceLine);
+			return new DiagnosticResult
+			{
+				Code = this.Id.ToDiagnosticCode(),
+				Message = message,
+				Location = new DiagnosticLocation
+				{
+					Source = source,
+					SourceLine = sourceLine
+				}
+			};
 		}
-
-		public string DiagnosticCode => $"W{Id.ToString().PadLeft(3, '0')}";
 
 		public override int GetHashCode()
 		{
@@ -81,19 +54,19 @@ namespace Project2015To2017.Analysis
 
 		public override string ToString()
 		{
-			return DiagnosticCode;
+			return this.Id.ToDiagnosticCode();
 		}
 
 		public bool Equals(DiagnosticBase other)
 		{
-			if (ReferenceEquals(null, other)) return false;
+			if (other is null) return false;
 			if (ReferenceEquals(this, other)) return true;
 			return Id == other.Id;
 		}
 
 		public override bool Equals(object obj)
 		{
-			if (ReferenceEquals(null, obj)) return false;
+			if (obj is null) return false;
 			if (ReferenceEquals(this, obj)) return true;
 			return obj is DiagnosticBase other && Equals(other);
 		}

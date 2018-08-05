@@ -7,10 +7,9 @@ namespace Project2015To2017.Analysis.Diagnostics
 {
 	public sealed class W001IllegalProjectTypeDiagnostic : DiagnosticBase
 	{
-		/// <inheritdoc />
-		public W001IllegalProjectTypeDiagnostic() : base(1)
-		{
-		}
+		private static readonly uint DiagnoticId = 1;
+		public static readonly string Code = DiagnoticId.ToDiagnosticCode();
+		public override uint Id => DiagnoticId;
 
 		private static readonly Dictionary<string, string> TypeGuids = new Dictionary<string, string>
 		{
@@ -21,18 +20,19 @@ namespace Project2015To2017.Analysis.Diagnostics
 
 		/// <param name="project"></param>
 		/// <inheritdoc />
-		protected override void AnalyzeImpl(Project project)
+		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
+			var list = new List<IDiagnosticResult>(TypeGuids.Count + 1);
 			if (project.IsWindowsFormsProject)
 			{
-				Report($"Windows Forms support in CPS is in early stages and support might depend on your working environment.", null, project.FilePath);
+				list.Add(CreateDiagnosticResult($"Windows Forms support in CPS is in early stages and support might depend on your working environment.", null, project.FilePath));
 			}
 
 			// try to get project type - may not exist
 			var typeElement = project.ProjectDocument.Descendants(project.XmlNamespace + "ProjectTypeGuids").FirstOrDefault();
 			if (typeElement == null)
 			{
-				return;
+				return System.Array.Empty<IDiagnosticResult>();
 			}
 
 			// parse the CSV list
@@ -45,8 +45,10 @@ namespace Project2015To2017.Analysis.Diagnostics
 			{
 				if (!guidTypes.Contains(item.Key)) continue;
 
-				Report($"Project type {item.Value} is not tested thoroughly and support might depend on your working environment.", typeElement, project.FilePath);
+				list.Add(CreateDiagnosticResult($"Project type {item.Value} is not tested thoroughly and support might depend on your working environment.", typeElement, project.FilePath));
 			}
+
+			return list;
 		}
 	}
 }

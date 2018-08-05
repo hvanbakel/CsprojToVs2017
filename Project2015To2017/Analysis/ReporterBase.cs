@@ -1,31 +1,33 @@
-using System.IO;
+using System.Collections.Generic;
 using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Analysis
 {
 	public abstract class ReporterBase : IReporter
 	{
-		protected internal AnalysisOptions Options { get; set; }
+		/// <inheritdoc />
+		protected abstract void Report(string code, string message, string source, uint sourceLine);
 
 		/// <inheritdoc />
-		protected ReporterBase(AnalysisOptions options = null)
+		public void Report(IReadOnlyList<IDiagnosticResult> results, IReporterOptions reporterOptions)
 		{
-			Options = options ?? new AnalysisOptions();
-		}
-
-		/// <inheritdoc />
-		public abstract void Report(string code, string message, string source = null, uint sourceLine = uint.MaxValue);
-
-		/// <inheritdoc />
-		public virtual void Report(string code, string message, FileSystemInfo source = null, uint sourceLine = uint.MaxValue)
-		{
-			string sourceRef = null;
-			if (source != null)
+			if (results == null || results.Count == 0)
 			{
-				sourceRef = Options.RootDirectory?.GetRelativePathTo(source);
+				return;
 			}
 
-			Report(code, message, sourceRef, sourceLine);
+			foreach (var result in results)
+			{
+				uint sourceLine = uint.MaxValue;
+				string sourceRef = null;
+				if (result.Location != null)
+				{
+					sourceRef = reporterOptions.RootDirectory?.GetRelativePathTo(result.Location.Source);
+					sourceLine = result.Location.SourceLine;
+				}
+
+				this.Report(result.Code, result.Message, sourceRef, sourceLine);
+			}
 		}
 	}
 }
