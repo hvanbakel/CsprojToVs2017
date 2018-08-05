@@ -6,13 +6,13 @@ namespace Project2015To2017.Analysis
 {
 	public class Analyzer
 	{
-		private readonly AnalysisOptions options;
-		private readonly IReporter reporter;
+		private readonly AnalysisOptions _options;
+		private readonly IReporter _reporter;
 
 		public Analyzer(AnalysisOptions options = null, IReporter reporter = null)
 		{
-			this.options = options ?? new AnalysisOptions();
-			this.reporter = reporter ?? new ConsoleReporter();
+			_options = options ?? new AnalysisOptions();
+			_reporter = reporter ?? new ConsoleReporter();
 		}
 
 		public void Analyze(Project project)
@@ -22,7 +22,7 @@ namespace Project2015To2017.Analysis
 				throw new ArgumentNullException(nameof(project));
 			}
 
-			foreach (var diagnostic in this.options.Diagnostics)
+			foreach (var diagnostic in _options.Diagnostics)
 			{
 				if (diagnostic.SkipForModernProject && project.IsModernProject)
 				{
@@ -34,9 +34,9 @@ namespace Project2015To2017.Analysis
 					continue;
 				}
 
-				this.reporter.Report(diagnostic.Analyze(project), new ReporterOptions
+				_reporter.Report(diagnostic.Analyze(project), new ReporterOptions
 				{
-					RootDirectory = project.Solution?.FilePath.Directory ?? project.FilePath.Directory
+					RootDirectory = project.TryFindBestRootDirectory()
 				});
 			}
 		}
@@ -62,7 +62,7 @@ namespace Project2015To2017.Analysis
 			{
 				if (!projectPath.ProjectFile.Exists)
 				{
-					this.reporter.Report(new[]
+					_reporter.Report(new[]
 					{
 						new DiagnosticResult
 						{
