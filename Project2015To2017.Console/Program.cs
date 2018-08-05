@@ -1,10 +1,11 @@
+using CommandLine;
+using Project2015To2017.Analysis;
+using Project2015To2017.Definition;
+using Project2015To2017.Reading;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using CommandLine;
-using Project2015To2017.Definition;
-using Project2015To2017.Reading;
 
 namespace Project2015To2017.Console
 {
@@ -40,6 +41,12 @@ namespace Project2015To2017.Console
 
 			System.Console.Out.Flush();
 
+			var analyzer = new Analyzer();
+			foreach (var project in convertedProjects)
+			{
+				analyzer.Analyze(project);
+			}
+
 			if (options.DryRun)
 			{
 				return;
@@ -56,6 +63,7 @@ namespace Project2015To2017.Console
 					{
 						progressImpl.Report($"Skipping CPS project '{project.FilePath.Name}'...");
 					}
+
 					continue;
 				}
 
@@ -63,8 +71,30 @@ namespace Project2015To2017.Console
 			}
 
 			System.Console.Out.Flush();
-			
+
+			if (progress is IProgress<string> progressInterface)
+			{
+				progressInterface.Report("### Performing 2nd pass to analyze converted projects...");
+			}
+
 			ProjectReader.PurgeCache();
+			convertedProjects.Clear();
+
+			foreach (var file in options.Files)
+			{
+				var projects = ProjectConverter
+					.Convert(file, conversionOptions, progress)
+					.Where(x => x != null)
+					.ToList();
+				convertedProjects.AddRange(projects);
+			}
+
+			System.Console.Out.Flush();
+
+			foreach (var project in convertedProjects)
+			{
+				analyzer.Analyze(project);
+			}
 		}
 	}
 }
