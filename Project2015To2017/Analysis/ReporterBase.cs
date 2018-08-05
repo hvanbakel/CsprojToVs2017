@@ -5,7 +5,6 @@ namespace Project2015To2017.Analysis
 {
 	public abstract class ReporterBase : IReporter
 	{
-		/// <inheritdoc />
 		protected abstract void Report(string code, string message, string source, uint sourceLine);
 
 		/// <inheritdoc />

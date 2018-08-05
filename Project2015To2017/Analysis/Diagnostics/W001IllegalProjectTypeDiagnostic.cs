@@ -1,3 +1,4 @@
+using System;
 using Project2015To2017.Definition;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -27,7 +28,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 			var typeElement = project.ProjectDocument.Descendants(project.XmlNamespace + "ProjectTypeGuids").FirstOrDefault();
 			if (typeElement == null)
 			{
-				return System.Array.Empty<IDiagnosticResult>();
+				return Array.Empty<IDiagnosticResult>();
 			}
 
 			// parse the CSV list

@@ -15,7 +15,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 			var reference = project.AssemblyReferences.FirstOrDefault(x => string.Equals(x.Include, "Microsoft.CSharp", StringComparison.OrdinalIgnoreCase));
 			if (reference == null)
 			{
-				return System.Array.Empty<IDiagnosticResult>();
+				return Array.Empty<IDiagnosticResult>();
 			}
 
 			var net40Found = false;
