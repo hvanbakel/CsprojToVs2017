@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -9,10 +10,17 @@ namespace Project2015To2017.Analysis
 {
 	public abstract class DiagnosticBase : IEquatable<DiagnosticBase>, IDiagnostic
 	{
-		public abstract uint Id { get; }
+		public uint Id { get; }
+		public string DiagnosticCode { get; }
 
 		public virtual bool SkipForLegacyProject => false;
 		public virtual bool SkipForModernProject => false;
+
+		protected DiagnosticBase(uint id)
+		{
+			Id = id;
+			DiagnosticCode = $"W{id.ToString(CultureInfo.InvariantCulture).PadLeft(3, '0')}";
+		}
 
 		public abstract IReadOnlyList<IDiagnosticResult> Analyze(Project project);
 
@@ -37,7 +45,7 @@ namespace Project2015To2017.Analysis
 
 			return new DiagnosticResult
 			{
-				Code = this.Id.ToDiagnosticCode(),
+				Code = DiagnosticCode,
 				Message = message,
 				Location = new DiagnosticLocation
 				{
@@ -54,7 +62,7 @@ namespace Project2015To2017.Analysis
 
 		public override string ToString()
 		{
-			return this.Id.ToDiagnosticCode();
+			return DiagnosticCode;
 		}
 
 		public bool Equals(DiagnosticBase other)

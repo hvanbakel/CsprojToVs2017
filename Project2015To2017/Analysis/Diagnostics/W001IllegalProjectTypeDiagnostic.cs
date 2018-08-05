@@ -7,10 +7,6 @@ namespace Project2015To2017.Analysis.Diagnostics
 {
 	public sealed class W001IllegalProjectTypeDiagnostic : DiagnosticBase
 	{
-		private static readonly uint DiagnoticId = 1;
-		public static readonly string Code = DiagnoticId.ToDiagnosticCode();
-		public override uint Id => DiagnoticId;
-
 		private static readonly Dictionary<string, string> TypeGuids = new Dictionary<string, string>
 		{
 			["{EFBA0AD7-5A72-4C68-AF49-83D382785DCF}"] = "Xamarin.Android",
@@ -18,7 +14,6 @@ namespace Project2015To2017.Analysis.Diagnostics
 			["{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A}"] = "UAP/UWP",
 		};
 
-		/// <param name="project"></param>
 		/// <inheritdoc />
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
@@ -49,6 +44,10 @@ namespace Project2015To2017.Analysis.Diagnostics
 			}
 
 			return list;
+		}
+
+		public W001IllegalProjectTypeDiagnostic() : base(1)
+		{
 		}
 	}
 }

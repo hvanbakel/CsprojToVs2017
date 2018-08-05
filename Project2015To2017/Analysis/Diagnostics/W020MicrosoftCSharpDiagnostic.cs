@@ -7,13 +7,8 @@ namespace Project2015To2017.Analysis.Diagnostics
 {
 	internal class W020MicrosoftCSharpDiagnostic : DiagnosticBase
 	{
-		private static readonly uint DiagnoticId = 20;
-		public static readonly string Code = DiagnoticId.ToDiagnosticCode();
-		public override uint Id => DiagnoticId; 
-
 		private static readonly string[] IncompatiblePrefixes = { "net1", "net2", "net3" };
 
-		/// <param name="project"></param>
 		/// <inheritdoc />
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
@@ -53,6 +48,10 @@ namespace Project2015To2017.Analysis.Diagnostics
 			}
 
 			return list;
+		}
+
+		public W020MicrosoftCSharpDiagnostic() : base(20)
+		{
 		}
 	}
 }

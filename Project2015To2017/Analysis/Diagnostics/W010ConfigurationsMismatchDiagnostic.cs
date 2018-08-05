@@ -9,11 +9,6 @@ namespace Project2015To2017.Analysis.Diagnostics
 {
 	public class W010ConfigurationsMismatchDiagnostic : DiagnosticBase
 	{
-		private static readonly uint DiagnoticId = 10;
-		public static readonly string Code = DiagnoticId.ToDiagnosticCode();
-		public override uint Id => DiagnoticId;
-
-		/// <param name="project"></param>
 		/// <inheritdoc />
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
@@ -81,6 +76,10 @@ namespace Project2015To2017.Analysis.Diagnostics
 				.FirstOrDefault()
 				?.Value
 				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+		}
+
+		public W010ConfigurationsMismatchDiagnostic() : base(10)
+		{
 		}
 	}
 }
