@@ -1,39 +1,18 @@
-using Project2015To2017.Analysis.Diagnostics;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Project2015To2017.Analysis
 {
 	public class Analyzer
 	{
-		/// <summary>
-		/// All user definable analysis properties to use during the process
-		/// </summary>
-		public AnalysisOptions Options { get; }
-
-		/// <summary>
-		/// User reporter to use for output
-		/// </summary>
-		public IReporter Reporter { get; }
+		private readonly AnalysisOptions options;
+		private readonly IReporter reporter;
 
 		public Analyzer(AnalysisOptions options = null, IReporter reporter = null)
 		{
-			Options = options ?? new AnalysisOptions();
-			Reporter = reporter ?? new ConsoleReporter(options);
-
-			if (reporter != null && reporter is ReporterBase reporterBase)
-			{
-				reporterBase.Options = Options;
-			}
-
-			foreach (var diagnostic in Options.Diagnostics)
-			{
-				diagnostic.Options = Options;
-				diagnostic.Reporter = Reporter;
-			}
+			this.options = options ?? new AnalysisOptions();
+			this.reporter = reporter ?? new ConsoleReporter();
 		}
 
 		public void Analyze(Project project)
@@ -43,12 +22,7 @@ namespace Project2015To2017.Analysis
 				throw new ArgumentNullException(nameof(project));
 			}
 
-			if (Options.RootDirectory == null)
-			{
-				Options.RootDirectory = project.Solution?.FilePath.Directory ?? project.FilePath.Directory;
-			}
-
-			foreach (var diagnostic in Options.Diagnostics)
+			foreach (var diagnostic in this.options.Diagnostics)
 			{
 				if (diagnostic.SkipForModernProject && project.IsModernProject)
 				{
@@ -60,7 +34,10 @@ namespace Project2015To2017.Analysis
 					continue;
 				}
 
-				diagnostic.Analyze(project);
+				this.reporter.Report(diagnostic.Analyze(project), new ReporterOptions
+				{
+					RootDirectory = project.Solution?.FilePath.Directory ?? project.FilePath.Directory
+				});
 			}
 		}
 
@@ -71,23 +48,32 @@ namespace Project2015To2017.Analysis
 				throw new ArgumentNullException(nameof(solution));
 			}
 
-			if (Options.RootDirectory == null)
-			{
-				Options.RootDirectory = solution.FilePath.Directory;
-			}
-
 			if (solution.ProjectPaths == null)
 			{
 				return;
 			}
 
+			var reporterOptions = new ReporterOptions
+			{
+				RootDirectory = solution.FilePath.Directory
+			};
+
 			foreach (var projectPath in solution.ProjectPaths)
 			{
 				if (!projectPath.ProjectFile.Exists)
 				{
-					Reporter.Report("W002",
-						$"Referenced project file '{projectPath.Include}' was not found at '{projectPath.ProjectFile.FullName}'.",
-						solution.FilePath);
+					this.reporter.Report(new[]
+					{
+						new DiagnosticResult
+						{
+							Code = "W002",
+							Message = $"Referenced project file '{projectPath.Include}' was not found at '{projectPath.ProjectFile.FullName}'.",
+							Location = new DiagnosticLocation
+							{
+								Source = solution.FilePath
+							}
+						}
+					}, reporterOptions);
 					continue;
 				}
 

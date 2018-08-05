@@ -10,13 +10,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 	public class W010ConfigurationsMismatchDiagnostic : DiagnosticBase
 	{
 		/// <inheritdoc />
-		public W010ConfigurationsMismatchDiagnostic() : base(10)
-		{
-		}
-
-		/// <param name="project"></param>
-		/// <inheritdoc />
-		protected override void AnalyzeImpl(Project project)
+		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
 			var propertyGroups = project.ProjectDocument.Element(project.XmlNamespace + "Project").Elements(project.XmlNamespace + "PropertyGroup").ToArray();
 
@@ -36,6 +30,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 				platformSet.Add(platform);
 			}
 
+			var list = new List<IDiagnosticResult>();
 			foreach (var x in project.ProjectDocument.Descendants())
 			{
 				var condition = x.Attribute("Condition");
@@ -58,7 +53,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 					{
 						if (!configurationSet.Contains(configuration))
 						{
-							Report($"Configuration '{configuration}' is used in project file but not mentioned in $(Configurations).", x, project.FilePath);
+							list.Add(CreateDiagnosticResult($"Configuration '{configuration}' is used in project file but not mentioned in $(Configurations).", x, project.FilePath));
 						}
 					}
 				}
@@ -69,16 +64,22 @@ namespace Project2015To2017.Analysis.Diagnostics
 					{
 						if (!platformSet.Contains(platform))
 						{
-							Report($"Platform '{platform}' is used in project file but not mentioned in $(Platforms).", x, project.FilePath);
+							list.Add(CreateDiagnosticResult($"Platform '{platform}' is used in project file but not mentioned in $(Platforms).", x, project.FilePath));
 						}
 					}
 				}
 			}
 
+			return list;
+
 			string[] ParseFromProperty(string name) => propertyGroups.Where(x => x.Attribute("Condition") == null).Elements(project.XmlNamespace + name)
 				.FirstOrDefault()
 				?.Value
 				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+		}
+
+		public W010ConfigurationsMismatchDiagnostic() : base(10)
+		{
 		}
 	}
 }

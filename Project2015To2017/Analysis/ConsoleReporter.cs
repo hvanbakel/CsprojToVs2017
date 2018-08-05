@@ -9,12 +9,7 @@ namespace Project2015To2017.Analysis
 		public static readonly ConsoleReporter Instance = new ConsoleReporter();
 
 		/// <inheritdoc />
-		public ConsoleReporter(AnalysisOptions options = null) : base(options)
-		{
-		}
-
-		/// <inheritdoc />
-		public override void Report(string code, string message, string source = null, uint sourceLine = uint.MaxValue)
+		protected override void Report(string code, string message, string source = null, uint sourceLine = uint.MaxValue)
 		{
 			var consoleHeader = $"{code}: ";
 			string linePadding;
