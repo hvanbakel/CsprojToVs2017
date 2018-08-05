@@ -17,15 +17,19 @@ namespace Project2015To2017.Analysis
 
 			foreach (var result in results)
 			{
-				uint sourceLine = uint.MaxValue;
+				var sourceLine = uint.MaxValue;
 				string sourceRef = null;
 				if (result.Location != null)
 				{
-					sourceRef = reporterOptions.RootDirectory?.GetRelativePathTo(result.Location.Source);
+					if (result.Location.Source != null)
+					{
+						sourceRef = reporterOptions.RootDirectory?.GetRelativePathTo(result.Location.Source);
+					}
+
 					sourceLine = result.Location.SourceLine;
 				}
 
-				this.Report(result.Code, result.Message, sourceRef, sourceLine);
+				Report(result.Code, result.Message, sourceRef, sourceLine);
 			}
 		}
 	}
