@@ -41,7 +41,7 @@ namespace Project2015To2017.Console
 
 			System.Console.Out.Flush();
 
-			var analyzer = new Analyzer();
+			var analyzer = new Analyzer<ConsoleReporter, ConsoleReporterOptions>(ConsoleReporter.Instance);
 			foreach (var project in convertedProjects)
 			{
 				analyzer.Analyze(project);

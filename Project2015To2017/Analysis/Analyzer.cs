@@ -4,15 +4,17 @@ using System;
 
 namespace Project2015To2017.Analysis
 {
-	public class Analyzer
+	public class Analyzer<TReporter, TReporterOptions>
+		where TReporter : class, IReporter<TReporterOptions>
+		where TReporterOptions : IReporterOptions
 	{
 		private readonly AnalysisOptions _options;
-		private readonly IReporter _reporter;
+		private readonly TReporter _reporter;
 
-		public Analyzer(AnalysisOptions options = null, IReporter reporter = null)
+		public Analyzer(TReporter reporter, AnalysisOptions options = null)
 		{
+			_reporter = reporter ?? throw new ArgumentNullException(nameof(reporter));
 			_options = options ?? new AnalysisOptions();
-			_reporter = reporter ?? new ConsoleReporter();
 		}
 
 		public void Analyze(Project project)
@@ -34,10 +36,8 @@ namespace Project2015To2017.Analysis
 					continue;
 				}
 
-				_reporter.Report(diagnostic.Analyze(project), new ReporterOptions
-				{
-					RootDirectory = project.TryFindBestRootDirectory()
-				});
+				var reporterOptions = _reporter.CreateOptionsForProject(project);
+				_reporter.Report(diagnostic.Analyze(project), reporterOptions);
 			}
 		}
 
@@ -53,11 +53,6 @@ namespace Project2015To2017.Analysis
 				return;
 			}
 
-			var reporterOptions = new ReporterOptions
-			{
-				RootDirectory = solution.FilePath.Directory
-			};
-
 			foreach (var projectPath in solution.ProjectPaths)
 			{
 				if (!projectPath.ProjectFile.Exists)
@@ -67,13 +62,14 @@ namespace Project2015To2017.Analysis
 						new DiagnosticResult
 						{
 							Code = "W002",
-							Message = $"Referenced project file '{projectPath.Include}' was not found at '{projectPath.ProjectFile.FullName}'.",
+							Message =
+								$"Referenced project file '{projectPath.Include}' was not found at '{projectPath.ProjectFile.FullName}'.",
 							Location = new DiagnosticLocation
 							{
 								Source = solution.FilePath
 							}
 						}
-					}, reporterOptions);
+					}, _reporter.DefaultOptions);
 					continue;
 				}
 

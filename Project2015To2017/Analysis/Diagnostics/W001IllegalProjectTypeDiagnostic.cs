@@ -21,11 +21,14 @@ namespace Project2015To2017.Analysis.Diagnostics
 			var list = new List<IDiagnosticResult>(TypeGuids.Count + 1);
 			if (project.IsWindowsFormsProject)
 			{
-				list.Add(CreateDiagnosticResult($"Windows Forms support in CPS is in early stages and support might depend on your working environment.", null, project.FilePath));
+				list.Add(CreateDiagnosticResult(project,
+					"Windows Forms support in CPS is in early stages and support might depend on your working environment.",
+					project.FilePath));
 			}
 
 			// try to get project type - may not exist
-			var typeElement = project.ProjectDocument.Descendants(project.XmlNamespace + "ProjectTypeGuids").FirstOrDefault();
+			var typeElement = project.ProjectDocument.Descendants(project.XmlNamespace + "ProjectTypeGuids")
+				.FirstOrDefault();
 			if (typeElement == null)
 			{
 				return Array.Empty<IDiagnosticResult>();
@@ -41,7 +44,11 @@ namespace Project2015To2017.Analysis.Diagnostics
 			{
 				if (!guidTypes.Contains(item.Key)) continue;
 
-				list.Add(CreateDiagnosticResult($"Project type {item.Value} is not tested thoroughly and support might depend on your working environment.", typeElement, project.FilePath));
+				list.Add(
+					CreateDiagnosticResult(project,
+							$"Project type {item.Value} is not tested thoroughly and support might depend on your working environment.",
+							project.FilePath)
+						.LoadLocationFromElement(typeElement));
 			}
 
 			return list;

@@ -1,14 +1,16 @@
 using System.Collections.Generic;
-using Project2015To2017.Transforms;
+using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis
 {
-	public abstract class ReporterBase : IReporter
+	public abstract class ReporterBase<TOptions> : IReporter<TOptions> where TOptions : IReporterOptions
 	{
-		protected abstract void Report(string code, string message, string source, uint sourceLine);
+		public abstract TOptions DefaultOptions { get; }
+
+		protected abstract void Report(IDiagnosticResult result, TOptions reporterOptions);
 
 		/// <inheritdoc />
-		public void Report(IReadOnlyList<IDiagnosticResult> results, IReporterOptions reporterOptions)
+		public void Report(IReadOnlyList<IDiagnosticResult> results, TOptions reporterOptions)
 		{
 			if (results == null || results.Count == 0)
 			{
@@ -17,20 +19,27 @@ namespace Project2015To2017.Analysis
 
 			foreach (var result in results)
 			{
-				var sourceLine = uint.MaxValue;
-				string sourceRef = null;
-				if (result.Location != null)
+				var targetResult = result;
+				if (result.Location?.Source != null)
 				{
-					if (result.Location.Source != null)
+					var sourcePath = result.Project.TryFindBestRootDirectory()
+						?.GetRelativePathTo(result.Location.Source);
+					targetResult = new DiagnosticResult(result)
 					{
-						sourceRef = reporterOptions.RootDirectory?.GetRelativePathTo(result.Location.Source);
-					}
-
-					sourceLine = result.Location.SourceLine;
+						Location = new DiagnosticLocation(result.Location)
+						{
+							SourcePath = sourcePath
+						}
+					};
 				}
 
-				Report(result.Code, result.Message, sourceRef, sourceLine);
+				Report(targetResult, reporterOptions);
 			}
+		}
+
+		public virtual TOptions CreateOptionsForProject(Project project)
+		{
+			return DefaultOptions;
 		}
 	}
 }

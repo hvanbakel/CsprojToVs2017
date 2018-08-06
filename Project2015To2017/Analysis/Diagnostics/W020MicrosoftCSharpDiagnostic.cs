@@ -36,15 +36,21 @@ namespace Project2015To2017.Analysis.Diagnostics
 						continue;
 					}
 
-					list.Add(CreateDiagnosticResult($"'Microsoft.CSharp' assembly is incompatible with TargetFramework '{incompatiblePrefix}', version no less than 4.0 is expected.",
-						reference.DefinitionElement, project.FilePath));
+					list.Add(
+						CreateDiagnosticResult(project,
+								$"'Microsoft.CSharp' assembly is incompatible with TargetFramework '{incompatiblePrefix}', version no less than 4.0 is expected.",
+								project.FilePath)
+							.LoadLocationFromElement(reference.DefinitionElement));
 				}
 			}
 
 			if (!net40Found)
 			{
-				list.Add(CreateDiagnosticResult($"A better way to reference 'Microsoft.CSharp' assembly is using 'Microsoft.CSharp' NuGet package. It will simplify porting to other runtimes.",
-					reference.DefinitionElement, project.FilePath));
+				list.Add(
+					CreateDiagnosticResult(project,
+							"A better way to reference 'Microsoft.CSharp' assembly is using 'Microsoft.CSharp' NuGet package. It will simplify porting to other runtimes.",
+							project.FilePath)
+						.LoadLocationFromElement(reference.DefinitionElement));
 			}
 
 			return list;

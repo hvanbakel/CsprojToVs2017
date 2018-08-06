@@ -12,7 +12,8 @@ namespace Project2015To2017.Analysis.Diagnostics
 		/// <inheritdoc />
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
-			var propertyGroups = project.ProjectDocument.Element(project.XmlNamespace + "Project").Elements(project.XmlNamespace + "PropertyGroup").ToArray();
+			var propertyGroups = project.ProjectDocument.Element(project.XmlNamespace + "Project")
+				.Elements(project.XmlNamespace + "PropertyGroup").ToArray();
 
 			var configurationSet = new HashSet<string>();
 			var platformSet = new HashSet<string>();
@@ -53,7 +54,11 @@ namespace Project2015To2017.Analysis.Diagnostics
 					{
 						if (!configurationSet.Contains(configuration))
 						{
-							list.Add(CreateDiagnosticResult($"Configuration '{configuration}' is used in project file but not mentioned in $(Configurations).", x, project.FilePath));
+							list.Add(
+								CreateDiagnosticResult(project,
+										$"Configuration '{configuration}' is used in project file but not mentioned in $(Configurations).",
+										project.FilePath)
+									.LoadLocationFromElement(x));
 						}
 					}
 				}
@@ -64,7 +69,11 @@ namespace Project2015To2017.Analysis.Diagnostics
 					{
 						if (!platformSet.Contains(platform))
 						{
-							list.Add(CreateDiagnosticResult($"Platform '{platform}' is used in project file but not mentioned in $(Platforms).", x, project.FilePath));
+							list.Add(
+								CreateDiagnosticResult(project,
+										$"Platform '{platform}' is used in project file but not mentioned in $(Platforms).",
+										project.FilePath)
+									.LoadLocationFromElement(x));
 						}
 					}
 				}
@@ -72,7 +81,8 @@ namespace Project2015To2017.Analysis.Diagnostics
 
 			return list;
 
-			string[] ParseFromProperty(string name) => propertyGroups.Where(x => x.Attribute("Condition") == null).Elements(project.XmlNamespace + name)
+			string[] ParseFromProperty(string name) => propertyGroups.Where(x => x.Attribute("Condition") == null)
+				.Elements(project.XmlNamespace + name)
 				.FirstOrDefault()
 				?.Value
 				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);

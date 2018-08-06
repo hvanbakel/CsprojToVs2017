@@ -6,5 +6,6 @@ namespace Project2015To2017.Analysis
 	{
 		FileSystemInfo Source { get; }
 		uint SourceLine { get; }
+		string SourcePath { get; }
 	}
 }
