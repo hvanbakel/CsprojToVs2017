@@ -64,5 +64,19 @@ namespace Project2015To2017.Analysis
 
 			return self;
 		}
+
+		public static StringComparison BestAvailableStringIgnoreCaseComparison
+		{
+			get
+			{
+				StringComparison comparison;
+#if NETSTANDARD2_0
+				comparison = StringComparison.InvariantCultureIgnoreCase;
+#else
+				comparison = StringComparison.OrdinalIgnoreCase;
+#endif
+				return comparison;
+			}
+		}
 	}
 }
