@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis
@@ -30,6 +32,37 @@ namespace Project2015To2017.Analysis
 			if (project == null) throw new ArgumentNullException(nameof(project));
 
 			return project.Solution?.FilePath.Directory ?? project.FilePath.Directory;
+		}
+
+		public static string GetSourcePath(this IDiagnosticLocation self)
+		{
+			if (self == null) throw new ArgumentNullException(nameof(self));
+
+			return self.SourcePath ?? self.Source?.FullName;
+		}
+
+		public static IDiagnosticResult LoadLocationFromElement(this IDiagnosticResult self, XElement element)
+		{
+			if (self == null) throw new ArgumentNullException(nameof(self));
+			if (element == null) throw new ArgumentNullException(nameof(element));
+
+			if (self.Location.SourceLine != uint.MaxValue)
+			{
+				return self;
+			}
+
+			if (element is IXmlLineInfo elementOnLine && elementOnLine.HasLineInfo())
+			{
+				return new DiagnosticResult(self)
+				{
+					Location = new DiagnosticLocation(self.Location)
+					{
+						SourceLine = (uint) elementOnLine.LineNumber
+					}
+				};
+			}
+
+			return self;
 		}
 	}
 }

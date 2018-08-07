@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Xml;
-using System.Xml.Linq;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis
@@ -27,20 +25,15 @@ namespace Project2015To2017.Analysis
 		/// <summary>
 		/// Report found issue using user-selected means of logging
 		/// </summary>
+		/// <param name="project">Project in which the issue was found</param>
 		/// <param name="message">Informative message about the issue</param>
-		/// <param name="element">XML element that is the source of the issue</param>
 		/// <param name="source">File or directory for user reference</param>
 		/// <param name="sourceLine">File line for user reference</param>
-		protected DiagnosticResult CreateDiagnosticResult(string message, XElement element = null, FileSystemInfo source = null, uint sourceLine = uint.MaxValue)
+		protected DiagnosticResult CreateDiagnosticResult(Project project, string message, FileSystemInfo source = null, uint sourceLine = uint.MaxValue)
 		{
 			if (source == null && sourceLine != uint.MaxValue)
 			{
 				throw new ArgumentNullException(nameof(source));
-			}
-
-			if (sourceLine == uint.MaxValue && element is IXmlLineInfo elementOnLine && elementOnLine.HasLineInfo())
-			{
-				sourceLine = (uint) elementOnLine.LineNumber;
 			}
 
 			return new DiagnosticResult
@@ -51,7 +44,8 @@ namespace Project2015To2017.Analysis
 				{
 					Source = source,
 					SourceLine = sourceLine
-				}
+				},
+				Project = project
 			};
 		}
 
