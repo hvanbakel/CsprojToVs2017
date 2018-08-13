@@ -8,7 +8,7 @@ namespace Project2015To2017.Reading.Conditionals
     /// <summary>
     /// Base class for nodes that are operators (have children in the parse tree)
     /// </summary>
-    internal abstract class OperatorExpressionNode : GenericExpressionNode
+    public abstract class OperatorExpressionNode : GenericExpressionNode
     {
         /// <summary>
         /// Numeric evaluation is never allowed for operators
@@ -74,7 +74,7 @@ namespace Project2015To2017.Reading.Conditionals
         }
 
         /// <summary>
-        /// If any expression nodes cache any state for the duration of evaluation, 
+        /// If any expression nodes cache any state for the duration of evaluation,
         /// now's the time to clean it up
         /// </summary>
         internal override void ResetState()

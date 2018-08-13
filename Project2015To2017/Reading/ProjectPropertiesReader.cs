@@ -49,11 +49,38 @@ namespace Project2015To2017.Reading
 			project.AssemblyOriginatorKeyFile = unconditionalPropertyGroups
 				.Elements(project.XmlNamespace + "AssemblyOriginatorKeyFile").FirstOrDefault()?.Value;
 
-			var targetFramework = unconditionalPropertyGroups.Elements(project.XmlNamespace + "TargetFrameworkVersion").FirstOrDefault();
-			if (targetFramework?.Value != null)
+			var targetFrameworkVersion = unconditionalPropertyGroups
+				.Elements(project.XmlNamespace + "TargetFrameworkVersion")
+				.FirstOrDefault();
+			if (targetFrameworkVersion?.Value != null)
 			{
-				project.TargetFrameworks.Add(ToTargetFramework(targetFramework.Value));
-				targetFramework.Remove();
+				project.TargetFrameworks.Add(ToTargetFramework(targetFrameworkVersion.Value));
+				targetFrameworkVersion.Remove();
+			}
+			else
+			{
+				var targetFrameworks = unconditionalPropertyGroups
+					.Elements(project.XmlNamespace + "TargetFrameworks")
+					.FirstOrDefault()
+					?.Value;
+				if (targetFrameworks != null)
+				{
+					foreach (var framework in targetFrameworks.Split(new[] {';'},StringSplitOptions.RemoveEmptyEntries))
+					{
+						project.TargetFrameworks.Add(framework);
+					}
+				}
+				else
+				{
+					var targetFramework = unconditionalPropertyGroups
+						.Elements(project.XmlNamespace + "TargetFramework")
+						.FirstOrDefault()
+						?.Value;
+					if (targetFramework != null)
+					{
+						project.TargetFrameworks.Add(targetFramework);
+					}
+				}
 			}
 
 			// Ref.: https://www.codeproject.com/Reference/720512/List-of-Visual-Studio-Project-Type-GUIDs

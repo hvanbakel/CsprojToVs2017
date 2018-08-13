@@ -1,6 +1,7 @@
 using Project2015To2017.Reading.Conditionals;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
 namespace Project2015To2017.Reading
@@ -135,6 +136,34 @@ namespace Project2015To2017.Reading
 
 		public static Dictionary<string, List<string>> GetConditionValues(string condition)
 		{
+			var state = GetConditionState(condition);
+			if (state.Evaluated)
+			{
+				return state.ConditionedPropertiesInProject;
+			}
+
+			try
+			{
+				// it makes little sense for condition to be that short
+				if (condition.Length >= 2)
+				{
+					state.Node.Evaluate(state); // return value ignored
+				}
+			}
+			catch (Exception)
+			{
+				// ignored
+			}
+			finally
+			{
+				state.Evaluated = true;
+			}
+
+			return state.ConditionedPropertiesInProject;
+		}
+
+		public static ConditionEvaluationStateImpl GetConditionState(string condition)
+		{
 			if (condition.Length > 0)
 			{
 				condition = condition.Trim();
@@ -142,47 +171,67 @@ namespace Project2015To2017.Reading
 
 			if (TryGetCachedOrCreateState(condition, out var state))
 			{
-				return state.ConditionedPropertiesInProject;
-			}
-
-			// it makes little sense for condition to be that short
-			if (condition.Length < 2)
-			{
-				return state.ConditionedPropertiesInProject;
+				return state;
 			}
 
 			var parser = new Parser();
 			try
 			{
 				state.Node = parser.Parse(condition, ParserOptions.AllowAll);
-				state.Node.Evaluate(state); // return value ignored
+				state.UnsupportedNodes = UnsupportedVisitor(state.Node).ToImmutableArray();
 			}
 			catch (Exception)
 			{
 				// ignored
 			}
 
-			return state.ConditionedPropertiesInProject;
+			return state;
 		}
 
-		private sealed class ConditionEvaluationStateImpl : IConditionEvaluationState
+		private static IEnumerable<OperatorExpressionNode> UnsupportedVisitor(GenericExpressionNode node)
 		{
-			/// <inheritdoc />
-			public Dictionary<string, List<string>> ConditionedPropertiesInProject { get; } = new Dictionary<string, List<string>>();
-
-			internal GenericExpressionNode Node { get; set; }
-
-			/// <inheritdoc />
-			public string ExpandIntoStringBreakEarly(string expression)
+			switch (node)
 			{
-				return expression;
+				case OrExpressionNode or:
+					yield return or;
+					break;
+				case NotExpressionNode not when !IsSupportedFunctionCallNode(not.LeftChild):
+					yield return not;
+					break;
+				case NotEqualExpressionNode neq:
+					yield return neq;
+					break;
+				case NumericComparisonExpressionNode num:
+					yield return num;
+					break;
+				case FunctionCallExpressionNode func when !IsSupportedFunctionCallNode(func):
+					yield return func;
+					break;
+				case OperatorExpressionNode op:
+					if (op.LeftChild != null)
+					{
+						foreach (var childNode in UnsupportedVisitor(op.LeftChild))
+							yield return childNode;
+					}
+
+					if (op.RightChild != null)
+					{
+						foreach (var childNode in UnsupportedVisitor(op.RightChild))
+							yield return childNode;
+					}
+
+					break;
+			}
+		}
+
+		private static bool IsSupportedFunctionCallNode(GenericExpressionNode node)
+		{
+			if (node is FunctionCallExpressionNode exists)
+			{
+				return exists.FunctionName.Equals("Exists", StringComparison.OrdinalIgnoreCase);
 			}
 
-			/// <inheritdoc />
-			public string ExpandIntoString(string expression)
-			{
-				return expression;
-			}
+			return false;
 		}
 	}
 }
