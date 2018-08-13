@@ -50,17 +50,17 @@ namespace Project2015To2017.Reading
 		/// <summary>
 		/// Process-lifetime-long cache of loaded projects
 		/// </summary>
-		private static readonly Dictionary<string, Project> _cache = new Dictionary<string, Project>();
+		private static readonly Dictionary<string, Project> Cache = new Dictionary<string, Project>();
 
 		public static void PurgeCache()
 		{
-			_cache.Clear();
+			Cache.Clear();
 		}
 
 		public Project Read()
 		{
 			var filePath = ProjectPath.FullName;
-			if (EnableCaching && _cache.TryGetValue(filePath, out var projectDefinition))
+			if (EnableCaching && Cache.TryGetValue(filePath, out var projectDefinition))
 			{
 				return projectDefinition;
 			}
@@ -100,9 +100,9 @@ namespace Project2015To2017.Reading
 
 			if (EnableCaching)
 			{
-				_cache.Add(filePath, projectDefinition);
+				Cache.Add(filePath, projectDefinition);
 			}
-			
+
 			projectDefinition.AssemblyReferences = LoadAssemblyReferences(projectDefinition);
 			projectDefinition.ProjectReferences = LoadProjectReferences(projectDefinition);
 			projectDefinition.PackagesConfigFile = FindPackagesConfigFile(ProjectPath);

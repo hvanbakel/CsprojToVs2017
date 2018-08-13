@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -148,9 +147,9 @@ namespace Project2015To2017.Writing
 					return trialDir;
 				}
 
-				var MaxIndex = 100;
+				const int maxIndex = 100;
 
-				var foundBackupDir = Enumerable.Range(1, MaxIndex)
+				var foundBackupDir = Enumerable.Range(1, maxIndex)
 					.Select(x => Path.Combine(baseDir, $"Backup{x}"))
 					.FirstOrDefault(x => !Directory.Exists(x));
 
@@ -250,7 +249,7 @@ namespace Project2015To2017.Writing
 			if (project.AssemblyReferences?.Count > 0)
 			{
 				var assemblyReferences = new XElement("ItemGroup");
-				foreach (var assemblyReference in project.AssemblyReferences.Where(x => !IsDefaultIncludedAssemblyReference(x.Include)))
+				foreach (var assemblyReference in project.AssemblyReferences)
 				{
 					assemblyReferences.Add(MakeAssemblyReference(assemblyReference));
 				}
@@ -315,22 +314,6 @@ namespace Project2015To2017.Writing
 					: null);
 		}
 
-		private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
-		{
-			return new[]
-			{
-				"System",
-				"System.Core",
-				"System.Data",
-				"System.Drawing",
-				"System.IO.Compression.FileSystem",
-				"System.Numerics",
-				"System.Runtime.Serialization",
-				"System.Xml",
-				"System.Xml.Linq"
-			}.Contains(assemblyReference);
-		}
-
 		private XElement GetMainPropertyGroup(Project project, FileInfo outputFile)
 		{
 			var mainPropertyGroup = new XElement("PropertyGroup");
@@ -349,14 +332,10 @@ namespace Project2015To2017.Writing
 				if (platforms.Count != 1 || !platforms.Contains("AnyCPU"))
 					AddIfNotNull(mainPropertyGroup, "Platforms", string.Join(";", platforms));
 
-			AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : null);
-			AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : null);
-			AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.RootNamespace : null);
-			AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.AssemblyName : null);
-			AddIfNotNull(mainPropertyGroup, "AllowUnsafeBlocks", project.AllowUnsafeBlocks ? "true" : null);
-			AddIfNotNull(mainPropertyGroup, "SignAssembly", project.SignAssembly ? "true" : null);
-			AddIfNotNull(mainPropertyGroup, "DelaySign", project.DelaySign.HasValue ? (project.DelaySign.Value ? "true" : "false") : null);
-			AddIfNotNull(mainPropertyGroup, "AssemblyOriginatorKeyFile", project.AssemblyOriginatorKeyFile);
+			var outputProjectName = Path.GetFileNameWithoutExtension(outputFile.Name);
+
+			AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace != outputProjectName ? project.RootNamespace : null);
+			AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName != outputProjectName ? project.AssemblyName : null);
 			AddIfNotNull(mainPropertyGroup, "AppendTargetFrameworkToOutputPath", project.AppendTargetFrameworkToOutputPath ? null : "false");
 
 			AddIfNotNull(mainPropertyGroup, "ExtrasEnableWpfProjectSetup",
@@ -407,7 +386,7 @@ namespace Project2015To2017.Writing
 			}
 		}
 
-		private void AddIfNotNull(XElement node, string elementName, string value)
+		private static void AddIfNotNull(XElement node, string elementName, string value)
 		{
 			if (!string.IsNullOrWhiteSpace(value))
 			{

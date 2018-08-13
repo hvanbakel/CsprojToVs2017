@@ -8,6 +8,7 @@ using Project2015To2017.Reading;
 using Project2015To2017.Writing;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 
 namespace Project2015To2017Tests
 {
@@ -142,11 +143,11 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				DelaySign = null,
+				AdditionalPropertyGroups = new[] {new XElement("PropertyGroup")},
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
+			var delaySign = xmlNode.Elements("PropertyGroup").Skip(1).First().Element("DelaySign");
 			Assert.IsNull(delaySign);
 		}
 
@@ -156,11 +157,11 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				DelaySign = true,
+				AdditionalPropertyGroups = new[] {new XElement("PropertyGroup", new XElement("DelaySign", "true"))},
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
+			var delaySign = xmlNode.Elements("PropertyGroup").Skip(1).First().Element("DelaySign");
 			Assert.IsNotNull(delaySign);
 			Assert.AreEqual("true", delaySign.Value);
 		}
@@ -171,11 +172,11 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				DelaySign = false,
+				AdditionalPropertyGroups = new[] {new XElement("PropertyGroup", new XElement("DelaySign", "false"))},
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
+			var delaySign = xmlNode.Elements("PropertyGroup").Skip(1).First().Element("DelaySign");
 			Assert.IsNotNull(delaySign);
 			Assert.AreEqual("false", delaySign.Value);
 		}
@@ -363,28 +364,6 @@ namespace Project2015To2017Tests
 			);
 
 			CollectionAssert.AreEqual(new FileSystemInfo[0], actualDeletedFiles);
-		}
-
-		[TestMethod]
-		public void PreventEmptyAssemblyReferences()
-		{
-			var project = new Project
-			{
-				AssemblyReferences = new List<AssemblyReference>
-				{
-					new AssemblyReference()
-					{
-						Include = "System"
-					}
-				},
-				FilePath = new FileInfo("test.cs")
-			};
-
-			var writer = new ProjectWriter(_ => { }, _ => { });
-
-			var xmlNode = writer.CreateXml(project);
-
-			Assert.IsNull(xmlNode.Element("ItemGroup"));
 		}
 
 		[TestMethod]

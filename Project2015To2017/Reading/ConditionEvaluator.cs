@@ -142,22 +142,7 @@ namespace Project2015To2017.Reading
 				return state.ConditionedPropertiesInProject;
 			}
 
-			try
-			{
-				// it makes little sense for condition to be that short
-				if (condition.Length >= 2)
-				{
-					state.Node.Evaluate(state); // return value ignored
-				}
-			}
-			catch (Exception)
-			{
-				// ignored
-			}
-			finally
-			{
-				state.Evaluated = true;
-			}
+			state.Evaluate();
 
 			return state.ConditionedPropertiesInProject;
 		}

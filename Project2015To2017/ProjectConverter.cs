@@ -11,9 +11,10 @@ using System.Runtime.CompilerServices;
 
 namespace Project2015To2017
 {
-	public class ProjectConverter
+	public static class ProjectConverter
 	{
-		private static IReadOnlyList<ITransformation> TransformationsToApply(ConversionOptions conversionOptions, Project project)
+		private static IReadOnlyCollection<ITransformation> TransformationsToApply(ConversionOptions conversionOptions,
+			Project project)
 		{
 			if (project.IsModernProject)
 			{
@@ -28,9 +29,12 @@ namespace Project2015To2017
 				new TargetFrameworkTransformation(
 					conversionOptions.TargetFrameworks,
 					conversionOptions.AppendTargetFrameworkToOutputPath),
+				new PropertySimplificationTransformation(),
+				new PropertyDeduplicationTransformation(),
 				new PackageReferenceTransformation(),
 				new AssemblyReferenceTransformation(),
 				new RemovePackageAssemblyReferencesTransformation(),
+				new DefaultAssemblyReferenceRemovalTransformation(),
 				new RemovePackageImportsTransformation(),
 				new FileTransformation(),
 				new NugetPackageTransformation(),
@@ -39,36 +43,14 @@ namespace Project2015To2017
 			};
 		}
 
-		public static IEnumerable<Project> Convert(
-			string target,
-			IProgress<string> progress)
+		public static IEnumerable<Project> Convert(string target, IProgress<string> progress)
 		{
-			return Convert(target, new List<ITransformation>(), new List<ITransformation>(), progress);
+			return Convert(target, new ConversionOptions(), progress);
 		}
 
 		public static IEnumerable<Project> Convert(
 			string target,
 			ConversionOptions conversionOptions,
-			IProgress<string> progress)
-		{
-			return Convert(target, conversionOptions, new List<ITransformation>(), new List<ITransformation>(), progress);
-		}
-
-		public static IEnumerable<Project> Convert(
-			string target,
-			IReadOnlyList<ITransformation> preTransforms,
-			IReadOnlyList<ITransformation> postTransforms,
-			IProgress<string> progress
-		)
-		{
-			return Convert(target, new ConversionOptions(), preTransforms, postTransforms, progress);
-		}
-
-		public static IEnumerable<Project> Convert(
-			string target,
-			ConversionOptions conversionOptions,
-			IReadOnlyList<ITransformation> preTransforms,
-			IReadOnlyList<ITransformation> postTransforms,
 			IProgress<string> progress
 		)
 		{
@@ -79,15 +61,16 @@ namespace Project2015To2017
 				switch (extension)
 				{
 					case ".sln":
-						foreach (var project in ConvertSolution(target, conversionOptions, preTransforms, postTransforms, progress))
+						foreach (var project in ConvertSolution(target, conversionOptions, progress))
 						{
 							yield return project;
 						}
+
 						break;
 
 					case ".csproj":
 						var file = new FileInfo(target);
-						yield return ProcessFile(file, null, conversionOptions, preTransforms, postTransforms, progress);
+						yield return ProcessFile(file, null, conversionOptions, progress);
 						break;
 
 					default:
@@ -102,7 +85,7 @@ namespace Project2015To2017
 			var solutionFiles = Directory.EnumerateFiles(target, "*.sln", SearchOption.TopDirectoryOnly).ToArray();
 			if (solutionFiles.Length == 1)
 			{
-				foreach (var project in ConvertSolution(solutionFiles[0], conversionOptions, preTransforms, postTransforms, progress))
+				foreach (var project in ConvertSolution(solutionFiles[0], conversionOptions, progress))
 				{
 					yield return project;
 				}
@@ -123,12 +106,12 @@ namespace Project2015To2017
 			foreach (var projectFile in projectFiles)
 			{
 				// todo: rewrite both directory enumerations to use FileInfo instead of raw strings
-				yield return ProcessFile(new FileInfo(projectFile), null, conversionOptions, preTransforms, postTransforms, progress);
+				yield return ProcessFile(new FileInfo(projectFile), null, conversionOptions, progress);
 			}
 		}
 
 		private static IEnumerable<Project> ConvertSolution(string target, ConversionOptions conversionOptions,
-			IReadOnlyList<ITransformation> preTransforms, IReadOnlyList<ITransformation> postTransforms, IProgress<string> progress)
+			IProgress<string> progress)
 		{
 			progress.Report("Solution parsing started.");
 			var solution = SolutionReader.Instance.Read(target, progress);
@@ -147,30 +130,17 @@ namespace Project2015To2017
 				}
 				else
 				{
-					yield return ProcessFile(projectPath.ProjectFile, solution, conversionOptions, preTransforms, postTransforms,
-						progress);
+					yield return ProcessFile(projectPath.ProjectFile, solution, conversionOptions, progress);
 				}
 			}
 		}
 
-		[Obsolete]
 		private static Project ProcessFile(
-			string filePath,
+			FileInfo file,
 			Solution solution,
 			ConversionOptions conversionOptions,
-			IReadOnlyList<ITransformation> preTransforms,
-			IReadOnlyList<ITransformation> postTransforms,
 			IProgress<string> progress
-		) => ProcessFile(new FileInfo(filePath), solution, conversionOptions, preTransforms, postTransforms, progress);
-
-		private static Project ProcessFile(
-				FileInfo file,
-				Solution solution,
-				ConversionOptions conversionOptions,
-				IReadOnlyList<ITransformation> preTransforms,
-				IReadOnlyList<ITransformation> postTransforms,
-				IProgress<string> progress
-			)
+		)
 		{
 			if (!Validate(file, progress))
 			{
@@ -185,7 +155,7 @@ namespace Project2015To2017
 
 			project.Solution = solution;
 
-			foreach (var transform in preTransforms)
+			foreach (var transform in conversionOptions.PreDefaultTransforms)
 			{
 				transform.Transform(project, progress);
 			}
@@ -195,7 +165,7 @@ namespace Project2015To2017
 				transform.Transform(project, progress);
 			}
 
-			foreach (var transform in postTransforms)
+			foreach (var transform in conversionOptions.PostDefaultTransforms)
 			{
 				transform.Transform(project, progress);
 			}
@@ -212,7 +182,6 @@ namespace Project2015To2017
 
 			progress.Report($"File {file.FullName} could not be found.");
 			return false;
-
 		}
 	}
 }

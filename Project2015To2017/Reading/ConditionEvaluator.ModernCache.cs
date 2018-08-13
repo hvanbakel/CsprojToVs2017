@@ -3,7 +3,7 @@ using System.Runtime.Caching;
 namespace Project2015To2017.Reading
 {
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 	internal static partial class ConditionEvaluator
     {
@@ -16,7 +16,7 @@ namespace Project2015To2017.Reading
                 return true;
             }
 
-            state = new ConditionEvaluationStateImpl();
+            state = new ConditionEvaluationStateImpl(condition);
 
             MemoryCache.Default.Add(condition, state, ObjectCache.InfiniteAbsoluteExpiration);
 
