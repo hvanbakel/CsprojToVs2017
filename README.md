@@ -19,7 +19,7 @@ There are a number of things [that VS2017 handles differently](http://www.natemc
 ### As a Net Core Global Tool
 Assuming you have net core 2.1 installed you can run this on the command line:
 `dotnet tool install Project2015To2017.Cli --global`
-This will install the tool for you to use it anywhere you would like. You can then call 
+This will install the tool for you to use it anywhere you would like. You can then call the tool as shown in the examples below.
 
 ### As a normal file download
 Using the tool is simple, it is a simple command line utility that has a single argument being the project file, solution file or folder you would like to convert.
