@@ -5,10 +5,10 @@ using System;
 
 namespace Project2015To2017.Reading.Conditionals
 {
-    /// <summary>
-    /// Base class for nodes that are operators (have children in the parse tree)
-    /// </summary>
-    public abstract class OperatorExpressionNode : GenericExpressionNode
+	/// <summary>
+	/// Base class for nodes that are operators (have children in the parse tree)
+	/// </summary>
+	internal abstract class OperatorExpressionNode : GenericExpressionNode
     {
         /// <summary>
         /// Numeric evaluation is never allowed for operators

@@ -12,8 +12,9 @@
 		<RepositoryUrl>https://github.com/hvanbakel/CsprojToVs2017</RepositoryUrl>
 		<Copyright>Copyright Hans van Bakel</Copyright>
 		<PackageTags>dotnet csproj conversion vs2015 vs2017</PackageTags>
-		<Version>1.7.0</Version>
+		<Version>1.8.0</Version>
 		<OutputType>Exe</OutputType>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(Pack) != 'true'">

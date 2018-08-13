@@ -5,7 +5,7 @@ namespace Project2015To2017.Reading
 	/// <summary>
 	/// 
 	/// </summary>
-	public static partial class ConditionEvaluator
+	internal static partial class ConditionEvaluator
     {
         private static bool TryGetCachedOrCreateState(string condition, out ConditionEvaluationStateImpl state)
         {

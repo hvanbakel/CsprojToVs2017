@@ -12,11 +12,11 @@ namespace Project2015To2017.Reading.Conditionals
     internal sealed class FunctionCallExpressionNode : OperatorExpressionNode
     {
         private readonly List<GenericExpressionNode> _arguments;
-        public readonly string FunctionName;
+        public readonly string _functionName;
 
         internal FunctionCallExpressionNode(string functionName, List<GenericExpressionNode> arguments)
         {
-            FunctionName = functionName;
+            _functionName = functionName;
             _arguments = arguments;
         }
 
@@ -25,12 +25,12 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override bool BoolEvaluate(IConditionEvaluationState state)
         {
-	        if (String.Compare(FunctionName, "exists", StringComparison.OrdinalIgnoreCase) == 0)
+	        if (String.Compare(_functionName, "exists", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 return true;
             }
 
-	        if (String.Compare(FunctionName, "HasTrailingSlash", StringComparison.OrdinalIgnoreCase) == 0)
+	        if (String.Compare(_functionName, "HasTrailingSlash", StringComparison.OrdinalIgnoreCase) == 0)
 	        {
 		        // often used to append slash to path so return false to enable this codepath
 		        return false;

@@ -4,7 +4,7 @@ using Project2015To2017.Reading.Conditionals;
 
 namespace Project2015To2017.Reading
 {
-	public sealed class ConditionEvaluationStateImpl : IConditionEvaluationState
+	internal sealed class ConditionEvaluationStateImpl : IConditionEvaluationState
 	{
 		/// <inheritdoc />
 		public Dictionary<string, List<string>> ConditionedPropertiesInProject { get; } = new Dictionary<string, List<string>>();

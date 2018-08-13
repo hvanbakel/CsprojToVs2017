@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Project2015To2017.Reading
 {
-	public static partial class ConditionEvaluator
+	internal static partial class ConditionEvaluator
 	{
 		#region MSBuild Conditional routine
 
@@ -162,7 +162,7 @@ namespace Project2015To2017.Reading
 			return state.ConditionedPropertiesInProject;
 		}
 
-		public static ConditionEvaluationStateImpl GetConditionState(string condition)
+		internal static ConditionEvaluationStateImpl GetConditionState(string condition)
 		{
 			if (condition.Length > 0)
 			{
@@ -228,7 +228,7 @@ namespace Project2015To2017.Reading
 		{
 			if (node is FunctionCallExpressionNode exists)
 			{
-				return exists.FunctionName.Equals("Exists", StringComparison.OrdinalIgnoreCase);
+				return exists._functionName.Equals("Exists", StringComparison.OrdinalIgnoreCase);
 			}
 
 			return false;

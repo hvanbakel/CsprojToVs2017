@@ -13,7 +13,8 @@
 	<PackageTags>dotnet csproj conversion vs2015 vs2017</PackageTags>
 	<Description>Tool for converting a csproj file for VS2015 to VS2017 and beyond.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.7.0</Version>
+    <Version>1.8.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
