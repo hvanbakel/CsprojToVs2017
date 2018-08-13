@@ -449,7 +449,17 @@ namespace Project2015To2017.Writing
 					continue;
 				}
 
-				this.deleteFileOperation(fileInfo);
+				this.checkoutOperation(fileInfo);
+
+				var attributes = File.GetAttributes(fileInfo.FullName);
+				if ((attributes & FileAttributes.ReadOnly) != 0)
+				{
+					progress.Report($"File {fileInfo.FullName} could not be deleted as it is not writable.");
+				}
+				else
+				{
+					this.deleteFileOperation(fileInfo);
+				}
 			}
 		}
 	}
