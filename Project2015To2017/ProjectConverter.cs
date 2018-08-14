@@ -147,7 +147,7 @@ namespace Project2015To2017
 				return null;
 			}
 
-			var project = new ProjectReader(file, progress).Read();
+			var project = new ProjectReader(file, progress, conversionOptions).Read();
 			if (project == null)
 			{
 				return null;

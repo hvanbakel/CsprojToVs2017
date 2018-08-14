@@ -5,7 +5,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
-	public class W021SystemNuGetPackagesDiagnostic : DiagnosticBase
+	public sealed class W021SystemNuGetPackagesDiagnostic : DiagnosticBase
 	{
 		private const string MaxTargetFramework = "net499";
 		private const string MaxTargetStandard = "netstandard9.9";

@@ -6,7 +6,7 @@ using System.Xml.Linq;
 
 namespace Project2015To2017.Transforms
 {
-	public class XamlPagesTransformation : ITransformation
+	public sealed class XamlPagesTransformation : ITransformation
 	{
 		/// <inheritdoc />
 		public void Transform(Project definition, IProgress<string> progress)

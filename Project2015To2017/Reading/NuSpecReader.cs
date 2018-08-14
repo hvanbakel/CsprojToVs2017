@@ -6,7 +6,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Reading
 {
-	public class NuSpecReader
+	public sealed class NuSpecReader
 	{
 		public PackageConfiguration Read(FileInfo projectFile, IProgress<string> progress)
 		{

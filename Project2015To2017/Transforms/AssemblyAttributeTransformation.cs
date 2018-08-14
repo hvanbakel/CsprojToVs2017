@@ -6,7 +6,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public class AssemblyAttributeTransformation : ITransformation
+	public sealed class AssemblyAttributeTransformation : ITransformation
 	{
 		public AssemblyAttributeTransformation() : this(false)
 		{

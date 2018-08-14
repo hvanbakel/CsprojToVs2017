@@ -5,7 +5,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	internal sealed class AssemblyReferenceTransformation : ITransformation
+	public sealed class AssemblyReferenceTransformation : ITransformation
 	{
 		public void Transform(Project definition, IProgress<string> progress)
 		{

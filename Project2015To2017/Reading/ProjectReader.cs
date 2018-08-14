@@ -6,61 +6,38 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using static Project2015To2017.Definition.Project;
 
 namespace Project2015To2017.Reading
 {
-	public class ProjectReader
+	public sealed class ProjectReader
 	{
-		public ProjectReader()
+		private readonly FileInfo projectPath;
+		private readonly Caching.IProjectCache projectCache;
+		private readonly IProgress<string> progressReporter;
+
+		public ProjectReader(FileInfo projectFile, IProgress<string> progress = null, ConversionOptions conversionOptions = null)
+			: this(progress, conversionOptions)
 		{
+			this.projectPath = projectFile ?? throw new ArgumentNullException(nameof(projectFile));
 		}
 
-		public ProjectReader(FileInfo projectFile, IProgress<string> progress = null)
-		{
-			ProjectPath = projectFile ?? throw new ArgumentNullException(nameof(projectFile));
-			if (progress != null)
-				ProgressReporter = progress;
-		}
-
-		public ProjectReader(string projectFilePath, IProgress<string> progress = null)
+		public ProjectReader(string projectFilePath, IProgress<string> progress = null, ConversionOptions conversionOptions = null)
+			: this(progress, conversionOptions)
 		{
 			projectFilePath = projectFilePath ?? throw new ArgumentNullException(nameof(projectFilePath));
-			ProjectPath = new FileInfo(projectFilePath);
-			if (progress != null)
-				ProgressReporter = progress;
+			this.projectPath = new FileInfo(projectFilePath);
 		}
 
-		public static bool EnableCaching;
-
-		public FileInfo ProjectPath { get; set; }
-
-		public IProgress<string> ProgressReporter { get; set; } = new Progress<string>(_ => { });
-
-		[Obsolete]
-		public Project Read(string filePath, IProgress<string> progress = null)
+		private ProjectReader(IProgress<string> progress, ConversionOptions conversionOptions)
 		{
-			ProjectPath = new FileInfo(filePath);
-			if (progress != null)
-				ProgressReporter = progress;
-
-			return Read();
-		}
-
-		/// <summary>
-		/// Process-lifetime-long cache of loaded projects
-		/// </summary>
-		private static readonly Dictionary<string, Project> Cache = new Dictionary<string, Project>();
-
-		public static void PurgeCache()
-		{
-			Cache.Clear();
+			this.progressReporter = progress ?? new Progress<string>(_ => { });
+			this.projectCache = conversionOptions?.ProjectCache ?? Caching.NoProjectCache.Instance;
 		}
 
 		public Project Read()
 		{
-			var filePath = ProjectPath.FullName;
-			if (EnableCaching && Cache.TryGetValue(filePath, out var projectDefinition))
+			var filePath = this.projectPath.FullName;
+			if (this.projectCache.TryGetValue(filePath, out var projectDefinition))
 			{
 				return projectDefinition;
 			}
@@ -71,20 +48,20 @@ namespace Project2015To2017.Reading
 				projectXml = XDocument.Load(stream, LoadOptions.SetLineInfo);
 			}
 
-			var isLegacy = projectXml.Element(XmlLegacyNamespace + "Project") != null;
+			var isLegacy = projectXml.Element(Project.XmlLegacyNamespace + "Project") != null;
 			var isModern = projectXml.Element(XNamespace.None + "Project") != null;
 			if (!isModern && !isLegacy)
 			{
-				ProgressReporter.Report("This is not a MSBuild (Visual Studio) project file.");
+				progressReporter.Report("This is not a MSBuild (Visual Studio) project file.");
 				return null;
 			}
 
-			var packageConfig = new NuSpecReader().Read(ProjectPath, ProgressReporter);
+			var packageConfig = new NuSpecReader().Read(projectPath, progressReporter);
 
 			projectDefinition = new Project
 			{
 				IsModernProject = isModern,
-				FilePath = ProjectPath,
+				FilePath = projectPath,
 				ProjectDocument = projectXml,
 				PackageConfiguration = packageConfig,
 				Deletions = Array.Empty<FileSystemInfo>(),
@@ -94,18 +71,15 @@ namespace Project2015To2017.Reading
 			// get ProjectTypeGuids and check for unsupported types
 			if (UnsupportedProjectTypes.IsUnsupportedProjectType(projectDefinition))
 			{
-				ProgressReporter.Report("This project type is not supported for conversion.");
+				progressReporter.Report("This project type is not supported for conversion.");
 				return null;
 			}
 
-			if (EnableCaching)
-			{
-				Cache.Add(filePath, projectDefinition);
-			}
+			this.projectCache.Add(filePath, projectDefinition);
 
 			projectDefinition.AssemblyReferences = LoadAssemblyReferences(projectDefinition);
 			projectDefinition.ProjectReferences = LoadProjectReferences(projectDefinition);
-			projectDefinition.PackagesConfigFile = FindPackagesConfigFile(ProjectPath);
+			projectDefinition.PackagesConfigFile = FindPackagesConfigFile(projectPath);
 			projectDefinition.PackageReferences = LoadPackageReferences(projectDefinition);
 			projectDefinition.IncludeItems = LoadFileIncludes(projectDefinition);
 
@@ -115,7 +89,7 @@ namespace Project2015To2017.Reading
 
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
 
-			var assemblyAttributes = new AssemblyInfoReader().Read(projectDefinition, ProgressReporter);
+			var assemblyAttributes = new AssemblyInfoReader().Read(projectDefinition, progressReporter);
 
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
 
@@ -129,7 +103,7 @@ namespace Project2015To2017.Reading
 			// WinForms applications
 			if (outputType?.Value == "WindowsForms")
 			{
-				ProgressReporter.Report($"This is a Windows Forms project file, support is limited.");
+				progressReporter.Report($"This is a Windows Forms project file, support is limited.");
 				project.IsWindowsFormsProject = true;
 			}
 
@@ -181,7 +155,7 @@ namespace Project2015To2017.Reading
 
 			if (!packagesConfig.Exists)
 			{
-				ProgressReporter.Report("Packages.config file not found.");
+				progressReporter.Report("Packages.config file not found.");
 				return null;
 			}
 			else
@@ -214,14 +188,14 @@ namespace Project2015To2017.Reading
 
 				foreach (var reference in packageReferences)
 				{
-					ProgressReporter.Report($"Found nuget reference to {reference.Id}, version {reference.Version}.");
+					progressReporter.Report($"Found nuget reference to {reference.Id}, version {reference.Version}.");
 				}
 
 				return packageReferences;
 			}
 			catch (XmlException e)
 			{
-				ProgressReporter.Report($"Got xml exception reading packages.config: " + e.Message);
+				progressReporter.Report($"Got xml exception reading packages.config: " + e.Message);
 			}
 
 			return Array.Empty<PackageReference>();

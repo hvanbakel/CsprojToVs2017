@@ -9,7 +9,7 @@ using Project2015To2017.Reading;
 
 namespace Project2015To2017.Transforms
 {
-	public class PropertySimplificationTransformation : ITransformation
+	public sealed class PropertySimplificationTransformation : ITransformation
 	{
 		public void Transform(Project definition, IProgress<string> progress)
 		{

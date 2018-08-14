@@ -3,7 +3,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
-	public class W030LegacyDebugTypesDiagnostic : DiagnosticBase
+	public sealed class W030LegacyDebugTypesDiagnostic : DiagnosticBase
 	{
 		public W030LegacyDebugTypesDiagnostic() : base(30)
 		{

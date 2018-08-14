@@ -8,7 +8,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Reading
 {
-	public class AssemblyInfoReader
+	public sealed class AssemblyInfoReader
 	{
 		public AssemblyAttributes Read(Project project, IProgress<string> progress)
 		{

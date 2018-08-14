@@ -5,7 +5,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
-	public class W033ObsoletePortableClassLibrariesDiagnostic : DiagnosticBase
+	public sealed class W033ObsoletePortableClassLibrariesDiagnostic : DiagnosticBase
 	{
 		public W033ObsoletePortableClassLibrariesDiagnostic() : base(33)
 		{

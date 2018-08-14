@@ -1,7 +1,6 @@
 using CommandLine;
 using Project2015To2017.Analysis;
 using Project2015To2017.Definition;
-using Project2015To2017.Reading;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +12,6 @@ namespace Project2015To2017.Console
 	{
 		static void Main(string[] args)
 		{
-			ProjectReader.EnableCaching = true;
 			Parser.Default.ParseArguments<Options>(args)
 				.WithParsed(ConvertProject);
 		}
@@ -77,7 +75,11 @@ namespace Project2015To2017.Console
 				progressInterface.Report("### Performing 2nd pass to analyze converted projects...");
 			}
 
-			ProjectReader.PurgeCache();
+			if (conversionOptions.ProjectCache != null)
+			{
+				conversionOptions.ProjectCache.Purge();
+			}
+
 			convertedProjects.Clear();
 
 			foreach (var file in options.Files)

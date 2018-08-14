@@ -3,7 +3,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
-	public class W032OldLanguageVersionDiagnostic : DiagnosticBase
+	public sealed class W032OldLanguageVersionDiagnostic : DiagnosticBase
 	{
 		public W032OldLanguageVersionDiagnostic() : base(32)
 		{

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Project2015To2017.Reading.Conditionals
 {
     [Flags]
-    public enum ParserOptions
+	internal enum ParserOptions
     {
         None = 0x0,
         AllowProperties = 0x1,
@@ -29,7 +29,7 @@ namespace Project2015To2017.Reading.Conditionals
     /// <remarks>
     /// UNDONE: When we copied over the conditionals code, we didn't copy over the unit tests for scanner, parser, and expression tree.
     /// </remarks>
-    public sealed class Parser
+    internal sealed class Parser
     {
         private Scanner _lexer;
         private ParserOptions _options;

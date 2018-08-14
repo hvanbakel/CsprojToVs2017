@@ -7,7 +7,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	internal sealed class FileTransformation : ITransformation
+	public sealed class FileTransformation : ITransformation
 	{
 		private static readonly IReadOnlyList<string> ItemsToProject = new[]
 		{
