@@ -1,5 +1,6 @@
 using Project2015To2017.Definition;
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -16,19 +17,28 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			var removeQueue = definition.IncludeItems.Where(x => XamlPageFilter(x, definition)).ToList();
+			var removeQueue = definition.ItemGroups
+				.SelectMany(x => x.Elements())
+				.Where(x => XamlPageFilter(x, definition))
+				.ToImmutableArray();
 
-			if (removeQueue.Count == 0)
+			var count = 0u;
+
+			foreach (var x in removeQueue)
+			{
+				x.Remove();
+				count++;
+			}
+
+			if (count == 0)
 			{
 				return;
 			}
 
-			progress.Report($"Removed {removeQueue.Count} XAML items thanks to MSBuild.Sdk.Extras defaults");
-
-			definition.IncludeItems = definition.IncludeItems.Except(removeQueue).ToArray();
+			progress.Report($"Removed {count} XAML items thanks to MSBuild.Sdk.Extras defaults");
 		}
 
-		private static readonly string[] FilteredTags = { "Page", "ApplicationDefinition", "Compile", "None" };
+		private static readonly string[] FilteredTags = {"Page", "ApplicationDefinition", "Compile", "None"};
 
 		private static bool XamlPageFilter(XElement x, Project definition)
 		{
@@ -56,39 +66,41 @@ namespace Project2015To2017.Transforms
 
 			var fileName = Path.GetFileName(link);
 
-			if (update != null)
+			if (tagLocalName == "Compile")
 			{
-				if (tagLocalName == "Compile")
+				if (fileName.EndsWith(".Designer.cs", StringComparison.OrdinalIgnoreCase))
 				{
-					if (fileName.EndsWith(".Designer.cs", StringComparison.OrdinalIgnoreCase))
+					var autoGen = x.Element("AutoGen")?.Value ?? "true";
+					if (!string.Equals(autoGen, "true", StringComparison.OrdinalIgnoreCase))
 					{
-						var autoGen = x.Element("AutoGen")?.Value ?? "true";
-						if (!string.Equals(autoGen, "true", StringComparison.OrdinalIgnoreCase))
-						{
-							return false;
-						}
-
-						var designTime = x.Element("DesignTime")?.Value ?? "true";
-						if (!string.Equals(designTime, "true", StringComparison.OrdinalIgnoreCase))
-						{
-							return false;
-						}
-
-						var designTimeSharedInput = x.Element("DesignTimeSharedInput")?.Value ?? "true";
-						if (!string.Equals(designTimeSharedInput, "true", StringComparison.OrdinalIgnoreCase))
-						{
-							return false;
-						}
-
-						return true;
+						return false;
 					}
 
-					return update.EndsWith(".xaml.cs", StringComparison.OrdinalIgnoreCase)
-					       && x.Descendants().All(c => c.Name.LocalName == "DependentUpon");
+					var designTime = x.Element("DesignTime")?.Value ?? "true";
+					if (!string.Equals(designTime, "true", StringComparison.OrdinalIgnoreCase))
+					{
+						return false;
+					}
+
+					var designTimeSharedInput = x.Element("DesignTimeSharedInput")?.Value ?? "true";
+					if (!string.Equals(designTimeSharedInput, "true", StringComparison.OrdinalIgnoreCase))
+					{
+						return false;
+					}
+
+					return true;
 				}
 
+				return link.EndsWith(".xaml.cs", StringComparison.OrdinalIgnoreCase)
+				       && x.Descendants().All(VerifyDefaultXamlCompileItem);
+			}
+
+			if (update != null)
+			{
 				return false;
 			}
+
+			// from now on (include != null) is invariant
 
 			if (tagLocalName == "None" && fileName.EndsWith(".settings", StringComparison.OrdinalIgnoreCase))
 			{
@@ -96,10 +108,27 @@ namespace Project2015To2017.Transforms
 				var lastGenOutput = x.Element("LastGenOutput")?.Value ?? ".cs";
 
 				return string.Equals(generator, "SettingsSingleFileGenerator")
-					   && lastGenOutput.EndsWith(".cs", StringComparison.OrdinalIgnoreCase);
+				       && lastGenOutput.EndsWith(".cs", StringComparison.OrdinalIgnoreCase);
 			}
 
 			return include.EndsWith(".xaml", StringComparison.OrdinalIgnoreCase);
+
+			bool VerifyDefaultXamlCompileItem(XElement child)
+			{
+				var name = child.Name.LocalName;
+
+				if (child.HasElements)
+				{
+					return false;
+				}
+
+				if (name == "DependentUpon")
+				{
+					return true;
+				}
+
+				return name == "SubType" && string.Equals(child.Value, "Code", StringComparison.OrdinalIgnoreCase);
+			}
 		}
 	}
 }

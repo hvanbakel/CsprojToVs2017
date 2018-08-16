@@ -90,34 +90,28 @@ namespace Project2015To2017Tests
 
 			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
 
-			var fileTransformation = new FileTransformation();
 			var transformation = new XamlPagesTransformation();
 
 			var progress = new Progress<string>();
 
-			fileTransformation.Transform(project, progress);
 			transformation.Transform(project, progress);
 
-			var includeItems = project.IncludeItems;
+			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 
 			// App.xaml is NOT included due to ApplicationDefinition
-			// App.xaml.cs is NOT included due to <SubType>Code</SubType> (FileTransformation)
-			// Views\Shell.xaml.cs is NOT included due to Compile+DependentUpon
-			// .\..\Views\Initialize.xaml.cs is included due to not in project folder
+			// App.xaml.cs is NOT included (.xaml.cs in project folder, verified children)
+			// Views\Shell.xaml.cs is NOT included (.xaml.cs in project folder, verified children)
+			// .\..\Views\Initialize.xaml.cs is included (not in project folder)
 			// Views\Shell.xaml is NOT included due to Page
-			// .\..\Views\Initialize.xaml is included due to Page not in project folder
+			// .\..\Views\Initialize.xaml is included (not in project folder)
 
-			Assert.AreEqual(2, includeItems.Count);
+			Assert.AreEqual(7, includeItems.Count);
 
+			Assert.AreEqual(5, includeItems.Count(x => x.Name == project.XmlNamespace + "Reference"));
 			Assert.AreEqual(1, includeItems.Count(x => x.Name == project.XmlNamespace + "Page"));
 			Assert.AreEqual(0, includeItems.Count(x => x.Name == project.XmlNamespace + "ApplicationDefinition"));
 			Assert.AreEqual(1, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile"));
-			Assert.AreEqual(1,
-				includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Update") != null));
-			Assert.AreEqual(0,
-				includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Include") != null));
-			Assert.AreEqual(0,
-				includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Remove") != null));
+			Assert.AreEqual(1, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Include") != null));
 		}
 
 		private static async Task<Project> ParseAndTransform(

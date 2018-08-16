@@ -3,7 +3,7 @@ using System.Xml.Linq;
 namespace Project2015To2017.Definition
 {
 	// Reference
-	public class AssemblyReference
+	public sealed class AssemblyReference : IOriginatedReference
 	{
 		// Attributes
 		public string Include { get; set; }

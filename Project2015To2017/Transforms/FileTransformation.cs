@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -9,7 +10,7 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class FileTransformation : ITransformation
 	{
-		private static readonly IReadOnlyList<string> ItemsToProject = new[]
+		private static readonly IReadOnlyCollection<string> ItemsToProjectChecked = new[]
 		{
 			"None",
 			"Content",
@@ -23,27 +24,87 @@ namespace Project2015To2017.Transforms
 			"DesignDataWithDesignTimeCreatableTypes",
 			"EntityDeploy",
 			"XamlAppDef",
-			"EmbeddedResource"
+			"EmbeddedResource",
+		};
+
+		private static readonly IReadOnlyCollection<string> ItemsToProjectAlways = new[]
+		{
+			"Reference",
+			"ProjectReference",
+			"PackageReference",
 		};
 
 		public void Transform(Project definition, IProgress<string> progress)
 		{
-			var items = definition.IncludeItems;
+			var (keepItems, removeQueue) = definition.ItemGroups
+				.SelectMany(x => x.Elements())
+				.Split(x => KeepFileInclusion(x, definition));
 
-			var otherIncludes = ItemsToProject.SelectMany(x => items.Elements(definition.XmlNamespace + x)).Where(
-				element => KeepFileInclusion(element, definition));
+			// For all retained Page, Content, etc that have .cs extension we get file paths.
+			// For all these paths we add <Compile Remove="(path)" />.
+			// So that there is no wildcard match like <Compile Include="**/*.cs" /> for file test.cs,
+			// already included as (e.g.) Content: <Content Include="test.cs" />
+			var otherIncludeFilesMatchingWildcard = keepItems
+				.Where(x => x.Name.LocalName != "Compile")
+				.Select(x => x.Attribute("Include")?.Value)
+				.Where(x => !string.IsNullOrEmpty(x))
+				.Where(x => x.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+				.ToArray();
 
-			var compileManualIncludes = FindNonWildcardMatchedFiles(definition, items, "*.cs", definition.XmlNamespace + "Compile", otherIncludes, progress);
+			if (otherIncludeFilesMatchingWildcard.Length > 0)
+			{
+				var itemGroup = new XElement(definition.XmlNamespace + "ItemGroup");
+				foreach (var otherIncludeMatchingWildcard in otherIncludeFilesMatchingWildcard)
+				{
+					var removeOtherInclude = new XElement(definition.XmlNamespace + "Compile");
+					removeOtherInclude.Add(new XAttribute("Remove", otherIncludeMatchingWildcard));
+					itemGroup.Add(removeOtherInclude);
+				}
 
-			var itemsToInclude = compileManualIncludes
-									.Concat(otherIncludes)
-									.ToArray();
+				definition.ItemGroups.Add(itemGroup);
+			}
 
-			definition.IncludeItems = itemsToInclude;
+			var count = 0u;
+
+			foreach (var x in removeQueue)
+			{
+				x.Remove();
+				count++;
+			}
+
+			if (count == 0)
+			{
+				return;
+			}
+
+			progress.Report($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");
 		}
 
 		private static bool KeepFileInclusion(XElement x, Project project)
 		{
+			var tagName = x.Name.LocalName;
+			if (tagName == "Compile")
+			{
+				return !IsWildcardMatchedFile(project, x);
+			}
+
+			if (ItemsToProjectAlways.Contains(tagName))
+			{
+				return true;
+			}
+
+			// Visual Studio Test Projects
+			if (tagName == "Service" && string.Equals(x.Attribute("Include")?.Value,
+				    "{82a7f48d-3b50-4b1e-b82e-3ada8210c358}", StringComparison.OrdinalIgnoreCase))
+			{
+				return true;
+			}
+
+			if (!ItemsToProjectChecked.Contains(tagName))
+			{
+				return false;
+			}
+
 			var include = x.Attribute("Include")?.Value;
 
 			if (include == null)
@@ -51,133 +112,74 @@ namespace Project2015To2017.Transforms
 				return true;
 			}
 
-			return
-				// Remove packages.config since those references were already added to the CSProj file.
-				include != "packages.config" &&
-				// Nuspec is no longer required
-				!include.EndsWith(".nuspec")
-				&&
-				//Resource files are added automatically
-				!(x.Name == project.XmlNamespace + "EmbeddedResource"
-					&& include.EndsWith(".resx"));
+			// Remove packages.config since those references were already added to the CSProj file.
+			if (include == "packages.config")
+			{
+				return false;
+			}
+
+			// Nuspec is no longer required
+			if (include.EndsWith(".nuspec"))
+			{
+				return false;
+			}
+
+			// Resource files are added automatically
+			return !(tagName == "EmbeddedResource" && include.EndsWith(".resx"));
 		}
 
-		private static IReadOnlyList<XElement> FindNonWildcardMatchedFiles(
+		private static bool IsWildcardMatchedFile(
 			Project project,
-			IEnumerable<XElement> itemGroups,
-			string wildcard,
-			XName elementName,
-			IEnumerable<XElement> otherIncludes,
-			IProgress<string> progress)
+			XElement compiledFile)
 		{
-			var projectFolder = project.ProjectFolder;
-			var manualIncludes = new List<XElement>();
-			var filesMatchingWildcard = new List<string>();
-			foreach (var compiledFile in itemGroups.Elements(elementName))
+			var filePath = compiledFile.Attribute("Include")?.Value;
+			if (filePath == null)
 			{
-				var includeAttribute = compiledFile.Attribute("Include");
-				if (includeAttribute != null && !includeAttribute.Value.Contains("*"))
-				{
-					var compiledFileAttributes = compiledFile.Attributes().Where(a => a.Name != "Include").ToList();
-
-					//keep Link as an Include
-					var linkElement = compiledFile.Elements().FirstOrDefault(a => a.Name.LocalName == "Link");
-					if (null != linkElement)
-					{
-						compiledFileAttributes.Add(new XAttribute("Include", includeAttribute.Value));
-						compiledFileAttributes.Add(new XAttribute("Link", linkElement.Value));
-						linkElement.Remove();
-					}
-					else
-					{
-						compiledFileAttributes.Add(new XAttribute("Update", includeAttribute.Value));
-					}
-
-					compiledFile.ReplaceAttributes(compiledFileAttributes);
-
-					if (!Path.GetFullPath(Path.Combine(projectFolder.FullName, includeAttribute.Value)).StartsWith(projectFolder.FullName))
-					{
-						progress.Report("Include cannot be done through wildcard, " +
-										$"adding as separate include:{Environment.NewLine}{compiledFile}.");
-						manualIncludes.Add(compiledFile);
-					}
-					else if (compiledFile.Attributes().Count() != 1)
-					{
-						progress.Report("Include cannot be done exclusively through wildcard, " +
-										$"adding as separate update:{Environment.NewLine}{compiledFile}.");
-						manualIncludes.Add(compiledFile);
-						filesMatchingWildcard.Add(includeAttribute.Value);
-					}
-					else if (compiledFile.Elements().Count() != 0)
-					{
-						progress.Report("Include cannot be done exclusively through wildcard, " +
-										$"adding as separate update:{Environment.NewLine}{compiledFile}.");
-
-						//add only if it is not <SubType>Code</SubType>
-						var subType = compiledFile.Elements().FirstOrDefault(x => x.Name.LocalName == "SubType");
-						if (subType == null || subType.Value != "Code")
-						{
-							manualIncludes.Add(compiledFile);
-						}
-
-						filesMatchingWildcard.Add(includeAttribute.Value);
-					}
-					else
-					{
-						filesMatchingWildcard.Add(includeAttribute.Value);
-					}
-				}
-				else
-				{
-					progress.Report($"Compile found with no or wildcard include, full node {compiledFile}.");
-				}
+				return false;
 			}
 
-			var filesInFolder = projectFolder.EnumerateFiles(wildcard, SearchOption.AllDirectories).Select(x => x.FullName).ToArray();
-			var knownFullPaths = manualIncludes
-				.Select(x => x.Attribute("Include")?.Value)
-				.Where(x => x != null)
-				.Concat(filesMatchingWildcard)
-				.Select(x => Path.GetFullPath(Path.Combine(projectFolder.FullName, x)))
-				.ToList();
-
-			//remove otherIncludes
-			var otherIncludeFilesMatchingWildcard = otherIncludes
-				.Select(x => x.Attribute("Include")?.Value)
-				.Where(x => x != null)
-				.Where(x => x.EndsWith(wildcard.TrimStart('*'), StringComparison.OrdinalIgnoreCase))
-				.ToArray();
-
-			foreach (var otherIncludeMatchingWildcard in otherIncludeFilesMatchingWildcard)
+			if (filePath.Contains("*"))
 			{
-				var removeOtherInclude = new XElement(project.XmlNamespace + "Compile");
-				removeOtherInclude.Add(new XAttribute("Remove", otherIncludeMatchingWildcard));
-				manualIncludes.Add(removeOtherInclude);
-				
-				knownFullPaths.Add(Path.GetFullPath(Path.Combine(projectFolder.FullName, otherIncludeMatchingWildcard)));
+				return false;
 			}
 
-			if (!project.IsModernProject)
-			{
-				foreach (var nonListedFile in filesInFolder.Except(knownFullPaths, StringComparer.OrdinalIgnoreCase))
-				{
-					if (nonListedFile.StartsWith(Path.Combine(projectFolder.FullName + "\\obj\\"),
-						StringComparison.OrdinalIgnoreCase))
-					{
-						// skip the generated files in obj
-						continue;
-					}
+			var compiledFileAttributes = compiledFile.Attributes().Where(a => a.Name != "Include").ToList();
 
-					progress.Report($"File found which was not included, consider removing {nonListedFile}.");
-				}
+			// keep Link as an Include
+			var linkElement = compiledFile.Elements().FirstOrDefault(a => a.Name.LocalName == "Link");
+			if (null != linkElement)
+			{
+				compiledFileAttributes.Add(new XAttribute("Include", filePath));
+				compiledFileAttributes.Add(new XAttribute("Link", linkElement.Value));
+				linkElement.Remove();
+			}
+			else
+			{
+				compiledFileAttributes.Add(new XAttribute("Update", filePath));
 			}
 
-			foreach (var fileNotOnDisk in knownFullPaths.Except(filesInFolder).Where(x => x.StartsWith(projectFolder.FullName, StringComparison.OrdinalIgnoreCase)))
+			compiledFile.ReplaceAttributes(compiledFileAttributes);
+
+			var projectFolder = project.ProjectFolder.FullName;
+
+			if (!Path.GetFullPath(Path.Combine(projectFolder, filePath)).StartsWith(projectFolder))
 			{
-				progress.Report($"File was included but is not on disk: {fileNotOnDisk}.");
+				return false;
 			}
 
-			return manualIncludes;
+			if (compiledFile.Attributes().Count() != 1)
+			{
+				return false;
+			}
+
+			if (compiledFile.Elements().Count() != 0)
+			{
+				//add only if it is not <SubType>Code</SubType>
+				var subType = compiledFile.Elements().FirstOrDefault(x => x.Name.LocalName == "SubType")?.Value;
+				return subType == "Code";
+			}
+
+			return true;
 		}
 	}
 }

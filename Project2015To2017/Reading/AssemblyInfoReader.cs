@@ -14,8 +14,8 @@ namespace Project2015To2017.Reading
 		{
 			var projectPath = project.ProjectFolder.FullName;
 
-			var compileElements = project.IncludeItems
-										 .SelectMany(x => x.Elements(project.XmlNamespace + "Compile"))
+			var compileElements = project.ItemGroups
+										 .SelectMany(x => x.Descendants(project.XmlNamespace + "Compile"))
 										 .ToList();
 
 			var assemblyInfoFiles = compileElements
