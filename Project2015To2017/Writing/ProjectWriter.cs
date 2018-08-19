@@ -9,7 +9,7 @@ namespace Project2015To2017.Writing
 {
 	public class ProjectWriter
 	{
-		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/1.6.41";
+		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/1.6.46";
 		private readonly Action<FileSystemInfo> deleteFileOperation;
 		private readonly Action<FileSystemInfo> checkoutOperation;
 
@@ -222,10 +222,20 @@ namespace Project2015To2017.Writing
 						projectReferenceElement.Add(new XElement("EmbedInteropTypes", "true"));
 					}
 
-					itemGroup.Add(projectReferenceElement);
+					if (projectReference.DefinitionElement != null)
+					{
+						projectReference.DefinitionElement.ReplaceWith(projectReferenceElement);
+					}
+					else
+					{
+						itemGroup.Add(projectReferenceElement);
+					}
 				}
 
-				projectNode.Add(itemGroup);
+				if (itemGroup.HasElements)
+				{
+					projectNode.Add(itemGroup);
+				}
 			}
 
 			if (project.PackageReferences?.Count > 0)
@@ -240,10 +250,20 @@ namespace Project2015To2017.Writing
 						reference.Add(new XElement("PrivateAssets", "all"));
 					}
 
-					nugetReferences.Add(reference);
+					if (packageReference.DefinitionElement != null)
+					{
+						packageReference.DefinitionElement.ReplaceWith(reference);
+					}
+					else
+					{
+						nugetReferences.Add(reference);
+					}
 				}
 
-				projectNode.Add(nugetReferences);
+				if (nugetReferences.HasElements)
+				{
+					projectNode.Add(nugetReferences);
+				}
 			}
 
 			if (project.AssemblyReferences?.Count > 0)
@@ -251,7 +271,16 @@ namespace Project2015To2017.Writing
 				var assemblyReferences = new XElement("ItemGroup");
 				foreach (var assemblyReference in project.AssemblyReferences)
 				{
-					assemblyReferences.Add(MakeAssemblyReference(assemblyReference));
+					var assemblyReferenceElement = MakeAssemblyReference(assemblyReference);
+
+					if (assemblyReference.DefinitionElement != null)
+					{
+						assemblyReference.DefinitionElement.ReplaceWith(assemblyReferenceElement);
+					}
+					else
+					{
+						assemblyReferences.Add(assemblyReferenceElement);
+					}
 				}
 
 				if (assemblyReferences.HasElements)
@@ -261,15 +290,12 @@ namespace Project2015To2017.Writing
 			}
 
 			// manual includes
-			if (project.IncludeItems?.Count > 0)
+			if (project.ItemGroups?.Count > 0)
 			{
-				var includeGroup = new XElement("ItemGroup");
-				foreach (var include in project.IncludeItems.Select(RemoveAllNamespaces))
+				foreach (var includeGroup in project.ItemGroups.Select(RemoveAllNamespaces))
 				{
-					includeGroup.Add(include);
+					projectNode.Add(includeGroup);
 				}
-
-				projectNode.Add(includeGroup);
 			}
 
 			return projectNode;

@@ -81,7 +81,7 @@ namespace Project2015To2017.Reading
 			projectDefinition.ProjectReferences = LoadProjectReferences(projectDefinition);
 			projectDefinition.PackagesConfigFile = FindPackagesConfigFile(projectPath);
 			projectDefinition.PackageReferences = LoadPackageReferences(projectDefinition);
-			projectDefinition.IncludeItems = LoadFileIncludes(projectDefinition);
+			projectDefinition.ItemGroups = LoadFileIncludes(projectDefinition);
 
 			ProcessProjectReferences(projectDefinition);
 
@@ -176,7 +176,8 @@ namespace Project2015To2017.Reading
 					{
 						Id = x.Attribute("Include").Value,
 						Version = x.Attribute("Version")?.Value ?? x.Element(project.XmlNamespace + "Version").Value,
-						IsDevelopmentDependency = x.Element(project.XmlNamespace + "PrivateAssets") != null
+						IsDevelopmentDependency = x.Element(project.XmlNamespace + "PrivateAssets") != null,
+						DefinitionElement = x
 					});
 
 				var packageConfigPackages = ExtractReferencesFromPackagesConfig(packagesConfig);
@@ -235,7 +236,8 @@ namespace Project2015To2017.Reading
 				{
 					Include = x.Attribute("Include").Value,
 					Aliases = x.Element(project.XmlNamespace + "Aliases")?.Value,
-					EmbedInteropTypes = string.Equals(x.Element(project.XmlNamespace + "EmbedInteropTypes")?.Value, "true", StringComparison.OrdinalIgnoreCase)
+					EmbedInteropTypes = string.Equals(x.Element(project.XmlNamespace + "EmbedInteropTypes")?.Value, "true", StringComparison.OrdinalIgnoreCase),
+					DefinitionElement = x
 				})
 				.ToList();
 

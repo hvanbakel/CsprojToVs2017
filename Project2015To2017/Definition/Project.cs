@@ -15,7 +15,6 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<AssemblyReference> AssemblyReferences { get; set; }
 		public IReadOnlyList<ProjectReference> ProjectReferences { get; set; }
 		public IReadOnlyList<PackageReference> PackageReferences { get; set; }
-		public IReadOnlyList<XElement> IncludeItems { get; set; }
 		public PackageConfiguration PackageConfiguration { get; set; }
 		public AssemblyAttributes AssemblyAttributes { get; set; }
 		public IReadOnlyList<XElement> AdditionalPropertyGroups { get; set; }
@@ -24,6 +23,7 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<XElement> BuildEvents { get; set; }
 		public IReadOnlyList<string> Configurations { get; set; }
 		public IReadOnlyList<string> Platforms { get; set; }
+		public IList<XElement> ItemGroups { get; set; }
 
 		public XDocument ProjectDocument { get; set; }
 		public string ProjectName { get; set; }

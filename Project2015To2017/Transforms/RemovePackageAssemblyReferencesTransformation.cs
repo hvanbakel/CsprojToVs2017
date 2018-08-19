@@ -23,12 +23,16 @@ namespace Project2015To2017.Transforms
 			var packagePaths = packageReferenceIds.Select(packageId => Path.Combine(nugetRepositoryPath, packageId).ToLower())
 				.ToArray();
 
-			var filteredAssemblies = definition.AssemblyReferences
-				.Where(assembly => !packagePaths.Any(
+			var (filteredAssemblies, removeQueue) = definition.AssemblyReferences
+				.Split(assembly => !packagePaths.Any(
 						packagePath => AssemblyMatchesPackage(assembly, packagePath)
 					)
-				)
-				.ToList();
+				);
+
+			foreach (var assemblyReference in removeQueue)
+			{
+				assemblyReference.DefinitionElement?.Remove();
+			}
 
 			definition.AssemblyReferences = filteredAssemblies;
 

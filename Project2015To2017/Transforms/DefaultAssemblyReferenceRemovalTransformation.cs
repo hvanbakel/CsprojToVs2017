@@ -15,15 +15,22 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			definition.AssemblyReferences = definition.AssemblyReferences
-				.SkipWhile(IsDefaultIncludedAssemblyReference).ToImmutableList();
+			var (assemblyReferences, removeQueue) = definition.AssemblyReferences
+				.Split(IsNonDefaultIncludedAssemblyReference);
+
+			foreach (var assemblyReference in removeQueue)
+			{
+				assemblyReference.DefinitionElement?.Remove();
+			}
+
+			definition.AssemblyReferences = assemblyReferences;
 		}
 
 
-		private static bool IsDefaultIncludedAssemblyReference(AssemblyReference assemblyReference)
+		private static bool IsNonDefaultIncludedAssemblyReference(AssemblyReference assemblyReference)
 		{
 			var name = assemblyReference.Include;
-			return new[]
+			return !new[]
 			{
 				"System",
 				"System.Core",
