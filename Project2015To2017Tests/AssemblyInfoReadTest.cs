@@ -10,7 +10,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void FindsAttributes()
         {
-	        var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
+	        var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
 
             Assert.IsNotNull(project.AssemblyAttributes.Company);
             Assert.IsNotNull(project.AssemblyAttributes.Copyright);

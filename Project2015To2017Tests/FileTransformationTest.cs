@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
+using Project2015To2017;
 
 namespace Project2015To2017Tests
 {
@@ -15,12 +16,10 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void TransformsFiles()
         {
-            var project = new ProjectReader(Path.Combine("TestFiles", "FileInclusion", "fileinclusion.testcsproj")).Read();
+            var project = new ProjectReader().Read(Path.Combine("TestFiles", "FileInclusion", "fileinclusion.testcsproj"));
             var transformation = new FileTransformation();
 
-	        var progress = new Progress<string>();
-
-            transformation.Transform(project, progress);
+	        transformation.Transform(project, NoopLogger.Instance);
 
 	        var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 

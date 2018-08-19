@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 using System;
 using System.Collections.Generic;
@@ -11,32 +12,32 @@ namespace Project2015To2017.Reading
 {
 	public sealed class ProjectReader
 	{
-		private readonly FileInfo projectPath;
 		private readonly Caching.IProjectCache projectCache;
-		private readonly IProgress<string> progressReporter;
+		private readonly NuSpecReader nuspecReader;
+		private readonly AssemblyInfoReader assemblyInfoReader;
+		private readonly ILogger logger;
 
-		public ProjectReader(FileInfo projectFile, IProgress<string> progress = null, ConversionOptions conversionOptions = null)
-			: this(progress, conversionOptions)
+		public ProjectReader(ILogger logger = null, ConversionOptions conversionOptions = null)
 		{
-			this.projectPath = projectFile ?? throw new ArgumentNullException(nameof(projectFile));
-		}
-
-		public ProjectReader(string projectFilePath, IProgress<string> progress = null, ConversionOptions conversionOptions = null)
-			: this(progress, conversionOptions)
-		{
-			projectFilePath = projectFilePath ?? throw new ArgumentNullException(nameof(projectFilePath));
-			this.projectPath = new FileInfo(projectFilePath);
-		}
-
-		private ProjectReader(IProgress<string> progress, ConversionOptions conversionOptions)
-		{
-			this.progressReporter = progress ?? new Progress<string>(_ => { });
+			this.logger = logger ?? NoopLogger.Instance;
 			this.projectCache = conversionOptions?.ProjectCache ?? Caching.NoProjectCache.Instance;
+			this.nuspecReader = new NuSpecReader(this.logger);
+			this.assemblyInfoReader = new AssemblyInfoReader(this.logger);
 		}
 
-		public Project Read()
+		public Project Read(string projectFilePath)
 		{
-			var filePath = this.projectPath.FullName;
+			return Read(new FileInfo(projectFilePath ?? throw new ArgumentNullException(nameof(projectFilePath))));
+		}
+
+		public Project Read(FileInfo projectFile)
+		{
+			if (projectFile == null)
+			{
+				throw new ArgumentNullException(nameof(projectFile));
+			}
+
+			var filePath = projectFile.FullName;
 			if (this.projectCache.TryGetValue(filePath, out var projectDefinition))
 			{
 				return projectDefinition;
@@ -52,16 +53,16 @@ namespace Project2015To2017.Reading
 			var isModern = projectXml.Element(XNamespace.None + "Project") != null;
 			if (!isModern && !isLegacy)
 			{
-				progressReporter.Report("This is not a MSBuild (Visual Studio) project file.");
+				this.logger.LogWarning("This is not a MSBuild (Visual Studio) project file.");
 				return null;
 			}
 
-			var packageConfig = new NuSpecReader().Read(projectPath, progressReporter);
+			var packageConfig = this.nuspecReader.Read(projectFile);
 
 			projectDefinition = new Project
 			{
 				IsModernProject = isModern,
-				FilePath = projectPath,
+				FilePath = projectFile,
 				ProjectDocument = projectXml,
 				PackageConfiguration = packageConfig,
 				Deletions = Array.Empty<FileSystemInfo>(),
@@ -71,7 +72,7 @@ namespace Project2015To2017.Reading
 			// get ProjectTypeGuids and check for unsupported types
 			if (UnsupportedProjectTypes.IsUnsupportedProjectType(projectDefinition))
 			{
-				progressReporter.Report("This project type is not supported for conversion.");
+				this.logger.LogError("This project type is not supported for conversion.");
 				return null;
 			}
 
@@ -79,7 +80,7 @@ namespace Project2015To2017.Reading
 
 			projectDefinition.AssemblyReferences = LoadAssemblyReferences(projectDefinition);
 			projectDefinition.ProjectReferences = LoadProjectReferences(projectDefinition);
-			projectDefinition.PackagesConfigFile = FindPackagesConfigFile(projectPath);
+			projectDefinition.PackagesConfigFile = FindPackagesConfigFile(projectFile);
 			projectDefinition.PackageReferences = LoadPackageReferences(projectDefinition);
 			projectDefinition.ItemGroups = LoadFileIncludes(projectDefinition);
 
@@ -89,7 +90,7 @@ namespace Project2015To2017.Reading
 
 			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
 
-			var assemblyAttributes = new AssemblyInfoReader().Read(projectDefinition, progressReporter);
+			var assemblyAttributes = this.assemblyInfoReader.Read(projectDefinition);
 
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
 
@@ -103,7 +104,7 @@ namespace Project2015To2017.Reading
 			// WinForms applications
 			if (outputType?.Value == "WindowsForms")
 			{
-				progressReporter.Report($"This is a Windows Forms project file, support is limited.");
+				this.logger.LogWarning($"This is a Windows Forms project file, support is limited.");
 				project.IsWindowsFormsProject = true;
 			}
 
@@ -155,7 +156,7 @@ namespace Project2015To2017.Reading
 
 			if (!packagesConfig.Exists)
 			{
-				progressReporter.Report("Packages.config file not found.");
+				this.logger.LogInformation("Packages.config file not found.");
 				return null;
 			}
 			else
@@ -189,14 +190,14 @@ namespace Project2015To2017.Reading
 
 				foreach (var reference in packageReferences)
 				{
-					progressReporter.Report($"Found nuget reference to {reference.Id}, version {reference.Version}.");
+					this.logger.LogDebug($"Found nuget reference to {reference.Id}, version {reference.Version}.");
 				}
 
 				return packageReferences;
 			}
 			catch (XmlException e)
 			{
-				progressReporter.Report($"Got xml exception reading packages.config: " + e.Message);
+				this.logger.LogError($"Got xml exception reading packages.config: " + e.Message);
 			}
 
 			return Array.Empty<PackageReference>();

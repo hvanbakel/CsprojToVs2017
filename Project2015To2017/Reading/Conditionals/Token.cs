@@ -47,8 +47,8 @@ namespace Project2015To2017.Reading.Conditionals
         /// <param name="tokenType"></param>
         private Token(TokenType tokenType)
         {
-            _tokenType = tokenType;
-            _tokenString = null;
+			this._tokenType = tokenType;
+			this._tokenString = null;
         }
 
         /// <summary>
@@ -81,8 +81,8 @@ namespace Project2015To2017.Reading.Conditionals
 
             ErrorUtilities.VerifyThrowInternalNull(tokenString, "tokenString");
 
-            _tokenType = type;
-            _tokenString = tokenString;
+			this._tokenType = type;
+			this._tokenString = tokenString;
             this.Expandable = expandable;
         }
 
@@ -103,21 +103,21 @@ namespace Project2015To2017.Reading.Conditionals
         /// <returns></returns>
         internal bool IsToken(TokenType type)
         {
-            return _tokenType == type;
+            return this._tokenType == type;
         }
 
         internal string String
         {
             get
             {
-                if (_tokenString != null)
+                if (this._tokenString != null)
                 {
-                    return _tokenString;
+                    return this._tokenString;
                 }
 
                 // Return a token string for 
                 // an error message.
-                switch (_tokenType)
+                switch (this._tokenType)
                 {
                     case TokenType.Comma:
                         return ",";

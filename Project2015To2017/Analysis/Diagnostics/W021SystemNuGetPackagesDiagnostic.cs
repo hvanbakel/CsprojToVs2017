@@ -156,19 +156,19 @@ namespace Project2015To2017.Analysis.Diagnostics
 			{
 				foreach (var incompatiblePrefix in IncompatiblePrefixes)
 				{
-					if (framework.StartsWith(incompatiblePrefix, Comparison))
+					if (framework.StartsWith(incompatiblePrefix, this.Comparison))
 					{
 						return list;
 					}
 				}
 
-				if (framework.StartsWith("netstandard", Comparison) &&
-				    string.Compare(minTargetStandard, framework, Comparison) > 0)
+				if (framework.StartsWith("netstandard", this.Comparison) &&
+				    string.Compare(minTargetStandard, framework, this.Comparison) > 0)
 				{
 					minTargetStandard = framework;
 				}
-				else if (framework.StartsWith("net4", Comparison) &&
-				         string.Compare(minTargetFramework, framework, Comparison) > 0)
+				else if (framework.StartsWith("net4", this.Comparison) &&
+				         string.Compare(minTargetFramework, framework, this.Comparison) > 0)
 				{
 					minTargetFramework = framework;
 				}
@@ -180,18 +180,18 @@ namespace Project2015To2017.Analysis.Diagnostics
 			var hasStandard = minTargetStandard != MaxTargetStandard;
 
 			if (
-				(hasFramework && string.Compare(minTargetFramework, "net46", Comparison) >= 0)
+				(hasFramework && string.Compare(minTargetFramework, "net46", this.Comparison) >= 0)
 				||
-				(hasStandard && string.Compare(minTargetStandard, "netstandard1.3", Comparison) >= 0)
+				(hasStandard && string.Compare(minTargetStandard, "netstandard1.3", this.Comparison) >= 0)
 			)
 			{
 				ReportForVersion(project, list, Packages46);
 			}
 
 			if (
-				(hasFramework && string.Compare(minTargetFramework, "net461", Comparison) >= 0)
+				(hasFramework && string.Compare(minTargetFramework, "net461", this.Comparison) >= 0)
 				||
-				(hasStandard && string.Compare(minTargetStandard, "netstandard1.4", Comparison) >= 0)
+				(hasStandard && string.Compare(minTargetStandard, "netstandard1.4", this.Comparison) >= 0)
 			)
 			{
 				ReportForVersion(project, list, Packages461);

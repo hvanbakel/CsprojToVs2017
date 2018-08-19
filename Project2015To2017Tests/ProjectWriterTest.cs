@@ -30,7 +30,7 @@ namespace Project2015To2017Tests
 			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects", $"{nameof(ValidatesFileIsWritable)}.readonly");
 			File.Copy(Path.Combine("TestFiles", "OtherTestProjects", "readonly.testcsproj"), copiedProjectFile);
 			File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
-			var project = new ProjectReader(copiedProjectFile).Read();
+			var project = new ProjectReader().Read(copiedProjectFile);
 
 			var messageNum = 0;
 			var progress = new Progress<string>(x =>
@@ -42,7 +42,7 @@ namespace Project2015To2017Tests
 						x);
 				}
 			});
-			writer.Write(project, false, progress);
+			writer.Write(project, false);
 		}
 
 
@@ -187,7 +187,7 @@ namespace Project2015To2017Tests
 
 			await File.WriteAllTextAsync(testCsProjFile, xml);
 
-			var project = new ProjectReader(testCsProjFile).Read();
+			var project = new ProjectReader().Read(testCsProjFile);
 
 			return project;
 		}
@@ -223,7 +223,7 @@ namespace Project2015To2017Tests
 					},
 					Deletions = filesToDelete.ToArray()
 				},
-				false, new Progress<string>()
+				false
 			);
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -251,7 +251,7 @@ namespace Project2015To2017Tests
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test1.csproj"),
 					Deletions = filesToDelete.ToArray()
 				},
-				false, new Progress<string>()
+				false
 			);
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -281,7 +281,7 @@ namespace Project2015To2017Tests
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test2.csproj"),
 					Deletions = filesToDelete.ToArray()
 				},
-				false, new Progress<string>()
+				false
 			);
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -319,7 +319,7 @@ namespace Project2015To2017Tests
 						FilePath = new FileInfo(@"TestFiles\Deletions\Test3.csproj"),
 						Deletions = filesToDelete.ToArray()
 					},
-					false, new Progress<string>()
+					false
 				);
 
 				CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -360,7 +360,7 @@ namespace Project2015To2017Tests
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test4.csproj"),
 					Deletions = filesToDelete.ToArray()
 				},
-				false, new Progress<string>()
+				false
 			);
 
 			CollectionAssert.AreEqual(new FileSystemInfo[0], actualDeletedFiles);

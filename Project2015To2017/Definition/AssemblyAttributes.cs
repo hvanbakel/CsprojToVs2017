@@ -69,7 +69,7 @@ namespace Project2015To2017.Definition
 			var attName = attributeType.Name;
 			var altAttName = AttributeShortName(attName);
 
-			return FileContents
+			return this.FileContents
 					.AttributeLists
 					.Select(x =>
 						(
@@ -110,18 +110,18 @@ namespace Project2015To2017.Definition
 
 				if (newAttList.Attributes.Any())
 				{
-					newAttLists = FileContents.AttributeLists.Replace(att.attList, newAttList);
+					newAttLists = this.FileContents.AttributeLists.Replace(att.attList, newAttList);
 				}
 				else
 				{
-					newAttLists = FileContents.AttributeLists.Remove(att.attList);
+					newAttLists = this.FileContents.AttributeLists.Remove(att.attList);
 				}
 			}
 			else if (att.att == null)
 			{
 				var attList = CreateAttribute(attributeType, value);
 
-				newAttLists = FileContents.AttributeLists.Add(attList);
+				newAttLists = this.FileContents.AttributeLists.Add(attList);
 			}
 			else
 			{
@@ -134,10 +134,10 @@ namespace Project2015To2017.Definition
 				var newNode = att.att.WithArgumentList(currentArgs.WithArguments(newArgs));
 
 				var newAttList = att.attList.ReplaceNode(att.att, newNode);
-				newAttLists = FileContents.AttributeLists.Replace(att.attList, newAttList);
+				newAttLists = this.FileContents.AttributeLists.Replace(att.attList, newAttList);
 			}
 
-			FileContents = FileContents
+			this.FileContents = this.FileContents
 							.WithAttributeLists(
 								newAttLists
 							);

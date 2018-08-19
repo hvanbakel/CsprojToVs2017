@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Project2015To2017;
 using Project2015To2017.Definition;
 using Project2015To2017.Transforms;
 namespace Project2015To2017Tests
@@ -40,7 +41,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
 			Assert.IsNotNull(generateAssemblyInfo);
@@ -62,7 +63,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation(true);
 			
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
 			Assert.IsNotNull(generateAssemblyInfo);
@@ -83,7 +84,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var expectedProperties = new[]
 			{
@@ -133,7 +134,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var expectedProperties = new[]
 				{
@@ -175,7 +176,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var expectedProperties = new[]
 				{
@@ -223,7 +224,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 		    CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
 		}
@@ -247,7 +248,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
 		}
@@ -271,7 +272,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			CollectionAssert.DoesNotContain(project.Deletions.ToList(), assemblyInfoFile);
 		}
@@ -289,7 +290,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
 			Assert.IsNotNull(generateAssemblyInfo);

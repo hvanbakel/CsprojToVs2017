@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 using System;
 using System.Collections.Immutable;
@@ -10,7 +11,7 @@ namespace Project2015To2017.Transforms
 	public sealed class XamlPagesTransformation : ITransformation
 	{
 		/// <inheritdoc />
-		public void Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, ILogger logger)
 		{
 			if (!definition.IsWindowsPresentationFoundationProject)
 			{
@@ -35,7 +36,7 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			progress.Report($"Removed {count} XAML items thanks to MSBuild.Sdk.Extras defaults");
+			logger.LogInformation($"Removed {count} XAML items thanks to MSBuild.Sdk.Extras defaults");
 		}
 
 		private static readonly string[] FilteredTags = {"Page", "ApplicationDefinition", "Compile", "None"};

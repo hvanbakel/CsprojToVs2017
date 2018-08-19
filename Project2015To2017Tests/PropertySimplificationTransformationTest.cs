@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
 using static Project2015To2017Tests.ProjectPropertiesReadTest;
+using Project2015To2017;
 
 namespace Project2015To2017Tests
 {
@@ -268,9 +269,9 @@ namespace Project2015To2017Tests
 
 			await File.WriteAllTextAsync(testCsProjFile, xml);
 
-			var project = new ProjectReader(testCsProjFile).Read();
+			var project = new ProjectReader().Read(testCsProjFile);
 
-			new PropertySimplificationTransformation().Transform(project, new Progress<string>());
+			new PropertySimplificationTransformation().Transform(project, NoopLogger.Instance);
 
 			return project;
 		}

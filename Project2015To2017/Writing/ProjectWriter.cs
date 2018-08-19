@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Writing
@@ -10,44 +11,52 @@ namespace Project2015To2017.Writing
 	public class ProjectWriter
 	{
 		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/1.6.46";
+		private readonly ILogger logger;
 		private readonly Action<FileSystemInfo> deleteFileOperation;
 		private readonly Action<FileSystemInfo> checkoutOperation;
 
-		public ProjectWriter()
-			: this(_ => { }, _ => { })
+		public ProjectWriter(ILogger logger = null)
+			: this(logger, _ => { }, _ => { })
 		{
 		}
 
 		public ProjectWriter(Action<FileSystemInfo> deleteFileOperation, Action<FileSystemInfo> checkoutOperation)
+			: this(null, deleteFileOperation, checkoutOperation)
 		{
+
+		}
+
+		public ProjectWriter(ILogger logger, Action<FileSystemInfo> deleteFileOperation, Action<FileSystemInfo> checkoutOperation)
+		{
+			this.logger = logger ?? NoopLogger.Instance;
 			this.deleteFileOperation = deleteFileOperation;
 			this.checkoutOperation = checkoutOperation;
 		}
 
-		public void Write(Project project, bool makeBackups, IProgress<string> progress)
+		public void Write(Project project, bool makeBackups)
 		{
-			if (makeBackups && !DoBackups(project, progress))
+			if (makeBackups && !DoBackups(project))
 			{
-				progress.Report("Couldn't do backup, so not applying any changes");
+				this.logger.LogError("Couldn't do backup, so not applying any changes");
 				return;
 			}
 
-			if (!WriteProjectFile(project, progress))
+			if (!WriteProjectFile(project))
 			{
-				progress.Report("Aborting as could not write to project file");
+				this.logger.LogError("Aborting as could not write to project file");
 				return;
 			}
 
-			if (!WriteAssemblyInfoFile(project, progress))
+			if (!WriteAssemblyInfoFile(project))
 			{
-				progress.Report("Aborting as could not write to assembly info file");
+				this.logger.LogError("Aborting as could not write to assembly info file");
 				return;
 			}
 
-			DeleteUnusedFiles(project, progress);
+			DeleteUnusedFiles(project);
 		}
 
-		private bool WriteProjectFile(Project project, IProgress<string> progress)
+		private bool WriteProjectFile(Project project)
 		{
 			var projectNode = CreateXml(project);
 
@@ -56,7 +65,7 @@ namespace Project2015To2017.Writing
 
 			if (projectFile.IsReadOnly)
 			{
-				progress.Report($"{projectFile} is readonly, please make the file writable first (checkout from source control?).");
+				this.logger.LogWarning($"{projectFile} is readonly, please make the file writable first (checkout from source control?).");
 				return false;
 			}
 
@@ -64,7 +73,7 @@ namespace Project2015To2017.Writing
 			return true;
 		}
 
-		private bool WriteAssemblyInfoFile(Project project, IProgress<string> progress)
+		private bool WriteAssemblyInfoFile(Project project)
 		{
 			var assemblyAttributes = project.AssemblyAttributes;
 
@@ -87,7 +96,7 @@ namespace Project2015To2017.Writing
 
 			if (file.IsReadOnly)
 			{
-				progress.Report($"{file} is readonly, please make the file writable first (checkout from source control?).");
+				this.logger.LogWarning($"{file} is readonly, please make the file writable first (checkout from source control?).");
 				return false;
 			}
 
@@ -96,18 +105,18 @@ namespace Project2015To2017.Writing
 			return true;
 		}
 
-		private static bool DoBackups(Project project, IProgress<string> progress)
+		private bool DoBackups(Project project)
 		{
 			var projectFile = project.FilePath;
 
-			var backupFolder = CreateBackupFolder(projectFile, progress);
+			var backupFolder = CreateBackupFolder(projectFile);
 
 			if (backupFolder == null)
 			{
 				return false;
 			}
 
-			progress.Report($"Backing up to {backupFolder.FullName}");
+			this.logger.LogInformation($"Backing up to {backupFolder.FullName}");
 
 			projectFile.CopyTo(Path.Combine(backupFolder.FullName, $"{projectFile.Name}.old"));
 
@@ -123,7 +132,7 @@ namespace Project2015To2017.Writing
 			return true;
 		}
 
-		private static DirectoryInfo CreateBackupFolder(FileInfo projectFile, IProgress<string> progress)
+		private DirectoryInfo CreateBackupFolder(FileInfo projectFile)
 		{
 			//Find a suitable backup directory that doesn't already exist
 			var backupDir = ChooseBackupFolder();
@@ -155,7 +164,7 @@ namespace Project2015To2017.Writing
 
 				if (foundBackupDir == null)
 				{
-					progress.Report("Exhausted search for possible backup folder");
+					this.logger.LogWarning("Exhausted search for possible backup folder");
 				}
 
 				return foundBackupDir;
@@ -436,7 +445,7 @@ namespace Project2015To2017.Writing
 			}
 		}
 
-		private void DeleteUnusedFiles(Project project, IProgress<string> progress)
+		private void DeleteUnusedFiles(Project project)
 		{
 			var filesToDelete = new[]
 				{
@@ -449,7 +458,7 @@ namespace Project2015To2017.Writing
 			{
 				if (fileInfo is DirectoryInfo directory && directory.EnumerateFileSystemInfos().Any())
 				{
-					progress.Report($"Directory {fileInfo.FullName} is not empty so will not delete");
+					this.logger.LogWarning($"Directory {fileInfo.FullName} is not empty so will not delete");
 					continue;
 				}
 
@@ -458,7 +467,7 @@ namespace Project2015To2017.Writing
 				var attributes = File.GetAttributes(fileInfo.FullName);
 				if ((attributes & FileAttributes.ReadOnly) != 0)
 				{
-					progress.Report($"File {fileInfo.FullName} could not be deleted as it is not writable.");
+					this.logger.LogWarning($"File {fileInfo.FullName} could not be deleted as it is not writable.");
 				}
 				else
 				{

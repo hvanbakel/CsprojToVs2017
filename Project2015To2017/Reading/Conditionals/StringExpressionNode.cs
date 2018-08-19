@@ -23,8 +23,8 @@ namespace Project2015To2017.Reading.Conditionals
 
         internal StringExpressionNode(string value, bool expandable)
         {
-            _value = value;
-            _expandable = expandable;
+			this._value = value;
+			this._expandable = expandable;
         }
 
         /// <summary>
@@ -73,11 +73,11 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override bool EvaluatesToEmpty(IConditionEvaluationState state)
         {
-            if (_cachedExpandedValue == null)
+            if (this._cachedExpandedValue == null)
             {
-                if (_expandable)
+                if (this._expandable)
                 {
-                    string expandBreakEarly = state.ExpandIntoStringBreakEarly(_value);
+                    string expandBreakEarly = state.ExpandIntoStringBreakEarly(this._value);
 
                     if (expandBreakEarly == null)
                     {
@@ -86,17 +86,17 @@ namespace Project2015To2017.Reading.Conditionals
                         return false;
                     }
 
-                    // It didn't break early, the result is accurate,
-                    // so store it so the work isn't done again.
-                    _cachedExpandedValue = expandBreakEarly;
+					// It didn't break early, the result is accurate,
+					// so store it so the work isn't done again.
+					this._cachedExpandedValue = expandBreakEarly;
                 }
                 else
                 {
-                    _cachedExpandedValue = _value;
+					this._cachedExpandedValue = this._value;
                 }
             }
 
-            return (_cachedExpandedValue.Length == 0);
+            return (this._cachedExpandedValue.Length == 0);
         }
 
 
@@ -106,7 +106,7 @@ namespace Project2015To2017.Reading.Conditionals
         /// <returns></returns>
         internal override string GetUnexpandedValue(IConditionEvaluationState state)
         {
-            return _value;
+            return this._value;
         }
 
         /// <summary>
@@ -115,19 +115,19 @@ namespace Project2015To2017.Reading.Conditionals
         /// <returns></returns>
         internal override string GetExpandedValue(IConditionEvaluationState state)
         {
-            if (_cachedExpandedValue == null)
+            if (this._cachedExpandedValue == null)
             {
-                if (_expandable)
+                if (this._expandable)
                 {
-                    _cachedExpandedValue = state.ExpandIntoString(_value);
+					this._cachedExpandedValue = state.ExpandIntoString(this._value);
                 }
                 else
                 {
-                    _cachedExpandedValue = _value;
+					this._cachedExpandedValue = this._value;
                 }
             }
 
-            return _cachedExpandedValue;
+            return this._cachedExpandedValue;
         }
 
         /// <summary>
@@ -136,9 +136,9 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override void ResetState()
         {
-            _cachedExpandedValue = null;
+			this._cachedExpandedValue = null;
         }
 
-        internal override string DebuggerDisplay => $"\"{_value}\"";
+        internal override string DebuggerDisplay => $"\"{this._value}\"";
     }
 }

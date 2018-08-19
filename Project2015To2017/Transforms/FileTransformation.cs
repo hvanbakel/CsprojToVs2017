@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
@@ -34,7 +35,7 @@ namespace Project2015To2017.Transforms
 			"PackageReference",
 		};
 
-		public void Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, ILogger logger)
 		{
 			var (keepItems, removeQueue) = definition.ItemGroups
 				.SelectMany(x => x.Elements())
@@ -77,7 +78,7 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			progress.Report($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");
+			logger.LogInformation($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");
 		}
 
 		private static bool KeepFileInclusion(XElement x, Project project)

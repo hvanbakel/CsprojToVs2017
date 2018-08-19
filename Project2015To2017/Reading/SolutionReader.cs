@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Reading
@@ -12,10 +13,10 @@ namespace Project2015To2017.Reading
 
 		public Solution Read(string filePath)
 		{
-			return Read(filePath, new Progress<string>(_ => { }));
+			return Read(filePath, NoopLogger.Instance);
 		}
 
-		public Solution Read(string filePath, IProgress<string> progress)
+		public Solution Read(string filePath, ILogger logger)
 		{
 			var fileInfo = new FileInfo(filePath);
 			var projectPaths = new List<ProjectReference>();

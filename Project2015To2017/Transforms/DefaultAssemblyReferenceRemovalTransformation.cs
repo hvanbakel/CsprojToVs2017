@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
 	public sealed class DefaultAssemblyReferenceRemovalTransformation : ITransformation
 	{
-		public void Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, ILogger logger)
 		{
 			if (definition.AssemblyReferences == null)
 			{

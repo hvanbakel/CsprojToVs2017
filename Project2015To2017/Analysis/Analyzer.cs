@@ -13,8 +13,8 @@ namespace Project2015To2017.Analysis
 
 		public Analyzer(TReporter reporter, AnalysisOptions options = null)
 		{
-			_reporter = reporter ?? throw new ArgumentNullException(nameof(reporter));
-			_options = options ?? new AnalysisOptions();
+			this._reporter = reporter ?? throw new ArgumentNullException(nameof(reporter));
+			this._options = options ?? new AnalysisOptions();
 		}
 
 		public void Analyze(Project project)
@@ -24,7 +24,7 @@ namespace Project2015To2017.Analysis
 				throw new ArgumentNullException(nameof(project));
 			}
 
-			foreach (var diagnostic in _options.Diagnostics)
+			foreach (var diagnostic in this._options.Diagnostics)
 			{
 				if (diagnostic.SkipForModernProject && project.IsModernProject)
 				{
@@ -36,8 +36,8 @@ namespace Project2015To2017.Analysis
 					continue;
 				}
 
-				var reporterOptions = _reporter.CreateOptionsForProject(project);
-				_reporter.Report(diagnostic.Analyze(project), reporterOptions);
+				var reporterOptions = this._reporter.CreateOptionsForProject(project);
+				this._reporter.Report(diagnostic.Analyze(project), reporterOptions);
 			}
 		}
 
@@ -53,11 +53,12 @@ namespace Project2015To2017.Analysis
 				return;
 			}
 
+			var projectReader = new ProjectReader(NoopLogger.Instance);
 			foreach (var projectPath in solution.ProjectPaths)
 			{
 				if (!projectPath.ProjectFile.Exists)
 				{
-					_reporter.Report(new[]
+					this._reporter.Report(new[]
 					{
 						new DiagnosticResult
 						{
@@ -69,11 +70,11 @@ namespace Project2015To2017.Analysis
 								Source = solution.FilePath
 							}
 						}
-					}, _reporter.DefaultOptions);
+					}, this._reporter.DefaultOptions);
 					continue;
 				}
 
-				var project = new ProjectReader(projectPath.ProjectFile).Read();
+				var project = projectReader.Read(projectPath.ProjectFile);
 
 				Analyze(project);
 			}

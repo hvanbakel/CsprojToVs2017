@@ -1,9 +1,8 @@
 using CommandLine;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Analysis;
 using Project2015To2017.Definition;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Project2015To2017.Console
@@ -18,20 +17,15 @@ namespace Project2015To2017.Console
 
 		private static void ConvertProject(Options options)
 		{
-#if DEBUG
-			var progress = new Progress<string>(x => Debug.WriteLine(x));
-#else
-			var progress = new Progress<string>(System.Console.WriteLine);
-#endif
-
 			var conversionOptions = options.ConversionOptions;
 
 			var convertedProjects = new List<Project>();
 
+			ILogger logger = new ConsoleLogger("console", (s, l) => l >= LogLevel.Information, true);
 			foreach (var file in options.Files)
 			{
-				var projects = ProjectConverter
-					.Convert(file, conversionOptions, progress)
+				var projects = new ProjectConverter(logger, conversionOptions)
+					.Convert(file)
 					.Where(x => x != null)
 					.ToList();
 				convertedProjects.AddRange(projects);
@@ -39,7 +33,7 @@ namespace Project2015To2017.Console
 
 			System.Console.Out.Flush();
 
-			var analyzer = new Analyzer<ConsoleReporter, ConsoleReporterOptions>(ConsoleReporter.Instance);
+			var analyzer = new Analyzer<LoggerReporter, LoggerReporterOptions>(new LoggerReporter(logger));
 			foreach (var project in convertedProjects)
 			{
 				analyzer.Analyze(project);
@@ -52,28 +46,22 @@ namespace Project2015To2017.Console
 
 			var doBackup = !options.NoBackup;
 
-			var writer = new Writing.ProjectWriter(x => x.Delete(), _ => { });
+			var writer = new Writing.ProjectWriter(logger, x => x.Delete(), _ => { });
 			foreach (var project in convertedProjects)
 			{
 				if (project.IsModernProject)
 				{
-					if (progress is IProgress<string> progressImpl)
-					{
-						progressImpl.Report($"Skipping CPS project '{project.FilePath.Name}'...");
-					}
+					logger.LogInformation($"Skipping CPS project '{project.FilePath.Name}'...");
 
 					continue;
 				}
 
-				writer.Write(project, doBackup, progress);
+				writer.Write(project, doBackup);
 			}
 
 			System.Console.Out.Flush();
 
-			if (progress is IProgress<string> progressInterface)
-			{
-				progressInterface.Report("### Performing 2nd pass to analyze converted projects...");
-			}
+			logger.LogInformation("### Performing 2nd pass to analyze converted projects...");
 
 			if (conversionOptions.ProjectCache != null)
 			{
@@ -84,8 +72,8 @@ namespace Project2015To2017.Console
 
 			foreach (var file in options.Files)
 			{
-				var projects = ProjectConverter
-					.Convert(file, conversionOptions, progress)
+				var projects = new ProjectConverter(logger, conversionOptions)
+					.Convert(file)
 					.Where(x => x != null)
 					.ToList();
 				convertedProjects.AddRange(projects);

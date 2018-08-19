@@ -79,14 +79,14 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override void ResetState()
         {
-            if (LeftChild != null)
+            if (this.LeftChild != null)
             {
-                LeftChild.ResetState();
+				this.LeftChild.ResetState();
             }
 
-            if (RightChild != null)
+            if (this.RightChild != null)
             {
-                RightChild.ResetState();
+				this.RightChild.ResetState();
             }
         }
 
@@ -110,13 +110,13 @@ namespace Project2015To2017.Reading.Conditionals
             // Process the children of the node if preset
             bool detectAndRChild = false;
             bool detectAndLChild = false;
-            if (RightChild != null)
+            if (this.RightChild != null)
             {
-                detectAndRChild = RightChild.DetectAnd();
+                detectAndRChild = this.RightChild.DetectAnd();
             }
-            if (LeftChild != null)
+            if (this.LeftChild != null)
             {
-                detectAndLChild = LeftChild.DetectAnd();
+                detectAndLChild = this.LeftChild.DetectAnd();
             }
             return detectedAnd || detectAndRChild || detectAndLChild;
         }
@@ -130,13 +130,13 @@ namespace Project2015To2017.Reading.Conditionals
             // Process the children of the node if preset
             bool detectOrRChild = false;
             bool detectOrLChild = false;
-            if (RightChild != null)
+            if (this.RightChild != null)
             {
-                detectOrRChild = RightChild.DetectOr();
+                detectOrRChild = this.RightChild.DetectOr();
             }
-            if (LeftChild != null)
+            if (this.LeftChild != null)
             {
-                detectOrLChild = LeftChild.DetectOr();
+                detectOrLChild = this.LeftChild.DetectOr();
             }
             return detectedOr || detectOrRChild || detectOrLChild;
         }

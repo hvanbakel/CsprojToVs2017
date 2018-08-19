@@ -12,7 +12,7 @@ namespace Project2015To2017.Analysis
 
 		public AnalysisOptions(IEnumerable<IDiagnostic> diagnostics = null)
 		{
-			Diagnostics = (diagnostics ?? DiagnosticSet.AllDefault).ToImmutableHashSet();
+			this.Diagnostics = (diagnostics ?? DiagnosticSet.AllDefault).ToImmutableHashSet();
 		}
 	}
 }

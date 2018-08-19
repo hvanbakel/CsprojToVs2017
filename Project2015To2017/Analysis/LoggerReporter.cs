@@ -1,16 +1,22 @@
 using System;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace Project2015To2017.Analysis
 {
-	public sealed class ConsoleReporter : ReporterBase<ConsoleReporterOptions>
+	public sealed class LoggerReporter : ReporterBase<LoggerReporterOptions>
 	{
-		public static readonly ConsoleReporter Instance = new ConsoleReporter();
+		private readonly ILogger logger;
 
-		public override ConsoleReporterOptions DefaultOptions => new ConsoleReporterOptions();
+		public LoggerReporter(ILogger logger)
+		{
+			this.logger = logger;
+		}
+
+		public override LoggerReporterOptions DefaultOptions => new LoggerReporterOptions();
 
 		/// <inheritdoc />
-		protected override void Report(IDiagnosticResult result, ConsoleReporterOptions reporterOptions)
+		protected override void Report(IDiagnosticResult result, LoggerReporterOptions reporterOptions)
 		{
 			var consoleHeader = $"{result.Code}: ";
 			string linePadding;
@@ -19,7 +25,6 @@ namespace Project2015To2017.Analysis
 				pad.Append(' ', consoleHeader.Length);
 				linePadding = pad.ToString();
 			}
-			Console.Write(consoleHeader);
 			var message = result.Message.Trim();
 
 			var sourcePath = result.Location.GetSourcePath();
@@ -40,17 +45,7 @@ namespace Project2015To2017.Analysis
 					break;
 			}
 
-			uint messageLineIndex = 0;
-			foreach (var messageLine in message.Split('\n'))
-			{
-				if (messageLineIndex != 0)
-				{
-					Console.Write(linePadding);
-				}
-
-				Console.WriteLine(messageLine);
-				++messageLineIndex;
-			}
+			this.logger.LogInformation(consoleHeader + Environment.NewLine + message);
 		}
 	}
 }

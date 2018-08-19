@@ -8,7 +8,7 @@ namespace Project2015To2017.Definition
 	{
 		public FileInfo FilePath { get; set; }
 		public IReadOnlyList<ProjectReference> ProjectPaths { get; set; }
-		public DirectoryInfo SolutionFolder => FilePath.Directory;
+		public DirectoryInfo SolutionFolder => this.FilePath.Directory;
 
 		/// <summary>
 		/// The directory where nuget stores its extracted packages for the solution.
@@ -19,7 +19,7 @@ namespace Project2015To2017.Definition
 		{
 			get
 			{
-				var solutionFolder = SolutionFolder.FullName;
+				var solutionFolder = this.SolutionFolder.FullName;
 
 				var nuGetSettings = Settings.LoadDefaultSettings(solutionFolder);
 				var repositoryPathSetting = SettingsUtility.GetRepositoryPath(nuGetSettings);

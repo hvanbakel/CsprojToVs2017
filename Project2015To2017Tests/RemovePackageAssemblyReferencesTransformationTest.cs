@@ -6,6 +6,7 @@ using System.Linq;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
+using Project2015To2017;
 
 namespace Project2015To2017Tests
 {
@@ -17,10 +18,8 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project();
 
-			var progress = new Progress<string>(x => { });
-
 			var transformation = new RemovePackageAssemblyReferencesTransformation();
-			transformation.Transform(project, progress);
+			transformation.Transform(project, NoopLogger.Instance);
 		}
 
 		[TestMethod]
@@ -56,9 +55,7 @@ namespace Project2015To2017Tests
 
 			var transformation = new RemovePackageAssemblyReferencesTransformation();
 
-			var progress = new Progress<string>(x => { });
-
-			transformation.Transform(project, progress);
+			transformation.Transform(project, NoopLogger.Instance);
 
 			Assert.AreEqual(2, project.AssemblyReferences.Count);
 		}
@@ -68,14 +65,12 @@ namespace Project2015To2017Tests
 		{
 			var projFile = @"TestFiles\AltNugetConfig\ProjectFolder\net46console.testcsproj";
 
-			var project = new ProjectReader(projFile).Read();
+			var project = new ProjectReader().Read(projFile);
 
 			var transformation = new RemovePackageAssemblyReferencesTransformation();
 
-			var progress = new Progress<string>(x => { });
-
 			//Then attempt to clear any referencing the nuget packages folder
-			transformation.Transform(project, progress);
+			transformation.Transform(project, NoopLogger.Instance);
 
 			//The only one left which points to another folder
 			Assert.AreEqual(1, project.AssemblyReferences.Count);
@@ -87,14 +82,12 @@ namespace Project2015To2017Tests
 		{
 			var projFile = @"TestFiles\AltNugetConfig\ProjectFolder\net46console.testcsproj";
 
-			var project = new ProjectReader(projFile).Read();
+			var project = new ProjectReader().Read(projFile);
 
 			var transformation = new RemovePackageImportsTransformation();
 
-			var progress = new Progress<string>(x => { });
-
 			//Then attempt to clear any referencing the nuget packages folder
-			transformation.Transform(project, progress);
+			transformation.Transform(project, NoopLogger.Instance);
 
 			var expectedRemaining = new []
 			{

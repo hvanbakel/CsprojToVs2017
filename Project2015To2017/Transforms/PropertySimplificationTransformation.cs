@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 
@@ -11,7 +12,7 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class PropertySimplificationTransformation : ITransformation
 	{
-		public void Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, ILogger logger)
 		{
 			FilterUnneededProperties(definition, definition.AdditionalPropertyGroups);
 		}

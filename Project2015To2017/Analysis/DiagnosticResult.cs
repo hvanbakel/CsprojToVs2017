@@ -15,10 +15,10 @@ namespace Project2015To2017.Analysis
 
 		public DiagnosticResult(IDiagnosticResult result)
 		{
-			Code = result.Code;
-			Message = result.Message;
-			Project = result.Project;
-			Location = result.Location;
+			this.Code = result.Code;
+			this.Message = result.Message;
+			this.Project = result.Project;
+			this.Location = result.Location;
 		}
 	}
 }

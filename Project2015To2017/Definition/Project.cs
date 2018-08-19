@@ -9,7 +9,7 @@ namespace Project2015To2017.Definition
 	public sealed class Project
 	{
 		public static readonly XNamespace XmlLegacyNamespace = "http://schemas.microsoft.com/developer/msbuild/2003";
-		public XNamespace XmlNamespace => IsModernProject ? XNamespace.None : XmlLegacyNamespace;
+		public XNamespace XmlNamespace => this.IsModernProject ? XNamespace.None : XmlLegacyNamespace;
 		public bool IsModernProject { get; set; }
 
 		public IReadOnlyList<AssemblyReference> AssemblyReferences { get; set; }
@@ -34,7 +34,7 @@ namespace Project2015To2017.Definition
 		public string RootNamespace { get; set; }
 		public string AssemblyName { get; set; }
 		public FileInfo FilePath { get; set; }
-		public DirectoryInfo ProjectFolder => FilePath.Directory;
+		public DirectoryInfo ProjectFolder => this.FilePath.Directory;
 
 		public bool HasMultipleAssemblyInfoFiles { get; set; }
 

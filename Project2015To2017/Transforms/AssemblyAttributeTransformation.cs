@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
@@ -13,12 +14,12 @@ namespace Project2015To2017.Transforms
 		}
 		public AssemblyAttributeTransformation(bool keepAssemblyInfoFile)
 		{
-			KeepAssemblyInfoFile = keepAssemblyInfoFile;
+			this.KeepAssemblyInfoFile = keepAssemblyInfoFile;
 		}
 
 		public bool KeepAssemblyInfoFile { get; }
 
-		public void Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, ILogger logger)
 		{
 			if (definition.AssemblyAttributes == null)
 			{
@@ -30,15 +31,15 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			if (!KeepAssemblyInfoFile)
+			if (!this.KeepAssemblyInfoFile)
 			{
 				definition.AssemblyAttributeProperties = definition.AssemblyAttributeProperties
-					.Concat(AssemblyAttributeNodes(definition.AssemblyAttributes, definition.PackageConfiguration, progress))
+					.Concat(AssemblyAttributeNodes(definition.AssemblyAttributes, definition.PackageConfiguration, logger))
 					.ToArray();
 			}
 			else
 			{
-				progress.Report("Keep AssemblyInfo");
+				logger.LogInformation("Keep AssemblyInfo");
 				definition.AssemblyAttributeProperties = new[] { new XElement("GenerateAssemblyInfo", "false") };
 			}
 
@@ -72,12 +73,12 @@ namespace Project2015To2017.Transforms
 			return !file.Members.Any() && !file.AttributeLists.Any();
 		}
 
-		private static IReadOnlyList<XElement> AssemblyAttributeNodes(AssemblyAttributes assemblyAttributes, PackageConfiguration packageConfig, IProgress<string> progress)
+		private static IReadOnlyList<XElement> AssemblyAttributeNodes(AssemblyAttributes assemblyAttributes, PackageConfiguration packageConfig, ILogger logger)
 		{
-			progress.Report("Moving attributes from AssemblyInfo to project file");
+			logger.LogInformation("Moving attributes from AssemblyInfo to project file");
 
-			var versioningProperties = VersioningProperties(assemblyAttributes, packageConfig, progress);
-			var otherProperties = OtherProperties(assemblyAttributes, packageConfig, progress);
+			var versioningProperties = VersioningProperties(assemblyAttributes, packageConfig, logger);
+			var otherProperties = OtherProperties(assemblyAttributes, packageConfig, logger);
 
 			var childNodes = otherProperties.Concat(versioningProperties).ToArray();
 
@@ -92,8 +93,7 @@ namespace Project2015To2017.Transforms
 			return childNodes;
 		}
 
-		private static IReadOnlyList<XElement> OtherProperties(AssemblyAttributes assemblyAttributes,
-			PackageConfiguration packageConfig, IProgress<string> progress)
+		private static IReadOnlyList<XElement> OtherProperties(AssemblyAttributes assemblyAttributes, PackageConfiguration packageConfig, ILogger logger)
 		{
 			var toReturn = new[]
 			{
@@ -102,8 +102,8 @@ namespace Project2015To2017.Transforms
 				CreateElementIfNotNull(assemblyAttributes.Product, "Product"),
 
 				//And a couple of properties which can be superceded by the package config
-				CreateElementIfNotNull(assemblyAttributes.Description, packageConfig?.Description, "Description", progress),
-				CreateElementIfNotNull(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", progress),
+				CreateElementIfNotNull(assemblyAttributes.Description, packageConfig?.Description, "Description", logger),
+				CreateElementIfNotNull(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", logger),
 
 				assemblyAttributes.Configuration != null
 					?
@@ -123,13 +123,13 @@ namespace Project2015To2017.Transforms
 			return toReturn;
 		}
 
-		private static XElement CreateElementIfNotNull(string assemblyInfoValue, string packageConfigValue, string description, IProgress<string> progress)
+		private static XElement CreateElementIfNotNull(string assemblyInfoValue, string packageConfigValue, string description, ILogger logger)
 		{
 			if (packageConfigValue != null && packageConfigValue != assemblyInfoValue)
 			{
 				if (assemblyInfoValue != null)
 				{
-					progress.Report(
+					logger.LogWarning(
 						$"Taking nuspec {description} property value {packageConfigValue} " +
 						$"over AssemblyInfo value {assemblyInfoValue}");
 				}
@@ -143,11 +143,11 @@ namespace Project2015To2017.Transforms
 		}
 
 		private static IReadOnlyList<XElement> VersioningProperties(AssemblyAttributes assemblyAttributes,
-			PackageConfiguration packageConfig, IProgress<string> progress)
+			PackageConfiguration packageConfig, ILogger logger)
 		{
 			var toReturn = new[]
 			{
-				CreateElementIfNotNull(assemblyAttributes.InformationalVersion, packageConfig?.Version, "Version", progress),
+				CreateElementIfNotNull(assemblyAttributes.InformationalVersion, packageConfig?.Version, "Version", logger),
 				CreateElementIfNotNull(assemblyAttributes.Version, "AssemblyVersion"),
 
 				//The AssemblyInfo behaviour was to fallback on the AssemblyVersion for the file version

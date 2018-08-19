@@ -60,11 +60,11 @@ namespace Project2015To2017.Reading.Conditionals
             ErrorUtilities.VerifyThrow(0 != (options & ParserOptions.AllowProperties),
                 "Properties should always be allowed.");
 
-            _expression = expressionToParse;
-            _parsePoint = 0;
-            _errorState = false;
-            _errorPosition = -1; // invalid
-            _options = options;
+			this._expression = expressionToParse;
+			this._parsePoint = 0;
+			this._errorState = false;
+			this._errorPosition = -1; // invalid
+			this._options = options;
         }
 
         /// <summary>
@@ -76,38 +76,38 @@ namespace Project2015To2017.Reading.Conditionals
         /// <returns></returns>
         internal string GetErrorResource()
         {
-            if (_errorResource == null)
+            if (this._errorResource == null)
             {
                 // I do not believe this is reachable, but provide a reasonable default.
-                Debug.Assert(false, "What code path did not set an appropriate error resource? Expression: " + _expression);
-                _unexpectedlyFound = EndOfInput;
+                Debug.Assert(false, "What code path did not set an appropriate error resource? Expression: " + this._expression);
+				this._unexpectedlyFound = this.EndOfInput;
                 return "UnexpectedCharacterInCondition";
             }
             else
             {
-                return _errorResource;
+                return this._errorResource;
             }
         }
 
         internal bool IsNext(Token.TokenType type)
         {
-            return _lookahead.IsToken(type);
+            return this._lookahead.IsToken(type);
         }
 
         internal string IsNextString()
         {
-            return _lookahead.String;
+            return this._lookahead.String;
         }
 
         internal Token CurrentToken
         {
-            get { return _lookahead; }
+            get { return this._lookahead; }
         }
 
         internal int GetErrorPosition()
         {
-            Debug.Assert(-1 != _errorPosition); // We should have set it
-            return _errorPosition;
+            Debug.Assert(-1 != this._errorPosition); // We should have set it
+            return this._errorPosition;
         }
 
         // The string (usually a single character) we found unexpectedly. 
@@ -116,7 +116,7 @@ namespace Project2015To2017.Reading.Conditionals
         {
             get
             {
-                return _unexpectedlyFound;
+                return this._unexpectedlyFound;
             }
         }
 
@@ -130,36 +130,36 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal bool Advance()
         {
-            if (_errorState)
+            if (this._errorState)
                 return false;
 
-            if (_lookahead != null && _lookahead.IsToken(Token.TokenType.EndOfInput))
+            if (this._lookahead != null && this._lookahead.IsToken(Token.TokenType.EndOfInput))
                 return true;
 
             SkipWhiteSpace();
 
-            // Update error position after skipping whitespace
-            _errorPosition = _parsePoint + 1;
+			// Update error position after skipping whitespace
+			this._errorPosition = this._parsePoint + 1;
 
-            if (_parsePoint >= _expression.Length)
+            if (this._parsePoint >= this._expression.Length)
             {
-                _lookahead = Token.EndOfInput;
+				this._lookahead = Token.EndOfInput;
             }
             else
             {
-                switch (_expression[_parsePoint])
+                switch (this._expression[this._parsePoint])
                 {
                     case ',':
-                        _lookahead = Token.Comma;
-                        _parsePoint++;
+						this._lookahead = Token.Comma;
+						this._parsePoint++;
                         break;
                     case '(':
-                        _lookahead = Token.LeftParenthesis;
-                        _parsePoint++;
+						this._lookahead = Token.LeftParenthesis;
+						this._parsePoint++;
                         break;
                     case ')':
-                        _lookahead = Token.RightParenthesis;
-                        _parsePoint++;
+						this._lookahead = Token.RightParenthesis;
+						this._parsePoint++;
                         break;
                     case '$':
                         if (!ParseProperty())
@@ -170,15 +170,15 @@ namespace Project2015To2017.Reading.Conditionals
                             return false;
                         break;
                     case '@':
-                        int start = _parsePoint;
+                        int start = this._parsePoint;
                         // If the caller specified that he DOESN'T want to allow item lists ...
-                        if ((_options & ParserOptions.AllowItemLists) == 0)
+                        if ((this._options & ParserOptions.AllowItemLists) == 0)
                         {
-                            if ((_parsePoint + 1) < _expression.Length && _expression[_parsePoint + 1] == '(')
+                            if ((this._parsePoint + 1) < this._expression.Length && this._expression[this._parsePoint + 1] == '(')
                             {
-                                _errorPosition = start + 1;
-                                _errorState = true;
-                                _errorResource = "ItemListNotAllowedInThisConditional";
+								this._errorPosition = start + 1;
+								this._errorState = true;
+								this._errorResource = "ItemListNotAllowedInThisConditional";
                                 return false;
                             }
                         }
@@ -187,64 +187,64 @@ namespace Project2015To2017.Reading.Conditionals
                         break;
                     case '!':
                         // negation and not-equal
-                        if ((_parsePoint + 1) < _expression.Length && _expression[_parsePoint + 1] == '=')
+                        if ((this._parsePoint + 1) < this._expression.Length && this._expression[this._parsePoint + 1] == '=')
                         {
-                            _lookahead = Token.NotEqualTo;
-                            _parsePoint += 2;
+							this._lookahead = Token.NotEqualTo;
+							this._parsePoint += 2;
                         }
                         else
                         {
-                            _lookahead = Token.Not;
-                            _parsePoint++;
+							this._lookahead = Token.Not;
+							this._parsePoint++;
                         }
                         break;
                     case '>':
                         // gt and gte
-                        if ((_parsePoint + 1) < _expression.Length && _expression[_parsePoint + 1] == '=')
+                        if ((this._parsePoint + 1) < this._expression.Length && this._expression[this._parsePoint + 1] == '=')
                         {
-                            _lookahead = Token.GreaterThanOrEqualTo;
-                            _parsePoint += 2;
+							this._lookahead = Token.GreaterThanOrEqualTo;
+							this._parsePoint += 2;
                         }
                         else
                         {
-                            _lookahead = Token.GreaterThan;
-                            _parsePoint++;
+							this._lookahead = Token.GreaterThan;
+							this._parsePoint++;
                         }
                         break;
                     case '<':
                         // lt and lte
-                        if ((_parsePoint + 1) < _expression.Length && _expression[_parsePoint + 1] == '=')
+                        if ((this._parsePoint + 1) < this._expression.Length && this._expression[this._parsePoint + 1] == '=')
                         {
-                            _lookahead = Token.LessThanOrEqualTo;
-                            _parsePoint += 2;
+							this._lookahead = Token.LessThanOrEqualTo;
+							this._parsePoint += 2;
                         }
                         else
                         {
-                            _lookahead = Token.LessThan;
-                            _parsePoint++;
+							this._lookahead = Token.LessThan;
+							this._parsePoint++;
                         }
                         break;
                     case '=':
-                        if ((_parsePoint + 1) < _expression.Length && _expression[_parsePoint + 1] == '=')
+                        if ((this._parsePoint + 1) < this._expression.Length && this._expression[this._parsePoint + 1] == '=')
                         {
-                            _lookahead = Token.EqualTo;
-                            _parsePoint += 2;
+							this._lookahead = Token.EqualTo;
+							this._parsePoint += 2;
                         }
                         else
                         {
-                            _errorPosition = _parsePoint + 2; // expression[parsePoint + 1], counting from 1
-                            _errorResource = "IllFormedEqualsInCondition";
-                            if ((_parsePoint + 1) < _expression.Length)
+							this._errorPosition = this._parsePoint + 2; // expression[parsePoint + 1], counting from 1
+							this._errorResource = "IllFormedEqualsInCondition";
+                            if ((this._parsePoint + 1) < this._expression.Length)
                             {
-                                // store the char we found instead
-                                _unexpectedlyFound = Convert.ToString(_expression[_parsePoint + 1], CultureInfo.InvariantCulture);
+								// store the char we found instead
+								this._unexpectedlyFound = Convert.ToString(this._expression[this._parsePoint + 1], CultureInfo.InvariantCulture);
                             }
                             else
                             {
-                                _unexpectedlyFound = EndOfInput;
+								this._unexpectedlyFound = this.EndOfInput;
                             }
-                            _parsePoint++;
-                            _errorState = true;
+							this._parsePoint++;
+							this._errorState = true;
                             return false;
                         }
                         break;
@@ -270,33 +270,33 @@ namespace Project2015To2017.Reading.Conditionals
         /// <returns></returns>
         private string ParsePropertyOrItemMetadata()
         {
-            int start = _parsePoint; // set start so that we include "$(" or "%("
-            _parsePoint++;
+            int start = this._parsePoint; // set start so that we include "$(" or "%("
+			this._parsePoint++;
 
-            if (_parsePoint < _expression.Length && _expression[_parsePoint] != '(')
+            if (this._parsePoint < this._expression.Length && this._expression[this._parsePoint] != '(')
             {
-                _errorState = true;
-                _errorPosition = start + 1;
-                _errorResource = "IllFormedPropertyOpenParenthesisInCondition";
-                _unexpectedlyFound = Convert.ToString(_expression[_parsePoint], CultureInfo.InvariantCulture);
+				this._errorState = true;
+				this._errorPosition = start + 1;
+				this._errorResource = "IllFormedPropertyOpenParenthesisInCondition";
+				this._unexpectedlyFound = Convert.ToString(this._expression[this._parsePoint], CultureInfo.InvariantCulture);
                 return null;
             }
 
-            _parsePoint = ScanForPropertyExpressionEnd(_expression, _parsePoint++);
+			this._parsePoint = ScanForPropertyExpressionEnd(this._expression, this._parsePoint++);
 
             // Maybe we need to generate an error for invalid characters in property/metadata name?
             // For now, just wait and let the property/metadata evaluation handle the error case.
-            if (_parsePoint >= _expression.Length)
+            if (this._parsePoint >= this._expression.Length)
             {
-                _errorState = true;
-                _errorPosition = start + 1;
-                _errorResource = "IllFormedPropertyCloseParenthesisInCondition";
-                _unexpectedlyFound = EndOfInput;
+				this._errorState = true;
+				this._errorPosition = start + 1;
+				this._errorResource = "IllFormedPropertyCloseParenthesisInCondition";
+				this._unexpectedlyFound = this.EndOfInput;
                 return null;
             }
 
-            _parsePoint++;
-            return _expression.Substring(start, _parsePoint - start);
+			this._parsePoint++;
+            return this._expression.Substring(start, this._parsePoint - start);
         }
 
         /// <summary>
@@ -348,7 +348,7 @@ namespace Project2015To2017.Reading.Conditionals
             }
             else
             {
-                _lookahead = new Token(Token.TokenType.Property, propertyExpression);
+				this._lookahead = new Token(Token.TokenType.Property, propertyExpression);
                 return true;
             }
         }
@@ -363,16 +363,16 @@ namespace Project2015To2017.Reading.Conditionals
 
             if (itemMetadataExpression == null)
             {
-                // The ParsePropertyOrItemMetadata method returns the correct error resources
-                // for parsing properties such as $(propertyname).  At this stage in the Whidbey
-                // cycle, we're not allowed to add new string resources, so I can't add a new
-                // resource specific to item metadata, so here, we just change the error to
-                // the generic "UnexpectedCharacter".
-                _errorResource = "UnexpectedCharacterInCondition";
+				// The ParsePropertyOrItemMetadata method returns the correct error resources
+				// for parsing properties such as $(propertyname).  At this stage in the Whidbey
+				// cycle, we're not allowed to add new string resources, so I can't add a new
+				// resource specific to item metadata, so here, we just change the error to
+				// the generic "UnexpectedCharacter".
+				this._errorResource = "UnexpectedCharacterInCondition";
                 return false;
             }
 
-            _lookahead = new Token(Token.TokenType.ItemMetadata, itemMetadataExpression);
+			this._lookahead = new Token(Token.TokenType.ItemMetadata, itemMetadataExpression);
 
             if (!CheckForUnexpectedMetadata(itemMetadataExpression))
             {
@@ -389,7 +389,7 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         private bool CheckForUnexpectedMetadata(string expression)
         {
-            if ((_options & ParserOptions.AllowItemMetadata) == ParserOptions.AllowItemMetadata)
+            if ((this._options & ParserOptions.AllowItemMetadata) == ParserOptions.AllowItemMetadata)
             {
                 return true;
             }
@@ -399,34 +399,34 @@ namespace Project2015To2017.Reading.Conditionals
 
         private bool ParseInternalItemList()
         {
-            int start = _parsePoint;
-            _parsePoint++;
+            int start = this._parsePoint;
+			this._parsePoint++;
 
-            if (_parsePoint < _expression.Length && _expression[_parsePoint] != '(')
+            if (this._parsePoint < this._expression.Length && this._expression[this._parsePoint] != '(')
             {
-                // @ was not followed by (
-                _errorPosition = start + 1;
-                _errorResource = "IllFormedItemListOpenParenthesisInCondition";
-                // Not useful to set unexpectedlyFound here. The message is going to be detailed enough.
-                _errorState = true;
+				// @ was not followed by (
+				this._errorPosition = start + 1;
+				this._errorResource = "IllFormedItemListOpenParenthesisInCondition";
+				// Not useful to set unexpectedlyFound here. The message is going to be detailed enough.
+				this._errorState = true;
                 return false;
             }
-            _parsePoint++;
+			this._parsePoint++;
             // Maybe we need to generate an error for invalid characters in itemgroup name?
             // For now, just let item evaluation handle the error.
             bool fInReplacement = false;
             int parenToClose = 0;
-            while (_parsePoint < _expression.Length)
+            while (this._parsePoint < this._expression.Length)
             {
-                if (_expression[_parsePoint] == '\'')
+                if (this._expression[this._parsePoint] == '\'')
                 {
                     fInReplacement = !fInReplacement;
                 }
-                else if (_expression[_parsePoint] == '(' && !fInReplacement)
+                else if (this._expression[this._parsePoint] == '(' && !fInReplacement)
                 {
                     parenToClose++;
                 }
-                else if (_expression[_parsePoint] == ')' && !fInReplacement)
+                else if (this._expression[this._parsePoint] == ')' && !fInReplacement)
                 {
                     if (parenToClose == 0)
                     {
@@ -434,37 +434,37 @@ namespace Project2015To2017.Reading.Conditionals
                     }
                     else { parenToClose--; }
                 }
-                _parsePoint++;
+				this._parsePoint++;
             }
-            if (_parsePoint >= _expression.Length)
+            if (this._parsePoint >= this._expression.Length)
             {
-                _errorPosition = start + 1;
+				this._errorPosition = start + 1;
                 if (fInReplacement)
                 {
-                    // @( ... ' was never followed by a closing quote before the closing parenthesis
-                    _errorResource = "IllFormedItemListQuoteInCondition";
+					// @( ... ' was never followed by a closing quote before the closing parenthesis
+					this._errorResource = "IllFormedItemListQuoteInCondition";
                 }
                 else
                 {
-                    // @( was never followed by a )
-                    _errorResource = "IllFormedItemListCloseParenthesisInCondition";
+					// @( was never followed by a )
+					this._errorResource = "IllFormedItemListCloseParenthesisInCondition";
                 }
-                // Not useful to set unexpectedlyFound here. The message is going to be detailed enough.
-                _errorState = true;
+				// Not useful to set unexpectedlyFound here. The message is going to be detailed enough.
+				this._errorState = true;
                 return false;
             }
-            _parsePoint++;
+			this._parsePoint++;
             return true;
         }
 
         private bool ParseItemList()
         {
-            int start = _parsePoint;
+            int start = this._parsePoint;
             if (!ParseInternalItemList())
             {
                 return false;
             }
-            _lookahead = new Token(Token.TokenType.ItemList, _expression.Substring(start, _parsePoint - start));
+			this._lookahead = new Token(Token.TokenType.ItemList, this._expression.Substring(start, this._parsePoint - start));
             return true;
         }
 
@@ -474,30 +474,30 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         private bool ParseQuotedString()
         {
-            _parsePoint++;
-            int start = _parsePoint;
+			this._parsePoint++;
+            int start = this._parsePoint;
             bool expandable = false;
-            while (_parsePoint < _expression.Length && _expression[_parsePoint] != '\'')
+            while (this._parsePoint < this._expression.Length && this._expression[this._parsePoint] != '\'')
             {
                 // Standalone percent-sign must be allowed within a condition because it's
                 // needed to escape special characters.  However, percent-sign followed
                 // by open-parenthesis is an indication of an item metadata reference, and
                 // that is only allowed in certain contexts.
-                if ((_expression[_parsePoint] == '%') && ((_parsePoint + 1) < _expression.Length) && (_expression[_parsePoint + 1] == '('))
+                if ((this._expression[this._parsePoint] == '%') && ((this._parsePoint + 1) < this._expression.Length) && (this._expression[this._parsePoint + 1] == '('))
                 {
                     expandable = true;
                     string name = String.Empty;
 
-                    int endOfName = _expression.IndexOf(')', _parsePoint) - 1;
+                    int endOfName = this._expression.IndexOf(')', this._parsePoint) - 1;
                     if (endOfName < 0)
                     {
-                        endOfName = _expression.Length - 1;
+                        endOfName = this._expression.Length - 1;
                     }
 
                     // If it's %(a.b) the name is just 'b'
-                    if (_parsePoint + 3 < _expression.Length)
+                    if (this._parsePoint + 3 < this._expression.Length)
                     {
-                        name = _expression.Substring(_parsePoint + 2, (endOfName - _parsePoint - 2 + 1));
+                        name = this._expression.Substring(this._parsePoint + 2, (endOfName - this._parsePoint - 2 + 1));
                     }
 
                     if (!CheckForUnexpectedMetadata(name))
@@ -505,16 +505,16 @@ namespace Project2015To2017.Reading.Conditionals
                         return false;
                     }
                 }
-                else if (_expression[_parsePoint] == '@' && ((_parsePoint + 1) < _expression.Length) && (_expression[_parsePoint + 1] == '('))
+                else if (this._expression[this._parsePoint] == '@' && ((this._parsePoint + 1) < this._expression.Length) && (this._expression[this._parsePoint + 1] == '('))
                 {
                     expandable = true;
 
                     // If the caller specified that he DOESN'T want to allow item lists ...
-                    if ((_options & ParserOptions.AllowItemLists) == 0)
+                    if ((this._options & ParserOptions.AllowItemLists) == 0)
                     {
-                        _errorPosition = start + 1;
-                        _errorState = true;
-                        _errorResource = "ItemListNotAllowedInThisConditional";
+						this._errorPosition = start + 1;
+						this._errorState = true;
+						this._errorResource = "ItemListNotAllowedInThisConditional";
                         return false;
                     }
 
@@ -526,54 +526,54 @@ namespace Project2015To2017.Reading.Conditionals
                     ParseInternalItemList();
                     continue;
                 }
-                else if (_expression[_parsePoint] == '$' && ((_parsePoint + 1) < _expression.Length) && (_expression[_parsePoint + 1] == '('))
+                else if (this._expression[this._parsePoint] == '$' && ((this._parsePoint + 1) < this._expression.Length) && (this._expression[this._parsePoint + 1] == '('))
                 {
                     expandable = true;
                 }
-                else if (_expression[_parsePoint] == '%')
+                else if (this._expression[this._parsePoint] == '%')
                 {
                     // There may be some escaped characters in the expression
                     expandable = true;
                 }
-                _parsePoint++;
+				this._parsePoint++;
             }
 
-            if (_parsePoint >= _expression.Length)
+            if (this._parsePoint >= this._expression.Length)
             {
-                // Quoted string wasn't closed
-                _errorState = true;
-                _errorPosition = start; // The message is going to say "expected after position n" so don't add 1 here.
-                _errorResource = "IllFormedQuotedStringInCondition";
+				// Quoted string wasn't closed
+				this._errorState = true;
+				this._errorPosition = start; // The message is going to say "expected after position n" so don't add 1 here.
+				this._errorResource = "IllFormedQuotedStringInCondition";
                 // Not useful to set unexpectedlyFound here. By definition it got to the end of the string.
                 return false;
             }
-            string originalTokenString = _expression.Substring(start, _parsePoint - start);
+            string originalTokenString = this._expression.Substring(start, this._parsePoint - start);
 
-            _lookahead = new Token(Token.TokenType.String, originalTokenString, expandable);
-            _parsePoint++;
+			this._lookahead = new Token(Token.TokenType.String, originalTokenString, expandable);
+			this._parsePoint++;
             return true;
         }
 
         private bool ParseRemaining()
         {
-            int start = _parsePoint;
-            if (CharacterUtilities.IsNumberStart(_expression[_parsePoint])) // numeric
+            int start = this._parsePoint;
+            if (CharacterUtilities.IsNumberStart(this._expression[this._parsePoint])) // numeric
             {
                 if (!ParseNumeric(start))
                     return false;
             }
-            else if (CharacterUtilities.IsSimpleStringStart(_expression[_parsePoint])) // simple string (handle 'and' and 'or')
+            else if (CharacterUtilities.IsSimpleStringStart(this._expression[this._parsePoint])) // simple string (handle 'and' and 'or')
             {
                 if (!ParseSimpleStringOrFunction(start))
                     return false;
             }
             else
             {
-                // Something that wasn't a number or a letter, like a newline (%0a)
-                _errorState = true;
-                _errorPosition = start + 1;
-                _errorResource = "UnexpectedCharacterInCondition";
-                _unexpectedlyFound = Convert.ToString(_expression[_parsePoint], CultureInfo.InvariantCulture);
+				// Something that wasn't a number or a letter, like a newline (%0a)
+				this._errorState = true;
+				this._errorPosition = start + 1;
+				this._errorResource = "UnexpectedCharacterInCondition";
+				this._unexpectedlyFound = Convert.ToString(this._expression[this._parsePoint], CultureInfo.InvariantCulture);
                 return false;
             }
             return true;
@@ -586,97 +586,97 @@ namespace Project2015To2017.Reading.Conditionals
         private bool ParseSimpleStringOrFunction(int start)
         {
             SkipSimpleStringChars();
-            if (0 == string.Compare(_expression.Substring(start, _parsePoint - start), "and", StringComparison.OrdinalIgnoreCase))
+            if (0 == string.Compare(this._expression.Substring(start, this._parsePoint - start), "and", StringComparison.OrdinalIgnoreCase))
             {
-                _lookahead = Token.And;
+				this._lookahead = Token.And;
             }
-            else if (0 == string.Compare(_expression.Substring(start, _parsePoint - start), "or", StringComparison.OrdinalIgnoreCase))
+            else if (0 == string.Compare(this._expression.Substring(start, this._parsePoint - start), "or", StringComparison.OrdinalIgnoreCase))
             {
-                _lookahead = Token.Or;
+				this._lookahead = Token.Or;
             }
             else
             {
-                int end = _parsePoint;
+                int end = this._parsePoint;
                 SkipWhiteSpace();
-                if (_parsePoint < _expression.Length && _expression[_parsePoint] == '(')
+                if (this._parsePoint < this._expression.Length && this._expression[this._parsePoint] == '(')
                 {
-                    _lookahead = new Token(Token.TokenType.Function, _expression.Substring(start, end - start));
+					this._lookahead = new Token(Token.TokenType.Function, this._expression.Substring(start, end - start));
                 }
                 else
                 {
-                    string tokenValue = _expression.Substring(start, end - start);
-                    _lookahead = new Token(Token.TokenType.String, tokenValue);
+                    string tokenValue = this._expression.Substring(start, end - start);
+					this._lookahead = new Token(Token.TokenType.String, tokenValue);
                 }
             }
             return true;
         }
         private bool ParseNumeric(int start)
         {
-            if ((_expression.Length - _parsePoint) > 2 && _expression[_parsePoint] == '0' && (_expression[_parsePoint + 1] == 'x' || _expression[_parsePoint + 1] == 'X'))
+            if ((this._expression.Length - this._parsePoint) > 2 && this._expression[this._parsePoint] == '0' && (this._expression[this._parsePoint + 1] == 'x' || this._expression[this._parsePoint + 1] == 'X'))
             {
-                // Hex number
-                _parsePoint += 2;
+				// Hex number
+				this._parsePoint += 2;
                 SkipHexDigits();
-                _lookahead = new Token(Token.TokenType.Numeric, _expression.Substring(start, _parsePoint - start));
+				this._lookahead = new Token(Token.TokenType.Numeric, this._expression.Substring(start, this._parsePoint - start));
             }
-            else if (CharacterUtilities.IsNumberStart(_expression[_parsePoint]))
+            else if (CharacterUtilities.IsNumberStart(this._expression[this._parsePoint]))
             {
                 // Decimal number
-                if (_expression[_parsePoint] == '+')
+                if (this._expression[this._parsePoint] == '+')
                 {
-                    _parsePoint++;
+					this._parsePoint++;
                 }
-                else if (_expression[_parsePoint] == '-')
+                else if (this._expression[this._parsePoint] == '-')
                 {
-                    _parsePoint++;
+					this._parsePoint++;
                 }
                 do
                 {
                     SkipDigits();
-                    if (_parsePoint < _expression.Length && _expression[_parsePoint] == '.')
+                    if (this._parsePoint < this._expression.Length && this._expression[this._parsePoint] == '.')
                     {
-                        _parsePoint++;
+						this._parsePoint++;
                     }
-                    if (_parsePoint < _expression.Length)
+                    if (this._parsePoint < this._expression.Length)
                     {
                         SkipDigits();
                     }
-                } while (_parsePoint < _expression.Length && _expression[_parsePoint] == '.');
-                // Do we need to error on malformed input like 0.00.00)? or will the conversion handle it?
-                // For now, let the conversion generate the error.
-                _lookahead = new Token(Token.TokenType.Numeric, _expression.Substring(start, _parsePoint - start));
+                } while (this._parsePoint < this._expression.Length && this._expression[this._parsePoint] == '.');
+				// Do we need to error on malformed input like 0.00.00)? or will the conversion handle it?
+				// For now, let the conversion generate the error.
+				this._lookahead = new Token(Token.TokenType.Numeric, this._expression.Substring(start, this._parsePoint - start));
             }
             else
             {
-                // Unreachable
-                _errorState = true;
-                _errorPosition = start + 1;
+				// Unreachable
+				this._errorState = true;
+				this._errorPosition = start + 1;
                 return false;
             }
             return true;
         }
         private void SkipWhiteSpace()
         {
-            while (_parsePoint < _expression.Length && char.IsWhiteSpace(_expression[_parsePoint]))
-                _parsePoint++;
+            while (this._parsePoint < this._expression.Length && char.IsWhiteSpace(this._expression[this._parsePoint]))
+				this._parsePoint++;
             return;
         }
         private void SkipDigits()
         {
-            while (_parsePoint < _expression.Length && char.IsDigit(_expression[_parsePoint]))
-                _parsePoint++;
+            while (this._parsePoint < this._expression.Length && char.IsDigit(this._expression[this._parsePoint]))
+				this._parsePoint++;
             return;
         }
         private void SkipHexDigits()
         {
-            while (_parsePoint < _expression.Length && CharacterUtilities.IsHexDigit(_expression[_parsePoint]))
-                _parsePoint++;
+            while (this._parsePoint < this._expression.Length && CharacterUtilities.IsHexDigit(this._expression[this._parsePoint]))
+				this._parsePoint++;
             return;
         }
         private void SkipSimpleStringChars()
         {
-            while (_parsePoint < _expression.Length && CharacterUtilities.IsSimpleStringChar(_expression[_parsePoint]))
-                _parsePoint++;
+            while (this._parsePoint < this._expression.Length && CharacterUtilities.IsSimpleStringChar(this._expression[this._parsePoint]))
+				this._parsePoint++;
             return;
         }
     }

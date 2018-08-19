@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
 	public sealed class TestProjectPackageReferenceTransformation : ITransformation
 	{
-		public void Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, ILogger logger)
 		{
 			var existingPackageReferences = definition.PackageReferences;
 
@@ -29,8 +30,7 @@ namespace Project2015To2017.Transforms
 			{
 				if (versions.Any(v => v < 450))
 				{
-					progress.Report(
-						$"Warning - target framework net40 is not compatible with the MSTest NuGet packages. Please consider updating the target framework of your test project(s)");
+					logger.LogWarning("Target framework net40 is not compatible with the MSTest NuGet packages. Please consider updating the target framework of your test project(s)");
 				}
 			}
 
@@ -40,7 +40,7 @@ namespace Project2015To2017.Transforms
 
 			foreach (var reference in testReferences)
 			{
-				progress.Report($"Adding nuget reference to {reference.Id}, version {reference.Version}.");
+				logger.LogInformation($"Adding nuget reference to {reference.Id}, version {reference.Version}.");
 			}
 
 			definition.PackageReferences = adjustedPackageReferences;

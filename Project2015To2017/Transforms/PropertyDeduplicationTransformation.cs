@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
-using Project2015To2017.Reading;
 
 namespace Project2015To2017.Transforms
 {
 	public sealed class PropertyDeduplicationTransformation : ITransformation
 	{
-		public void Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, ILogger logger)
 		{
 			var props = definition.AdditionalPropertyGroups
 				.Where(x => !string.IsNullOrEmpty(x.Attribute("Condition")?.Value))

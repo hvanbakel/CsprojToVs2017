@@ -21,7 +21,7 @@ namespace Project2015To2017.Reading
 
 		public ConditionEvaluationStateImpl(string condition)
 		{
-			Condition = condition ?? throw new ArgumentNullException(nameof(condition));
+			this.Condition = condition ?? throw new ArgumentNullException(nameof(condition));
 		}
 
 		/// <inheritdoc />
@@ -41,9 +41,9 @@ namespace Project2015To2017.Reading
 			try
 			{
 				// it makes little sense for condition to be that short
-				if (Condition.Length >= 2)
+				if (this.Condition.Length >= 2)
 				{
-					Node.Evaluate(this); // return value ignored
+					this.Node.Evaluate(this); // return value ignored
 				}
 			}
 			catch (Exception)
@@ -52,7 +52,7 @@ namespace Project2015To2017.Reading
 			}
 			finally
 			{
-				Evaluated = true;
+				this.Evaluated = true;
 			}
 		}
 	}
