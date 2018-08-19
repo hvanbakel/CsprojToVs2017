@@ -113,13 +113,18 @@ namespace Project2015To2017.Transforms
 			}
 
 			// Remove packages.config since those references were already added to the CSProj file.
-			if (include == "packages.config")
+			if (include.Equals("packages.config", StringComparison.OrdinalIgnoreCase))
 			{
 				return false;
 			}
 
 			// Nuspec is no longer required
-			if (include.EndsWith(".nuspec"))
+			if (include.EndsWith(".nuspec", StringComparison.OrdinalIgnoreCase))
+			{
+				return false;
+			}
+
+			if (tagName == "None" && include.EndsWith(".config", StringComparison.OrdinalIgnoreCase))
 			{
 				return false;
 			}

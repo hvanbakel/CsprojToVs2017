@@ -24,7 +24,7 @@ namespace Project2015To2017Tests
 
 	        var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 
-	        Assert.AreEqual(29, includeItems.Count);
+	        Assert.AreEqual(28, includeItems.Count);
 
             Assert.AreEqual(12, includeItems.Count(x => x.Name.LocalName == "Reference"));
             Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName == "ProjectReference"));
@@ -34,7 +34,7 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Remove") != null));
 			Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName == "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
             Assert.AreEqual(0, includeItems.Count(x => x.Name.LocalName == "Content"));
-            Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName == "None"));
+            Assert.AreEqual(1, includeItems.Count(x => x.Name.LocalName == "None"));
             Assert.AreEqual(0, includeItems.Count(x => x.Name.LocalName == "Analyzer"));
 
 	        var resourceDesigner = includeItems.Single(

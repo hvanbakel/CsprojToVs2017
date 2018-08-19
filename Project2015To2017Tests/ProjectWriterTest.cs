@@ -147,7 +147,7 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var delaySign = xmlNode.Elements("PropertyGroup").Skip(1).First().Element("DelaySign");
+			var delaySign = xmlNode.Elements("PropertyGroup").First().Element("DelaySign");
 			Assert.IsNull(delaySign);
 		}
 
@@ -161,7 +161,7 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var delaySign = xmlNode.Elements("PropertyGroup").Skip(1).First().Element("DelaySign");
+			var delaySign = xmlNode.Elements("PropertyGroup").First().Element("DelaySign");
 			Assert.IsNotNull(delaySign);
 			Assert.AreEqual("true", delaySign.Value);
 		}
@@ -176,7 +176,7 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var delaySign = xmlNode.Elements("PropertyGroup").Skip(1).First().Element("DelaySign");
+			var delaySign = xmlNode.Elements("PropertyGroup").First().Element("DelaySign");
 			Assert.IsNotNull(delaySign);
 			Assert.AreEqual("false", delaySign.Value);
 		}
