@@ -19,7 +19,7 @@ namespace Project2015To2017Tests
 	        project.Type = ApplicationType.TestProject;
 	        project.TargetFrameworks.Add("net45");
 
-            var transformation = new PackageReferenceTransformation();
+            var transformation = new TestProjectPackageReferenceTransformation();
 
 	        var progress = new Progress<string>(x => { });
 
@@ -39,7 +39,7 @@ namespace Project2015To2017Tests
 	        project.Type = ApplicationType.TestProject;
 	        project.TargetFrameworks.Add("netstandard2.0");
 
-			var transformation = new PackageReferenceTransformation();
+			var transformation = new TestProjectPackageReferenceTransformation();
 
 	        var progress = new Progress<string>(x => { });
 
@@ -54,7 +54,7 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void DoesNotAddTestPackagesIfExists()
         {
-            var transformation = new PackageReferenceTransformation();
+            var transformation = new TestProjectPackageReferenceTransformation();
 
 			var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "containsTestSDK.testcsproj")).Read();
 
@@ -73,7 +73,7 @@ namespace Project2015To2017Tests
         {
 	        var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
 
-            var transformation = new PackageReferenceTransformation();
+            var transformation = new TestProjectPackageReferenceTransformation();
 
 	        var progress = new Progress<string>(x => { });
 
@@ -88,7 +88,7 @@ namespace Project2015To2017Tests
         public void HandlesNonXml()
         {
             var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
-            var transformation = new PackageReferenceTransformation();
+            var transformation = new TestProjectPackageReferenceTransformation();
 
 	        var progress = new Progress<string>(x => { });
 

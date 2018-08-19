@@ -31,7 +31,7 @@ namespace Project2015To2017
 					conversionOptions.AppendTargetFrameworkToOutputPath),
 				new PropertySimplificationTransformation(),
 				new PropertyDeduplicationTransformation(),
-				new PackageReferenceTransformation(),
+				new TestProjectPackageReferenceTransformation(),
 				new AssemblyReferenceTransformation(),
 				new RemovePackageAssemblyReferencesTransformation(),
 				new DefaultAssemblyReferenceRemovalTransformation(),

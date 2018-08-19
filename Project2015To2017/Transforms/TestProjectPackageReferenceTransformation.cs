@@ -4,7 +4,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class PackageReferenceTransformation : ITransformation
+	public sealed class TestProjectPackageReferenceTransformation : ITransformation
 	{
 		public void Transform(Project definition, IProgress<string> progress)
 		{
