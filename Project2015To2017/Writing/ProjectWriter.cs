@@ -171,11 +171,12 @@ namespace Project2015To2017.Writing
 				netSdk = SdkExtrasVersion;
 			var projectNode = new XElement("Project", new XAttribute("Sdk", netSdk));
 
-			projectNode.Add(GetMainPropertyGroup(project, outputFile));
+			var propertyGroup = GetMainPropertyGroup(project, outputFile);
+			projectNode.Add(propertyGroup);
 
 			if (project.AdditionalPropertyGroups != null)
 			{
-				projectNode.Add(project.AdditionalPropertyGroups.Select(RemoveAllNamespaces));
+				propertyGroup.Add(project.AdditionalPropertyGroups.Select(RemoveAllNamespaces).SelectMany(x => x.Elements()));
 			}
 
 			if (project.Imports != null)
@@ -191,16 +192,6 @@ namespace Project2015To2017.Writing
 				foreach (var target in project.Targets.Select(RemoveAllNamespaces))
 				{
 					projectNode.Add(target);
-				}
-			}
-
-			if (project.BuildEvents != null && project.BuildEvents.Any())
-			{
-				var propertyGroup = new XElement("PropertyGroup");
-				projectNode.Add(propertyGroup);
-				foreach (var buildEvent in project.BuildEvents.Select(RemoveAllNamespaces))
-				{
-					propertyGroup.Add(buildEvent);
 				}
 			}
 
@@ -382,6 +373,14 @@ namespace Project2015To2017.Writing
 			mainPropertyGroup.Add(project.AssemblyAttributeProperties);
 
 			AddPackageNodes(mainPropertyGroup, project.PackageConfiguration);
+
+			if (project.BuildEvents != null && project.BuildEvents.Any())
+			{
+				foreach (var buildEvent in project.BuildEvents.Select(RemoveAllNamespaces))
+				{
+					mainPropertyGroup.Add(buildEvent);
+				}
+			}
 
 			return mainPropertyGroup;
 		}
