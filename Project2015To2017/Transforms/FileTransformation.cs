@@ -84,9 +84,15 @@ namespace Project2015To2017.Transforms
 		private static bool KeepFileInclusion(XElement x, Project project)
 		{
 			var tagName = x.Name.LocalName;
-			if (tagName == "Compile")
+			var include = x.Attribute("Include")?.Value;
+
+			// Wildcards from Microsoft.NET.Sdk.DefaultItems.props
+			switch (tagName)
 			{
-				return !IsWildcardMatchedFile(project, x);
+				case "Compile":
+				case "EmbeddedResource"
+					when include != null && include.EndsWith(".resx", StringComparison.OrdinalIgnoreCase):
+					return !IsWildcardMatchedFile(project, x);
 			}
 
 			if (ItemsToProjectAlways.Contains(tagName))
@@ -95,7 +101,7 @@ namespace Project2015To2017.Transforms
 			}
 
 			// Visual Studio Test Projects
-			if (tagName == "Service" && string.Equals(x.Attribute("Include")?.Value,
+			if (tagName == "Service" && string.Equals(include,
 				    "{82a7f48d-3b50-4b1e-b82e-3ada8210c358}", StringComparison.OrdinalIgnoreCase))
 			{
 				return true;
@@ -105,8 +111,6 @@ namespace Project2015To2017.Transforms
 			{
 				return false;
 			}
-
-			var include = x.Attribute("Include")?.Value;
 
 			if (include == null)
 			{
@@ -130,8 +134,7 @@ namespace Project2015To2017.Transforms
 				return false;
 			}
 
-			// Resource files are added automatically
-			return !(tagName == "EmbeddedResource" && include.EndsWith(".resx"));
+			return true;
 		}
 
 		private static bool IsWildcardMatchedFile(
@@ -153,24 +156,26 @@ namespace Project2015To2017.Transforms
 
 			// keep Link as an Include
 			var linkElement = compiledFile.Elements().FirstOrDefault(a => a.Name.LocalName == "Link");
-			if (null != linkElement)
+			if (linkElement != null)
 			{
 				compiledFileAttributes.Add(new XAttribute("Include", filePath));
 				compiledFileAttributes.Add(new XAttribute("Link", linkElement.Value));
 				linkElement.Remove();
-			}
-			else
-			{
-				compiledFileAttributes.Add(new XAttribute("Update", filePath));
-			}
 
-			compiledFile.ReplaceAttributes(compiledFileAttributes);
+				compiledFile.ReplaceAttributes(compiledFileAttributes);
+			}
 
 			var projectFolder = project.ProjectFolder.FullName;
 
 			if (!Path.GetFullPath(Path.Combine(projectFolder, filePath)).StartsWith(projectFolder))
 			{
 				return false;
+			}
+
+			if (linkElement == null)
+			{
+				compiledFileAttributes.Add(new XAttribute("Update", filePath));
+				compiledFile.ReplaceAttributes(compiledFileAttributes);
 			}
 
 			if (compiledFile.Attributes().Count() != 1)
@@ -180,12 +185,48 @@ namespace Project2015To2017.Transforms
 
 			if (compiledFile.Elements().Count() != 0)
 			{
-				//add only if it is not <SubType>Code</SubType>
-				var subType = compiledFile.Elements().FirstOrDefault(x => x.Name.LocalName == "SubType")?.Value;
-				return subType == "Code";
+				switch (compiledFile.Name.LocalName)
+				{
+					case "Compile":
+						return CompileChildrenVerification(compiledFile);
+					case "EmbeddedResource":
+						return EmbeddedResourceChildrenVerification(compiledFile);
+				}
 			}
 
 			return true;
+		}
+
+		private static bool CompileChildrenVerification(XElement item)
+		{
+			// retain only if it is not <SubType>Code</SubType>
+			if (!Helpers.ValidateChildren(item.Elements(), "SubType"))
+			{
+				return false;
+			}
+
+			var subType = item.Element(item.Name.Namespace + "SubType")?.Value;
+			return subType == "Code";
+		}
+
+		private static bool EmbeddedResourceChildrenVerification(XElement item)
+		{
+			var nameSet = new HashSet<string>(item.Elements().Select(x => x.Name.LocalName));
+
+			if (nameSet.Contains("Generator"))
+			{
+				var value = item.Element(item.Name.Namespace + "Generator")?.Value;
+				if (value != "ResXFileCodeGenerator")
+				{
+					return false;
+				}
+
+				nameSet.Remove("Generator");
+			}
+
+			nameSet.Remove("LastGenOutput");
+
+			return nameSet.Count == 0;
 		}
 	}
 }

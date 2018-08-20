@@ -1,57 +1,67 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
+using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Reading
 {
-	public static class ProjectPropertiesReader
+	public class ProjectPropertiesReader
 	{
-		public static void PopulateProperties(Project project, XDocument projectXml)
+		private readonly ILogger _logger;
+
+		private static readonly string[] RemoveMSBuildImports =
 		{
-			var propertyGroups = projectXml.Element(project.XmlNamespace + "Project")
-				.Elements(project.XmlNamespace + "PropertyGroup")
-				.ToArray();
+			@"$(MSBuildToolsPath)\Microsoft.CSharp.targets",
+			@"$(MSBuildBinPath)\Microsoft.CSharp.targets",
+			@"$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props",
+		};
 
-			var unconditionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") == null).ToArray();
-			if (unconditionalPropertyGroups.Length == 0)
-			{
-				throw new NotSupportedException(
-					"No unconditional property group found. Cannot determine important properties like target framework and others.");
-			}
+		public ProjectPropertiesReader(ILogger logger)
+		{
+			_logger = logger ?? NoopLogger.Instance;
+		}
 
-			project.RootNamespace = unconditionalPropertyGroups.Elements(project.XmlNamespace + "RootNamespace")
-				.FirstOrDefault()?.Value;
-			project.AssemblyName = unconditionalPropertyGroups.Elements(project.XmlNamespace + "AssemblyName")
+		public void PopulateProperties(Project project)
+		{
+			ReadPropertyGroups(project);
+
+			project.RootNamespace = project.PrimaryPropertyGroup
+				.Elements(project.XmlNamespace + "RootNamespace")
 				.FirstOrDefault()
 				?.Value;
 
-			var targetFrameworkVersion = unconditionalPropertyGroups
+			project.AssemblyName = project.PrimaryPropertyGroup
+				.Elements(project.XmlNamespace + "AssemblyName")
+				.FirstOrDefault()
+				?.Value;
+
+			var targetFrameworkVersion = project.PrimaryPropertyGroup
 				.Elements(project.XmlNamespace + "TargetFrameworkVersion")
 				.FirstOrDefault();
 			if (targetFrameworkVersion?.Value != null)
 			{
 				project.TargetFrameworks.Add(ToTargetFramework(targetFrameworkVersion.Value));
-				targetFrameworkVersion.Remove();
 			}
 			else
 			{
-				var targetFrameworks = unconditionalPropertyGroups
+				var targetFrameworks = project.PrimaryPropertyGroup
 					.Elements(project.XmlNamespace + "TargetFrameworks")
 					.FirstOrDefault()
 					?.Value;
 				if (targetFrameworks != null)
 				{
-					foreach (var framework in targetFrameworks.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries))
+					foreach (var framework in targetFrameworks.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries)
+					)
 					{
 						project.TargetFrameworks.Add(framework);
 					}
 				}
 				else
 				{
-					var targetFramework = unconditionalPropertyGroups
+					var targetFramework = project.PrimaryPropertyGroup
 						.Elements(project.XmlNamespace + "TargetFramework")
 						.FirstOrDefault()
 						?.Value;
@@ -59,12 +69,17 @@ namespace Project2015To2017.Reading
 					{
 						project.TargetFrameworks.Add(targetFramework);
 					}
+					else
+					{
+						_logger.LogError(
+							"TargetFramework cannot be determined from project file. The scenario is not supported and highly bug-prone.");
+					}
 				}
 			}
 
 			// Ref.: https://www.codeproject.com/Reference/720512/List-of-Visual-Studio-Project-Type-GUIDs
-			if (unconditionalPropertyGroups.Elements(project.XmlNamespace + "TestProjectType").Any() ||
-			    unconditionalPropertyGroups.Elements(project.XmlNamespace + "ProjectTypeGuids").Any(e =>
+			if (project.PrimaryPropertyGroup.Elements(project.XmlNamespace + "TestProjectType").Any() ||
+			    project.PrimaryPropertyGroup.Elements(project.XmlNamespace + "ProjectTypeGuids").Any(e =>
 				    e.Value.IndexOf("3AC096D0-A1C2-E12C-1390-A8335801FDAB", StringComparison.OrdinalIgnoreCase) > -1))
 			{
 				project.Type = ApplicationType.TestProject;
@@ -72,109 +87,72 @@ namespace Project2015To2017.Reading
 			else
 			{
 				project.Type = ToApplicationType(
-					unconditionalPropertyGroups.Elements(project.XmlNamespace + "OutputType").FirstOrDefault()?.Value ??
-					propertyGroups.Elements(project.XmlNamespace + "OutputType").FirstOrDefault()?.Value ??
-					(project.IsModernProject ? "library" : null));
+					project.PrimaryPropertyGroup
+						.Elements(project.XmlNamespace + "OutputType")
+						.FirstOrDefault()
+						?.Value
+					?? project.AdditionalPropertyGroups
+						.Elements(project.XmlNamespace + "OutputType")
+						.FirstOrDefault()
+						?.Value
+					?? (project.IsModernProject ? "library" : null));
+
+				if (project.Type == ApplicationType.Unknown)
+				{
+					throw new NotSupportedException("Unable to parse output type.");
+				}
 			}
 
-			(project.Configurations, project.Platforms) = ReadConditionals(unconditionalPropertyGroups, project);
+			(project.Configurations, project.Platforms) = ReadConfigurationPlatformVariants(project);
 
-			project.BuildEvents = propertyGroups.Elements().Where(x =>
-					x.Name == project.XmlNamespace + "PostBuildEvent" ||
-					x.Name == project.XmlNamespace + "PreBuildEvent")
+			project.BuildEvents = new[] {project.PrimaryPropertyGroup}.Concat(project.AdditionalPropertyGroups)
+				.Elements()
+				.Where(x =>
+					x.Name.LocalName == "PostBuildEvent" ||
+					x.Name.LocalName == "PreBuildEvent")
 				.ToArray();
-			project.AdditionalPropertyGroups = ReadAdditionalPropertyGroups(project, propertyGroups);
 
-			project.Imports = projectXml.Element(project.XmlNamespace + "Project")
-				.Elements(project.XmlNamespace + "Import").Where(x =>
-					x.Attribute("Project")?.Value != @"$(MSBuildToolsPath)\Microsoft.CSharp.targets" &&
-					x.Attribute("Project")?.Value != @"$(MSBuildBinPath)\Microsoft.CSharp.targets" &&
-					x.Attribute("Project")?.Value !=
-					@"$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props").ToArray();
+			project.Imports = project.ProjectDocument.Root
+				.Elements(project.XmlNamespace + "Import")
+				.Where(x => !RemoveMSBuildImports.Contains(x.Attribute("Project")?.Value))
+				.ToArray();
 
-			project.Targets = projectXml.Element(project.XmlNamespace + "Project")
-				.Elements(project.XmlNamespace + "Target").ToArray();
-
-			if (project.Type == ApplicationType.Unknown)
-			{
-				throw new NotSupportedException("Unable to parse output type.");
-			}
+			project.Targets = project.ProjectDocument.Root
+				.Elements(project.XmlNamespace + "Target")
+				.ToArray();
 		}
 
-		private static (List<string>, List<string>) ReadConditionals(XElement[] unconditionalPropertyGroups,
-			Project project)
+		private static (List<string>, List<string>) ReadConfigurationPlatformVariants(Project project)
 		{
-			var projectXml = project.ProjectDocument;
-
 			var configurationSet = new HashSet<string>();
 			var platformSet = new HashSet<string>();
 
 			var configurationsFromProperty = ParseFromProperty("Configurations");
 			var platformsFromProperty = ParseFromProperty("Platforms");
 
-			var needConfigurations = configurationsFromProperty == null;
-			if (!needConfigurations)
+			if (configurationsFromProperty != null)
 			{
 				foreach (var configuration in configurationsFromProperty)
 				{
 					configurationSet.Add(configuration);
 				}
 			}
+			else
+			{
+				configurationSet.Add("Debug");
+				configurationSet.Add("Release");
+			}
 
-			var needPlatforms = platformsFromProperty == null;
-			if (!needPlatforms)
+			if (platformsFromProperty != null)
 			{
 				foreach (var platform in platformsFromProperty)
 				{
 					platformSet.Add(platform);
 				}
 			}
-
-			if (project.IsModernProject)
+			else
 			{
-				if (needConfigurations)
-				{
-					configurationSet.Add("Debug");
-					configurationSet.Add("Release");
-					needConfigurations = false;
-				}
-
-				if (needPlatforms)
-				{
-					platformSet.Add("AnyCPU");
-					needPlatforms = false;
-				}
-			}
-
-			if (needConfigurations || needPlatforms)
-			{
-				foreach (var x in projectXml.Descendants())
-				{
-					var condition = x.Attribute("Condition");
-					if (condition == null) continue;
-
-					var conditionValue = condition.Value;
-					if (!conditionValue.Contains("$(Configuration)") &&
-					    !conditionValue.Contains("$(Platform)")) continue;
-
-					var conditionEvaluated = ConditionEvaluator.GetConditionValues(conditionValue);
-
-					if (needConfigurations && conditionEvaluated.TryGetValue("Configuration", out var configurations))
-					{
-						foreach (var configuration in configurations)
-						{
-							configurationSet.Add(configuration);
-						}
-					}
-
-					if (needPlatforms && conditionEvaluated.TryGetValue("Platform", out var platforms))
-					{
-						foreach (var platform in platforms)
-						{
-							platformSet.Add(platform);
-						}
-					}
-				}
+				platformSet.Add("AnyCPU");
 			}
 
 			var configurationList = configurationSet.ToList();
@@ -183,23 +161,33 @@ namespace Project2015To2017.Reading
 			platformList.Sort();
 			return (configurationList, platformList);
 
-			string[] ParseFromProperty(string name) => unconditionalPropertyGroups.Elements(project.XmlNamespace + name)
+			string[] ParseFromProperty(string name) => project.PrimaryPropertyGroup
+				.Elements(project.XmlNamespace + name)
 				.FirstOrDefault()
 				?.Value
 				.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
 		}
 
-		private static List<XElement> ReadAdditionalPropertyGroups(Project project, XElement[] propertyGroups)
+		private static void ReadPropertyGroups(Project project)
 		{
-			var additionalPropertyGroups = propertyGroups.Where(x => x.Attribute("Condition") != null).ToList();
-			var otherElementsInPropertyGroupWithNoCondition = propertyGroups
-				.Where(x => x.Attribute("Condition") == null)
-				.SelectMany(x => x.Elements());
+			var (conditional, unconditional) = project.ProjectDocument.Root
+				.Elements(project.XmlNamespace + "PropertyGroup")
+				.Split(x => x.Attribute("Condition") != null);
 
-			additionalPropertyGroups.Add(new XElement("PropertyGroup",
-				otherElementsInPropertyGroupWithNoCondition.ToArray()));
+			if (unconditional.Count == 0)
+			{
+				throw new NotSupportedException(
+					"No unconditional property group found. Cannot determine important properties like target framework and others.");
+			}
 
-			return additionalPropertyGroups;
+			project.AdditionalPropertyGroups = conditional;
+
+			project.PrimaryPropertyGroup = unconditional[0];
+
+			foreach (var child in unconditional.Skip(1).SelectMany(x => x.Elements()))
+			{
+				project.PrimaryPropertyGroup.Add(child);
+			}
 		}
 
 		private static string ToTargetFramework(string targetFramework)

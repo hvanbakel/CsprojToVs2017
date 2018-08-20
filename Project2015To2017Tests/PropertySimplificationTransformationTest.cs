@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -7,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
-using static Project2015To2017Tests.ProjectPropertiesReadTest;
+using static Project2015To2017.Transforms.Helpers;
 using Project2015To2017;
 
 namespace Project2015To2017Tests
@@ -68,11 +67,12 @@ namespace Project2015To2017Tests
 
 			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
-			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(2, project.AdditionalPropertyGroups.Count);
 
-			Assert.IsNotNull(project.AdditionalPropertyGroups[0].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[1].Attribute("Condition"));
-			Assert.IsNull(project.AdditionalPropertyGroups[2].Attribute("Condition"));
+			foreach (var propertyGroup in project.AdditionalPropertyGroups)
+			{
+				Assert.IsNotNull(propertyGroup.Attribute("Condition"));
+			}
 
 			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
 			Assert.AreEqual(2, childrenDebug.Length);
@@ -80,7 +80,7 @@ namespace Project2015To2017Tests
 			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
 			Assert.AreEqual(2, childrenRelease.Length);
 			Assert.IsTrue(ValidateChildren(childrenRelease, "DebugType", "OutputPath"));
-			var childrenGlobal = project.AdditionalPropertyGroups[2].Elements().ToImmutableArray();
+			var childrenGlobal = project.PrimaryPropertyGroup.Elements().ToImmutableArray();
 			Assert.AreEqual(7, childrenGlobal.Length);
 			Assert.IsTrue(ValidateChildren(childrenGlobal,
 				"ProjectGuid", "ProjectTypeGuids", "VisualStudioVersion", "VSToolsPath",
@@ -121,11 +121,12 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(1, project.Platforms.Count);
 			Assert.AreEqual(1, project.Platforms.Count(x => x == "AnyCPU"));
 
-			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(2, project.AdditionalPropertyGroups.Count);
 
-			Assert.IsNotNull(project.AdditionalPropertyGroups[0].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[1].Attribute("Condition"));
-			Assert.IsNull(project.AdditionalPropertyGroups[2].Attribute("Condition"));
+			foreach (var propertyGroup in project.AdditionalPropertyGroups)
+			{
+				Assert.IsNotNull(propertyGroup.Attribute("Condition"));
+			}
 
 			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
 			Assert.AreEqual(1, childrenDebug.Length);
@@ -135,7 +136,7 @@ namespace Project2015To2017Tests
 			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
 			Assert.AreEqual(0, childrenRelease.Length);
 
-			var childrenGlobal = project.AdditionalPropertyGroups[2].Elements().ToImmutableArray();
+			var childrenGlobal = project.PrimaryPropertyGroup.Elements().ToImmutableArray();
 			Assert.AreEqual(1, childrenGlobal.Length);
 			Assert.IsTrue(ValidateChildren(childrenGlobal, "ProjectTypeGuids"));
 		}
@@ -173,11 +174,12 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(1, project.Platforms.Count);
 			Assert.AreEqual(1, project.Platforms.Count(x => x == "AnyCPU"));
 
-			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(2, project.AdditionalPropertyGroups.Count);
 
-			Assert.IsNotNull(project.AdditionalPropertyGroups[0].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[1].Attribute("Condition"));
-			Assert.IsNull(project.AdditionalPropertyGroups[2].Attribute("Condition"));
+			foreach (var propertyGroup in project.AdditionalPropertyGroups)
+			{
+				Assert.IsNotNull(propertyGroup.Attribute("Condition"));
+			}
 
 			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
 			Assert.AreEqual(2, childrenDebug.Length);
@@ -185,7 +187,7 @@ namespace Project2015To2017Tests
 			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
 			Assert.AreEqual(1, childrenRelease.Length);
 			Assert.IsTrue(ValidateChildren(childrenRelease, "OutputPath"));
-			var childrenGlobal = project.AdditionalPropertyGroups[2].Elements().ToImmutableArray();
+			var childrenGlobal = project.PrimaryPropertyGroup.Elements().ToImmutableArray();
 			Assert.AreEqual(0, childrenGlobal.Length);
 		}
 
@@ -233,12 +235,12 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Debug"));
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Release"));
 
-			Assert.AreEqual(4, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
 
-			Assert.IsNotNull(project.AdditionalPropertyGroups[0].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[1].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[2].Attribute("Condition"));
-			Assert.IsNull(project.AdditionalPropertyGroups[3].Attribute("Condition"));
+			foreach (var propertyGroup in project.AdditionalPropertyGroups)
+			{
+				Assert.IsNotNull(propertyGroup.Attribute("Condition"));
+			}
 
 			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
 			Assert.AreEqual(0, childrenDebug.Length);
@@ -255,7 +257,7 @@ namespace Project2015To2017Tests
 			// check we are keeping original slashes and replacing configuration name with $(Configuration)
 			Assert.AreEqual(@"bin/$(Configuration)\", childrenReleaseCI.First(x => x.Name.LocalName == "OutputPath").Value);
 
-			var childrenGlobal = project.AdditionalPropertyGroups[3].Elements().ToImmutableArray();
+			var childrenGlobal = project.PrimaryPropertyGroup.Elements().ToImmutableArray();
 			Assert.AreEqual(0, childrenGlobal.Length);
 		}
 

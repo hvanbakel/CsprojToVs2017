@@ -18,17 +18,8 @@ namespace Project2015To2017
 		private readonly ConversionOptions conversionOptions;
 		private readonly ProjectReader projectReader;
 
-		private static IReadOnlyCollection<ITransformation> TransformationsToApply(ConversionOptions conversionOptions,
-			Project project)
+		private static IReadOnlyCollection<ITransformation> TransformationsToApply(ConversionOptions conversionOptions)
 		{
-			if (project.IsModernProject)
-			{
-				return new ITransformation[]
-				{
-					new FileTransformation(),
-				};
-			}
-
 			return new ITransformation[]
 			{
 				new TargetFrameworkTransformation(
@@ -44,7 +35,8 @@ namespace Project2015To2017
 				new FileTransformation(),
 				new NugetPackageTransformation(),
 				new AssemblyAttributeTransformation(conversionOptions.KeepAssemblyInfo),
-				new XamlPagesTransformation()
+				new XamlPagesTransformation(),
+				new PrimaryUnconditionalPropertyTransformation(),
 			};
 		}
 
@@ -110,7 +102,7 @@ namespace Project2015To2017
 			}
 
 			this.logger.LogInformation(string.Join(Environment.NewLine, projectFiles));
-			
+
 			foreach (var projectFile in projectFiles)
 			{
 				// todo: rewrite both directory enumerations to use FileInfo instead of raw strings
@@ -162,7 +154,7 @@ namespace Project2015To2017
 				transform.Transform(project, this.logger);
 			}
 
-			foreach (var transform in TransformationsToApply(this.conversionOptions, project))
+			foreach (var transform in TransformationsToApply(this.conversionOptions))
 			{
 				transform.Transform(project, this.logger);
 			}

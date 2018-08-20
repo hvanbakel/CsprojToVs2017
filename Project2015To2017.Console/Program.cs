@@ -49,13 +49,6 @@ namespace Project2015To2017.Console
 			var writer = new Writing.ProjectWriter(logger, x => x.Delete(), _ => { });
 			foreach (var project in convertedProjects)
 			{
-				if (project.IsModernProject)
-				{
-					logger.LogInformation($"Skipping CPS project '{project.FilePath.Name}'...");
-
-					continue;
-				}
-
 				writer.Write(project, doBackup);
 			}
 
@@ -63,10 +56,7 @@ namespace Project2015To2017.Console
 
 			logger.LogInformation("### Performing 2nd pass to analyze converted projects...");
 
-			if (conversionOptions.ProjectCache != null)
-			{
-				conversionOptions.ProjectCache.Purge();
-			}
+			conversionOptions.ProjectCache?.Purge();
 
 			convertedProjects.Clear();
 

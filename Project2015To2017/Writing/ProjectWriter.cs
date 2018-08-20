@@ -1,16 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
+using static Project2015To2017.Transforms.Helpers;
 
 namespace Project2015To2017.Writing
 {
 	public class ProjectWriter
 	{
-		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/1.6.46";
+		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/1.6.47";
 		private readonly ILogger logger;
 		private readonly Action<FileSystemInfo> deleteFileOperation;
 		private readonly Action<FileSystemInfo> checkoutOperation;
@@ -180,12 +180,14 @@ namespace Project2015To2017.Writing
 				netSdk = SdkExtrasVersion;
 			var projectNode = new XElement("Project", new XAttribute("Sdk", netSdk));
 
-			var propertyGroup = GetMainPropertyGroup(project, outputFile);
-			projectNode.Add(propertyGroup);
+			if (project.PrimaryPropertyGroup != null)
+			{
+				projectNode.Add(RemoveAllNamespaces(project.PrimaryPropertyGroup));
+			}
 
 			if (project.AdditionalPropertyGroups != null)
 			{
-				propertyGroup.Add(project.AdditionalPropertyGroups.Select(RemoveAllNamespaces).SelectMany(x => x.Elements()));
+				projectNode.Add(project.AdditionalPropertyGroups.Select(RemoveAllNamespaces));
 			}
 
 			if (project.Imports != null)
@@ -326,123 +328,6 @@ namespace Project2015To2017.Writing
 			}
 
 			return output;
-		}
-
-		private static XElement RemoveAllNamespaces(XElement e)
-		{
-			return new XElement(e.Name.LocalName,
-				(from n in e.Nodes()
-					select ((n is XElement) ? RemoveAllNamespaces((XElement) n) : n)),
-				(e.HasAttributes)
-					? (from a in e.Attributes()
-						where (!a.IsNamespaceDeclaration)
-						select new XAttribute(a.Name.LocalName, a.Value))
-					: null);
-		}
-
-		private XElement GetMainPropertyGroup(Project project, FileInfo outputFile)
-		{
-			var mainPropertyGroup = new XElement("PropertyGroup");
-
-			AddTargetFrameworks(mainPropertyGroup, project.TargetFrameworks);
-
-			var configurations = project.Configurations ?? Array.Empty<string>();
-			if (configurations.Count != 0)
-				// ignore default "Debug;Release" configuration set
-				if (configurations.Count != 2 || !configurations.Contains("Debug") || !configurations.Contains("Release"))
-					AddIfNotNull(mainPropertyGroup, "Configurations", string.Join(";", configurations));
-
-			var platforms = project.Platforms ?? Array.Empty<string>();
-			if (platforms.Count != 0)
-				// ignore default "AnyCPU" platform set
-				if (platforms.Count != 1 || !platforms.Contains("AnyCPU"))
-					AddIfNotNull(mainPropertyGroup, "Platforms", string.Join(";", platforms));
-
-			var outputProjectName = Path.GetFileNameWithoutExtension(outputFile.Name);
-
-			AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace != outputProjectName ? project.RootNamespace : null);
-			AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName != outputProjectName ? project.AssemblyName : null);
-			AddIfNotNull(mainPropertyGroup, "AppendTargetFrameworkToOutputPath", project.AppendTargetFrameworkToOutputPath ? null : "false");
-
-			AddIfNotNull(mainPropertyGroup, "ExtrasEnableWpfProjectSetup",
-				project.IsWindowsPresentationFoundationProject ? "true" : null);
-			AddIfNotNull(mainPropertyGroup, "ExtrasEnableWinFormsProjectSetup",
-				project.IsWindowsFormsProject ? "true" : null);
-
-			switch (project.Type)
-			{
-				case ApplicationType.ConsoleApplication:
-					mainPropertyGroup.Add(new XElement("OutputType", "Exe"));
-					break;
-				case ApplicationType.WindowsApplication:
-					mainPropertyGroup.Add(new XElement("OutputType", "WinExe"));
-					break;
-			}
-
-			mainPropertyGroup.Add(project.AssemblyAttributeProperties);
-
-			AddPackageNodes(mainPropertyGroup, project.PackageConfiguration);
-
-			if (project.BuildEvents != null && project.BuildEvents.Any())
-			{
-				foreach (var buildEvent in project.BuildEvents.Select(RemoveAllNamespaces))
-				{
-					mainPropertyGroup.Add(buildEvent);
-				}
-			}
-
-			return mainPropertyGroup;
-		}
-
-		private void AddPackageNodes(XElement mainPropertyGroup, PackageConfiguration packageConfiguration)
-		{
-			if (packageConfiguration == null)
-			{
-				return;
-			}
-
-			//Add those properties not already covered by the project properties
-
-			AddIfNotNull(mainPropertyGroup, "Authors", packageConfiguration.Authors);
-			AddIfNotNull(mainPropertyGroup, "PackageIconUrl", packageConfiguration.IconUrl);
-			AddIfNotNull(mainPropertyGroup, "PackageId", packageConfiguration.Id);
-			AddIfNotNull(mainPropertyGroup, "PackageLicenseUrl", packageConfiguration.LicenseUrl);
-			AddIfNotNull(mainPropertyGroup, "PackageProjectUrl", packageConfiguration.ProjectUrl);
-			AddIfNotNull(mainPropertyGroup, "PackageReleaseNotes", packageConfiguration.ReleaseNotes);
-			AddIfNotNull(mainPropertyGroup, "PackageTags", packageConfiguration.Tags);
-
-			if (packageConfiguration.Id != null && packageConfiguration.Tags == null)
-				mainPropertyGroup.Add(new XElement("PackageTags", "Library"));
-
-			if (packageConfiguration.RequiresLicenseAcceptance)
-			{
-				mainPropertyGroup.Add(new XElement("PackageRequireLicenseAcceptance", "true"));
-			}
-		}
-
-		private static void AddIfNotNull(XElement node, string elementName, string value)
-		{
-			if (!string.IsNullOrWhiteSpace(value))
-			{
-				node.Add(new XElement(elementName, value));
-			}
-		}
-
-		private void AddTargetFrameworks(XElement mainPropertyGroup, IList<string> targetFrameworks)
-		{
-			if (targetFrameworks == null || targetFrameworks.Count == 0)
-			{
-				return;
-			}
-
-			if (targetFrameworks.Count > 1)
-			{
-				AddIfNotNull(mainPropertyGroup, "TargetFrameworks", string.Join(";", targetFrameworks));
-			}
-			else
-			{
-				AddIfNotNull(mainPropertyGroup, "TargetFramework", targetFrameworks[0]);
-			}
 		}
 
 		private void DeleteUnusedFiles(Project project)
