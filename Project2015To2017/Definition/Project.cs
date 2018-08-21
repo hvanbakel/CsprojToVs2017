@@ -24,21 +24,15 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<XElement> BuildEvents { get; set; }
 		public IReadOnlyList<string> Configurations { get; set; }
 		public IReadOnlyList<string> Platforms { get; set; }
-		public IReadOnlyList<XElement> OtherPropertyGroups { get; set; }
 
 		public XDocument ProjectDocument { get; set; }
+		public string ProjectName { get; set; }
 
 		public IList<string> TargetFrameworks { get; } = new List<string>();
 		public bool AppendTargetFrameworkToOutputPath { get; set; } = true;
 		public ApplicationType Type { get; set; }
-		public bool Optimize { get; set; }
-		public bool TreatWarningsAsErrors { get; set; }
 		public string RootNamespace { get; set; }
 		public string AssemblyName { get; set; }
-		public bool AllowUnsafeBlocks { get; set; }
-		public bool SignAssembly { get; set; }
-		public bool? DelaySign { get; internal set; }
-		public string AssemblyOriginatorKeyFile { get; set; }
 		public FileInfo FilePath { get; set; }
 		public DirectoryInfo ProjectFolder => FilePath.Directory;
 

@@ -90,23 +90,6 @@ namespace Project2015To2017Tests
 
 			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
 
-			Assert.IsNotNull(project.AdditionalPropertyGroups[0].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[1].Attribute("Condition"));
-			Assert.IsNull(project.AdditionalPropertyGroups[2].Attribute("Condition"));
-
-			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
-			Assert.AreEqual(1, childrenDebug.Length);
-			// non-standard additional WINDOWS_DESKTOP constant present only in Debug
-			Assert.IsTrue(ProjectPropertiesReadTest.ValidateChildren(childrenDebug, "DefineConstants"));
-
-			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
-			Assert.AreEqual(0, childrenRelease.Length);
-
-			var childrenGlobal = project.AdditionalPropertyGroups[2].Elements().ToImmutableArray();
-			Assert.AreEqual(3, childrenGlobal.Length);
-			Assert.IsTrue(ProjectPropertiesReadTest.ValidateChildren(childrenGlobal,
-				"ProjectTypeGuids", "ApplicationIcon", "ApplicationManifest"));
-
 			var fileTransformation = new FileTransformation();
 			var transformation = new XamlPagesTransformation();
 
