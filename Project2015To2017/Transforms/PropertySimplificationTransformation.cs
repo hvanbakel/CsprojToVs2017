@@ -16,7 +16,8 @@ namespace Project2015To2017.Transforms
 		{
 			if (definition.PrimaryPropertyGroup == null)
 			{
-				throw new InvalidOperationException("Unable to do property simplification pass due to lack of primary PropertyGroup.");
+				logger.LogWarning("Unable to do property simplification pass due to lack of primary PropertyGroup.");
+				return;
 			}
 
 			// special case handling for when condition-guarded props override global props not set to their defaults

@@ -15,7 +15,7 @@ namespace Project2015To2017.Reading
 		private readonly Caching.IProjectCache projectCache;
 		private readonly NuSpecReader nuspecReader;
 		private readonly AssemblyInfoReader assemblyInfoReader;
-		private readonly ProjectPropertiesReader _projectPropertiesReader;
+		private readonly ProjectPropertiesReader projectPropertiesReader;
 		private readonly ILogger logger;
 
 		public ProjectReader(ILogger logger = null, ConversionOptions conversionOptions = null)
@@ -24,7 +24,7 @@ namespace Project2015To2017.Reading
 			this.projectCache = conversionOptions?.ProjectCache ?? Caching.NoProjectCache.Instance;
 			this.nuspecReader = new NuSpecReader(this.logger);
 			this.assemblyInfoReader = new AssemblyInfoReader(this.logger);
-			this._projectPropertiesReader = new ProjectPropertiesReader(this.logger);
+			this.projectPropertiesReader = new ProjectPropertiesReader(this.logger);
 		}
 
 		public Project Read(string projectFilePath)
@@ -88,7 +88,7 @@ namespace Project2015To2017.Reading
 
 			HandleSpecialProjectTypes(projectDefinition);
 
-			_projectPropertiesReader.PopulateProperties(projectDefinition);
+			projectPropertiesReader.PopulateProperties(projectDefinition);
 
 			var assemblyAttributes = this.assemblyInfoReader.Read(projectDefinition);
 
