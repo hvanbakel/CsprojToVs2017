@@ -38,5 +38,37 @@ namespace Project2015To2017.Transforms
 
 			return (@true, @false);
 		}
+
+		public static bool ValidateChildren(IEnumerable<XElement> value, params string[] expected)
+		{
+			var defines = value.Select(x => x.Name.LocalName);
+			return ValidateSet(defines, expected);
+		}
+
+		public static bool ValidateSet(IEnumerable<string> items, IEnumerable<string> expected)
+		{
+			var set = new HashSet<string>(items);
+			foreach (var expecto in expected)
+			{
+				if (!set.Remove(expecto))
+				{
+					return false;
+				}
+			}
+
+			return set.Count == 0;
+		}
+
+		public static XElement RemoveAllNamespaces(XElement e)
+		{
+			return new XElement(e.Name.LocalName,
+				(from n in e.Nodes()
+					select ((n is XElement) ? RemoveAllNamespaces((XElement) n) : n)),
+				(e.HasAttributes)
+					? (from a in e.Attributes()
+						where (!a.IsNamespaceDeclaration)
+						select new XAttribute(a.Name.LocalName, a.Value))
+					: null);
+		}
 	}
 }

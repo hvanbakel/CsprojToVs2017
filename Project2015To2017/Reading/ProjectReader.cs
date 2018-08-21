@@ -15,6 +15,7 @@ namespace Project2015To2017.Reading
 		private readonly Caching.IProjectCache projectCache;
 		private readonly NuSpecReader nuspecReader;
 		private readonly AssemblyInfoReader assemblyInfoReader;
+		private readonly ProjectPropertiesReader _projectPropertiesReader;
 		private readonly ILogger logger;
 
 		public ProjectReader(ILogger logger = null, ConversionOptions conversionOptions = null)
@@ -23,19 +24,18 @@ namespace Project2015To2017.Reading
 			this.projectCache = conversionOptions?.ProjectCache ?? Caching.NoProjectCache.Instance;
 			this.nuspecReader = new NuSpecReader(this.logger);
 			this.assemblyInfoReader = new AssemblyInfoReader(this.logger);
+			this._projectPropertiesReader = new ProjectPropertiesReader(this.logger);
 		}
 
 		public Project Read(string projectFilePath)
 		{
-			return Read(new FileInfo(projectFilePath ?? throw new ArgumentNullException(nameof(projectFilePath))));
+			projectFilePath = projectFilePath ?? throw new ArgumentNullException(nameof(projectFilePath));
+			return Read(new FileInfo(projectFilePath));
 		}
 
 		public Project Read(FileInfo projectFile)
 		{
-			if (projectFile == null)
-			{
-				throw new ArgumentNullException(nameof(projectFile));
-			}
+			projectFile = projectFile ?? throw new ArgumentNullException(nameof(projectFile));
 
 			var filePath = projectFile.FullName;
 			if (this.projectCache.TryGetValue(filePath, out var projectDefinition))
@@ -86,9 +86,9 @@ namespace Project2015To2017.Reading
 
 			ProcessProjectReferences(projectDefinition);
 
-			HandleSpecialProjectTypes(projectXml, projectDefinition);
+			HandleSpecialProjectTypes(projectDefinition);
 
-			ProjectPropertiesReader.PopulateProperties(projectDefinition, projectXml);
+			_projectPropertiesReader.PopulateProperties(projectDefinition);
 
 			var assemblyAttributes = this.assemblyInfoReader.Read(projectDefinition);
 
@@ -97,19 +97,23 @@ namespace Project2015To2017.Reading
 			return projectDefinition;
 		}
 
-		private void HandleSpecialProjectTypes(XContainer projectXml, Project project)
+		private void HandleSpecialProjectTypes(Project project)
 		{
 			// get the MyType tag
-			var outputType = projectXml.Descendants(project.XmlNamespace + "MyType").FirstOrDefault();
+			var outputType = project.ProjectDocument
+				.Descendants(project.XmlNamespace + "MyType")
+				.FirstOrDefault();
 			// WinForms applications
 			if (outputType?.Value == "WindowsForms")
 			{
-				this.logger.LogWarning($"This is a Windows Forms project file, support is limited.");
+				this.logger.LogWarning("This is a Windows Forms project file, support is limited.");
 				project.IsWindowsFormsProject = true;
 			}
 
 			// try to get project type - may not exist
-			var typeElement = projectXml.Descendants(project.XmlNamespace + "ProjectTypeGuids").FirstOrDefault();
+			var typeElement = project.ProjectDocument
+				.Descendants(project.XmlNamespace + "ProjectTypeGuids")
+				.FirstOrDefault();
 			if (typeElement == null)
 			{
 				return;
@@ -159,10 +163,8 @@ namespace Project2015To2017.Reading
 				this.logger.LogInformation("Packages.config file not found.");
 				return null;
 			}
-			else
-			{
-				return packagesConfig;
-			}
+
+			return packagesConfig;
 		}
 
 		private IReadOnlyList<PackageReference> LoadPackageReferences(Project project)
