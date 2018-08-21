@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
-using static Project2015To2017.Transforms.Helpers;
+using static Project2015To2017.Transforms.ExtensionMethods;
 
 namespace Project2015To2017.Writing
 {

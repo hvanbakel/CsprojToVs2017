@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
-using static Project2015To2017.Transforms.Helpers;
+using static Project2015To2017.Transforms.ExtensionMethods;
 using Project2015To2017;
 
 namespace Project2015To2017Tests

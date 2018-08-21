@@ -6,7 +6,7 @@ using System.Xml.Linq;
 
 namespace Project2015To2017.Transforms
 {
-	public static class Helpers
+	public static class ExtensionMethods
 	{
 		public static IEnumerable<XElement> ElementsAnyNamespace<T>(this IEnumerable<T> source, string localName)
 			where T : XContainer

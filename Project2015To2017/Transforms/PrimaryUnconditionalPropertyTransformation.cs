@@ -64,7 +64,7 @@ namespace Project2015To2017.Transforms
 
 			if (project.BuildEvents != null && project.BuildEvents.Any())
 			{
-				foreach (var buildEvent in project.BuildEvents.Select(Helpers.RemoveAllNamespaces))
+				foreach (var buildEvent in project.BuildEvents.Select(ExtensionMethods.RemoveAllNamespaces))
 				{
 					propertyGroup.Add(buildEvent);
 				}

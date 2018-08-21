@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -6,7 +6,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis
 {
-	internal static class ExtensionMethods
+	public static class ExtensionMethods
 	{
 		public static string GetRelativePathTo(this FileSystemInfo from, FileSystemInfo to)
 		{

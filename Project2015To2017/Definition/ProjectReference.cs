@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 namespace Project2015To2017.Definition
 {
-	public sealed class ProjectReference : IOriginatedReference
+	public sealed class ProjectReference : IReference
 	{
 		public string Include { get; set; }
 		public string Aliases { get; set; }

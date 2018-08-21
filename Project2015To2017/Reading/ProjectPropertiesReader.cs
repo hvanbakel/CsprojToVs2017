@@ -24,7 +24,7 @@ namespace Project2015To2017.Reading
 			_logger = logger ?? NoopLogger.Instance;
 		}
 
-		public void PopulateProperties(Project project)
+		public void Read(Project project)
 		{
 			ReadPropertyGroups(project);
 

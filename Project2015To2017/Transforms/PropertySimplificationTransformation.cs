@@ -253,7 +253,7 @@ namespace Project2015To2017.Transforms
 		private static bool ValidateDefaultConstants(string value, params string[] expected)
 		{
 			var defines = value.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
-			return Helpers.ValidateSet(defines, expected);
+			return ExtensionMethods.ValidateSet(defines, expected);
 		}
 	}
 }

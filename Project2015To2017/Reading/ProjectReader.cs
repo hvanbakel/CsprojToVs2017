@@ -88,7 +88,7 @@ namespace Project2015To2017.Reading
 
 			HandleSpecialProjectTypes(projectDefinition);
 
-			projectPropertiesReader.PopulateProperties(projectDefinition);
+			projectPropertiesReader.Read(projectDefinition);
 
 			var assemblyAttributes = this.assemblyInfoReader.Read(projectDefinition);
 
