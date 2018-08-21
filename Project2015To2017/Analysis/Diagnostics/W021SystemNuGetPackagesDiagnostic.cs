@@ -143,7 +143,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 			"System.IO.IsolatedStorage",
 		};
 
-		public StringComparison Comparison = ExtensionMethods.BestAvailableStringIgnoreCaseComparison;
+		public readonly StringComparison Comparison = Extensions.BestAvailableStringIgnoreCaseComparison;
 
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
@@ -206,7 +206,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 			foreach (var assembly in project.AssemblyReferences.Select(x => x.Include.ToLowerInvariant()).Distinct()
 				.Intersect(packages.Select(x => x.ToLowerInvariant())))
 			{
-				var comparison = ExtensionMethods.BestAvailableStringIgnoreCaseComparison;
+				var comparison = Extensions.BestAvailableStringIgnoreCaseComparison;
 				var correctCaseAssembly = packages.First(x =>
 					string.Equals(x, assembly, comparison));
 				var correctCaseDefinition = project.AssemblyReferences.First(x =>

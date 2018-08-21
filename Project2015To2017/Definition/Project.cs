@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 using NuGet.Configuration;
 
@@ -17,14 +18,13 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<PackageReference> PackageReferences { get; set; }
 		public PackageConfiguration PackageConfiguration { get; set; }
 		public AssemblyAttributes AssemblyAttributes { get; set; }
-		public IReadOnlyList<XElement> AdditionalPropertyGroups { get; set; }
+		public IReadOnlyList<XElement> PropertyGroups { get; set; }
 		public IReadOnlyList<XElement> Imports { get; set; }
 		public IReadOnlyList<XElement> Targets { get; set; }
 		public IReadOnlyList<XElement> BuildEvents { get; set; }
 		public IReadOnlyList<string> Configurations { get; set; }
 		public IReadOnlyList<string> Platforms { get; set; }
 		public IList<XElement> ItemGroups { get; set; }
-		public XElement PrimaryPropertyGroup { get; set; }
 
 		public XDocument ProjectDocument { get; set; }
 		public string ProjectName { get; set; }

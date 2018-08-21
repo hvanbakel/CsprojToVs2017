@@ -3,10 +3,11 @@ using System.IO;
 using System.Linq;
 using Project2015To2017.Definition;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
-using static Project2015To2017.Transforms.ExtensionMethods;
+using static Project2015To2017.Extensions;
 using Project2015To2017;
 
 namespace Project2015To2017Tests
@@ -65,26 +66,29 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml, transform: false).ConfigureAwait(false);
 
-			Assert.AreEqual(2, project.AdditionalPropertyGroups.Count);
+			project.ProjectName = "Dopamine.Tests";
+			Transform(project);
 
-			foreach (var propertyGroup in project.AdditionalPropertyGroups)
-			{
-				Assert.IsNotNull(propertyGroup.Attribute("Condition"));
-			}
+			Assert.AreEqual(3, project.PropertyGroups.Count);
 
-			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
-			Assert.AreEqual(2, childrenDebug.Length);
-			Assert.IsTrue(ValidateChildren(childrenDebug, "DebugType", "OutputPath"));
-			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
-			Assert.AreEqual(2, childrenRelease.Length);
-			Assert.IsTrue(ValidateChildren(childrenRelease, "DebugType", "OutputPath"));
-			var childrenGlobal = project.PrimaryPropertyGroup.Elements().ToImmutableArray();
-			Assert.AreEqual(7, childrenGlobal.Length);
+			Assert.IsNull(project.PropertyGroups[0].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[1].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[2].Attribute("Condition"));
+
+			var childrenGlobal = project.PrimaryPropertyGroup().Elements().ToImmutableArray();
+			Assert.AreEqual(8, childrenGlobal.Length);
 			Assert.IsTrue(ValidateChildren(childrenGlobal,
 				"ProjectGuid", "ProjectTypeGuids", "VisualStudioVersion", "VSToolsPath",
-				"ReferencePath", "IsCodedUITest", "TestProjectType"));
+				"ReferencePath", "IsCodedUITest", "TestProjectType", "TargetFrameworkVersion"));
+
+			var childrenDebug = project.PropertyGroups[1].Elements().ToImmutableArray();
+			Assert.AreEqual(2, childrenDebug.Length);
+			Assert.IsTrue(ValidateChildren(childrenDebug, "DebugType", "OutputPath"));
+			var childrenRelease = project.PropertyGroups[2].Elements().ToImmutableArray();
+			Assert.AreEqual(2, childrenRelease.Length);
+			Assert.IsTrue(ValidateChildren(childrenRelease, "DebugType", "OutputPath"));
 		}
 
 		[TestMethod]
@@ -106,7 +110,10 @@ namespace Project2015To2017Tests
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
-</Project>");
+</Project>", transform: false);
+
+			project.ProjectName = "Dopamine";
+			Transform(project);
 
 			Assert.IsTrue(project.IsWindowsPresentationFoundationProject);
 			Assert.IsFalse(project.IsWindowsFormsProject);
@@ -121,24 +128,25 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(1, project.Platforms.Count);
 			Assert.AreEqual(1, project.Platforms.Count(x => x == "AnyCPU"));
 
-			Assert.AreEqual(2, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(3, project.PropertyGroups.Count);
 
-			foreach (var propertyGroup in project.AdditionalPropertyGroups)
-			{
-				Assert.IsNotNull(propertyGroup.Attribute("Condition"));
-			}
+			Assert.IsNull(project.PropertyGroups[0].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[1].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[2].Attribute("Condition"));
 
-			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
+
+			var childrenGlobal = project.PrimaryPropertyGroup().Elements().ToImmutableArray();
+			Assert.AreEqual(3, childrenGlobal.Length);
+			Assert.IsTrue(ValidateChildren(childrenGlobal,
+				"OutputType", "TargetFrameworkVersion", "ProjectTypeGuids"));
+
+			var childrenDebug = project.PropertyGroups[1].Elements().ToImmutableArray();
 			Assert.AreEqual(1, childrenDebug.Length);
 			// non-standard additional WINDOWS_DESKTOP constant present only in Debug
 			Assert.IsTrue(ValidateChildren(childrenDebug, "DefineConstants"));
 
-			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
+			var childrenRelease = project.PropertyGroups[2].Elements().ToImmutableArray();
 			Assert.AreEqual(0, childrenRelease.Length);
-
-			var childrenGlobal = project.PrimaryPropertyGroup.Elements().ToImmutableArray();
-			Assert.AreEqual(1, childrenGlobal.Length);
-			Assert.IsTrue(ValidateChildren(childrenGlobal, "ProjectTypeGuids"));
 		}
 
 
@@ -165,7 +173,10 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml, transform: false).ConfigureAwait(false);
+
+			project.ProjectName = "Dopamine.Tests";
+			Transform(project);
 
 			Assert.AreEqual(2, project.Configurations.Count);
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Debug"));
@@ -174,21 +185,23 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(1, project.Platforms.Count);
 			Assert.AreEqual(1, project.Platforms.Count(x => x == "AnyCPU"));
 
-			Assert.AreEqual(2, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(3, project.PropertyGroups.Count);
 
-			foreach (var propertyGroup in project.AdditionalPropertyGroups)
-			{
-				Assert.IsNotNull(propertyGroup.Attribute("Condition"));
-			}
+			Assert.IsNull(project.PropertyGroups[0].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[1].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[2].Attribute("Condition"));
 
-			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
+			var childrenGlobal = project.PrimaryPropertyGroup().Elements().ToImmutableArray();
+			Assert.AreEqual(1, childrenGlobal.Length);
+			Assert.IsTrue(ValidateChildren(childrenGlobal, "TargetFrameworkVersion"));
+
+			var childrenDebug = project.PropertyGroups[1].Elements().ToImmutableArray();
 			Assert.AreEqual(2, childrenDebug.Length);
 			Assert.IsTrue(ValidateChildren(childrenDebug, "DebugType", "OutputPath"));
-			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
+
+			var childrenRelease = project.PropertyGroups[2].Elements().ToImmutableArray();
 			Assert.AreEqual(1, childrenRelease.Length);
 			Assert.IsTrue(ValidateChildren(childrenRelease, "OutputPath"));
-			var childrenGlobal = project.PrimaryPropertyGroup.Elements().ToImmutableArray();
-			Assert.AreEqual(0, childrenGlobal.Length);
 		}
 
 		[TestMethod]
@@ -225,7 +238,10 @@ namespace Project2015To2017Tests
   </PropertyGroup>
  </Project>";
 
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml, transform: false).ConfigureAwait(false);
+
+			project.ProjectName = "Class1";
+			Transform(project);
 
 			// Configurations property must take precedence
 			// Release_CI will be ignored, but still some transformations will apply
@@ -235,36 +251,40 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Debug"));
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Release"));
 
-			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(5, project.PropertyGroups.Count);
 
-			foreach (var propertyGroup in project.AdditionalPropertyGroups)
-			{
-				Assert.IsNotNull(propertyGroup.Attribute("Condition"));
-			}
+			Assert.IsNull(project.PropertyGroups[0].Attribute("Condition"));
+			Assert.IsNull(project.PropertyGroups[1].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[2].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[3].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[4].Attribute("Condition"));
 
-			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
+			var childrenGlobal = project.UnconditionalGroups().Elements().ToImmutableArray();
+			Assert.AreEqual(2, childrenGlobal.Length);
+			Assert.IsTrue(ValidateChildren(childrenGlobal, "TargetFrameworkVersion"));
+
+			var childrenDebug = project.PropertyGroups[2].Elements().ToImmutableArray();
 			Assert.AreEqual(0, childrenDebug.Length);
 
-			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
+			var childrenRelease = project.PropertyGroups[3].Elements().ToImmutableArray();
 			Assert.AreEqual(0, childrenRelease.Length);
 
-			var childrenReleaseCI = project.AdditionalPropertyGroups[2].Elements().ToImmutableArray();
+			var childrenReleaseCI = project.PropertyGroups[4].Elements().ToImmutableArray();
 			// We remove only one property set to global default (FileAlignment)
 			Assert.AreEqual(7, childrenReleaseCI.Length);
 			Assert.IsTrue(ValidateChildren(childrenReleaseCI,
 				"DefineConstants", "OutputPath", "Optimize", "CodeAnalysisRuleSet", "DocumentationFile",
 				"TreatWarningsAsErrors", "RunCodeAnalysis"));
 			// check we are keeping original slashes and replacing configuration name with $(Configuration)
-			Assert.AreEqual(@"bin/$(Configuration)\", childrenReleaseCI.First(x => x.Name.LocalName == "OutputPath").Value);
-
-			var childrenGlobal = project.PrimaryPropertyGroup.Elements().ToImmutableArray();
-			Assert.AreEqual(0, childrenGlobal.Length);
+			Assert.AreEqual(@"bin/$(Configuration)\",
+				childrenReleaseCI.First(x => x.Name.LocalName == "OutputPath").Value);
 		}
 
 		private static async Task<Project> ParseAndTransform(
 			string xml,
 			[System.Runtime.CompilerServices.CallerMemberName]
-			string memberName = ""
+			string memberName = "",
+			bool transform = true
 		)
 		{
 			var testCsProjFile = $"{memberName}_test.csproj";
@@ -273,9 +293,17 @@ namespace Project2015To2017Tests
 
 			var project = new ProjectReader().Read(testCsProjFile);
 
-			new PropertySimplificationTransformation().Transform(project, NoopLogger.Instance);
+			if (transform)
+			{
+				Transform(project);
+			}
 
 			return project;
+		}
+
+		private static void Transform(Project project)
+		{
+			new PropertySimplificationTransformation().Transform(project, NoopLogger.Instance);
 		}
 	}
 }

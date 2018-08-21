@@ -12,35 +12,33 @@ namespace Project2015To2017.Transforms
 	{
 		public void Transform(Project project, ILogger logger)
 		{
-			var propertyGroup = project.PrimaryPropertyGroup;
-
-			AddTargetFrameworks(propertyGroup, project.TargetFrameworks);
+			AddTargetFrameworks(project, project.TargetFrameworks);
 
 			var configurations = project.Configurations ?? Array.Empty<string>();
 			if (configurations.Count != 0)
 				// ignore default "Debug;Release" configuration set
 				if (configurations.Count != 2 || !configurations.Contains("Debug") ||
 				    !configurations.Contains("Release"))
-					AddIfNotNull(propertyGroup, "Configurations", string.Join(";", configurations));
+					project.SetProperty("Configurations", string.Join(";", configurations));
 
 			var platforms = project.Platforms ?? Array.Empty<string>();
 			if (platforms.Count != 0)
 				// ignore default "AnyCPU" platform set
 				if (platforms.Count != 1 || !platforms.Contains("AnyCPU"))
-					AddIfNotNull(propertyGroup, "Platforms", string.Join(";", platforms));
+					project.SetProperty("Platforms", string.Join(";", platforms));
 
 			var outputProjectName = Path.GetFileNameWithoutExtension(project.FilePath.Name);
 
-			AddIfNotNull(propertyGroup, "RootNamespace",
+			project.SetProperty("RootNamespace",
 				project.RootNamespace != outputProjectName ? project.RootNamespace : null);
-			AddIfNotNull(propertyGroup, "AssemblyName",
+			project.SetProperty("AssemblyName",
 				project.AssemblyName != outputProjectName ? project.AssemblyName : null);
-			AddIfNotNull(propertyGroup, "AppendTargetFrameworkToOutputPath",
+			project.SetProperty("AppendTargetFrameworkToOutputPath",
 				project.AppendTargetFrameworkToOutputPath ? null : "false");
 
-			AddIfNotNull(propertyGroup, "ExtrasEnableWpfProjectSetup",
+			project.SetProperty("ExtrasEnableWpfProjectSetup",
 				project.IsWindowsPresentationFoundationProject ? "true" : null);
-			AddIfNotNull(propertyGroup, "ExtrasEnableWinFormsProjectSetup",
+			project.SetProperty("ExtrasEnableWinFormsProjectSetup",
 				project.IsWindowsFormsProject ? "true" : null);
 
 			string outputType;
@@ -56,23 +54,26 @@ namespace Project2015To2017.Transforms
 					outputType = null;
 					break;
 			}
-			AddIfNotNull(propertyGroup, "OutputType", outputType);
 
+			project.SetProperty("OutputType", outputType);
+
+			AddPackageNodes(project);
+
+			var propertyGroup = project.PrimaryPropertyGroup();
 			propertyGroup.Add(project.AssemblyAttributeProperties);
-
-			AddPackageNodes(propertyGroup, project.PackageConfiguration);
 
 			if (project.BuildEvents != null && project.BuildEvents.Any())
 			{
-				foreach (var buildEvent in project.BuildEvents.Select(ExtensionMethods.RemoveAllNamespaces))
+				foreach (var buildEvent in project.BuildEvents.Select(Extensions.RemoveAllNamespaces))
 				{
 					propertyGroup.Add(buildEvent);
 				}
 			}
 		}
 
-		private void AddPackageNodes(XElement mainPropertyGroup, PackageConfiguration packageConfiguration)
+		private void AddPackageNodes(Project project)
 		{
+			var packageConfiguration = project.PackageConfiguration;
 			if (packageConfiguration == null)
 			{
 				return;
@@ -80,35 +81,23 @@ namespace Project2015To2017.Transforms
 
 			//Add those properties not already covered by the project properties
 
-			AddIfNotNull(mainPropertyGroup, "Authors", packageConfiguration.Authors);
-			AddIfNotNull(mainPropertyGroup, "PackageIconUrl", packageConfiguration.IconUrl);
-			AddIfNotNull(mainPropertyGroup, "PackageId", packageConfiguration.Id);
-			AddIfNotNull(mainPropertyGroup, "PackageLicenseUrl", packageConfiguration.LicenseUrl);
-			AddIfNotNull(mainPropertyGroup, "PackageProjectUrl", packageConfiguration.ProjectUrl);
-			AddIfNotNull(mainPropertyGroup, "PackageReleaseNotes", packageConfiguration.ReleaseNotes);
-			AddIfNotNull(mainPropertyGroup, "PackageTags", packageConfiguration.Tags);
+			project.SetProperty("Authors", packageConfiguration.Authors);
+			project.SetProperty("PackageIconUrl", packageConfiguration.IconUrl);
+			project.SetProperty("PackageId", packageConfiguration.Id);
+			project.SetProperty("PackageLicenseUrl", packageConfiguration.LicenseUrl);
+			project.SetProperty("PackageProjectUrl", packageConfiguration.ProjectUrl);
+			project.SetProperty("PackageReleaseNotes", packageConfiguration.ReleaseNotes);
+			project.SetProperty("PackageTags", packageConfiguration.Tags);
 
-			if (packageConfiguration.Id != null && packageConfiguration.Tags == null)
-				mainPropertyGroup.Add(new XElement("PackageTags", "Library"));
+			if (packageConfiguration.Id != null && packageConfiguration.Tags == null) project.SetProperty("PackageTags", "Library");
 
 			if (packageConfiguration.RequiresLicenseAcceptance)
 			{
-				mainPropertyGroup.Add(new XElement("PackageRequireLicenseAcceptance", "true"));
+				project.SetProperty("PackageRequireLicenseAcceptance", "true");
 			}
 		}
 
-		private static void AddIfNotNull(XElement node, string elementName, string value)
-		{
-			XElement newElement = null;
-			if (!string.IsNullOrWhiteSpace(value))
-			{
-				newElement = new XElement(elementName, value);
-			}
-
-			ReplaceAnyWith(newElement, node, elementName);
-		}
-
-		private void AddTargetFrameworks(XElement mainPropertyGroup, IList<string> targetFrameworks)
+		private void AddTargetFrameworks(Project project, IList<string> targetFrameworks)
 		{
 			if (targetFrameworks == null || targetFrameworks.Count == 0)
 			{
@@ -119,57 +108,8 @@ namespace Project2015To2017.Transforms
 				? new XElement("TargetFrameworks", string.Join(";", targetFrameworks))
 				: new XElement("TargetFramework", targetFrameworks[0]);
 
-			ReplaceAnyWith(newElement, mainPropertyGroup,
+			project.ReplacePropertiesWith(newElement,
 				"TargetFrameworks", "TargetFramework", "TargetFrameworkVersion");
-		}
-
-		private static (XElement, IReadOnlyCollection<XElement>) FindExistingElements(XElement node,
-			params string[] names)
-		{
-			XElement bestMatch = null;
-			var other = new List<XElement>();
-
-			foreach (var name in names)
-			{
-				foreach (var child in node.ElementsAnyNamespace(name))
-				{
-					if (bestMatch == null)
-					{
-						bestMatch = child;
-						continue;
-					}
-
-					other.Add(child);
-				}
-			}
-
-			return (bestMatch, other);
-		}
-
-		private static void ReplaceAnyWith(XElement newElement, XElement parent, params string[] names)
-		{
-			var (existingElement, others) = FindExistingElements(parent, names);
-
-			if (newElement != null)
-			{
-				if (existingElement == null)
-				{
-					parent.Add(newElement);
-				}
-				else
-				{
-					existingElement.ReplaceWith(newElement);
-				}
-			}
-			else
-			{
-				existingElement?.Remove();
-			}
-
-			foreach (var child in others)
-			{
-				child.Remove();
-			}
 		}
 	}
 }

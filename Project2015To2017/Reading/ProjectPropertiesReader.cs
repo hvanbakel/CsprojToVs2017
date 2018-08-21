@@ -28,29 +28,17 @@ namespace Project2015To2017.Reading
 		{
 			ReadPropertyGroups(project);
 
-			project.RootNamespace = project.PrimaryPropertyGroup
-				.Elements(project.XmlNamespace + "RootNamespace")
-				.FirstOrDefault()
-				?.Value;
+			project.RootNamespace = project.Property("RootNamespace", tryConditional: true)?.Value;
+			project.AssemblyName = project.Property("AssemblyName", tryConditional: true)?.Value;
 
-			project.AssemblyName = project.PrimaryPropertyGroup
-				.Elements(project.XmlNamespace + "AssemblyName")
-				.FirstOrDefault()
-				?.Value;
-
-			var targetFrameworkVersion = project.PrimaryPropertyGroup
-				.Elements(project.XmlNamespace + "TargetFrameworkVersion")
-				.FirstOrDefault();
-			if (targetFrameworkVersion?.Value != null)
+			var targetFrameworkVersion = project.Property("TargetFrameworkVersion")?.Value;
+			if (targetFrameworkVersion != null)
 			{
-				project.TargetFrameworks.Add(ToTargetFramework(targetFrameworkVersion.Value));
+				project.TargetFrameworks.Add(ToTargetFramework(targetFrameworkVersion));
 			}
 			else
 			{
-				var targetFrameworks = project.PrimaryPropertyGroup
-					.Elements(project.XmlNamespace + "TargetFrameworks")
-					.FirstOrDefault()
-					?.Value;
+				var targetFrameworks = project.Property("TargetFrameworks")?.Value;
 				if (targetFrameworks != null)
 				{
 					foreach (var framework in targetFrameworks.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries)
@@ -61,10 +49,7 @@ namespace Project2015To2017.Reading
 				}
 				else
 				{
-					var targetFramework = project.PrimaryPropertyGroup
-						.Elements(project.XmlNamespace + "TargetFramework")
-						.FirstOrDefault()
-						?.Value;
+					var targetFramework = project.Property("TargetFramework")?.Value;
 					if (targetFramework != null)
 					{
 						project.TargetFrameworks.Add(targetFramework);
@@ -78,23 +63,17 @@ namespace Project2015To2017.Reading
 			}
 
 			// Ref.: https://www.codeproject.com/Reference/720512/List-of-Visual-Studio-Project-Type-GUIDs
-			if (project.PrimaryPropertyGroup.Elements(project.XmlNamespace + "TestProjectType").Any() ||
-			    project.PrimaryPropertyGroup.Elements(project.XmlNamespace + "ProjectTypeGuids").Any(e =>
-				    e.Value.IndexOf("3AC096D0-A1C2-E12C-1390-A8335801FDAB", StringComparison.OrdinalIgnoreCase) > -1))
+			if (project.PropertyGroups.ElementsAnyNamespace("TestProjectType").Any() ||
+			    project.Property("ProjectTypeGuids")
+				    ?.Value
+				    .IndexOf("3AC096D0-A1C2-E12C-1390-A8335801FDAB", StringComparison.OrdinalIgnoreCase) > -1)
 			{
 				project.Type = ApplicationType.TestProject;
 			}
 			else
 			{
 				project.Type = ToApplicationType(
-					project.PrimaryPropertyGroup
-						.Elements(project.XmlNamespace + "OutputType")
-						.FirstOrDefault()
-						?.Value
-					?? project.AdditionalPropertyGroups
-						.Elements(project.XmlNamespace + "OutputType")
-						.FirstOrDefault()
-						?.Value
+					project.Property("OutputType", tryConditional: true)?.Value
 					?? (project.IsModernProject ? "library" : null));
 
 				if (project.Type == ApplicationType.Unknown)
@@ -105,7 +84,7 @@ namespace Project2015To2017.Reading
 
 			(project.Configurations, project.Platforms) = ReadConfigurationPlatformVariants(project);
 
-			project.BuildEvents = new[] {project.PrimaryPropertyGroup}.Concat(project.AdditionalPropertyGroups)
+			project.BuildEvents = project.PropertyGroups
 				.Elements()
 				.Where(x =>
 					x.Name.LocalName == "PostBuildEvent" ||
@@ -161,32 +140,25 @@ namespace Project2015To2017.Reading
 			platformList.Sort();
 			return (configurationList, platformList);
 
-			string[] ParseFromProperty(string name) => project.PrimaryPropertyGroup
-				.Elements(project.XmlNamespace + name)
-				.FirstOrDefault()
+			string[] ParseFromProperty(string name) => project.Property(name)
 				?.Value
 				.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		private static void ReadPropertyGroups(Project project)
 		{
-			var (conditional, unconditional) = project.ProjectDocument.Root
+			project.PropertyGroups = project.ProjectDocument.Root
 				.Elements(project.XmlNamespace + "PropertyGroup")
-				.Split(x => x.Attribute("Condition") != null);
+				.ToList();
 
-			if (unconditional.Count == 0)
+			try
+			{
+				var _ = project.PrimaryPropertyGroup();
+			}
+			catch
 			{
 				throw new NotSupportedException(
 					"No unconditional property group found. Cannot determine important properties like target framework and others.");
-			}
-
-			project.AdditionalPropertyGroups = conditional;
-
-			project.PrimaryPropertyGroup = unconditional[0];
-
-			foreach (var child in unconditional.Skip(1).SelectMany(x => x.Elements()))
-			{
-				project.PrimaryPropertyGroup.Add(child);
 			}
 		}
 

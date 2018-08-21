@@ -14,14 +14,12 @@ namespace Project2015To2017.Transforms
 	{
 		public void Transform(Project definition, ILogger logger)
 		{
-			if (definition.PrimaryPropertyGroup == null)
-			{
-				logger.LogWarning("Unable to do property simplification pass due to lack of primary PropertyGroup.");
-				return;
-			}
-
 			// special case handling for when condition-guarded props override global props not set to their defaults
-			var globalOverrides = RetrieveGlobalOverrides(definition.PrimaryPropertyGroup);
+			var globalOverrides = new Dictionary<string, string>();
+			foreach (var group in definition.UnconditionalGroups())
+			{
+				RetrieveGlobalOverrides(group, globalOverrides);
+			}
 
 			if (string.IsNullOrEmpty(definition.ProjectName))
 			{
@@ -31,8 +29,7 @@ namespace Project2015To2017.Transforms
 				definition.ProjectName = projectName;
 			}
 
-			FilterUnneededProperties(definition, definition.PrimaryPropertyGroup, globalOverrides);
-			foreach (var propertyGroup in definition.AdditionalPropertyGroups)
+			foreach (var propertyGroup in definition.PropertyGroups)
 			{
 				FilterUnneededProperties(definition, propertyGroup, globalOverrides);
 			}
@@ -82,11 +79,7 @@ namespace Project2015To2017.Transforms
 				{
 					// VS2013 NuGet bugs workaround
 					case "NuGetPackageImportStamp":
-					// used by Project2015To2017 and not needed anymore
-					case "OutputType" when !hasParentCondition:
-					case "Platforms" when !hasParentCondition:
-					case "Configurations" when !hasParentCondition:
-					case "TargetFrameworkVersion" when !hasParentCondition:
+					// legacy frameworks
 					case "TargetFrameworkIdentifier" when !hasParentCondition:
 					case "TargetFrameworkProfile" when !hasParentCondition && emptyValue:
 					// VCS properties
@@ -95,7 +88,7 @@ namespace Project2015To2017.Transforms
 					case "SccAuxPath" when !hasParentCondition && emptyValue:
 					case "SccProvider" when !hasParentCondition && emptyValue:
 					// Project properties set to defaults (Microsoft.NET.Sdk)
-					case "OutputType" when ValidateDefaultValue("Library"):
+					case "OutputType" when ValidateDefaultValue("library"):
 					case "FileAlignment" when ValidateDefaultValue("512"):
 					case "ErrorReport" when ValidateDefaultValue("prompt"):
 					case "Deterministic" when ValidateDefaultValue("true"):
@@ -142,6 +135,10 @@ namespace Project2015To2017.Transforms
 					                     valueLower == "anycpu":
 					case "Configuration" when !hasParentCondition && ValidateEmptyConditionValue(childCondition) &&
 					                          valueLower == "debug":
+					case "Platforms" when !hasParentCondition
+					                      && ValidateDefaultConstants(valueLower, "anycpu"):
+					case "Configurations" when !hasParentCondition
+					                           && ValidateDefaultConstants(valueLower, "debug", "release"):
 					// Extra ProjectName duplicates
 					case "RootNamespace" when !hasParentCondition && ValidateEmptyConditionValue(childCondition) &&
 					                          child.Value == project.ProjectName:
@@ -208,10 +205,10 @@ namespace Project2015To2017.Transforms
 		/// Get all non-conditional properties and their respective values
 		/// </summary>
 		/// <param name="propertyGroup">Primary unconditional PropertyGroup to be inspected</param>
+		/// <param name="globalOverrides"></param>
 		/// <returns>Dictionary of properties' keys and values</returns>
-		private static IDictionary<string, string> RetrieveGlobalOverrides(XElement propertyGroup)
+		private static void RetrieveGlobalOverrides(XElement propertyGroup, IDictionary<string, string> globalOverrides)
 		{
-			var globalOverrides = new Dictionary<string, string>();
 			foreach (var child in propertyGroup.Elements())
 			{
 				if (!HasEmptyCondition(child))
@@ -221,8 +218,6 @@ namespace Project2015To2017.Transforms
 
 				globalOverrides[child.Name.LocalName] = child.Value.Trim();
 			}
-
-			return globalOverrides;
 
 			bool HasEmptyCondition(XElement element)
 			{
@@ -253,7 +248,7 @@ namespace Project2015To2017.Transforms
 		private static bool ValidateDefaultConstants(string value, params string[] expected)
 		{
 			var defines = value.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
-			return ExtensionMethods.ValidateSet(defines, expected);
+			return Extensions.ValidateSet(defines, expected);
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace Project2015To2017Tests
 	[TestClass]
 	public class ProjectWriterTest
 	{
-        private static readonly string deletionsPath = Path.Combine("TestFiles", "Deletions");
+		private static readonly string deletionsPath = Path.Combine("TestFiles", "Deletions");
 
 		[TestMethod]
 		public void ValidatesFileIsWritable()
@@ -27,7 +27,8 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects", $"{nameof(ValidatesFileIsWritable)}.readonly");
+			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects",
+				$"{nameof(ValidatesFileIsWritable)}.readonly");
 			File.Copy(Path.Combine("TestFiles", "OtherTestProjects", "readonly.testcsproj"), copiedProjectFile);
 			File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
 			var project = new ProjectReader().Read(copiedProjectFile);
@@ -143,7 +144,7 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				PrimaryPropertyGroup = new XElement("PropertyGroup"),
+				PropertyGroups = new[] {new XElement("PropertyGroup")},
 				FilePath = new FileInfo("test.cs")
 			});
 
@@ -157,7 +158,7 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				PrimaryPropertyGroup = new XElement("PropertyGroup", new XElement("DelaySign", "true")),
+				PropertyGroups = new[] {new XElement("PropertyGroup", new XElement("DelaySign", "true"))},
 				FilePath = new FileInfo("test.cs")
 			});
 
@@ -172,7 +173,7 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				PrimaryPropertyGroup = new XElement("PropertyGroup", new XElement("DelaySign", "false")),
+				PropertyGroups = new[] {new XElement("PropertyGroup", new XElement("DelaySign", "false"))},
 				FilePath = new FileInfo("test.cs")
 			});
 
@@ -295,8 +296,8 @@ namespace Project2015To2017Tests
 
 			var filesToDelete = new FileSystemInfo[]
 			{
-					new FileInfo(file),
-					new DirectoryInfo(folder)
+				new FileInfo(file),
+				new DirectoryInfo(folder)
 			};
 
 			var actualDeletedFiles = new List<FileSystemInfo>();
@@ -334,7 +335,7 @@ namespace Project2015To2017Tests
 
 				if (!File.Exists(file))
 				{
-					File.WriteAllBytes(file, new byte[0] {});
+					File.WriteAllBytes(file, new byte[0] { });
 				}
 			}
 		}

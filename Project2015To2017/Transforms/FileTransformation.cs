@@ -200,7 +200,7 @@ namespace Project2015To2017.Transforms
 		private static bool CompileChildrenVerification(XElement item)
 		{
 			// retain only if it is not <SubType>Code</SubType>
-			if (!ExtensionMethods.ValidateChildren(item.Elements(), "SubType"))
+			if (!Extensions.ValidateChildren(item.Elements(), "SubType"))
 			{
 				return false;
 			}

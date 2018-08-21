@@ -89,7 +89,7 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(1, project.Platforms.Count);
 			Assert.AreEqual(1, project.Platforms.Count(x => x == "AnyCPU"));
 
-			Assert.AreEqual(2, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(5, project.PropertyGroups.Count);
 
 			var transformation = new XamlPagesTransformation();
 

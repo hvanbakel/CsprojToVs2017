@@ -17,10 +17,10 @@ namespace Project2015To2017.Analysis.Diagnostics
 			{
 				// last 2 versions + default
 				var version = x.Value;
-				if (version.Equals("7.2", ExtensionMethods.BestAvailableStringIgnoreCaseComparison)) continue;
-				if (version.Equals("7.3", ExtensionMethods.BestAvailableStringIgnoreCaseComparison)) continue;
-				if (version.Equals("latest", ExtensionMethods.BestAvailableStringIgnoreCaseComparison)) continue;
-				if (version.Equals("default", ExtensionMethods.BestAvailableStringIgnoreCaseComparison)) continue;
+				if (version.Equals("7.2", Extensions.BestAvailableStringIgnoreCaseComparison)) continue;
+				if (version.Equals("7.3", Extensions.BestAvailableStringIgnoreCaseComparison)) continue;
+				if (version.Equals("latest", Extensions.BestAvailableStringIgnoreCaseComparison)) continue;
+				if (version.Equals("default", Extensions.BestAvailableStringIgnoreCaseComparison)) continue;
 
 				list.Add(
 					CreateDiagnosticResult(project,
