@@ -3,7 +3,7 @@ using Project2015To2017.Analysis.Diagnostics;
 
 namespace Project2015To2017.Analysis
 {
-	public class DiagnosticSet : HashSet<IDiagnostic>
+	public sealed class DiagnosticSet : HashSet<IDiagnostic>
 	{
 		public static readonly IDiagnostic W001 = new W001IllegalProjectTypeDiagnostic();
 		// W002 is not a real diagnostic

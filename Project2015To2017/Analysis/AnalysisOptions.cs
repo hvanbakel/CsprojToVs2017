@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace Project2015To2017.Analysis
 {
-	public class AnalysisOptions
+	public sealed class AnalysisOptions
 	{
 		/// <summary>
 		/// Including ID of diagnostics in this list will make analyzer skip their execution and therefore output

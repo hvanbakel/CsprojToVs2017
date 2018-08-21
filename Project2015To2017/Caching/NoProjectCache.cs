@@ -2,7 +2,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Caching
 {
-	public class NoProjectCache : IProjectCache
+	public sealed class NoProjectCache : IProjectCache
 	{
 		public static IProjectCache Instance => new NoProjectCache();
 

@@ -2,7 +2,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis
 {
-	public class DiagnosticResult : IDiagnosticResult
+	public sealed class DiagnosticResult : IDiagnosticResult
 	{
 		public string Code { get; internal set; }
 		public string Message { get; internal set; }

@@ -8,7 +8,7 @@ using static Project2015To2017.Transforms.ExtensionMethods;
 
 namespace Project2015To2017.Writing
 {
-	public class ProjectWriter
+	public sealed class ProjectWriter
 	{
 		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/1.6.47";
 		private readonly ILogger logger;

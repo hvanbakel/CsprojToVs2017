@@ -3,7 +3,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Caching
 {
-	public class DefaultProjectCache : IProjectCache
+	public sealed class DefaultProjectCache : IProjectCache
 	{
 		private readonly ConcurrentDictionary<string, Project> dictionary = new ConcurrentDictionary<string, Project>();
 

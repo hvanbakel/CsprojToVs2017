@@ -8,7 +8,7 @@ using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Reading
 {
-	public class ProjectPropertiesReader
+	public sealed class ProjectPropertiesReader
 	{
 		private readonly ILogger _logger;
 

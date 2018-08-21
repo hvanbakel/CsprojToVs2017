@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 
 namespace Project2015To2017
 {
-	public class ProjectConverter
+	public sealed class ProjectConverter
 	{
 		private readonly ILogger logger;
 		private readonly ConversionOptions conversionOptions;

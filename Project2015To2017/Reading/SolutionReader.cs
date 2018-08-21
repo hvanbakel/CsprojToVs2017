@@ -7,7 +7,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Reading
 {
-	public class SolutionReader
+	public sealed class SolutionReader
 	{
 		public static readonly SolutionReader Instance = new SolutionReader();
 

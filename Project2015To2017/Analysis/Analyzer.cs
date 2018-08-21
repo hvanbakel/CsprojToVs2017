@@ -4,7 +4,7 @@ using System;
 
 namespace Project2015To2017.Analysis
 {
-	public class Analyzer<TReporter, TReporterOptions>
+	public sealed class Analyzer<TReporter, TReporterOptions>
 		where TReporter : class, IReporter<TReporterOptions>
 		where TReporterOptions : IReporterOptions
 	{

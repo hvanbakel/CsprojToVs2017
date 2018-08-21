@@ -4,7 +4,7 @@ using Project2015To2017.Transforms;
 
 namespace Project2015To2017
 {
-    public class ConversionOptions
+    public sealed class ConversionOptions
     {
 		/// <summary>
 		/// Project cache, if any. When null no caching is used.

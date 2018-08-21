@@ -8,7 +8,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public class PrimaryUnconditionalPropertyTransformation : ITransformation
+	public sealed class PrimaryUnconditionalPropertyTransformation : ITransformation
 	{
 		public void Transform(Project project, ILogger logger)
 		{
