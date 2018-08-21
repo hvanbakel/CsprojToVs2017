@@ -99,13 +99,13 @@ namespace Project2015To2017.Transforms
 
 			var toReturn = new[]
 			{
-				CreateElementIfNotNull(assemblyAttributes.Title, "AssemblyTitle"),
-				CreateElementIfNotNull(assemblyAttributes.Company, "Company"),
-				CreateElementIfNotNull(assemblyAttributes.Product, "Product"),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Title, "AssemblyTitle"),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Company, "Company"),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Product, "Product"),
 
 				//And a couple of properties which can be superceded by the package config
-				CreateElementIfNotNull(assemblyAttributes.Description, packageConfig?.Description, "Description", logger),
-				CreateElementIfNotNull(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", logger),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Description, packageConfig?.Description, "Description", logger),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", logger),
 
 
 				!configCanBeStripped
@@ -131,7 +131,7 @@ namespace Project2015To2017.Transforms
 			return toReturn;
 		}
 
-		private static XElement CreateElementIfNotNull(string assemblyInfoValue, string packageConfigValue, string description, ILogger logger)
+		private static XElement CreateElementIfNotNullOrEmpty(string assemblyInfoValue, string packageConfigValue, string description, ILogger logger)
 		{
 			if (packageConfigValue != null && packageConfigValue != assemblyInfoValue)
 			{
@@ -142,11 +142,11 @@ namespace Project2015To2017.Transforms
 						$"over AssemblyInfo value {assemblyInfoValue}");
 				}
 
-				return CreateElementIfNotNull(packageConfigValue, description);
+				return CreateElementIfNotNullOrEmpty(packageConfigValue, description);
 			}
 			else
 			{
-				return CreateElementIfNotNull(assemblyInfoValue, description);
+				return CreateElementIfNotNullOrEmpty(assemblyInfoValue, description);
 			}
 		}
 
@@ -155,12 +155,12 @@ namespace Project2015To2017.Transforms
 		{
 			var toReturn = new[]
 			{
-				CreateElementIfNotNull(assemblyAttributes.InformationalVersion, packageConfig?.Version, "Version", logger),
-				CreateElementIfNotNull(assemblyAttributes.Version, "AssemblyVersion"),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.InformationalVersion, packageConfig?.Version, "Version", logger),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Version, "AssemblyVersion"),
 
 				//The AssemblyInfo behaviour was to fallback on the AssemblyVersion for the file version
 				//but in the new format, this doesn't happen so we explicitly copy the value across
-				CreateElementIfNotNull(assemblyAttributes.FileVersion, "FileVersion") ?? CreateElementIfNotNull(assemblyAttributes.Version, "FileVersion")
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.FileVersion, "FileVersion") ?? CreateElementIfNotNullOrEmpty(assemblyAttributes.Version, "FileVersion")
 			}.Where(x => x != null).ToArray();
 
 			assemblyAttributes.InformationalVersion = null;
@@ -170,9 +170,9 @@ namespace Project2015To2017.Transforms
 			return toReturn;
 		}
 
-		private static XElement CreateElementIfNotNull(string attribute, string name)
+		private static XElement CreateElementIfNotNullOrEmpty(string attribute, string name)
 		{
-			return attribute != null ? new XElement(name, attribute) : null;
+			return !string.IsNullOrEmpty(attribute) ? new XElement(name, attribute) : null;
 		}
 	}
 }

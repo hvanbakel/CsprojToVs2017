@@ -117,6 +117,52 @@ namespace Project2015To2017Tests
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
+		[TestMethod]
+		public void BlankEntriesGetDeleted()
+		{
+			var baseAssemblyAttributes = BaseAssemblyAttributes();
+			baseAssemblyAttributes.Company = "";
+			baseAssemblyAttributes.Copyright = "";
+			baseAssemblyAttributes.Description = "";
+
+			var project = new Project
+			{
+				AssemblyAttributes = baseAssemblyAttributes,
+				Deletions = new List<FileSystemInfo>()
+			};
+
+			var transform = new AssemblyAttributeTransformation();
+
+			transform.Transform(project, NoopLogger.Instance);
+
+			var expectedProperties = new[]
+				{
+					new XElement("AssemblyTitle", "The Title"),
+					new XElement("Product", "The Product"),
+					new XElement("GenerateAssemblyConfigurationAttribute", false),
+					new XElement("Version", "1.8.4.3-beta.1"),
+					new XElement("AssemblyVersion", "1.0.4.2"),
+					new XElement("FileVersion", "1.1.7.9")
+				}
+				.Select(x => x.ToString())
+				.ToList();
+
+			var actualProperties = project.AssemblyAttributeProperties
+				.Select(x => x.ToString())
+				.ToList();
+
+			CollectionAssert.AreEquivalent(expectedProperties, actualProperties);
+
+			var expectedAttributes = new AssemblyAttributes
+			{
+				Configuration = "SomeConfiguration"
+			};
+
+			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
+			
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
+		}
+
 		
 		[TestMethod]
 		public void BlankConfigurationGetsDeleted()
