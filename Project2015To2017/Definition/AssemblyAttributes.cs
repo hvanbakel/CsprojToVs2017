@@ -50,6 +50,18 @@ namespace Project2015To2017.Definition
 			set => SetAttribute(typeof(AssemblyDescriptionAttribute), value);
 		}
 
+		public string Trademark
+		{
+			get => GetAttribute(typeof(AssemblyTrademarkAttribute));
+			set => SetAttribute(typeof(AssemblyTrademarkAttribute), value);
+		}
+
+		public string Culture
+		{
+			get => GetAttribute(typeof(AssemblyCultureAttribute));
+			set => SetAttribute(typeof(AssemblyCultureAttribute), value);
+		}
+
 		public string Configuration {
 			get => GetAttribute(typeof(AssemblyConfigurationAttribute));
 			set => SetAttribute(typeof(AssemblyConfigurationAttribute), value);

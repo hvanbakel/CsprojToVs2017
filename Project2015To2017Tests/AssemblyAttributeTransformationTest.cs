@@ -26,7 +26,9 @@ namespace Project2015To2017Tests
 				Version = "1.0.4.2",
 				Product = "The Product",
 				Title = "The Title",
-				File = new FileInfo("DummyAssemblyInfo.cs")
+				File = new FileInfo("DummyAssemblyInfo.cs"),
+				Trademark = "A trademark",
+				Culture = "A culture"
 			};
 
 		[TestMethod]
@@ -47,7 +49,7 @@ namespace Project2015To2017Tests
 			Assert.IsNotNull(generateAssemblyInfo);
 			Assert.AreEqual("GenerateAssemblyInfo", generateAssemblyInfo.Name);
 			Assert.AreEqual("false", generateAssemblyInfo.Value);
-			
+
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
@@ -62,7 +64,7 @@ namespace Project2015To2017Tests
 			};
 
 			var transform = new AssemblyAttributeTransformation(true);
-			
+
 			transform.Transform(project, NoopLogger.Instance);
 
 			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
@@ -108,12 +110,14 @@ namespace Project2015To2017Tests
 			CollectionAssert.AreEquivalent(expectedProperties, actualProperties);
 
 			var expectedAttributes = new AssemblyAttributes
-									{
-										Configuration = "SomeConfiguration"
-									};
+			{
+				Configuration = "SomeConfiguration",
+				Trademark = "A trademark",
+				Culture = "A culture"
+			};
 
 			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
-			
+
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
@@ -124,6 +128,8 @@ namespace Project2015To2017Tests
 			baseAssemblyAttributes.Company = "";
 			baseAssemblyAttributes.Copyright = "";
 			baseAssemblyAttributes.Description = "";
+			baseAssemblyAttributes.Trademark = "";
+			baseAssemblyAttributes.Culture = "";
 
 			var project = new Project
 			{
@@ -159,11 +165,11 @@ namespace Project2015To2017Tests
 			};
 
 			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
-			
+
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
-		
+
 		[TestMethod]
 		public void BlankConfigurationGetsDeleted()
 		{
@@ -202,8 +208,8 @@ namespace Project2015To2017Tests
 
 			var expectedAttributes = new AssemblyAttributes();
 
-			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
-			
+			Assert.IsNull(project.AssemblyAttributes.Configuration);
+
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
@@ -245,7 +251,7 @@ namespace Project2015To2017Tests
 			var expectedAttributes = new AssemblyAttributes();
 
 			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
-			
+
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
@@ -291,7 +297,9 @@ namespace Project2015To2017Tests
 
 			var expectedAttributes = new AssemblyAttributes
 			{
-				Configuration = "SomeConfiguration"
+				Configuration = "SomeConfiguration",
+				Trademark = "A trademark",
+				Culture = "A culture"
 			};
 
 			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
@@ -316,7 +324,7 @@ namespace Project2015To2017Tests
 
 			transform.Transform(project, NoopLogger.Instance);
 
-		    CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
+			CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
 		}
 
 		[TestMethod]

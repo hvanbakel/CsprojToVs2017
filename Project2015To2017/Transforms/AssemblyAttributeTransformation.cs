@@ -103,10 +103,10 @@ namespace Project2015To2017.Transforms
 				CreateElementIfNotNullOrEmpty(assemblyAttributes.Company, "Company"),
 				CreateElementIfNotNullOrEmpty(assemblyAttributes.Product, "Product"),
 
+
 				//And a couple of properties which can be superceded by the package config
 				CreateElementIfNotNullOrEmpty(assemblyAttributes.Description, packageConfig?.Description, "Description", logger),
 				CreateElementIfNotNullOrEmpty(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", logger),
-
 
 				!configCanBeStripped
 					?
@@ -122,6 +122,16 @@ namespace Project2015To2017.Transforms
 			assemblyAttributes.Description = null;
 			assemblyAttributes.Product = null;
 			assemblyAttributes.Copyright = null;
+
+			if (assemblyAttributes.Culture == string.Empty)
+			{
+				assemblyAttributes.Culture = null;
+			}
+
+			if (assemblyAttributes.Trademark == string.Empty)
+			{
+				assemblyAttributes.Trademark = null;
+			}
 
 			if (configCanBeStripped)
 			{
