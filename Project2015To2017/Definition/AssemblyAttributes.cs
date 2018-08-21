@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Resources;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -60,6 +61,12 @@ namespace Project2015To2017.Definition
 		{
 			get => GetAttribute(typeof(AssemblyCultureAttribute));
 			set => SetAttribute(typeof(AssemblyCultureAttribute), value);
+		}
+
+		public string NeutralLanguage
+		{
+			get => GetAttribute(typeof(NeutralResourcesLanguageAttribute));
+			set => SetAttribute(typeof(NeutralResourcesLanguageAttribute), value);
 		}
 
 		public string Configuration {

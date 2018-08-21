@@ -102,6 +102,7 @@ namespace Project2015To2017.Transforms
 				CreateElementIfNotNullOrEmpty(assemblyAttributes.Title, "AssemblyTitle"),
 				CreateElementIfNotNullOrEmpty(assemblyAttributes.Company, "Company"),
 				CreateElementIfNotNullOrEmpty(assemblyAttributes.Product, "Product"),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.NeutralLanguage, "NeutralLanguage"),
 
 
 				//And a couple of properties which can be superceded by the package config
@@ -122,6 +123,7 @@ namespace Project2015To2017.Transforms
 			assemblyAttributes.Description = null;
 			assemblyAttributes.Product = null;
 			assemblyAttributes.Copyright = null;
+			assemblyAttributes.NeutralLanguage = null;
 
 			if (assemblyAttributes.Culture == string.Empty)
 			{

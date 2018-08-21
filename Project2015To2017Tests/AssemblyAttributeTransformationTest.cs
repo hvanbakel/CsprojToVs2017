@@ -28,7 +28,8 @@ namespace Project2015To2017Tests
 				Title = "The Title",
 				File = new FileInfo("DummyAssemblyInfo.cs"),
 				Trademark = "A trademark",
-				Culture = "A culture"
+				Culture = "A culture",
+				NeutralLanguage = "someLanguage"
 			};
 
 		[TestMethod]
@@ -98,7 +99,8 @@ namespace Project2015To2017Tests
 				new XElement("GenerateAssemblyConfigurationAttribute", false),
 				new XElement("Version", "1.8.4.3-beta.1"),
 				new XElement("AssemblyVersion", "1.0.4.2"),
-				new XElement("FileVersion", "1.1.7.9")
+				new XElement("FileVersion", "1.1.7.9"),
+				new XElement("NeutralLanguage", "someLanguage"),
 			}
 			.Select(x => x.ToString())
 			.ToList();
@@ -130,6 +132,7 @@ namespace Project2015To2017Tests
 			baseAssemblyAttributes.Description = "";
 			baseAssemblyAttributes.Trademark = "";
 			baseAssemblyAttributes.Culture = "";
+			baseAssemblyAttributes.NeutralLanguage = "";
 
 			var project = new Project
 			{
@@ -195,7 +198,8 @@ namespace Project2015To2017Tests
 					new XElement("Copyright", "A Copyright notice  ©"),
 					new XElement("Version", "1.8.4.3-beta.1"),
 					new XElement("AssemblyVersion", "1.0.4.2"),
-					new XElement("FileVersion", "1.1.7.9")
+					new XElement("FileVersion", "1.1.7.9"),
+					new XElement("NeutralLanguage", "someLanguage")
 				}
 				.Select(x => x.ToString())
 				.ToList();
@@ -284,7 +288,8 @@ namespace Project2015To2017Tests
 					new XElement("GenerateAssemblyConfigurationAttribute", false),
 					new XElement("Version", "1.5.2-otherVersion"),
 					new XElement("AssemblyVersion", "1.0.4.2"),
-					new XElement("FileVersion", "1.1.7.9")
+					new XElement("FileVersion", "1.1.7.9"),
+					new XElement("NeutralLanguage", "someLanguage")
 				}
 				.Select(x => x.ToString())
 				.ToList();
