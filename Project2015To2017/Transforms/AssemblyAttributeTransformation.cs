@@ -47,14 +47,14 @@ namespace Project2015To2017.Transforms
 			{
 				definition.Deletions = definition
 					.Deletions
-					.Concat(new[] { definition.AssemblyAttributes.File })
+					.Concat(new[] {definition.AssemblyAttributes.File})
 					.ToArray();
 
 				if (AssemblyInfoFolderJustAssemblyInfo(definition.AssemblyAttributes))
 				{
 					definition.Deletions = definition
 						.Deletions
-						.Concat(new[] { definition.AssemblyAttributes.File.Directory })
+						.Concat(new[] {definition.AssemblyAttributes.File.Directory})
 						.ToArray();
 				}
 			}
@@ -95,6 +95,8 @@ namespace Project2015To2017.Transforms
 
 		private static IReadOnlyList<XElement> OtherProperties(AssemblyAttributes assemblyAttributes, PackageConfiguration packageConfig, ILogger logger)
 		{
+			var configCanBeStripped = string.IsNullOrEmpty(assemblyAttributes.Configuration);
+
 			var toReturn = new[]
 			{
 				CreateElementIfNotNull(assemblyAttributes.Title, "AssemblyTitle"),
@@ -104,8 +106,8 @@ namespace Project2015To2017.Transforms
 				//And a couple of properties which can be superceded by the package config
 				CreateElementIfNotNull(assemblyAttributes.Description, packageConfig?.Description, "Description", logger),
 				CreateElementIfNotNull(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", logger),
-
-				assemblyAttributes.Configuration != null
+				
+				!configCanBeStripped
 					?
 					//If it is included, chances are that the developer has used
 					//preprocessor flags which we can't yet process
@@ -119,6 +121,11 @@ namespace Project2015To2017.Transforms
 			assemblyAttributes.Description = null;
 			assemblyAttributes.Product = null;
 			assemblyAttributes.Copyright = null;
+
+			if (configCanBeStripped)
+			{
+				assemblyAttributes.Configuration = null;
+			}
 
 			return toReturn;
 		}
