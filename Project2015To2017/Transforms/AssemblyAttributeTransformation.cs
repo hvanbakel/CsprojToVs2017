@@ -106,7 +106,8 @@ namespace Project2015To2017.Transforms
 				//And a couple of properties which can be superceded by the package config
 				CreateElementIfNotNull(assemblyAttributes.Description, packageConfig?.Description, "Description", logger),
 				CreateElementIfNotNull(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", logger),
-				
+
+
 				!configCanBeStripped
 					?
 					//If it is included, chances are that the developer has used
@@ -145,7 +146,7 @@ namespace Project2015To2017.Transforms
 			}
 			else
 			{
-				return assemblyInfoValue == null ? null : CreateElementIfNotNull(assemblyInfoValue, description);
+				return CreateElementIfNotNull(assemblyInfoValue, description);
 			}
 		}
 
