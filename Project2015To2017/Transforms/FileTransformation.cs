@@ -49,7 +49,7 @@ namespace Project2015To2017.Transforms
 				.Where(x => x.Name.LocalName != "Compile")
 				.Select(x => x.Attribute("Include")?.Value)
 				.Where(x => !string.IsNullOrEmpty(x))
-				.Where(x => x.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+				.Where(x => x.EndsWith("." + definition.CodeFileExtension, StringComparison.OrdinalIgnoreCase))
 				.ToArray();
 
 			if (otherIncludeFilesMatchingWildcard.Length > 0)

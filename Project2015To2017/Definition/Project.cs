@@ -35,6 +35,7 @@ namespace Project2015To2017.Definition
 		public string RootNamespace { get; set; }
 		public string AssemblyName { get; set; }
 		public FileInfo FilePath { get; set; }
+		public string CodeFileExtension { get; set; }
 		public DirectoryInfo ProjectFolder => this.FilePath.Directory;
 
 		public bool HasMultipleAssemblyInfoFiles { get; set; }
