@@ -59,24 +59,22 @@ namespace Project2015To2017
 			var extension = Path.GetExtension(target) ?? throw new ArgumentNullException(nameof(target));
 			if (extension.Length > 0)
 			{
-				if (extension == ".sln")
+				switch (extension)
 				{
-					foreach (var project in ConvertSolution(target))
-					{
-						yield return project;
-					}
-				}
-				else if (ProjectFileMappings.TryGetValue(extension, out var fileExtension))
-				{
-					var file = new FileInfo(target);
-					yield return this.ProcessFile(file, null);
-				}
-				else
-				{ 
+					case ".sln":
+						foreach (var project in ConvertSolution(target))
+						{
+							yield return project;
+						}
+						break;
+					case string s when ProjectFileMappings.TryGetValue(extension, out var fileExtension):
+						var file = new FileInfo(target);
+						yield return this.ProcessFile(file, null);
+						break;
+					default:
 						this.logger.LogCritical("Please specify a project or solution file.");
+						yield break;
 				}
-
-				yield break;
 			}
 
 			// Process the only solution in given directory
