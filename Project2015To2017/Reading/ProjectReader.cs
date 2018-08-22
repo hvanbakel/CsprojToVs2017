@@ -150,7 +150,7 @@ namespace Project2015To2017.Reading
 		{
 			foreach (var reference in projectDefinition.ProjectReferences)
 			{
-				reference.ProjectFile = new FileInfo(Path.Combine(projectDefinition.FilePath.Directory.FullName, reference.Include));
+				reference.ProjectFile = new FileInfo(Path.Combine(projectDefinition.FilePath.Directory.FullName, reference.Include.Replace('\\', Path.DirectorySeparatorChar)));
 			}
 		}
 
