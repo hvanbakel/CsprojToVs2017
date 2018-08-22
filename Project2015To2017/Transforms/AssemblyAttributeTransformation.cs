@@ -47,14 +47,14 @@ namespace Project2015To2017.Transforms
 			{
 				definition.Deletions = definition
 					.Deletions
-					.Concat(new[] { definition.AssemblyAttributes.File })
+					.Concat(new[] {definition.AssemblyAttributes.File})
 					.ToArray();
 
 				if (AssemblyInfoFolderJustAssemblyInfo(definition.AssemblyAttributes))
 				{
 					definition.Deletions = definition
 						.Deletions
-						.Concat(new[] { definition.AssemblyAttributes.File.Directory })
+						.Concat(new[] {definition.AssemblyAttributes.File.Directory})
 						.ToArray();
 				}
 			}
@@ -95,17 +95,21 @@ namespace Project2015To2017.Transforms
 
 		private static IReadOnlyList<XElement> OtherProperties(AssemblyAttributes assemblyAttributes, PackageConfiguration packageConfig, ILogger logger)
 		{
+			var configCanBeStripped = string.IsNullOrEmpty(assemblyAttributes.Configuration);
+
 			var toReturn = new[]
 			{
-				CreateElementIfNotNull(assemblyAttributes.Title, "AssemblyTitle"),
-				CreateElementIfNotNull(assemblyAttributes.Company, "Company"),
-				CreateElementIfNotNull(assemblyAttributes.Product, "Product"),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Title, "AssemblyTitle"),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Company, "Company"),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Product, "Product"),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.NeutralLanguage, "NeutralLanguage"),
+
 
 				//And a couple of properties which can be superceded by the package config
-				CreateElementIfNotNull(assemblyAttributes.Description, packageConfig?.Description, "Description", logger),
-				CreateElementIfNotNull(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", logger),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Description, packageConfig?.Description, "Description", logger),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Copyright, packageConfig?.Copyright, "Copyright", logger),
 
-				assemblyAttributes.Configuration != null
+				!configCanBeStripped
 					?
 					//If it is included, chances are that the developer has used
 					//preprocessor flags which we can't yet process
@@ -119,11 +123,27 @@ namespace Project2015To2017.Transforms
 			assemblyAttributes.Description = null;
 			assemblyAttributes.Product = null;
 			assemblyAttributes.Copyright = null;
+			assemblyAttributes.NeutralLanguage = null;
+
+			if (assemblyAttributes.Culture == string.Empty)
+			{
+				assemblyAttributes.Culture = null;
+			}
+
+			if (assemblyAttributes.Trademark == string.Empty)
+			{
+				assemblyAttributes.Trademark = null;
+			}
+
+			if (configCanBeStripped)
+			{
+				assemblyAttributes.Configuration = null;
+			}
 
 			return toReturn;
 		}
 
-		private static XElement CreateElementIfNotNull(string assemblyInfoValue, string packageConfigValue, string description, ILogger logger)
+		private static XElement CreateElementIfNotNullOrEmpty(string assemblyInfoValue, string packageConfigValue, string description, ILogger logger)
 		{
 			if (packageConfigValue != null && packageConfigValue != assemblyInfoValue)
 			{
@@ -134,11 +154,11 @@ namespace Project2015To2017.Transforms
 						$"over AssemblyInfo value {assemblyInfoValue}");
 				}
 
-				return CreateElementIfNotNull(packageConfigValue, description);
+				return CreateElementIfNotNullOrEmpty(packageConfigValue, description);
 			}
 			else
 			{
-				return assemblyInfoValue == null ? null : CreateElementIfNotNull(assemblyInfoValue, description);
+				return CreateElementIfNotNullOrEmpty(assemblyInfoValue, description);
 			}
 		}
 
@@ -147,12 +167,12 @@ namespace Project2015To2017.Transforms
 		{
 			var toReturn = new[]
 			{
-				CreateElementIfNotNull(assemblyAttributes.InformationalVersion, packageConfig?.Version, "Version", logger),
-				CreateElementIfNotNull(assemblyAttributes.Version, "AssemblyVersion"),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.InformationalVersion, packageConfig?.Version, "Version", logger),
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.Version, "AssemblyVersion"),
 
 				//The AssemblyInfo behaviour was to fallback on the AssemblyVersion for the file version
 				//but in the new format, this doesn't happen so we explicitly copy the value across
-				CreateElementIfNotNull(assemblyAttributes.FileVersion, "FileVersion") ?? CreateElementIfNotNull(assemblyAttributes.Version, "FileVersion")
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.FileVersion, "FileVersion") ?? CreateElementIfNotNullOrEmpty(assemblyAttributes.Version, "FileVersion")
 			}.Where(x => x != null).ToArray();
 
 			assemblyAttributes.InformationalVersion = null;
@@ -162,9 +182,9 @@ namespace Project2015To2017.Transforms
 			return toReturn;
 		}
 
-		private static XElement CreateElementIfNotNull(string attribute, string name)
+		private static XElement CreateElementIfNotNullOrEmpty(string attribute, string name)
 		{
-			return attribute != null ? new XElement(name, attribute) : null;
+			return !string.IsNullOrEmpty(attribute) ? new XElement(name, attribute) : null;
 		}
 	}
 }
