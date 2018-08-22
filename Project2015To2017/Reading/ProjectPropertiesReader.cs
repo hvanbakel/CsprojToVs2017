@@ -155,7 +155,7 @@ namespace Project2015To2017.Reading
 			{
 				var _ = project.PrimaryPropertyGroup();
 			}
-			catch
+			catch (InvalidOperationException)
 			{
 				throw new NotSupportedException(
 					"No unconditional property group found. Cannot determine important properties like target framework and others.");
