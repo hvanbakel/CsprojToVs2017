@@ -15,7 +15,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 
 			foreach (var x in project.ProjectDocument.Descendants(project.XmlNamespace + "DebugType"))
 			{
-				if (x.Value.Equals("portable", ExtensionMethods.BestAvailableStringIgnoreCaseComparison))
+				if (x.Value.Equals("portable", Extensions.BestAvailableStringIgnoreCaseComparison))
 					continue;
 
 				list.Add(

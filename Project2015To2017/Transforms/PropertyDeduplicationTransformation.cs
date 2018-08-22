@@ -11,12 +11,10 @@ namespace Project2015To2017.Transforms
 	{
 		public void Transform(Project definition, ILogger logger)
 		{
-			var props = definition.AdditionalPropertyGroups
+			var props = definition
+				.ConditionalGroups()
 				.Select(x => (
 					x,
-					// disabled until better solution to class visibility issue is devised
-					// ReSharper disable once PossibleNullReferenceException
-					// ConditionEvaluator.GetConditionState(x.Attribute("Condition").Value),
 					x.Elements()
 						.Where(c => !c.HasElements)
 						.Select(c => c.Name.LocalName)
@@ -30,7 +28,7 @@ namespace Project2015To2017.Transforms
 			}
 
 			var intersection = props.First().Item2;
-			foreach (var (group, nameSet) in props.Skip(1))
+			foreach (var (_, nameSet) in props.Skip(1))
 			{
 				intersection = intersection.Intersect(nameSet);
 			}
@@ -52,7 +50,7 @@ namespace Project2015To2017.Transforms
 				}
 
 				var sourceForCopy = properties.First();
-				definition.PrimaryPropertyGroup.Add(sourceForCopy);
+				definition.PrimaryPropertyGroup().Add(sourceForCopy);
 			}
 		}
 	}

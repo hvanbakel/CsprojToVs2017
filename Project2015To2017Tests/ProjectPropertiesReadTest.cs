@@ -4,6 +4,7 @@ using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 
@@ -282,7 +283,7 @@ namespace Project2015To2017Tests
 			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.AssemblyName);
 			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage", project.RootNamespace);
 			Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
-			Assert.AreEqual(0, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(2, project.PropertyGroups.Count);
 		}
 
 		[TestMethod]
@@ -376,8 +377,10 @@ namespace Project2015To2017Tests
 
 			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
-			Assert.AreEqual(0, project.AdditionalPropertyGroups.Count);
-			var children = project.PrimaryPropertyGroup.Elements().ToImmutableArray();
+			Assert.AreEqual(3, project.PropertyGroups.Count);
+			Assert.AreEqual(3, project.UnconditionalGroups().Count());
+			Assert.AreEqual(0, project.ConditionalGroups().Count());
+			var children = project.UnconditionalGroups().Elements().ToImmutableArray();
 			Assert.AreEqual(4, children.Count(x => x.Name.LocalName.StartsWith("Scc")));
 		}
 
@@ -541,23 +544,27 @@ if $(ConfigurationName) == Debug (
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Debug"));
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Release"));
 
-			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
-			foreach (var propertyGroup in project.AdditionalPropertyGroups)
-			{
-				Assert.IsNotNull(propertyGroup.Attribute("Condition"));
-			}
+			Assert.AreEqual(5, project.PropertyGroups.Count);
+			Assert.IsNull(project.PropertyGroups[0].Attribute("Condition"));
+			Assert.IsNull(project.PropertyGroups[1].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[2].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[3].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[4].Attribute("Condition"));
 
-			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
+			var childrenUnconditional1 = project.PropertyGroups[0].Elements().ToImmutableArray();
+			Assert.AreEqual(2, childrenUnconditional1.Length);
+
+			var childrenUnconditional2 = project.PropertyGroups[1].Elements().ToImmutableArray();
+			Assert.AreEqual(3, childrenUnconditional2.Length);
+
+			var childrenDebug = project.PropertyGroups[2].Elements().ToImmutableArray();
 			Assert.AreEqual(2, childrenDebug.Length);
 
-			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
+			var childrenRelease = project.PropertyGroups[3].Elements().ToImmutableArray();
 			Assert.AreEqual(1, childrenRelease.Length);
 
-			var childrenReleaseCI = project.AdditionalPropertyGroups[2].Elements().ToImmutableArray();
+			var childrenReleaseCI = project.PropertyGroups[4].Elements().ToImmutableArray();
 			Assert.AreEqual(8, childrenReleaseCI.Length);
-
-			var childrenGlobal = project.PrimaryPropertyGroup.Elements().ToImmutableArray();
-			Assert.AreEqual(5, childrenGlobal.Length);
 		}
 
 		private static async Task<Project> ParseAndTransform(

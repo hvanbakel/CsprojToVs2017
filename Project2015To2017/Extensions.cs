@@ -4,10 +4,67 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace Project2015To2017.Transforms
+namespace Project2015To2017
 {
-	public static class ExtensionMethods
+	public static class Extensions
 	{
+		public static string GetRelativePathTo(this FileSystemInfo from, FileSystemInfo to)
+		{
+			string GetPath(FileSystemInfo fsi)
+			{
+				return (fsi is DirectoryInfo d) ? (d.FullName.TrimEnd('\\') + "\\") : fsi.FullName;
+			}
+
+			var fromPath = GetPath(@from);
+			var toPath = GetPath(to);
+
+			var fromUri = new Uri(fromPath);
+			var toUri = new Uri(toPath);
+
+			var relativeUri = fromUri.MakeRelativeUri(toUri);
+			var relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+			return relativePath.Replace('/', Path.DirectorySeparatorChar);
+		}
+
+		public static StringComparison BestAvailableStringIgnoreCaseComparison
+		{
+			get
+			{
+				StringComparison comparison;
+#if NETSTANDARD2_0
+				comparison = StringComparison.InvariantCultureIgnoreCase;
+#else
+				comparison = StringComparison.OrdinalIgnoreCase;
+#endif
+				return comparison;
+			}
+		}
+
+		public static bool PropertyCondition(this XElement element, out string condition)
+		{
+			ICollection<string> store = new List<string>();
+			do
+			{
+				var selfCondition = element.Attribute("Condition")?.Value?.Trim();
+				if (!string.IsNullOrEmpty(selfCondition))
+				{
+					store.Add(selfCondition);
+				}
+
+				element = element.Parent;
+			} while (element != null);
+
+			if (store.Count == 0)
+			{
+				condition = null;
+				return false;
+			}
+
+			condition = string.Join(" and ", store.Reverse().Select(x => $"({x})"));
+			return true;
+		}
+
 		public static IEnumerable<XElement> ElementsAnyNamespace<T>(this IEnumerable<T> source, string localName)
 			where T : XContainer
 		{
@@ -63,7 +120,7 @@ namespace Project2015To2017.Transforms
 		{
 			return new XElement(e.Name.LocalName,
 				(from n in e.Nodes()
-					select ((n is XElement) ? RemoveAllNamespaces((XElement) n) : n)),
+					select ((n is XElement element) ? RemoveAllNamespaces(element) : n)),
 				(e.HasAttributes)
 					? (from a in e.Attributes()
 						where (!a.IsNamespaceDeclaration)

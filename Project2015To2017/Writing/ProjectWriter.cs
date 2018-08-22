@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
-using static Project2015To2017.Transforms.ExtensionMethods;
+using static Project2015To2017.Extensions;
 
 namespace Project2015To2017.Writing
 {
@@ -180,14 +180,9 @@ namespace Project2015To2017.Writing
 				netSdk = SdkExtrasVersion;
 			var projectNode = new XElement("Project", new XAttribute("Sdk", netSdk));
 
-			if (project.PrimaryPropertyGroup != null)
+			if (project.PropertyGroups != null)
 			{
-				projectNode.Add(RemoveAllNamespaces(project.PrimaryPropertyGroup));
-			}
-
-			if (project.AdditionalPropertyGroups != null)
-			{
-				projectNode.Add(project.AdditionalPropertyGroups.Select(RemoveAllNamespaces));
+				projectNode.Add(project.PropertyGroups.Select(RemoveAllNamespaces));
 			}
 
 			if (project.Imports != null)

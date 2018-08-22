@@ -17,14 +17,13 @@ namespace Project2015To2017Tests
 			{
 				IsModernProject = true,
 				AppendTargetFrameworkToOutputPath = true,
-				PrimaryPropertyGroup = new XElement("PropertyGroup"),
+				PropertyGroups = new[] { new XElement("PropertyGroup") },
 				FilePath = new FileInfo("test.cs")
 			};
 
 			new PrimaryUnconditionalPropertyTransformation().Transform(project, NoopLogger.Instance);
 
-			var appendTargetFrameworkToOutputPath = project.PrimaryPropertyGroup
-				.Element("AppendTargetFrameworkToOutputPath");
+			var appendTargetFrameworkToOutputPath = project.Property("AppendTargetFrameworkToOutputPath");
 			Assert.IsNull(appendTargetFrameworkToOutputPath);
 		}
 
@@ -35,14 +34,13 @@ namespace Project2015To2017Tests
 			{
 				IsModernProject = true,
 				AppendTargetFrameworkToOutputPath = false,
-				PrimaryPropertyGroup = new XElement("PropertyGroup"),
+				PropertyGroups = new[] { new XElement("PropertyGroup") },
 				FilePath = new FileInfo("test.cs")
 			};
 
 			new PrimaryUnconditionalPropertyTransformation().Transform(project, NoopLogger.Instance);
 
-			var appendTargetFrameworkToOutputPath = project.PrimaryPropertyGroup
-				.Element("AppendTargetFrameworkToOutputPath");
+			var appendTargetFrameworkToOutputPath = project.Property("AppendTargetFrameworkToOutputPath");
 			Assert.IsNotNull(appendTargetFrameworkToOutputPath);
 			Assert.AreEqual("false", appendTargetFrameworkToOutputPath.Value);
 		}
