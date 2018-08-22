@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	internal sealed class AssemblyReferenceTransformation : ITransformation
+	public sealed class AssemblyReferenceTransformation : ITransformation
 	{
-		public void Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, ILogger logger)
 		{
 			var packageReferences =
 				definition.PackageReferences ?? new List<PackageReference>();
@@ -16,13 +17,17 @@ namespace Project2015To2017.Transforms
 								.Select(x => x.Id)
 								.ToList();
 
-			var assemblyReferences =
+			var (assemblyReferences, removeQueue) =
 					definition
 						.AssemblyReferences
 						//We don't need to keep any references to package files as these are
 						//now generated dynamically at build time
-						.Where(assemblyReference => !packageIds.Contains(assemblyReference.Include))
-						.ToList();
+						.Split(assemblyReference => !packageIds.Contains(assemblyReference.Include));
+
+			foreach (var assemblyReference in removeQueue)
+			{
+				assemblyReference.DefinitionElement?.Remove();
+			}
 
 			definition.AssemblyReferences = assemblyReferences;
 		}

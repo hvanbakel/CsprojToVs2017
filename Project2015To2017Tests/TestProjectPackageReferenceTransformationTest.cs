@@ -5,25 +5,24 @@ using System.IO;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
+using Project2015To2017;
 
 namespace Project2015To2017Tests
 {
 	[TestClass]
-    public class PackageReferenceTransformationTest
+    public class TestProjectPackageReferenceTransformationTest
     {
         [TestMethod]
         public void AddsTestPackages()
         {
-	        var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
+	        var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
 
 	        project.Type = ApplicationType.TestProject;
 	        project.TargetFrameworks.Add("net45");
 
-            var transformation = new PackageReferenceTransformation();
+            var transformation = new TestProjectPackageReferenceTransformation();
 
-	        var progress = new Progress<string>(x => { });
-
-            transformation.Transform(project, progress);
+            transformation.Transform(project, NoopLogger.Instance);
 
             Assert.AreEqual(10, project.PackageReferences.Count);
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
@@ -34,16 +33,14 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void AcceptsNetStandardFramework()
         {
-	        var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
+	        var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
 
 	        project.Type = ApplicationType.TestProject;
 	        project.TargetFrameworks.Add("netstandard2.0");
 
-			var transformation = new PackageReferenceTransformation();
+			var transformation = new TestProjectPackageReferenceTransformation();
 
-	        var progress = new Progress<string>(x => { });
-
-            transformation.Transform(project, progress);
+            transformation.Transform(project, NoopLogger.Instance);
 
             Assert.AreEqual(10, project.PackageReferences.Count);
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
@@ -54,15 +51,13 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void DoesNotAddTestPackagesIfExists()
         {
-            var transformation = new PackageReferenceTransformation();
+            var transformation = new TestProjectPackageReferenceTransformation();
 
-			var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "containsTestSDK.testcsproj")).Read();
+			var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "containsTestSDK.testcsproj"));
 
 	        project.TargetFrameworks.Add("net45");
 
-	        var progress = new Progress<string>(x => { });
-
-            transformation.Transform(project, progress);
+            transformation.Transform(project, NoopLogger.Instance);
 
             Assert.AreEqual(6, project.PackageReferences.Count);
             Assert.AreEqual(0, project.PackageReferences.Count(x => x.Id == "MSTest.TestAdapter"));
@@ -71,13 +66,11 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void TransformsPackages()
         {
-	        var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
+	        var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
 
-            var transformation = new PackageReferenceTransformation();
+            var transformation = new TestProjectPackageReferenceTransformation();
 
-	        var progress = new Progress<string>(x => { });
-
-            transformation.Transform(project, progress);
+            transformation.Transform(project, NoopLogger.Instance);
 
             Assert.AreEqual(7, project.PackageReferences.Count);
             Assert.AreEqual(2, project.PackageReferences.Count(x => x.IsDevelopmentDependency));
@@ -87,12 +80,10 @@ namespace Project2015To2017Tests
         [TestMethod]
         public void HandlesNonXml()
         {
-            var project = new ProjectReader(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj")).Read();
-            var transformation = new PackageReferenceTransformation();
+            var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
+            var transformation = new TestProjectPackageReferenceTransformation();
 
-	        var progress = new Progress<string>(x => { });
-
-            transformation.Transform(project, progress);
+            transformation.Transform(project, NoopLogger.Instance);
         }
     }
 }

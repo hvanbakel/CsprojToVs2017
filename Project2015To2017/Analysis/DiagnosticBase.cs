@@ -16,8 +16,8 @@ namespace Project2015To2017.Analysis
 
 		protected DiagnosticBase(uint id)
 		{
-			Id = id;
-			DiagnosticCode = $"W{id.ToString(CultureInfo.InvariantCulture).PadLeft(3, '0')}";
+			this.Id = id;
+			this.DiagnosticCode = $"W{id.ToString(CultureInfo.InvariantCulture).PadLeft(3, '0')}";
 		}
 
 		public abstract IReadOnlyList<IDiagnosticResult> Analyze(Project project);
@@ -51,19 +51,19 @@ namespace Project2015To2017.Analysis
 
 		public override int GetHashCode()
 		{
-			return (int) Id;
+			return (int)this.Id;
 		}
 
 		public override string ToString()
 		{
-			return DiagnosticCode;
+			return this.DiagnosticCode;
 		}
 
 		public bool Equals(DiagnosticBase other)
 		{
 			if (other is null) return false;
 			if (ReferenceEquals(this, other)) return true;
-			return Id == other.Id;
+			return this.Id == other.Id;
 		}
 
 		public override bool Equals(object obj)

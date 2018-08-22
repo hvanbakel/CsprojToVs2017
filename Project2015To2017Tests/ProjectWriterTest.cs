@@ -8,13 +8,14 @@ using Project2015To2017.Reading;
 using Project2015To2017.Writing;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 
 namespace Project2015To2017Tests
 {
 	[TestClass]
 	public class ProjectWriterTest
 	{
-        private static readonly string deletionsPath = Path.Combine("TestFiles", "Deletions");
+		private static readonly string deletionsPath = Path.Combine("TestFiles", "Deletions");
 
 		[TestMethod]
 		public void ValidatesFileIsWritable()
@@ -26,10 +27,11 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects", $"{nameof(ValidatesFileIsWritable)}.readonly");
+			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects",
+				$"{nameof(ValidatesFileIsWritable)}.readonly");
 			File.Copy(Path.Combine("TestFiles", "OtherTestProjects", "readonly.testcsproj"), copiedProjectFile);
 			File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
-			var project = new ProjectReader(copiedProjectFile).Read();
+			var project = new ProjectReader().Read(copiedProjectFile);
 
 			var messageNum = 0;
 			var progress = new Progress<string>(x =>
@@ -41,7 +43,7 @@ namespace Project2015To2017Tests
 						x);
 				}
 			});
-			writer.Write(project, false, progress);
+			writer.Write(project, false);
 		}
 
 
@@ -142,11 +144,11 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				DelaySign = null,
+				PropertyGroups = new[] {new XElement("PropertyGroup")},
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
+			var delaySign = xmlNode.Elements("PropertyGroup").First().Element("DelaySign");
 			Assert.IsNull(delaySign);
 		}
 
@@ -156,11 +158,11 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				DelaySign = true,
+				PropertyGroups = new[] {new XElement("PropertyGroup", new XElement("DelaySign", "true"))},
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
+			var delaySign = xmlNode.Elements("PropertyGroup").First().Element("DelaySign");
 			Assert.IsNotNull(delaySign);
 			Assert.AreEqual("true", delaySign.Value);
 		}
@@ -171,11 +173,11 @@ namespace Project2015To2017Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				DelaySign = false,
+				PropertyGroups = new[] {new XElement("PropertyGroup", new XElement("DelaySign", "false"))},
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var delaySign = xmlNode.Element("PropertyGroup").Element("DelaySign");
+			var delaySign = xmlNode.Elements("PropertyGroup").First().Element("DelaySign");
 			Assert.IsNotNull(delaySign);
 			Assert.AreEqual("false", delaySign.Value);
 		}
@@ -186,7 +188,7 @@ namespace Project2015To2017Tests
 
 			await File.WriteAllTextAsync(testCsProjFile, xml);
 
-			var project = new ProjectReader(testCsProjFile).Read();
+			var project = new ProjectReader().Read(testCsProjFile);
 
 			return project;
 		}
@@ -222,7 +224,7 @@ namespace Project2015To2017Tests
 					},
 					Deletions = filesToDelete.ToArray()
 				},
-				false, new Progress<string>()
+				false
 			);
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -250,7 +252,7 @@ namespace Project2015To2017Tests
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test1.csproj"),
 					Deletions = filesToDelete.ToArray()
 				},
-				false, new Progress<string>()
+				false
 			);
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -280,7 +282,7 @@ namespace Project2015To2017Tests
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test2.csproj"),
 					Deletions = filesToDelete.ToArray()
 				},
-				false, new Progress<string>()
+				false
 			);
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -294,8 +296,8 @@ namespace Project2015To2017Tests
 
 			var filesToDelete = new FileSystemInfo[]
 			{
-					new FileInfo(file),
-					new DirectoryInfo(folder)
+				new FileInfo(file),
+				new DirectoryInfo(folder)
 			};
 
 			var actualDeletedFiles = new List<FileSystemInfo>();
@@ -318,7 +320,7 @@ namespace Project2015To2017Tests
 						FilePath = new FileInfo(@"TestFiles\Deletions\Test3.csproj"),
 						Deletions = filesToDelete.ToArray()
 					},
-					false, new Progress<string>()
+					false
 				);
 
 				CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -333,7 +335,7 @@ namespace Project2015To2017Tests
 
 				if (!File.Exists(file))
 				{
-					File.WriteAllBytes(file, new byte[0] {});
+					File.WriteAllBytes(file, new byte[0] { });
 				}
 			}
 		}
@@ -359,60 +361,10 @@ namespace Project2015To2017Tests
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test4.csproj"),
 					Deletions = filesToDelete.ToArray()
 				},
-				false, new Progress<string>()
+				false
 			);
 
 			CollectionAssert.AreEqual(new FileSystemInfo[0], actualDeletedFiles);
-		}
-
-		[TestMethod]
-		public void PreventEmptyAssemblyReferences()
-		{
-			var project = new Project
-			{
-				AssemblyReferences = new List<AssemblyReference>
-				{
-					new AssemblyReference()
-					{
-						Include = "System"
-					}
-				},
-				FilePath = new FileInfo("test.cs")
-			};
-
-			var writer = new ProjectWriter(_ => { }, _ => { });
-
-			var xmlNode = writer.CreateXml(project);
-
-			Assert.IsNull(xmlNode.Element("ItemGroup"));
-		}
-
-		[TestMethod]
-		public void OutputAppendTargetFrameworkToOutputPathTrue()
-		{
-			var writer = new ProjectWriter();
-			var xmlNode = writer.CreateXml(new Project
-			{
-				AppendTargetFrameworkToOutputPath = true,
-				FilePath = new FileInfo("test.cs")
-			});
-
-			var appendTargetFrameworkToOutputPath = xmlNode.Element("PropertyGroup").Element("AppendTargetFrameworkToOutputPath");
-			Assert.IsNull(appendTargetFrameworkToOutputPath);
-		}
-		[TestMethod]
-		public void OutputAppendTargetFrameworkToOutputPathFalse()
-		{
-			var writer = new ProjectWriter();
-			var xmlNode = writer.CreateXml(new Project
-			{
-				AppendTargetFrameworkToOutputPath = false,
-				FilePath = new FileInfo("test.cs")
-			});
-
-			var appendTargetFrameworkToOutputPath = xmlNode.Element("PropertyGroup").Element("AppendTargetFrameworkToOutputPath");
-			Assert.IsNotNull(appendTargetFrameworkToOutputPath);
-			Assert.AreEqual("false", appendTargetFrameworkToOutputPath.Value);
 		}
 	}
 }

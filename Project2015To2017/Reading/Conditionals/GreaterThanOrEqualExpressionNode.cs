@@ -59,6 +59,6 @@ namespace Project2015To2017.Reading.Conditionals
             return false;
         }
 
-        internal override string DebuggerDisplay => $"(>= {LeftChild.DebuggerDisplay} {RightChild.DebuggerDisplay})";
+        internal override string DebuggerDisplay => $"(>= {this.LeftChild.DebuggerDisplay} {this.RightChild.DebuggerDisplay})";
     }
 }

@@ -1,54 +1,62 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
+using static Project2015To2017.Extensions;
 
 namespace Project2015To2017.Writing
 {
-	public class ProjectWriter
+	public sealed class ProjectWriter
 	{
-		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/1.6.41";
+		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/1.6.47";
+		private readonly ILogger logger;
 		private readonly Action<FileSystemInfo> deleteFileOperation;
 		private readonly Action<FileSystemInfo> checkoutOperation;
 
-		public ProjectWriter()
-			: this(_ => { }, _ => { })
+		public ProjectWriter(ILogger logger = null)
+			: this(logger, _ => { }, _ => { })
 		{
 		}
 
 		public ProjectWriter(Action<FileSystemInfo> deleteFileOperation, Action<FileSystemInfo> checkoutOperation)
+			: this(null, deleteFileOperation, checkoutOperation)
 		{
+
+		}
+
+		public ProjectWriter(ILogger logger, Action<FileSystemInfo> deleteFileOperation, Action<FileSystemInfo> checkoutOperation)
+		{
+			this.logger = logger ?? NoopLogger.Instance;
 			this.deleteFileOperation = deleteFileOperation;
 			this.checkoutOperation = checkoutOperation;
 		}
 
-		public void Write(Project project, bool makeBackups, IProgress<string> progress)
+		public void Write(Project project, bool makeBackups)
 		{
-			if (makeBackups && !DoBackups(project, progress))
+			if (makeBackups && !DoBackups(project))
 			{
-				progress.Report("Couldn't do backup, so not applying any changes");
+				this.logger.LogError("Couldn't do backup, so not applying any changes");
 				return;
 			}
 
-			if (!WriteProjectFile(project, progress))
+			if (!WriteProjectFile(project))
 			{
-				progress.Report("Aborting as could not write to project file");
+				this.logger.LogError("Aborting as could not write to project file");
 				return;
 			}
 
-			if (!WriteAssemblyInfoFile(project, progress))
+			if (!WriteAssemblyInfoFile(project))
 			{
-				progress.Report("Aborting as could not write to assembly info file");
+				this.logger.LogError("Aborting as could not write to assembly info file");
 				return;
 			}
 
-			DeleteUnusedFiles(project, progress);
+			DeleteUnusedFiles(project);
 		}
 
-		private bool WriteProjectFile(Project project, IProgress<string> progress)
+		private bool WriteProjectFile(Project project)
 		{
 			var projectNode = CreateXml(project);
 
@@ -57,7 +65,7 @@ namespace Project2015To2017.Writing
 
 			if (projectFile.IsReadOnly)
 			{
-				progress.Report($"{projectFile} is readonly, please make the file writable first (checkout from source control?).");
+				this.logger.LogWarning($"{projectFile} is readonly, please make the file writable first (checkout from source control?).");
 				return false;
 			}
 
@@ -65,7 +73,7 @@ namespace Project2015To2017.Writing
 			return true;
 		}
 
-		private bool WriteAssemblyInfoFile(Project project, IProgress<string> progress)
+		private bool WriteAssemblyInfoFile(Project project)
 		{
 			var assemblyAttributes = project.AssemblyAttributes;
 
@@ -88,7 +96,7 @@ namespace Project2015To2017.Writing
 
 			if (file.IsReadOnly)
 			{
-				progress.Report($"{file} is readonly, please make the file writable first (checkout from source control?).");
+				this.logger.LogWarning($"{file} is readonly, please make the file writable first (checkout from source control?).");
 				return false;
 			}
 
@@ -97,18 +105,18 @@ namespace Project2015To2017.Writing
 			return true;
 		}
 
-		private static bool DoBackups(Project project, IProgress<string> progress)
+		private bool DoBackups(Project project)
 		{
 			var projectFile = project.FilePath;
 
-			var backupFolder = CreateBackupFolder(projectFile, progress);
+			var backupFolder = CreateBackupFolder(projectFile);
 
 			if (backupFolder == null)
 			{
 				return false;
 			}
 
-			progress.Report($"Backing up to {backupFolder.FullName}");
+			this.logger.LogInformation($"Backing up to {backupFolder.FullName}");
 
 			projectFile.CopyTo(Path.Combine(backupFolder.FullName, $"{projectFile.Name}.old"));
 
@@ -124,7 +132,7 @@ namespace Project2015To2017.Writing
 			return true;
 		}
 
-		private static DirectoryInfo CreateBackupFolder(FileInfo projectFile, IProgress<string> progress)
+		private DirectoryInfo CreateBackupFolder(FileInfo projectFile)
 		{
 			//Find a suitable backup directory that doesn't already exist
 			var backupDir = ChooseBackupFolder();
@@ -148,15 +156,15 @@ namespace Project2015To2017.Writing
 					return trialDir;
 				}
 
-				var MaxIndex = 100;
+				const int maxIndex = 100;
 
-				var foundBackupDir = Enumerable.Range(1, MaxIndex)
+				var foundBackupDir = Enumerable.Range(1, maxIndex)
 					.Select(x => Path.Combine(baseDir, $"Backup{x}"))
 					.FirstOrDefault(x => !Directory.Exists(x));
 
 				if (foundBackupDir == null)
 				{
-					progress.Report("Exhausted search for possible backup folder");
+					this.logger.LogWarning("Exhausted search for possible backup folder");
 				}
 
 				return foundBackupDir;
@@ -172,11 +180,9 @@ namespace Project2015To2017.Writing
 				netSdk = SdkExtrasVersion;
 			var projectNode = new XElement("Project", new XAttribute("Sdk", netSdk));
 
-			projectNode.Add(GetMainPropertyGroup(project, outputFile));
-
-			if (project.AdditionalPropertyGroups != null)
+			if (project.PropertyGroups != null)
 			{
-				projectNode.Add(project.AdditionalPropertyGroups.Select(RemoveAllNamespaces));
+				projectNode.Add(project.PropertyGroups.Select(RemoveAllNamespaces));
 			}
 
 			if (project.Imports != null)
@@ -192,16 +198,6 @@ namespace Project2015To2017.Writing
 				foreach (var target in project.Targets.Select(RemoveAllNamespaces))
 				{
 					projectNode.Add(target);
-				}
-			}
-
-			if (project.BuildEvents != null && project.BuildEvents.Any())
-			{
-				var propertyGroup = new XElement("PropertyGroup");
-				projectNode.Add(propertyGroup);
-				foreach (var buildEvent in project.BuildEvents.Select(RemoveAllNamespaces))
-				{
-					propertyGroup.Add(buildEvent);
 				}
 			}
 
@@ -223,10 +219,20 @@ namespace Project2015To2017.Writing
 						projectReferenceElement.Add(new XElement("EmbedInteropTypes", "true"));
 					}
 
-					itemGroup.Add(projectReferenceElement);
+					if (projectReference.DefinitionElement != null)
+					{
+						projectReference.DefinitionElement.ReplaceWith(projectReferenceElement);
+					}
+					else
+					{
+						itemGroup.Add(projectReferenceElement);
+					}
 				}
 
-				projectNode.Add(itemGroup);
+				if (itemGroup.HasElements)
+				{
+					projectNode.Add(itemGroup);
+				}
 			}
 
 			if (project.PackageReferences?.Count > 0)
@@ -241,18 +247,37 @@ namespace Project2015To2017.Writing
 						reference.Add(new XElement("PrivateAssets", "all"));
 					}
 
-					nugetReferences.Add(reference);
+					if (packageReference.DefinitionElement != null)
+					{
+						packageReference.DefinitionElement.ReplaceWith(reference);
+					}
+					else
+					{
+						nugetReferences.Add(reference);
+					}
 				}
 
-				projectNode.Add(nugetReferences);
+				if (nugetReferences.HasElements)
+				{
+					projectNode.Add(nugetReferences);
+				}
 			}
 
 			if (project.AssemblyReferences?.Count > 0)
 			{
 				var assemblyReferences = new XElement("ItemGroup");
-				foreach (var assemblyReference in project.AssemblyReferences.Where(x => !IsDefaultIncludedAssemblyReference(x.Include)))
+				foreach (var assemblyReference in project.AssemblyReferences)
 				{
-					assemblyReferences.Add(MakeAssemblyReference(assemblyReference));
+					var assemblyReferenceElement = MakeAssemblyReference(assemblyReference);
+
+					if (assemblyReference.DefinitionElement != null)
+					{
+						assemblyReference.DefinitionElement.ReplaceWith(assemblyReferenceElement);
+					}
+					else
+					{
+						assemblyReferences.Add(assemblyReferenceElement);
+					}
 				}
 
 				if (assemblyReferences.HasElements)
@@ -262,15 +287,12 @@ namespace Project2015To2017.Writing
 			}
 
 			// manual includes
-			if (project.IncludeItems?.Count > 0)
+			if (project.ItemGroups?.Count > 0)
 			{
-				var includeGroup = new XElement("ItemGroup");
-				foreach (var include in project.IncludeItems.Select(RemoveAllNamespaces))
+				foreach (var includeGroup in project.ItemGroups.Select(RemoveAllNamespaces))
 				{
-					includeGroup.Add(include);
+					projectNode.Add(includeGroup);
 				}
-
-				projectNode.Add(includeGroup);
 			}
 
 			return projectNode;
@@ -303,136 +325,7 @@ namespace Project2015To2017.Writing
 			return output;
 		}
 
-		private static XElement RemoveAllNamespaces(XElement e)
-		{
-			return new XElement(e.Name.LocalName,
-				(from n in e.Nodes()
-					select ((n is XElement) ? RemoveAllNamespaces((XElement) n) : n)),
-				(e.HasAttributes)
-					? (from a in e.Attributes()
-						where (!a.IsNamespaceDeclaration)
-						select new XAttribute(a.Name.LocalName, a.Value))
-					: null);
-		}
-
-		private bool IsDefaultIncludedAssemblyReference(string assemblyReference)
-		{
-			return new[]
-			{
-				"System",
-				"System.Core",
-				"System.Data",
-				"System.Drawing",
-				"System.IO.Compression.FileSystem",
-				"System.Numerics",
-				"System.Runtime.Serialization",
-				"System.Xml",
-				"System.Xml.Linq"
-			}.Contains(assemblyReference);
-		}
-
-		private XElement GetMainPropertyGroup(Project project, FileInfo outputFile)
-		{
-			var mainPropertyGroup = new XElement("PropertyGroup");
-
-			AddTargetFrameworks(mainPropertyGroup, project.TargetFrameworks);
-
-			var configurations = project.Configurations ?? Array.Empty<string>();
-			if (configurations.Count != 0)
-				// ignore default "Debug;Release" configuration set
-				if (configurations.Count != 2 || !configurations.Contains("Debug") || !configurations.Contains("Release"))
-					AddIfNotNull(mainPropertyGroup, "Configurations", string.Join(";", configurations));
-
-			var platforms = project.Platforms ?? Array.Empty<string>();
-			if (platforms.Count != 0)
-				// ignore default "AnyCPU" platform set
-				if (platforms.Count != 1 || !platforms.Contains("AnyCPU"))
-					AddIfNotNull(mainPropertyGroup, "Platforms", string.Join(";", platforms));
-
-			AddIfNotNull(mainPropertyGroup, "Optimize", project.Optimize ? "true" : null);
-			AddIfNotNull(mainPropertyGroup, "TreatWarningsAsErrors", project.TreatWarningsAsErrors ? "true" : null);
-			AddIfNotNull(mainPropertyGroup, "RootNamespace", project.RootNamespace != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.RootNamespace : null);
-			AddIfNotNull(mainPropertyGroup, "AssemblyName", project.AssemblyName != Path.GetFileNameWithoutExtension(outputFile.Name) ? project.AssemblyName : null);
-			AddIfNotNull(mainPropertyGroup, "AllowUnsafeBlocks", project.AllowUnsafeBlocks ? "true" : null);
-			AddIfNotNull(mainPropertyGroup, "SignAssembly", project.SignAssembly ? "true" : null);
-			AddIfNotNull(mainPropertyGroup, "DelaySign", project.DelaySign.HasValue ? (project.DelaySign.Value ? "true" : "false") : null);
-			AddIfNotNull(mainPropertyGroup, "AssemblyOriginatorKeyFile", project.AssemblyOriginatorKeyFile);
-			AddIfNotNull(mainPropertyGroup, "AppendTargetFrameworkToOutputPath", project.AppendTargetFrameworkToOutputPath ? null : "false");
-
-			AddIfNotNull(mainPropertyGroup, "ExtrasEnableWpfProjectSetup",
-				project.IsWindowsPresentationFoundationProject ? "true" : null);
-			AddIfNotNull(mainPropertyGroup, "ExtrasEnableWinFormsProjectSetup",
-				project.IsWindowsFormsProject ? "true" : null);
-
-			switch (project.Type)
-			{
-				case ApplicationType.ConsoleApplication:
-					mainPropertyGroup.Add(new XElement("OutputType", "Exe"));
-					break;
-				case ApplicationType.WindowsApplication:
-					mainPropertyGroup.Add(new XElement("OutputType", "WinExe"));
-					break;
-			}
-
-			mainPropertyGroup.Add(project.AssemblyAttributeProperties);
-
-			AddPackageNodes(mainPropertyGroup, project.PackageConfiguration);
-
-			return mainPropertyGroup;
-		}
-
-		private void AddPackageNodes(XElement mainPropertyGroup, PackageConfiguration packageConfiguration)
-		{
-			if (packageConfiguration == null)
-			{
-				return;
-			}
-
-			//Add those properties not already covered by the project properties
-
-			AddIfNotNull(mainPropertyGroup, "Authors", packageConfiguration.Authors);
-			AddIfNotNull(mainPropertyGroup, "PackageIconUrl", packageConfiguration.IconUrl);
-			AddIfNotNull(mainPropertyGroup, "PackageId", packageConfiguration.Id);
-			AddIfNotNull(mainPropertyGroup, "PackageLicenseUrl", packageConfiguration.LicenseUrl);
-			AddIfNotNull(mainPropertyGroup, "PackageProjectUrl", packageConfiguration.ProjectUrl);
-			AddIfNotNull(mainPropertyGroup, "PackageReleaseNotes", packageConfiguration.ReleaseNotes);
-			AddIfNotNull(mainPropertyGroup, "PackageTags", packageConfiguration.Tags);
-
-			if (packageConfiguration.Id != null && packageConfiguration.Tags == null)
-				mainPropertyGroup.Add(new XElement("PackageTags", "Library"));
-
-			if (packageConfiguration.RequiresLicenseAcceptance)
-			{
-				mainPropertyGroup.Add(new XElement("PackageRequireLicenseAcceptance", "true"));
-			}
-		}
-
-		private void AddIfNotNull(XElement node, string elementName, string value)
-		{
-			if (!string.IsNullOrWhiteSpace(value))
-			{
-				node.Add(new XElement(elementName, value));
-			}
-		}
-
-		private void AddTargetFrameworks(XElement mainPropertyGroup, IList<string> targetFrameworks)
-		{
-			if (targetFrameworks == null || targetFrameworks.Count == 0)
-			{
-				return;
-			}
-
-			if (targetFrameworks.Count > 1)
-			{
-				AddIfNotNull(mainPropertyGroup, "TargetFrameworks", string.Join(";", targetFrameworks));
-			}
-			else
-			{
-				AddIfNotNull(mainPropertyGroup, "TargetFramework", targetFrameworks[0]);
-			}
-		}
-
-		private void DeleteUnusedFiles(Project project, IProgress<string> progress)
+		private void DeleteUnusedFiles(Project project)
 		{
 			var filesToDelete = new[]
 				{
@@ -445,7 +338,7 @@ namespace Project2015To2017.Writing
 			{
 				if (fileInfo is DirectoryInfo directory && directory.EnumerateFileSystemInfos().Any())
 				{
-					progress.Report($"Directory {fileInfo.FullName} is not empty so will not delete");
+					this.logger.LogWarning($"Directory {fileInfo.FullName} is not empty so will not delete");
 					continue;
 				}
 
@@ -454,7 +347,7 @@ namespace Project2015To2017.Writing
 				var attributes = File.GetAttributes(fileInfo.FullName);
 				if ((attributes & FileAttributes.ReadOnly) != 0)
 				{
-					progress.Report($"File {fileInfo.FullName} could not be deleted as it is not writable.");
+					this.logger.LogWarning($"File {fileInfo.FullName} could not be deleted as it is not writable.");
 				}
 				else
 				{

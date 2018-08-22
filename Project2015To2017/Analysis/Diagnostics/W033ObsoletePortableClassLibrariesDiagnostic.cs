@@ -5,7 +5,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
-	public class W033ObsoletePortableClassLibrariesDiagnostic : DiagnosticBase
+	public sealed class W033ObsoletePortableClassLibrariesDiagnostic : DiagnosticBase
 	{
 		public W033ObsoletePortableClassLibrariesDiagnostic() : base(33)
 		{
@@ -13,7 +13,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
-			var comparison = ExtensionMethods.BestAvailableStringIgnoreCaseComparison;
+			var comparison = Extensions.BestAvailableStringIgnoreCaseComparison;
 			var pcls = project.TargetFrameworks.Where(x => x.StartsWith("portable-", comparison)).ToImmutableHashSet();
 
 			// not all profiles can be mapped to .NET Standard (thanks to Silverlight & Framework 4.0)

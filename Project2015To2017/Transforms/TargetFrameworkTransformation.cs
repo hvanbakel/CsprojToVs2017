@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
@@ -16,7 +17,7 @@ namespace Project2015To2017.Transforms
 			this.AppendTargetFrameworkToOutputPath = appendTargetFrameworkToOutputPath;
 		}
 
-		public void Transform(Project definition, IProgress<string> progress)
+		public void Transform(Project definition, ILogger logger)
 		{
 			if (null == definition)
 			{
@@ -32,7 +33,7 @@ namespace Project2015To2017.Transforms
 				}
 			}
 
-			definition.AppendTargetFrameworkToOutputPath = AppendTargetFrameworkToOutputPath;
+			definition.AppendTargetFrameworkToOutputPath = this.AppendTargetFrameworkToOutputPath;
 		}
 
 		public IReadOnlyList<string> TargetFrameworks { get; }

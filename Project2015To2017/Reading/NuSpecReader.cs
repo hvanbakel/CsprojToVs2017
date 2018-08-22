@@ -2,13 +2,21 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Reading
 {
-	public class NuSpecReader
+	public sealed class NuSpecReader
 	{
-		public PackageConfiguration Read(FileInfo projectFile, IProgress<string> progress)
+		private readonly ILogger logger;
+
+		public NuSpecReader(ILogger logger)
+		{
+			this.logger = logger;
+		}
+
+		public PackageConfiguration Read(FileInfo projectFile)
 		{
 			var nuspecFiles = projectFile.Directory
 										 .EnumerateFiles("*.nuspec", SearchOption.TopDirectoryOnly)								
@@ -16,20 +24,20 @@ namespace Project2015To2017.Reading
 
 			if (nuspecFiles.Length == 0)
 			{
-				progress.Report("No nuspec found, skipping package configuration.");
+				this.logger.LogInformation("No nuspec found, skipping package configuration.");
 				return null;
 			}
 
 			if (nuspecFiles.Length > 1)
 			{
-				progress.Report($@"Could not read from nuspec, multiple nuspecs found: 
+				this.logger.LogError($@"Could not read from nuspec, multiple nuspecs found: 
 {string.Join(Environment.NewLine, nuspecFiles.Select(x => x.FullName))}.");
 				return null;
 			}
 
 			var nuspecFile = nuspecFiles[0];
 
-			progress.Report($"Reading package info from nuspec {nuspecFile.FullName}.");
+			this.logger.LogInformation($"Reading package info from nuspec {nuspecFile.FullName}.");
 
 			XDocument nuspec;
 			using (var filestream = File.Open(nuspecFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -51,7 +59,7 @@ namespace Project2015To2017.Reading
 
 			if (packageConfig == null)
 			{
-				progress.Report("Error reading package info from nuspec.");
+				this.logger.LogError("Error reading package info from nuspec.");
 				return null;
 			}
 

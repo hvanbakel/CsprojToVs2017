@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
-	internal class W020MicrosoftCSharpDiagnostic : DiagnosticBase
+	public sealed class W020MicrosoftCSharpDiagnostic : DiagnosticBase
 	{
 		private static readonly string[] IncompatiblePrefixes = { "net1", "net2", "net3" };
 

@@ -17,12 +17,12 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override bool BoolEvaluate(IConditionEvaluationState state)
         {
-            return !LeftChild.BoolEvaluate(state);
+            return !this.LeftChild.BoolEvaluate(state);
         }
 
         internal override bool CanBoolEvaluate(IConditionEvaluationState state)
         {
-            return LeftChild.CanBoolEvaluate(state);
+            return this.LeftChild.CanBoolEvaluate(state);
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override string GetUnexpandedValue(IConditionEvaluationState state)
         {
-            return "!" + LeftChild.GetUnexpandedValue(state);
+            return "!" + this.LeftChild.GetUnexpandedValue(state);
         }
 
         /// <summary>
@@ -38,9 +38,9 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override string GetExpandedValue(IConditionEvaluationState state)
         {
-            return "!" + LeftChild.GetExpandedValue(state);
+            return "!" + this.LeftChild.GetExpandedValue(state);
         }
 
-        internal override string DebuggerDisplay => $"(not {LeftChild.DebuggerDisplay})";
+        internal override string DebuggerDisplay => $"(not {this.LeftChild.DebuggerDisplay})";
     }
 }

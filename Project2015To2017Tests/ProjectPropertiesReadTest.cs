@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -49,10 +48,10 @@ namespace Project2015To2017Tests
 			Assert.AreEqual("net46", project.TargetFrameworks[0]);
 		}
 
-        [TestMethod]
-        public async Task ReadsTestProjectGuid()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		[TestMethod]
+		public async Task ReadsTestProjectGuid()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -78,13 +77,13 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransform(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
-            Assert.AreEqual(ApplicationType.TestProject, project.Type);
-            Assert.AreEqual("net40", project.TargetFrameworks[0]);
-        }
+			Assert.AreEqual(ApplicationType.TestProject, project.Type);
+			Assert.AreEqual("net40", project.TargetFrameworks[0]);
+		}
 
-        [TestMethod]
+		[TestMethod]
 		public async Task ReadsConsoleApplication()
 		{
 			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -99,12 +98,12 @@ namespace Project2015To2017Tests
 
 			Assert.AreEqual(ApplicationType.ConsoleApplication, project.Type);
 			Assert.AreEqual("net46", project.TargetFrameworks[0]);
-        }
+		}
 
-        [TestMethod]
-        public async Task ReadsConsoleApplicationFromConditional()
-        {
-            var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+		[TestMethod]
+		public async Task ReadsConsoleApplicationFromConditional()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
@@ -117,13 +116,13 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransform(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
-            Assert.AreEqual(ApplicationType.ConsoleApplication, project.Type);
-            Assert.AreEqual("net46", project.TargetFrameworks[0]);
-        }
+			Assert.AreEqual(ApplicationType.ConsoleApplication, project.Type);
+			Assert.AreEqual("net46", project.TargetFrameworks[0]);
+		}
 
-        [TestMethod]
+		[TestMethod]
 		public async Task ReadsClassLibraryApplication()
 		{
 			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -172,96 +171,6 @@ namespace Project2015To2017Tests
 			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
 			Assert.AreEqual("MyProject", project.AssemblyName);
-		}
-
-		[TestMethod]
-		public async Task ReadsOptimize()
-		{
-			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-</Project>";
-
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
-
-			Assert.AreEqual(true, project.Optimize);
-		}
-
-		[TestMethod]
-		public async Task ReadsTreatWarningsAsErrors()
-		{
-			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-</Project>";
-
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
-
-			Assert.AreEqual(true, project.TreatWarningsAsErrors);
-		}
-
-		[TestMethod]
-		public async Task ReadsAllowUnsafeBlocks()
-		{
-			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-</Project>";
-
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
-
-			Assert.AreEqual(true, project.AllowUnsafeBlocks);
-		}
-
-		[TestMethod]
-		public async Task ReadsSigningProperties()
-		{
-			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Project.snk</AssemblyOriginatorKeyFile>
-    <DelaySign>true</DelaySign>
-  </PropertyGroup>
-</Project>";
-
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
-
-			Assert.AreEqual(true, project.SignAssembly);
-			Assert.AreEqual("Project.snk", project.AssemblyOriginatorKeyFile);
-			Assert.AreEqual(true, project.DelaySign);
-		}
-
-		[TestMethod]
-		public async Task ReadsDefaultSigningProperties()
-		{
-			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-  </PropertyGroup>
-</Project>";
-
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
-
-			Assert.AreEqual(false, project.SignAssembly);
-			Assert.AreEqual(null, project.AssemblyOriginatorKeyFile);
-			Assert.AreEqual(null, project.DelaySign);
 		}
 
 		[TestMethod]
@@ -336,12 +245,12 @@ namespace Project2015To2017Tests
 
 			Assert.IsNotNull(project.TargetFrameworks);
 			Assert.AreEqual(0, project.TargetFrameworks.Count);
-        }
+		}
 
-        [TestMethod]
-        public async Task ReadsPropertiesWithMultipleUnconditionalPropertyGroups()
-        {
-            var xml = @"
+		[TestMethod]
+		public async Task ReadsPropertiesWithMultipleUnconditionalPropertyGroups()
+		{
+			var xml = @"
 <Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
   <Import Project=""$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"" Condition=""Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"" />
   <PropertyGroup>
@@ -369,18 +278,18 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-            var project = await ParseAndTransform(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
-            Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.AssemblyName);
-            Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage", project.RootNamespace);
-            Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
-			Assert.AreEqual(1, project.AdditionalPropertyGroups.Count);
-        }
+			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.AssemblyName);
+			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage", project.RootNamespace);
+			Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
+			Assert.AreEqual(2, project.PropertyGroups.Count);
+		}
 
-        [TestMethod]
-        public async Task ReadsImportsAndTargets()
-        {
-            var xml = @"
+		[TestMethod]
+		public async Task ReadsImportsAndTargets()
+		{
+			var xml = @"
 <Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
   <Import Project=""$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"" Condition=""Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"" />
   <PropertyGroup>
@@ -414,10 +323,10 @@ namespace Project2015To2017Tests
   </Target>
  </Project>";
 
-            var project = await ParseAndTransform(xml).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
-            Assert.AreEqual(1, project.Imports.Count);
-            Assert.AreEqual(2, project.Targets.Count);
+			Assert.AreEqual(1, project.Imports.Count);
+			Assert.AreEqual(2, project.Targets.Count);
 		}
 
 		[TestMethod]
@@ -468,8 +377,10 @@ namespace Project2015To2017Tests
 
 			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
-			Assert.AreEqual(1, project.AdditionalPropertyGroups.Count);
-			var children = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
+			Assert.AreEqual(3, project.PropertyGroups.Count);
+			Assert.AreEqual(3, project.UnconditionalGroups().Count());
+			Assert.AreEqual(0, project.ConditionalGroups().Count());
+			var children = project.UnconditionalGroups().Elements().ToImmutableArray();
 			Assert.AreEqual(4, children.Count(x => x.Name.LocalName.StartsWith("Scc")));
 		}
 
@@ -516,7 +427,7 @@ if $(ConfigurationName) == Debug (
 		}
 
 		[TestMethod]
-		public async Task ReadsConfigurations()
+		public async Task UsesDefaultConfigurations()
 		{
 			var xml = @"
 <Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
@@ -583,10 +494,9 @@ if $(ConfigurationName) == Debug (
 
 			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
-			Assert.AreEqual(3, project.Configurations.Count);
+			Assert.AreEqual(2, project.Configurations.Count);
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Debug"));
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Release"));
-			Assert.AreEqual(1, project.Configurations.Count(x => x == "Release_CI"));
 		}
 
 
@@ -634,174 +544,42 @@ if $(ConfigurationName) == Debug (
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Debug"));
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Release"));
 
-			Assert.AreEqual(4, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(5, project.PropertyGroups.Count);
+			Assert.IsNull(project.PropertyGroups[0].Attribute("Condition"));
+			Assert.IsNull(project.PropertyGroups[1].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[2].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[3].Attribute("Condition"));
+			Assert.IsNotNull(project.PropertyGroups[4].Attribute("Condition"));
 
-			Assert.IsNotNull(project.AdditionalPropertyGroups[0].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[1].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[2].Attribute("Condition"));
-			Assert.IsNull(project.AdditionalPropertyGroups[3].Attribute("Condition"));
+			var childrenUnconditional1 = project.PropertyGroups[0].Elements().ToImmutableArray();
+			Assert.AreEqual(2, childrenUnconditional1.Length);
 
-			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
-			Assert.AreEqual(0, childrenDebug.Length);
+			var childrenUnconditional2 = project.PropertyGroups[1].Elements().ToImmutableArray();
+			Assert.AreEqual(3, childrenUnconditional2.Length);
 
-			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
-			Assert.AreEqual(0, childrenRelease.Length);
-
-			var childrenReleaseCI = project.AdditionalPropertyGroups[2].Elements().ToImmutableArray();
-			// We remove only one property set to global default (FileAlignment)
-			Assert.AreEqual(7, childrenReleaseCI.Length);
-			Assert.IsTrue(ValidateChildren(childrenReleaseCI,
-				"DefineConstants", "OutputPath", "Optimize", "CodeAnalysisRuleSet", "DocumentationFile",
-				"TreatWarningsAsErrors", "RunCodeAnalysis"));
-			// check we are keeping original slashes and replacing configuration name with $(Configuration)
-			Assert.AreEqual(@"bin/$(Configuration)\", childrenReleaseCI.First(x => x.Name.LocalName == "OutputPath").Value);
-
-			var childrenGlobal = project.AdditionalPropertyGroups[3].Elements().ToImmutableArray();
-			Assert.AreEqual(0, childrenGlobal.Length);
-		}
-
-		[TestMethod]
-		public async Task SimplifiesProperties()
-		{
-			var xml = @"
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <Configuration Condition="" '$(Configuration)' == '' "">Debug</Configuration>
-    <Platform Condition="" '$(Platform)' == '' "">AnyCPU</Platform>
-    <ProjectGuid>{5C9DE16E-C69A-4182-9C0C-30FF7CC944CD}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Dopamine.Tests</RootNamespace>
-    <AssemblyName>Dopamine.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <VisualStudioVersion Condition=""'$(VisualStudioVersion)' == ''"">10.0</VisualStudioVersion>
-    <VSToolsPath Condition=""'$(VSToolsPath)' == ''"">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
-    <IsCodedUITest>False</IsCodedUITest>
-    <TestProjectType>UnitTest</TestProjectType>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' "">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-</Project>";
-
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
-
-			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
-
-			Assert.IsNotNull(project.AdditionalPropertyGroups[0].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[1].Attribute("Condition"));
-			Assert.IsNull(project.AdditionalPropertyGroups[2].Attribute("Condition"));
-
-			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
+			var childrenDebug = project.PropertyGroups[2].Elements().ToImmutableArray();
 			Assert.AreEqual(2, childrenDebug.Length);
-			Assert.IsTrue(ValidateChildren(childrenDebug, "DebugType", "OutputPath"));
-			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
-			Assert.AreEqual(2, childrenRelease.Length);
-			Assert.IsTrue(ValidateChildren(childrenRelease, "DebugType", "OutputPath"));
-			var childrenGlobal = project.AdditionalPropertyGroups[2].Elements().ToImmutableArray();
-			Assert.AreEqual(7, childrenGlobal.Length);
-			Assert.IsTrue(ValidateChildren(childrenGlobal,
-				"ProjectGuid", "ProjectTypeGuids", "VisualStudioVersion", "VSToolsPath",
-				"ReferencePath", "IsCodedUITest", "TestProjectType"));
-		}
 
-		[TestMethod]
-		public async Task HandlesComplexConditions()
-		{
-			var xml = @"
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <AssemblyName>Dopamine.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="" '$(Configuration)' == 'Debug' And '$(Platform)' == 'AnyCPU' "">
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="" '$(Platform)|$(Configuration)' == 'AnyCPU|Release' "">
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
-</Project>";
-
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
-
-			Assert.AreEqual(2, project.Configurations.Count);
-			Assert.AreEqual(1, project.Configurations.Count(x => x == "Debug"));
-			Assert.AreEqual(1, project.Configurations.Count(x => x == "Release"));
-
-			Assert.AreEqual(1, project.Platforms.Count);
-			Assert.AreEqual(1, project.Platforms.Count(x => x == "AnyCPU"));
-
-			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
-
-			Assert.IsNotNull(project.AdditionalPropertyGroups[0].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[1].Attribute("Condition"));
-			Assert.IsNull(project.AdditionalPropertyGroups[2].Attribute("Condition"));
-
-			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
-			Assert.AreEqual(2, childrenDebug.Length);
-			Assert.IsTrue(ValidateChildren(childrenDebug, "DebugType", "OutputPath"));
-			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
+			var childrenRelease = project.PropertyGroups[3].Elements().ToImmutableArray();
 			Assert.AreEqual(1, childrenRelease.Length);
-			Assert.IsTrue(ValidateChildren(childrenRelease, "OutputPath"));
-			var childrenGlobal = project.AdditionalPropertyGroups[2].Elements().ToImmutableArray();
-			Assert.AreEqual(0, childrenGlobal.Length);
+
+			var childrenReleaseCI = project.PropertyGroups[4].Elements().ToImmutableArray();
+			Assert.AreEqual(8, childrenReleaseCI.Length);
 		}
 
 		private static async Task<Project> ParseAndTransform(
-				string xml,
-				[System.Runtime.CompilerServices.CallerMemberName] string memberName = ""
-			)
+			string xml,
+			[System.Runtime.CompilerServices.CallerMemberName]
+			string memberName = ""
+		)
 		{
 			var testCsProjFile = $"{memberName}_test.csproj";
 
 			await File.WriteAllTextAsync(testCsProjFile, xml);
 
-			var project = new ProjectReader(testCsProjFile).Read();
+			var project = new ProjectReader().Read(testCsProjFile);
 
 			return project;
-		}
-
-		internal static bool ValidateChildren(IEnumerable<XElement> value, params string[] expected)
-		{
-			var defines = value.Select(x => x.Name.LocalName);
-			var set = new HashSet<string>(defines);
-			foreach (var expecto in expected)
-				if (!set.Remove(expecto))
-					return false;
-			return set.Count == 0;
 		}
 	}
 }

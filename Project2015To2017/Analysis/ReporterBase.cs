@@ -39,7 +39,7 @@ namespace Project2015To2017.Analysis
 
 		public virtual TOptions CreateOptionsForProject(Project project)
 		{
-			return DefaultOptions;
+			return this.DefaultOptions;
 		}
 	}
 }

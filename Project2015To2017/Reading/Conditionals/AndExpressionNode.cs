@@ -17,25 +17,25 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override bool BoolEvaluate(IConditionEvaluationState state)
         {
-            if (!LeftChild.BoolEvaluate(state))
+            if (!this.LeftChild.BoolEvaluate(state))
             {
                 // Short circuit
                 return false;
             }
             else
             {
-                return RightChild.BoolEvaluate(state);
+                return this.RightChild.BoolEvaluate(state);
             }
         }
 
-        internal override string DebuggerDisplay => $"(and {LeftChild.DebuggerDisplay} {RightChild.DebuggerDisplay})";
+        internal override string DebuggerDisplay => $"(and {this.LeftChild.DebuggerDisplay} {this.RightChild.DebuggerDisplay})";
 
         #region REMOVE_COMPAT_WARNING
         private bool _possibleAndCollision = true;
         internal override bool PossibleAndCollision
         {
-            set { _possibleAndCollision = value; }
-            get { return _possibleAndCollision; }
+            set { this._possibleAndCollision = value; }
+            get { return this._possibleAndCollision; }
         }
         #endregion
     }

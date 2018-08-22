@@ -36,31 +36,31 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override bool BoolEvaluate(IConditionEvaluationState state)
         {
-            bool isLeftNum = LeftChild.CanNumericEvaluate(state);
-            bool isLeftVersion = LeftChild.CanVersionEvaluate(state);
-            bool isRightNum = RightChild.CanNumericEvaluate(state);
-            bool isRightVersion = RightChild.CanVersionEvaluate(state);
+            bool isLeftNum = this.LeftChild.CanNumericEvaluate(state);
+            bool isLeftVersion = this.LeftChild.CanVersionEvaluate(state);
+            bool isRightNum = this.RightChild.CanNumericEvaluate(state);
+            bool isRightVersion = this.RightChild.CanVersionEvaluate(state);
             bool isNumeric = isLeftNum && isRightNum;
             bool isVersion = isLeftVersion && isRightVersion;
 
             // If the values identify as numeric, make that comparison instead of the Version comparison since numeric has a stricter definition
             if (isNumeric)
             {
-                return Compare(LeftChild.NumericEvaluate(state), RightChild.NumericEvaluate(state));
+                return Compare(this.LeftChild.NumericEvaluate(state), this.RightChild.NumericEvaluate(state));
             }
             else if (isVersion)
             {
-                return Compare(LeftChild.VersionEvaluate(state), RightChild.VersionEvaluate(state));
+                return Compare(this.LeftChild.VersionEvaluate(state), this.RightChild.VersionEvaluate(state));
             }
 
             // If the numbers are of a mixed type, call that specific Compare method
             if (isLeftNum && isRightVersion)
             {
-                return Compare(LeftChild.NumericEvaluate(state), RightChild.VersionEvaluate(state));
+                return Compare(this.LeftChild.NumericEvaluate(state), this.RightChild.VersionEvaluate(state));
             }
             else if (isLeftVersion && isRightNum)
             {
-                return Compare(LeftChild.VersionEvaluate(state), RightChild.NumericEvaluate(state));
+                return Compare(this.LeftChild.VersionEvaluate(state), this.RightChild.NumericEvaluate(state));
             }
 
             // Throw error here as this code should be unreachable

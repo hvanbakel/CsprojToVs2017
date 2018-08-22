@@ -5,7 +5,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
-	public class W021SystemNuGetPackagesDiagnostic : DiagnosticBase
+	public sealed class W021SystemNuGetPackagesDiagnostic : DiagnosticBase
 	{
 		private const string MaxTargetFramework = "net499";
 		private const string MaxTargetStandard = "netstandard9.9";
@@ -143,7 +143,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 			"System.IO.IsolatedStorage",
 		};
 
-		public StringComparison Comparison = ExtensionMethods.BestAvailableStringIgnoreCaseComparison;
+		private readonly StringComparison comparison = Extensions.BestAvailableStringIgnoreCaseComparison;
 
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
@@ -156,19 +156,19 @@ namespace Project2015To2017.Analysis.Diagnostics
 			{
 				foreach (var incompatiblePrefix in IncompatiblePrefixes)
 				{
-					if (framework.StartsWith(incompatiblePrefix, Comparison))
+					if (framework.StartsWith(incompatiblePrefix, this.comparison))
 					{
 						return list;
 					}
 				}
 
-				if (framework.StartsWith("netstandard", Comparison) &&
-				    string.Compare(minTargetStandard, framework, Comparison) > 0)
+				if (framework.StartsWith("netstandard", this.comparison) &&
+				    string.Compare(minTargetStandard, framework, this.comparison) > 0)
 				{
 					minTargetStandard = framework;
 				}
-				else if (framework.StartsWith("net4", Comparison) &&
-				         string.Compare(minTargetFramework, framework, Comparison) > 0)
+				else if (framework.StartsWith("net4", this.comparison) &&
+				         string.Compare(minTargetFramework, framework, this.comparison) > 0)
 				{
 					minTargetFramework = framework;
 				}
@@ -180,18 +180,18 @@ namespace Project2015To2017.Analysis.Diagnostics
 			var hasStandard = minTargetStandard != MaxTargetStandard;
 
 			if (
-				(hasFramework && string.Compare(minTargetFramework, "net46", Comparison) >= 0)
+				(hasFramework && string.Compare(minTargetFramework, "net46", this.comparison) >= 0)
 				||
-				(hasStandard && string.Compare(minTargetStandard, "netstandard1.3", Comparison) >= 0)
+				(hasStandard && string.Compare(minTargetStandard, "netstandard1.3", this.comparison) >= 0)
 			)
 			{
 				ReportForVersion(project, list, Packages46);
 			}
 
 			if (
-				(hasFramework && string.Compare(minTargetFramework, "net461", Comparison) >= 0)
+				(hasFramework && string.Compare(minTargetFramework, "net461", this.comparison) >= 0)
 				||
-				(hasStandard && string.Compare(minTargetStandard, "netstandard1.4", Comparison) >= 0)
+				(hasStandard && string.Compare(minTargetStandard, "netstandard1.4", this.comparison) >= 0)
 			)
 			{
 				ReportForVersion(project, list, Packages461);
@@ -206,7 +206,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 			foreach (var assembly in project.AssemblyReferences.Select(x => x.Include.ToLowerInvariant()).Distinct()
 				.Intersect(packages.Select(x => x.ToLowerInvariant())))
 			{
-				var comparison = ExtensionMethods.BestAvailableStringIgnoreCaseComparison;
+				var comparison = Extensions.BestAvailableStringIgnoreCaseComparison;
 				var correctCaseAssembly = packages.First(x =>
 					string.Equals(x, assembly, comparison));
 				var correctCaseDefinition = project.AssemblyReferences.First(x =>

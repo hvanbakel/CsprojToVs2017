@@ -40,25 +40,25 @@ namespace Project2015To2017.Reading.Conditionals
             // and we know which do, then we already have enough information to evaluate this expression.
             // That means we don't have to fully expand a condition like " '@(X)' == '' " 
             // which is a performance advantage if @(X) is a huge item list.
-            if (LeftChild.EvaluatesToEmpty(state) || RightChild.EvaluatesToEmpty(state))
+            if (this.LeftChild.EvaluatesToEmpty(state) || this.RightChild.EvaluatesToEmpty(state))
             {
                 UpdateConditionedProperties(state);
 
-                return Compare(LeftChild.EvaluatesToEmpty(state), RightChild.EvaluatesToEmpty(state));
+                return Compare(this.LeftChild.EvaluatesToEmpty(state), this.RightChild.EvaluatesToEmpty(state));
             }
 
-            if (LeftChild.CanNumericEvaluate(state) && RightChild.CanNumericEvaluate(state))
+            if (this.LeftChild.CanNumericEvaluate(state) && this.RightChild.CanNumericEvaluate(state))
             {
-                return Compare(LeftChild.NumericEvaluate(state), RightChild.NumericEvaluate(state));
+                return Compare(this.LeftChild.NumericEvaluate(state), this.RightChild.NumericEvaluate(state));
             }
-            else if (LeftChild.CanBoolEvaluate(state) && RightChild.CanBoolEvaluate(state))
+            else if (this.LeftChild.CanBoolEvaluate(state) && this.RightChild.CanBoolEvaluate(state))
             {
-                return Compare(LeftChild.BoolEvaluate(state), RightChild.BoolEvaluate(state));
+                return Compare(this.LeftChild.BoolEvaluate(state), this.RightChild.BoolEvaluate(state));
             }
             else // string comparison
             {
-                string leftExpandedValue = LeftChild.GetExpandedValue(state);
-                string rightExpandedValue = RightChild.GetExpandedValue(state);
+                string leftExpandedValue = this.LeftChild.GetExpandedValue(state);
+                string rightExpandedValue = this.RightChild.GetExpandedValue(state);
 				
                 UpdateConditionedProperties(state);
 
@@ -72,7 +72,7 @@ namespace Project2015To2017.Reading.Conditionals
         internal override void ResetState()
         {
             base.ResetState();
-            _conditionedPropertiesUpdated = false;
+			this._conditionedPropertiesUpdated = false;
         }
 
         /// <summary>
@@ -80,17 +80,17 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         private void UpdateConditionedProperties(IConditionEvaluationState state)
         {
-            if (!_conditionedPropertiesUpdated && state.ConditionedPropertiesInProject != null)
+            if (!this._conditionedPropertiesUpdated && state.ConditionedPropertiesInProject != null)
             {
-                string leftUnexpandedValue = LeftChild.GetUnexpandedValue(state);
-                string rightUnexpandedValue = RightChild.GetUnexpandedValue(state);
+                string leftUnexpandedValue = this.LeftChild.GetUnexpandedValue(state);
+                string rightUnexpandedValue = this.RightChild.GetUnexpandedValue(state);
 
                 if (leftUnexpandedValue != null)
                 {
                     ConditionEvaluator.UpdateConditionedPropertiesTable
                         (state.ConditionedPropertiesInProject,
                          leftUnexpandedValue,
-                         RightChild.GetExpandedValue(state));
+						 this.RightChild.GetExpandedValue(state));
                 }
 
                 if (rightUnexpandedValue != null)
@@ -98,10 +98,10 @@ namespace Project2015To2017.Reading.Conditionals
                     ConditionEvaluator.UpdateConditionedPropertiesTable
                         (state.ConditionedPropertiesInProject,
                          rightUnexpandedValue,
-                         LeftChild.GetExpandedValue(state));
+						 this.LeftChild.GetExpandedValue(state));
                 }
 
-                _conditionedPropertiesUpdated = true;
+				this._conditionedPropertiesUpdated = true;
             }
         }
     }

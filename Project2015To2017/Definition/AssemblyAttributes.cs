@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Resources;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -50,6 +51,24 @@ namespace Project2015To2017.Definition
 			set => SetAttribute(typeof(AssemblyDescriptionAttribute), value);
 		}
 
+		public string Trademark
+		{
+			get => GetAttribute(typeof(AssemblyTrademarkAttribute));
+			set => SetAttribute(typeof(AssemblyTrademarkAttribute), value);
+		}
+
+		public string Culture
+		{
+			get => GetAttribute(typeof(AssemblyCultureAttribute));
+			set => SetAttribute(typeof(AssemblyCultureAttribute), value);
+		}
+
+		public string NeutralLanguage
+		{
+			get => GetAttribute(typeof(NeutralResourcesLanguageAttribute));
+			set => SetAttribute(typeof(NeutralResourcesLanguageAttribute), value);
+		}
+
 		public string Configuration {
 			get => GetAttribute(typeof(AssemblyConfigurationAttribute));
 			set => SetAttribute(typeof(AssemblyConfigurationAttribute), value);
@@ -69,7 +88,7 @@ namespace Project2015To2017.Definition
 			var attName = attributeType.Name;
 			var altAttName = AttributeShortName(attName);
 
-			return FileContents
+			return this.FileContents
 					.AttributeLists
 					.Select(x =>
 						(
@@ -110,18 +129,18 @@ namespace Project2015To2017.Definition
 
 				if (newAttList.Attributes.Any())
 				{
-					newAttLists = FileContents.AttributeLists.Replace(att.attList, newAttList);
+					newAttLists = this.FileContents.AttributeLists.Replace(att.attList, newAttList);
 				}
 				else
 				{
-					newAttLists = FileContents.AttributeLists.Remove(att.attList);
+					newAttLists = this.FileContents.AttributeLists.Remove(att.attList);
 				}
 			}
 			else if (att.att == null)
 			{
 				var attList = CreateAttribute(attributeType, value);
 
-				newAttLists = FileContents.AttributeLists.Add(attList);
+				newAttLists = this.FileContents.AttributeLists.Add(attList);
 			}
 			else
 			{
@@ -134,10 +153,10 @@ namespace Project2015To2017.Definition
 				var newNode = att.att.WithArgumentList(currentArgs.WithArguments(newArgs));
 
 				var newAttList = att.attList.ReplaceNode(att.att, newNode);
-				newAttLists = FileContents.AttributeLists.Replace(att.attList, newAttList);
+				newAttLists = this.FileContents.AttributeLists.Replace(att.attList, newAttList);
 			}
 
-			FileContents = FileContents
+			this.FileContents = this.FileContents
 							.WithAttributeLists(
 								newAttLists
 							);

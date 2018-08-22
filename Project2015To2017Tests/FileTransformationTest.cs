@@ -1,102 +1,93 @@
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
+using Project2015To2017;
 
 namespace Project2015To2017Tests
 {
 	[TestClass]
-    public class FileTransformationTest
-    {
-        [TestMethod]
-        public void TransformsFiles()
-        {
-            var project = new ProjectReader(Path.Combine("TestFiles", "FileInclusion", "fileinclusion.testcsproj")).Read();
-            var transformation = new FileTransformation();
+	public class FileTransformationTest
+	{
+		[TestMethod]
+		public void TransformsFiles()
+		{
+			var project = new ProjectReader().Read(Path.Combine("TestFiles", "FileInclusion", "fileinclusion.testcsproj"));
+			var transformation = new FileTransformation();
 
-	        var logEntries = new List<string>();
+			transformation.Transform(project, NoopLogger.Instance);
 
-	        var progress = new Progress<string>(x => { logEntries.Add(x); });
+			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 
-            transformation.Transform(project, progress);
+			Assert.AreEqual(29, includeItems.Count);
 
-	        var includeItems = project.IncludeItems;
+			Assert.AreEqual(12, includeItems.Count(x => x.Name.LocalName == "Reference"));
+			Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName == "ProjectReference"));
+			Assert.AreEqual(11, includeItems.Count(x => x.Name.LocalName == "Compile"));
+			Assert.AreEqual(5, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Update") != null));
+			Assert.AreEqual(4, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Include") != null));
+			Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Remove") != null));
+			Assert.AreEqual(3, includeItems.Count(x => x.Name.LocalName == "EmbeddedResource")); // #73 include things that are not ending in .resx
+			Assert.AreEqual(0, includeItems.Count(x => x.Name.LocalName == "Content"));
+			Assert.AreEqual(1, includeItems.Count(x => x.Name.LocalName == "None"));
+			Assert.AreEqual(0, includeItems.Count(x => x.Name.LocalName == "Analyzer"));
 
-	        Assert.AreEqual(13, includeItems.Count);
-
-            Assert.AreEqual(9, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile"));
-			Assert.AreEqual(6, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Update") != null));
-			Assert.AreEqual(1, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Include") != null));
-			Assert.AreEqual(2, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Remove") != null));
-			Assert.AreEqual(2, includeItems.Count(x => x.Name == project.XmlNamespace + "EmbeddedResource")); // #73 inlcude things that are not ending in .resx
-            Assert.AreEqual(0, includeItems.Count(x => x.Name == project.XmlNamespace + "Content"));
-            Assert.AreEqual(2, includeItems.Count(x => x.Name == project.XmlNamespace + "None"));
-
-	        var resourceDesigner = includeItems.Single(
-								        x => x.Name == project.XmlNamespace + "Compile"
-								             && x.Attribute("Update")?.Value == @"Properties\Resources.Designer.cs"
-							        );
+			var resourceDesigner = includeItems.Single(
+				x => x.Name.LocalName == "Compile"
+				     && x.Attribute("Update")?.Value == @"Properties\Resources.Designer.cs"
+			);
 
 			Assert.AreEqual(3, resourceDesigner.Elements().Count());
-	        var dependentUponElement = resourceDesigner.Elements().Single(x=> x.Name == project.XmlNamespace + "DependentUpon");
-			
+			var dependentUponElement = resourceDesigner.Elements().Single(x => x.Name.LocalName == "DependentUpon");
+
 			Assert.AreEqual("Resources.resx", dependentUponElement.Value);
 
 			var linkedFile = includeItems.Single(
-										x => x.Name == project.XmlNamespace + "Compile"
-											 && x.Attribute("Include")?.Value == @"..\OtherTestProjects\OtherTestClass.cs"
-									);
-			var linkAttribute = linkedFile.Attributes().FirstOrDefault(a => a.Name == "Link");
+				x => x.Name.LocalName == "Compile"
+				     && x.Attribute("Include")?.Value == @"..\OtherTestProjects\OtherTestClass.cs"
+			);
+			var linkAttribute = linkedFile.Attributes().FirstOrDefault(a => a.Name.LocalName == "Link");
 			Assert.IsNotNull(linkAttribute);
 			Assert.AreEqual("OtherTestClass.cs", linkAttribute.Value);
 
 			var sourceWithDesigner = includeItems.Single(
-								        x => x.Name == project.XmlNamespace + "Compile"
-								             && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.cs"
-							        );
+				x => x.Name.LocalName == "Compile"
+				     && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.cs"
+			);
 
 			var subTypeElement = sourceWithDesigner.Elements().Single();
-	        Assert.AreEqual(project.XmlNamespace + "SubType", subTypeElement.Name);
-	        Assert.AreEqual("Component", subTypeElement.Value);
+			Assert.AreEqual("SubType", subTypeElement.Name.LocalName);
+			Assert.AreEqual("Component", subTypeElement.Value);
 
-	        var designerForSource = includeItems.Single(
-								        x => x.Name == project.XmlNamespace + "Compile"
-								             && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.Designer.cs"
-							        );
+			var designerForSource = includeItems.Single(
+				x => x.Name.LocalName == "Compile"
+				     && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.Designer.cs"
+			);
 
-	        var dependentUponElement2 = designerForSource.Elements().Single();
+			var dependentUponElement2 = designerForSource.Elements().Single();
 
-	        Assert.AreEqual(project.XmlNamespace + "DependentUpon", dependentUponElement2.Name);
-	        Assert.AreEqual("SourceFileWithDesigner.cs", dependentUponElement2.Value);
+			Assert.AreEqual("DependentUpon", dependentUponElement2.Name.LocalName);
+			Assert.AreEqual("SourceFileWithDesigner.cs", dependentUponElement2.Value);
 
-	        var fileWithAnotherAttribute = includeItems.Single(
-												x => x.Name == project.XmlNamespace + "Compile"
-													&& x.Attribute("Update")?.Value == @"AnotherFile.cs"
-									        );
+			var fileWithAnotherAttribute = includeItems.Single(
+				x => x.Name.LocalName == "Compile"
+				     && x.Attribute("Update")?.Value == @"AnotherFile.cs"
+			);
 
 			Assert.AreEqual(2, fileWithAnotherAttribute.Attributes().Count());
 			Assert.AreEqual("AttrValue", fileWithAnotherAttribute.Attribute("AnotherAttribute")?.Value);
 
 			var removeMatchingWildcard = includeItems.Where(
-											x => x.Name == project.XmlNamespace + "Compile"
-												&& x.Attribute("Remove")?.Value != null
-										);
+					x => x.Name.LocalName == "Compile"
+					     && x.Attribute("Remove")?.Value != null
+				)
+				.ToImmutableList();
 			Assert.IsNotNull(removeMatchingWildcard);
-			Assert.AreEqual(2, removeMatchingWildcard.Count());
+			Assert.AreEqual(2, removeMatchingWildcard.Count);
 			Assert.IsTrue(removeMatchingWildcard.Any(x => x.Attribute("Remove")?.Value == "SourceFileAsResource.cs"));
 			Assert.IsTrue(removeMatchingWildcard.Any(x => x.Attribute("Remove")?.Value == "Class1.cs"));
-
-			//<Compile Include="AnotherFile.cs" AnotherAttribute="AttrValue" />
-			var warningLogEntries = logEntries
-								        .Where(x => x.StartsWith("File found") || x.StartsWith("File was included"))
-								        //todo: would be good to be able to remove this condition and not warn on wildcard inclusions
-										//that are covered by main wildcard
-								        .Where(x => !x.ToUpper().Contains("WILDCARD"));
-
-			Assert.IsFalse(warningLogEntries.Any());
-        }
-    }
+		}
+	}
 }

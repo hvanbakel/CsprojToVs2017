@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017;
 using Project2015To2017.Reading;
@@ -12,28 +13,9 @@ namespace Project2015To2017Tests
 	[TestClass]
 	public class ProgramTest
 	{
-		private class SyncProgress : IProgress<string>
-		{
-			private Action<string> Action { get; }
-
-			public SyncProgress(Action<string> action)
-			{
-				Action = action;
-			}
-
-			public void Report(string value)
-			{
-				Action(value);
-			}
-		}
-
 		[TestMethod]
 		public void ValidatesFileIsWritable()
 		{
-			var logs = new List<string>();
-
-			var progress = new SyncProgress(logs.Add);
-
 			var projectFile = Path.Combine("TestFiles", "OtherTestProjects", "readonly.testcsproj");
 			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects", $"{nameof(ValidatesFileIsWritable)}.readonly");
 
@@ -49,15 +31,16 @@ namespace Project2015To2017Tests
 
 				File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
 
-				var project = new ProjectReader(copiedProjectFile, progress).Read();
+				var logger = new DummyLogger();
+				var project = new ProjectReader(logger).Read(copiedProjectFile);
 
-				Assert.IsFalse(logs.Any(x => x.Contains("Aborting as could not write to project file")));
+				Assert.IsFalse(logger.LogEntries.Any(x => x.Contains("Aborting as could not write to project file")));
 
-				var writer = new ProjectWriter();
+				var writer = new ProjectWriter(logger);
 
-				writer.Write(project, makeBackups: false, progress);
+				writer.Write(project, makeBackups: false);
 
-				Assert.IsTrue(logs.Any(x => x.Contains("Aborting as could not write to project file")));
+				Assert.IsTrue(logger.LogEntries.Any(x => x.Contains("Aborting as could not write to project file")));
 			}
 			finally
 			{
@@ -74,8 +57,6 @@ namespace Project2015To2017Tests
 		{
 			var logs = new List<string>();
 
-			var progress = new SyncProgress(logs.Add);
-
 			var projectFile = Path.Combine("TestFiles", "OtherTestProjects", "readonly.testcsproj");
 			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects", $"{nameof(ValidatesFileIsWritableAfterCheckout)}.readonly");
 
@@ -91,11 +72,11 @@ namespace Project2015To2017Tests
 
 				File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
 
-				var project = new ProjectReader(copiedProjectFile, progress).Read();
+				var project = new ProjectReader().Read(copiedProjectFile);
 
 				var projectWriter = new ProjectWriter(_ => { }, file => File.SetAttributes(file.FullName, FileAttributes.Normal));
 
-				projectWriter.Write(project, makeBackups: false, progress);
+				projectWriter.Write(project, makeBackups: false);
 
 				Assert.IsFalse(logs.Any(x => x.Contains("Aborting as could not write to project file")));
 			}
@@ -112,9 +93,28 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void ValidatesFileExists()
 		{
-			var progress = new Progress<string>(x => { });
+			Assert.IsFalse(ProjectConverter.Validate(new FileInfo(Path.Combine("TestFiles", "OtherTestProjects", "nonexistent.testcsproj")), NoopLogger.Instance));
+		}
 
-			Assert.IsFalse(ProjectConverter.Validate(new FileInfo(Path.Combine("TestFiles", "OtherTestProjects", "nonexistent.testcsproj")), progress));
+		private class DummyLogger : ILogger
+		{
+			private readonly List<string> logs = new List<string>();
+			public IReadOnlyList<string> LogEntries => this.logs;
+
+			public IDisposable BeginScope<TState>(TState state)
+			{
+				throw new NotImplementedException();
+			}
+
+			public bool IsEnabled(LogLevel logLevel)
+			{
+				return logLevel == LogLevel.Error;
+			}
+
+			public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+			{
+				this.logs.Add(formatter(state, exception));
+			}
 		}
 	}
 }

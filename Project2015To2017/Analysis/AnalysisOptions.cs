@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace Project2015To2017.Analysis
 {
-	public class AnalysisOptions
+	public sealed class AnalysisOptions
 	{
 		/// <summary>
 		/// Including ID of diagnostics in this list will make analyzer skip their execution and therefore output
@@ -12,7 +12,7 @@ namespace Project2015To2017.Analysis
 
 		public AnalysisOptions(IEnumerable<IDiagnostic> diagnostics = null)
 		{
-			Diagnostics = (diagnostics ?? DiagnosticSet.AllDefault).ToImmutableHashSet();
+			this.Diagnostics = (diagnostics ?? DiagnosticSet.AllDefault).ToImmutableHashSet();
 		}
 	}
 }

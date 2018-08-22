@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Project2015To2017.Reading.Conditionals
 {
     [Flags]
-    public enum ParserOptions
+	internal enum ParserOptions
     {
         None = 0x0,
         AllowProperties = 0x1,
@@ -29,7 +29,7 @@ namespace Project2015To2017.Reading.Conditionals
     /// <remarks>
     /// UNDONE: When we copied over the conditionals code, we didn't copy over the unit tests for scanner, parser, and expression tree.
     /// </remarks>
-    public sealed class Parser
+    internal sealed class Parser
     {
         private Scanner _lexer;
         private ParserOptions _options;
@@ -52,17 +52,17 @@ namespace Project2015To2017.Reading.Conditionals
             ErrorUtilities.VerifyThrow(0 != (optionSettings & ParserOptions.AllowProperties),
                 "Properties should always be allowed.");
 
-            _options = optionSettings;
+			this._options = optionSettings;
 
-            _lexer = new Scanner(expression, _options);
-            if (!_lexer.Advance())
+			this._lexer = new Scanner(expression, this._options);
+            if (!this._lexer.Advance())
             {
-                errorPosition = _lexer.GetErrorPosition();
+				this.errorPosition = this._lexer.GetErrorPosition();
             }
             GenericExpressionNode node = Expr(expression);
-            if (!_lexer.IsNext(Token.TokenType.EndOfInput))
+            if (!this._lexer.IsNext(Token.TokenType.EndOfInput))
             {
-                errorPosition = _lexer.GetErrorPosition();
+				this.errorPosition = this._lexer.GetErrorPosition();
             }
             return node;
         }
@@ -75,7 +75,7 @@ namespace Project2015To2017.Reading.Conditionals
         private GenericExpressionNode Expr(string expression)
         {
             GenericExpressionNode node = BooleanTerm(expression);
-            if (!_lexer.IsNext(Token.TokenType.EndOfInput))
+            if (!this._lexer.IsNext(Token.TokenType.EndOfInput))
             {
                 node = ExprPrime(expression, node);
             }
@@ -111,10 +111,10 @@ namespace Project2015To2017.Reading.Conditionals
             GenericExpressionNode node = RelationalExpr(expression);
             if (null == node)
             {
-                errorPosition = _lexer.GetErrorPosition();
+				this.errorPosition = this._lexer.GetErrorPosition();
             }
 
-            if (!_lexer.IsNext(Token.TokenType.EndOfInput))
+            if (!this._lexer.IsNext(Token.TokenType.EndOfInput))
             {
                 node = BooleanTermPrime(expression, node);
             }
@@ -123,7 +123,7 @@ namespace Project2015To2017.Reading.Conditionals
 
         private GenericExpressionNode BooleanTermPrime(string expression, GenericExpressionNode lhs)
         {
-            if (_lexer.IsNext(Token.TokenType.EndOfInput))
+            if (this._lexer.IsNext(Token.TokenType.EndOfInput))
             {
                 return lhs;
             }
@@ -132,7 +132,7 @@ namespace Project2015To2017.Reading.Conditionals
                 GenericExpressionNode rhs = RelationalExpr(expression);
                 if (null == rhs)
                 {
-                    errorPosition = _lexer.GetErrorPosition();
+					this.errorPosition = this._lexer.GetErrorPosition();
                 }
 
                 OperatorExpressionNode andNode = new AndExpressionNode();
@@ -153,7 +153,7 @@ namespace Project2015To2017.Reading.Conditionals
                 GenericExpressionNode lhs = Factor(expression);
                 if (null == lhs)
                 {
-                    errorPosition = _lexer.GetErrorPosition();
+					this.errorPosition = this._lexer.GetErrorPosition();
                 }
 
                 OperatorExpressionNode node = RelationalOperation(expression);
@@ -211,19 +211,19 @@ namespace Project2015To2017.Reading.Conditionals
             }
 
             // If it's not one of those, check for other TokenTypes.
-            Token current = _lexer.CurrentToken;
+            Token current = this._lexer.CurrentToken;
             if (Same(expression, Token.TokenType.Function))
             {
                 if (!Same(expression, Token.TokenType.LeftParenthesis))
                 {
-                    errorPosition = _lexer.GetErrorPosition();
+					this.errorPosition = this._lexer.GetErrorPosition();
                     return null;
                 }
                 var arglist = new List<GenericExpressionNode>();
                 Arglist(expression, arglist);
                 if (!Same(expression, Token.TokenType.RightParenthesis))
                 {
-                    errorPosition = _lexer.GetErrorPosition();
+					this.errorPosition = this._lexer.GetErrorPosition();
                     return null;
                 }
                 return new FunctionCallExpressionNode(current.String, arglist);
@@ -235,7 +235,7 @@ namespace Project2015To2017.Reading.Conditionals
                     return child;
                 else
                 {
-                    errorPosition = _lexer.GetErrorPosition();
+					this.errorPosition = this._lexer.GetErrorPosition();
                 }
             }
             else if (Same(expression, Token.TokenType.Not))
@@ -244,21 +244,21 @@ namespace Project2015To2017.Reading.Conditionals
                 GenericExpressionNode expr = Factor(expression);
                 if (expr == null)
                 {
-                    errorPosition = _lexer.GetErrorPosition();
+					this.errorPosition = this._lexer.GetErrorPosition();
                 }
                 notNode.LeftChild = expr;
                 return notNode;
             }
             else
             {
-                errorPosition = _lexer.GetErrorPosition();
+				this.errorPosition = this._lexer.GetErrorPosition();
             }
             return null;
         }
 
         private void Arglist(string expression, List<GenericExpressionNode> arglist)
         {
-            if (!_lexer.IsNext(Token.TokenType.RightParenthesis))
+            if (!this._lexer.IsNext(Token.TokenType.RightParenthesis))
             {
                 Args(expression, arglist);
             }
@@ -276,7 +276,7 @@ namespace Project2015To2017.Reading.Conditionals
 
         private GenericExpressionNode Arg(string expression)
         {
-            Token current = _lexer.CurrentToken;
+            Token current = this._lexer.CurrentToken;
             if (Same(expression, Token.TokenType.String))
             {
                 return new StringExpressionNode(current.String, current.Expandable);
@@ -305,11 +305,11 @@ namespace Project2015To2017.Reading.Conditionals
 
         private bool Same(string expression, Token.TokenType token)
         {
-            if (_lexer.IsNext(token))
+            if (this._lexer.IsNext(token))
             {
-                if (!_lexer.Advance())
+                if (!this._lexer.Advance())
                 {
-                    errorPosition = _lexer.GetErrorPosition();
+					this.errorPosition = this._lexer.GetErrorPosition();
                 }
                 return true;
             }

@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Project2015To2017;
 using Project2015To2017.Definition;
 using Project2015To2017.Transforms;
 namespace Project2015To2017Tests
@@ -25,7 +26,10 @@ namespace Project2015To2017Tests
 				Version = "1.0.4.2",
 				Product = "The Product",
 				Title = "The Title",
-				File = new FileInfo("DummyAssemblyInfo.cs")
+				File = new FileInfo("DummyAssemblyInfo.cs"),
+				Trademark = "A trademark",
+				Culture = "A culture",
+				NeutralLanguage = "someLanguage"
 			};
 
 		[TestMethod]
@@ -40,13 +44,13 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
 			Assert.IsNotNull(generateAssemblyInfo);
 			Assert.AreEqual("GenerateAssemblyInfo", generateAssemblyInfo.Name);
 			Assert.AreEqual("false", generateAssemblyInfo.Value);
-			
+
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
@@ -61,8 +65,8 @@ namespace Project2015To2017Tests
 			};
 
 			var transform = new AssemblyAttributeTransformation(true);
-			
-			transform.Transform(project, new Progress<string>());
+
+			transform.Transform(project, NoopLogger.Instance);
 
 			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
 			Assert.IsNotNull(generateAssemblyInfo);
@@ -83,7 +87,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var expectedProperties = new[]
 			{
@@ -95,7 +99,8 @@ namespace Project2015To2017Tests
 				new XElement("GenerateAssemblyConfigurationAttribute", false),
 				new XElement("Version", "1.8.4.3-beta.1"),
 				new XElement("AssemblyVersion", "1.0.4.2"),
-				new XElement("FileVersion", "1.1.7.9")
+				new XElement("FileVersion", "1.1.7.9"),
+				new XElement("NeutralLanguage", "someLanguage"),
 			}
 			.Select(x => x.ToString())
 			.ToList();
@@ -107,12 +112,108 @@ namespace Project2015To2017Tests
 			CollectionAssert.AreEquivalent(expectedProperties, actualProperties);
 
 			var expectedAttributes = new AssemblyAttributes
-									{
-										Configuration = "SomeConfiguration"
-									};
+			{
+				Configuration = "SomeConfiguration",
+				Trademark = "A trademark",
+				Culture = "A culture"
+			};
 
 			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
-			
+
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
+		}
+
+		[TestMethod]
+		public void BlankEntriesGetDeleted()
+		{
+			var baseAssemblyAttributes = BaseAssemblyAttributes();
+			baseAssemblyAttributes.Company = "";
+			baseAssemblyAttributes.Copyright = "";
+			baseAssemblyAttributes.Description = "";
+			baseAssemblyAttributes.Trademark = "";
+			baseAssemblyAttributes.Culture = "";
+			baseAssemblyAttributes.NeutralLanguage = "";
+
+			var project = new Project
+			{
+				AssemblyAttributes = baseAssemblyAttributes,
+				Deletions = new List<FileSystemInfo>()
+			};
+
+			var transform = new AssemblyAttributeTransformation();
+
+			transform.Transform(project, NoopLogger.Instance);
+
+			var expectedProperties = new[]
+				{
+					new XElement("AssemblyTitle", "The Title"),
+					new XElement("Product", "The Product"),
+					new XElement("GenerateAssemblyConfigurationAttribute", false),
+					new XElement("Version", "1.8.4.3-beta.1"),
+					new XElement("AssemblyVersion", "1.0.4.2"),
+					new XElement("FileVersion", "1.1.7.9")
+				}
+				.Select(x => x.ToString())
+				.ToList();
+
+			var actualProperties = project.AssemblyAttributeProperties
+				.Select(x => x.ToString())
+				.ToList();
+
+			CollectionAssert.AreEquivalent(expectedProperties, actualProperties);
+
+			var expectedAttributes = new AssemblyAttributes
+			{
+				Configuration = "SomeConfiguration"
+			};
+
+			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
+
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
+		}
+
+
+		[TestMethod]
+		public void BlankConfigurationGetsDeleted()
+		{
+			var assemblyAttributes = BaseAssemblyAttributes();
+			assemblyAttributes.Configuration = "";
+
+			var project = new Project
+			{
+				AssemblyAttributes = assemblyAttributes,
+				Deletions = new List<FileSystemInfo>()
+			};
+
+			var transform = new AssemblyAttributeTransformation();
+
+			transform.Transform(project, NoopLogger.Instance);
+
+			var expectedProperties = new[]
+				{
+					new XElement("AssemblyTitle", "The Title"),
+					new XElement("Company", "TheCompany Inc."),
+					new XElement("Description", "A description"),
+					new XElement("Product", "The Product"),
+					new XElement("Copyright", "A Copyright notice  ©"),
+					new XElement("Version", "1.8.4.3-beta.1"),
+					new XElement("AssemblyVersion", "1.0.4.2"),
+					new XElement("FileVersion", "1.1.7.9"),
+					new XElement("NeutralLanguage", "someLanguage")
+				}
+				.Select(x => x.ToString())
+				.ToList();
+
+			var actualProperties = project.AssemblyAttributeProperties
+				.Select(x => x.ToString())
+				.ToList();
+
+			CollectionAssert.AreEquivalent(expectedProperties, actualProperties);
+
+			var expectedAttributes = new AssemblyAttributes();
+
+			Assert.IsNull(project.AssemblyAttributes.Configuration);
+
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
@@ -133,7 +234,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var expectedProperties = new[]
 				{
@@ -154,7 +255,7 @@ namespace Project2015To2017Tests
 			var expectedAttributes = new AssemblyAttributes();
 
 			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
-			
+
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
@@ -175,7 +276,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var expectedProperties = new[]
 				{
@@ -187,7 +288,8 @@ namespace Project2015To2017Tests
 					new XElement("GenerateAssemblyConfigurationAttribute", false),
 					new XElement("Version", "1.5.2-otherVersion"),
 					new XElement("AssemblyVersion", "1.0.4.2"),
-					new XElement("FileVersion", "1.1.7.9")
+					new XElement("FileVersion", "1.1.7.9"),
+					new XElement("NeutralLanguage", "someLanguage")
 				}
 				.Select(x => x.ToString())
 				.ToList();
@@ -200,7 +302,9 @@ namespace Project2015To2017Tests
 
 			var expectedAttributes = new AssemblyAttributes
 			{
-				Configuration = "SomeConfiguration"
+				Configuration = "SomeConfiguration",
+				Trademark = "A trademark",
+				Culture = "A culture"
 			};
 
 			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
@@ -223,9 +327,9 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
-		    CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
+			CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
 		}
 
 		[TestMethod]
@@ -247,7 +351,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
 		}
@@ -271,7 +375,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			CollectionAssert.DoesNotContain(project.Deletions.ToList(), assemblyInfoFile);
 		}
@@ -289,7 +393,7 @@ namespace Project2015To2017Tests
 
 			var transform = new AssemblyAttributeTransformation();
 
-			transform.Transform(project, new Progress<string>());
+			transform.Transform(project, NoopLogger.Instance);
 
 			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
 			Assert.IsNotNull(generateAssemblyInfo);

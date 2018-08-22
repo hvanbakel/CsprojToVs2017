@@ -18,7 +18,7 @@ namespace Project2015To2017.Reading.Conditionals
 
         internal NumericExpressionNode(string value)
         {
-            _value = value;
+			this._value = value;
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override double NumericEvaluate(IConditionEvaluationState state)
         {
-            return ConversionUtilities.ConvertDecimalOrHexToDouble(_value);
+            return ConversionUtilities.ConvertDecimalOrHexToDouble(this._value);
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override Version VersionEvaluate(IConditionEvaluationState state)
         {
-            return Version.Parse(_value);
+            return Version.Parse(this._value);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Project2015To2017.Reading.Conditionals
         {
             // It is not always possible to numerically evaluate even a numerical expression -
             // for example, it may overflow a double. So check here.
-            return ConversionUtilities.ValidDecimalOrHexNumber(_value);
+            return ConversionUtilities.ValidDecimalOrHexNumber(this._value);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Project2015To2017.Reading.Conditionals
             // Check if the value can be formatted as a Version number
             // This is needed for nodes that identify as Numeric but can't be parsed as numbers (e.g. 8.1.1.0 vs 8.1)
             Version unused;
-            return Version.TryParse(_value, out unused);
+            return Version.TryParse(this._value, out unused);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override string GetUnexpandedValue(IConditionEvaluationState state)
         {
-            return _value;
+            return this._value;
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Project2015To2017.Reading.Conditionals
         /// </summary>
         internal override string GetExpandedValue(IConditionEvaluationState state)
         {
-            return _value;
+            return this._value;
         }
 
         /// <summary>
@@ -101,6 +101,6 @@ namespace Project2015To2017.Reading.Conditionals
         {
         }
 
-        internal override string DebuggerDisplay => $"#\"{_value}\")";
+        internal override string DebuggerDisplay => $"#\"{this._value}\")";
     }
 }

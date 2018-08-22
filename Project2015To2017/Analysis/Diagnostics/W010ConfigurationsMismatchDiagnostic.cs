@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
-	public class W010ConfigurationsMismatchDiagnostic : DiagnosticBase
+	public sealed class W010ConfigurationsMismatchDiagnostic : DiagnosticBase
 	{
 		/// <inheritdoc />
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)

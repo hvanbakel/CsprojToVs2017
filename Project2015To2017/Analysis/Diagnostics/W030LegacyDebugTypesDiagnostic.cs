@@ -3,7 +3,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
-	public class W030LegacyDebugTypesDiagnostic : DiagnosticBase
+	public sealed class W030LegacyDebugTypesDiagnostic : DiagnosticBase
 	{
 		public W030LegacyDebugTypesDiagnostic() : base(30)
 		{
@@ -15,7 +15,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 
 			foreach (var x in project.ProjectDocument.Descendants(project.XmlNamespace + "DebugType"))
 			{
-				if (x.Value.Equals("portable", ExtensionMethods.BestAvailableStringIgnoreCaseComparison))
+				if (x.Value.Equals("portable", Extensions.BestAvailableStringIgnoreCaseComparison))
 					continue;
 
 				list.Add(

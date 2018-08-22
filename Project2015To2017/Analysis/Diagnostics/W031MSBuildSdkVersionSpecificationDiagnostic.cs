@@ -4,7 +4,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
-	public class W031MSBuildSdkVersionSpecificationDiagnostic : DiagnosticBase
+	public sealed class W031MSBuildSdkVersionSpecificationDiagnostic : DiagnosticBase
 	{
 		public W031MSBuildSdkVersionSpecificationDiagnostic() : base(31)
 		{

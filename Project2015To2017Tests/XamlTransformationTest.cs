@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Project2015To2017;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
@@ -88,53 +89,28 @@ namespace Project2015To2017Tests
 			Assert.AreEqual(1, project.Platforms.Count);
 			Assert.AreEqual(1, project.Platforms.Count(x => x == "AnyCPU"));
 
-			Assert.AreEqual(3, project.AdditionalPropertyGroups.Count);
+			Assert.AreEqual(5, project.PropertyGroups.Count);
 
-			Assert.IsNotNull(project.AdditionalPropertyGroups[0].Attribute("Condition"));
-			Assert.IsNotNull(project.AdditionalPropertyGroups[1].Attribute("Condition"));
-			Assert.IsNull(project.AdditionalPropertyGroups[2].Attribute("Condition"));
-
-			var childrenDebug = project.AdditionalPropertyGroups[0].Elements().ToImmutableArray();
-			Assert.AreEqual(1, childrenDebug.Length);
-			// non-standard additional WINDOWS_DESKTOP constant present only in Debug
-			Assert.IsTrue(ProjectPropertiesReadTest.ValidateChildren(childrenDebug, "DefineConstants"));
-
-			var childrenRelease = project.AdditionalPropertyGroups[1].Elements().ToImmutableArray();
-			Assert.AreEqual(0, childrenRelease.Length);
-
-			var childrenGlobal = project.AdditionalPropertyGroups[2].Elements().ToImmutableArray();
-			Assert.AreEqual(3, childrenGlobal.Length);
-			Assert.IsTrue(ProjectPropertiesReadTest.ValidateChildren(childrenGlobal,
-				"ProjectTypeGuids", "ApplicationIcon", "ApplicationManifest"));
-
-			var fileTransformation = new FileTransformation();
 			var transformation = new XamlPagesTransformation();
 
-			var progress = new Progress<string>();
+			transformation.Transform(project, NoopLogger.Instance);
 
-			fileTransformation.Transform(project, progress);
-			transformation.Transform(project, progress);
-
-			var includeItems = project.IncludeItems;
+			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 
 			// App.xaml is NOT included due to ApplicationDefinition
-			// App.xaml.cs is NOT included due to <SubType>Code</SubType> (FileTransformation)
-			// Views\Shell.xaml.cs is NOT included due to Compile+DependentUpon
-			// .\..\Views\Initialize.xaml.cs is included due to not in project folder
+			// App.xaml.cs is NOT included (.xaml.cs in project folder, verified children)
+			// Views\Shell.xaml.cs is NOT included (.xaml.cs in project folder, verified children)
+			// .\..\Views\Initialize.xaml.cs is included (not in project folder)
 			// Views\Shell.xaml is NOT included due to Page
-			// .\..\Views\Initialize.xaml is included due to Page not in project folder
+			// .\..\Views\Initialize.xaml is included (not in project folder)
 
-			Assert.AreEqual(2, includeItems.Count);
+			Assert.AreEqual(7, includeItems.Count);
 
+			Assert.AreEqual(5, includeItems.Count(x => x.Name == project.XmlNamespace + "Reference"));
 			Assert.AreEqual(1, includeItems.Count(x => x.Name == project.XmlNamespace + "Page"));
 			Assert.AreEqual(0, includeItems.Count(x => x.Name == project.XmlNamespace + "ApplicationDefinition"));
 			Assert.AreEqual(1, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile"));
-			Assert.AreEqual(1,
-				includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Update") != null));
-			Assert.AreEqual(0,
-				includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Include") != null));
-			Assert.AreEqual(0,
-				includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Remove") != null));
+			Assert.AreEqual(1, includeItems.Count(x => x.Name == project.XmlNamespace + "Compile" && x.Attribute("Include") != null));
 		}
 
 		private static async Task<Project> ParseAndTransform(
@@ -147,7 +123,7 @@ namespace Project2015To2017Tests
 
 			await File.WriteAllTextAsync(testCsProjFile, xml);
 
-			var project = new ProjectReader(testCsProjFile).Read();
+			var project = new ProjectReader().Read(testCsProjFile);
 
 			return project;
 		}
