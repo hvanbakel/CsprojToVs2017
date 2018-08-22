@@ -27,8 +27,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 			}
 
 			// try to get project type - may not exist
-			var typeElement = project.ProjectDocument.Descendants(project.XmlNamespace + "ProjectTypeGuids")
-				.FirstOrDefault();
+			var typeElement = project.Property("ProjectTypeGuids");
 			if (typeElement == null)
 			{
 				return Array.Empty<IDiagnosticResult>();

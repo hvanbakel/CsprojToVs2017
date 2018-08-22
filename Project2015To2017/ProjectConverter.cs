@@ -18,13 +18,24 @@ namespace Project2015To2017
 		private readonly ConversionOptions conversionOptions;
 		private readonly ProjectReader projectReader;
 
-		private static IReadOnlyCollection<ITransformation> TransformationsToApply(ConversionOptions conversionOptions)
+		private static IReadOnlyCollection<ITransformation>
+			TransformationsToApply(ConversionOptions conversionOptions, bool modernProject)
 		{
+			var targetFrameworkTransformation = new TargetFrameworkTransformation(
+				conversionOptions.TargetFrameworks,
+				conversionOptions.AppendTargetFrameworkToOutputPath);
+
+			if (modernProject)
+			{
+				return new ITransformation[]
+				{
+					targetFrameworkTransformation
+				};
+			}
+
 			return new ITransformation[]
 			{
-				new TargetFrameworkTransformation(
-					conversionOptions.TargetFrameworks,
-					conversionOptions.AppendTargetFrameworkToOutputPath),
+				targetFrameworkTransformation,
 				new PropertySimplificationTransformation(),
 				new PropertyDeduplicationTransformation(),
 				new TestProjectPackageReferenceTransformation(),
@@ -37,6 +48,7 @@ namespace Project2015To2017
 				new AssemblyAttributeTransformation(conversionOptions.KeepAssemblyInfo),
 				new XamlPagesTransformation(),
 				new PrimaryUnconditionalPropertyTransformation(),
+				new EmptyGroupRemoveTransformation(),
 			};
 		}
 
@@ -120,21 +132,20 @@ namespace Project2015To2017
 				yield break;
 			}
 
-			foreach (var projectPath in solution.ProjectPaths)
+			foreach (var projectReference in solution.ProjectPaths)
 			{
-				this.logger.LogInformation("Project found: " + projectPath.Include);
-				if (!projectPath.ProjectFile.Exists)
+				this.logger.LogInformation("Project found: " + projectReference.Include);
+				if (!projectReference.ProjectFile.Exists)
 				{
-					this.logger.LogError("Project file not found at: " + projectPath.ProjectFile.FullName);
+					this.logger.LogError("Project file not found at: " + projectReference.ProjectFile.FullName);
+					continue;
 				}
-				else
-				{
-					yield return this.ProcessFile(projectPath.ProjectFile, solution);
-				}
+
+				yield return this.ProcessFile(projectReference.ProjectFile, solution, projectReference);
 			}
 		}
 
-		private Project ProcessFile(FileInfo file, Solution solution)
+		private Project ProcessFile(FileInfo file, Solution solution, ProjectReference reference = null)
 		{
 			if (!Validate(file, this.logger))
 			{
@@ -147,6 +158,11 @@ namespace Project2015To2017
 				return null;
 			}
 
+			if (reference?.ProjectName != null)
+			{
+				project.ProjectName = reference.ProjectName;
+			}
+
 			project.Solution = solution;
 
 			foreach (var transform in this.conversionOptions.PreDefaultTransforms)
@@ -154,7 +170,7 @@ namespace Project2015To2017
 				transform.Transform(project, this.logger);
 			}
 
-			foreach (var transform in TransformationsToApply(this.conversionOptions))
+			foreach (var transform in TransformationsToApply(this.conversionOptions, project.IsModernProject))
 			{
 				transform.Transform(project, this.logger);
 			}
