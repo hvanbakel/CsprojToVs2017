@@ -21,7 +21,7 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			};
 
-			new PrimaryUnconditionalPropertyTransformation().Transform(project, NoopLogger.Instance);
+			new PrimaryUnconditionalPropertyTransformation().Transform(project);
 
 			var appendTargetFrameworkToOutputPath = project.Property("AppendTargetFrameworkToOutputPath");
 			Assert.IsNull(appendTargetFrameworkToOutputPath);
@@ -38,7 +38,7 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			};
 
-			new PrimaryUnconditionalPropertyTransformation().Transform(project, NoopLogger.Instance);
+			new PrimaryUnconditionalPropertyTransformation().Transform(project);
 
 			var appendTargetFrameworkToOutputPath = project.Property("AppendTargetFrameworkToOutputPath");
 			Assert.IsNotNull(appendTargetFrameworkToOutputPath);

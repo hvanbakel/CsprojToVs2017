@@ -303,7 +303,7 @@ namespace Project2015To2017Tests
 
 		private static void Transform(Project project)
 		{
-			new PropertySimplificationTransformation().Transform(project, NoopLogger.Instance);
+			new PropertySimplificationTransformation().Transform(project);
 		}
 	}
 }

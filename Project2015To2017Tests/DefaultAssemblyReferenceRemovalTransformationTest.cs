@@ -26,7 +26,7 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			};
 
-			new DefaultAssemblyReferenceRemovalTransformation().Transform(project, NoopLogger.Instance);
+			new DefaultAssemblyReferenceRemovalTransformation().Transform(project);
 
 			Assert.AreEqual(0, project.AssemblyReferences.Count);
 		}

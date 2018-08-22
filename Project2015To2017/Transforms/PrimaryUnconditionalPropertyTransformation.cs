@@ -10,7 +10,7 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class PrimaryUnconditionalPropertyTransformation : ITransformation
 	{
-		public void Transform(Project project, ILogger logger)
+		public void Transform(Project project)
 		{
 			AddTargetFrameworks(project, project.TargetFrameworks);
 

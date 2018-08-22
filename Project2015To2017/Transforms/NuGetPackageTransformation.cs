@@ -8,7 +8,7 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class NugetPackageTransformation : ITransformation
 	{
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			if (definition.PackageConfiguration == null)
 			{

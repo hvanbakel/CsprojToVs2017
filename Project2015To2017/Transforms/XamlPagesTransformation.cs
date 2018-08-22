@@ -10,8 +10,13 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class XamlPagesTransformation : ITransformation
 	{
+		public XamlPagesTransformation(ILogger logger = null)
+		{
+			this.logger = logger ?? NoopLogger.Instance;
+		}
+
 		/// <inheritdoc />
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			if (!definition.IsWindowsPresentationFoundationProject)
 			{
@@ -40,6 +45,7 @@ namespace Project2015To2017.Transforms
 		}
 
 		private static readonly string[] FilteredTags = {"Page", "ApplicationDefinition", "Compile", "None"};
+		private readonly ILogger logger;
 
 		private static bool XamlPageFilter(XElement x, Project definition)
 		{

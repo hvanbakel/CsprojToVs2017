@@ -19,7 +19,7 @@ namespace Project2015To2017Tests
 			var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
 			var transformation = new AssemblyReferenceTransformation();
 			
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.AreEqual(12, project.AssemblyReferences.Count);
 			Assert.IsTrue(project.AssemblyReferences.Any(x => x.Include == @"System.Xml.Linq"));
@@ -71,7 +71,7 @@ namespace Project2015To2017Tests
 
 			var transformation = new AssemblyReferenceTransformation();
 			
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.AreEqual(1, project.AssemblyReferences.Count);
 			Assert.AreEqual(2, project.PackageReferences.Count);

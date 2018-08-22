@@ -12,7 +12,7 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class PropertySimplificationTransformation : ITransformation
 	{
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			// special case handling for when condition-guarded props override global props not set to their defaults
 			var globalOverrides = new Dictionary<string, string>();
