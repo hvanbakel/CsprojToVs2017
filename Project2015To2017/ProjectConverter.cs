@@ -17,14 +17,12 @@ namespace Project2015To2017
 		private readonly ILogger logger;
 		private readonly ConversionOptions conversionOptions;
 		private readonly ProjectReader projectReader;
-		private readonly IReadOnlyCollection<ITransformation> transformationsToApply;
 
 		public ProjectConverter(ILogger logger, ConversionOptions conversionOptions = null)
 		{
 			this.logger = logger;
 			this.conversionOptions = conversionOptions ?? new ConversionOptions();
 			this.projectReader = new ProjectReader(logger, this.conversionOptions);
-			this.transformationsToApply = TransformationsToApply(this.conversionOptions, this.logger);
 		}
 
 		public IEnumerable<Project> Convert(string target)
@@ -100,21 +98,20 @@ namespace Project2015To2017
 				yield break;
 			}
 
-			foreach (var projectPath in solution.ProjectPaths)
+			foreach (var projectReference in solution.ProjectPaths)
 			{
-				this.logger.LogInformation("Project found: " + projectPath.Include);
-				if (!projectPath.ProjectFile.Exists)
+				this.logger.LogInformation("Project found: " + projectReference.Include);
+				if (!projectReference.ProjectFile.Exists)
 				{
-					this.logger.LogError("Project file not found at: " + projectPath.ProjectFile.FullName);
+					this.logger.LogError("Project file not found at: " + projectReference.ProjectFile.FullName);
+					continue;
 				}
-				else
-				{
-					yield return this.ProcessFile(projectPath.ProjectFile, solution);
-				}
+
+				yield return this.ProcessFile(projectReference.ProjectFile, solution, projectReference);
 			}
 		}
 
-		private Project ProcessFile(FileInfo file, Solution solution)
+		private Project ProcessFile(FileInfo file, Solution solution, ProjectReference reference = null)
 		{
 			if (!Validate(file, this.logger))
 			{
@@ -127,6 +124,11 @@ namespace Project2015To2017
 				return null;
 			}
 
+			if (reference?.ProjectName != null)
+			{
+				project.ProjectName = reference.ProjectName;
+			}
+
 			project.Solution = solution;
 
 			foreach (var transform in this.conversionOptions.PreDefaultTransforms)
@@ -134,7 +136,7 @@ namespace Project2015To2017
 				transform.Transform(project);
 			}
 
-			foreach (var transform in this.transformationsToApply)
+			foreach (var transform in TransformationsToApply(project.IsModernProject))
 			{
 				transform.Transform(project);
 			}
@@ -158,25 +160,36 @@ namespace Project2015To2017
 			return false;
 		}
 
-		private static IReadOnlyCollection<ITransformation> TransformationsToApply(ConversionOptions conversionOptions, ILogger logger)
+		private IReadOnlyCollection<ITransformation> TransformationsToApply(bool modernProject)
 		{
+			var targetFrameworkTransformation = new TargetFrameworkTransformation(
+				this.conversionOptions.TargetFrameworks,
+				this.conversionOptions.AppendTargetFrameworkToOutputPath);
+
+			if (modernProject)
+			{
+				return new ITransformation[]
+				{
+					targetFrameworkTransformation
+				};
+			}
+
 			return new ITransformation[]
 			{
-				new TargetFrameworkTransformation(
-					conversionOptions.TargetFrameworks,
-					conversionOptions.AppendTargetFrameworkToOutputPath),
+				targetFrameworkTransformation,
 				new PropertySimplificationTransformation(),
 				new PropertyDeduplicationTransformation(),
-				new TestProjectPackageReferenceTransformation(logger),
+				new TestProjectPackageReferenceTransformation(this.logger),
 				new AssemblyReferenceTransformation(),
 				new RemovePackageAssemblyReferencesTransformation(),
 				new DefaultAssemblyReferenceRemovalTransformation(),
 				new RemovePackageImportsTransformation(),
-				new FileTransformation(logger),
+				new FileTransformation(this.logger),
 				new NugetPackageTransformation(),
-				new AssemblyAttributeTransformation(logger, conversionOptions.KeepAssemblyInfo),
-				new XamlPagesTransformation(logger),
+				new AssemblyAttributeTransformation(this.logger, this.conversionOptions.KeepAssemblyInfo),
+				new XamlPagesTransformation(this.logger),
 				new PrimaryUnconditionalPropertyTransformation(),
+				new EmptyGroupRemoveTransformation(),
 			};
 		}
 	}

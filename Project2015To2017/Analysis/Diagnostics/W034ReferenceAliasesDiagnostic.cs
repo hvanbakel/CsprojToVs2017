@@ -18,8 +18,9 @@ namespace Project2015To2017.Analysis.Diagnostics
 			{
 				list.Add(
 					CreateDiagnosticResult(project,
-						$"ProjectReference ['{reference.Include}'] aliases are a feature of low support. Consider dropping their usage.",
-						project.FilePath));
+							$"ProjectReference ['{reference.Include}'] aliases are a feature of low support. Consider dropping their usage.",
+							project.FilePath)
+						.LoadLocationFromElement(reference.DefinitionElement));
 			}
 
 			return list;

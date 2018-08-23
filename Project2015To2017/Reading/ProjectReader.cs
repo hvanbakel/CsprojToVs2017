@@ -150,13 +150,21 @@ namespace Project2015To2017.Reading
 		{
 			foreach (var reference in projectDefinition.ProjectReferences)
 			{
-				reference.ProjectFile = new FileInfo(Path.Combine(projectDefinition.FilePath.Directory.FullName, reference.Include.Replace('\\', Path.DirectorySeparatorChar)));
+				if (reference.ProjectFile != null)
+				{
+					continue;
+				}
+
+				var path = reference.Include;
+				var projectDirectory = projectDefinition.FilePath.DirectoryName;
+				var adjustedPath = Extensions.MaybeAdjustFilePath(path, projectDirectory);
+				reference.ProjectFile = new FileInfo(Path.Combine(projectDirectory, adjustedPath));
 			}
 		}
 
 		private FileInfo FindPackagesConfigFile(FileInfo projectFile)
 		{
-			var packagesConfig = new FileInfo(Path.Combine(projectFile.Directory.FullName, "packages.config"));
+			var packagesConfig = new FileInfo(Path.Combine(projectFile.DirectoryName, "packages.config"));
 
 			if (!packagesConfig.Exists)
 			{
@@ -169,11 +177,10 @@ namespace Project2015To2017.Reading
 
 		private IReadOnlyList<PackageReference> LoadPackageReferences(Project project)
 		{
-			var projectXml = project.ProjectDocument;
-			var packagesConfig = project.PackagesConfigFile;
 			try
 			{
-				var existingPackageReferences = projectXml.Root.Elements(project.XmlNamespace + "ItemGroup")
+				var existingPackageReferences = project.ProjectDocument.Root
+					.Elements(project.XmlNamespace + "ItemGroup")
 					.Elements(project.XmlNamespace + "PackageReference")
 					.Select(x => new PackageReference
 					{
@@ -183,7 +190,7 @@ namespace Project2015To2017.Reading
 						DefinitionElement = x
 					});
 
-				var packageConfigPackages = ExtractReferencesFromPackagesConfig(packagesConfig);
+				var packageConfigPackages = ExtractReferencesFromPackagesConfig(project.PackagesConfigFile);
 
 
 				var packageReferences = packageConfigPackages
@@ -231,26 +238,40 @@ namespace Project2015To2017.Reading
 
 		private IReadOnlyList<ProjectReference> LoadProjectReferences(Project project)
 		{
-			var projectReferences = project.ProjectDocument
-				.Element(project.XmlNamespace + "Project")
+			var projectReferences = project.ProjectDocument.Root
 				.Elements(project.XmlNamespace + "ItemGroup")
 				.Elements(project.XmlNamespace + "ProjectReference")
-				.Select(x => new ProjectReference
-				{
-					Include = x.Attribute("Include").Value,
-					Aliases = x.Element(project.XmlNamespace + "Aliases")?.Value,
-					EmbedInteropTypes = string.Equals(x.Element(project.XmlNamespace + "EmbedInteropTypes")?.Value, "true", StringComparison.OrdinalIgnoreCase),
-					DefinitionElement = x
-				})
+				.Select(CreateProjectReference)
 				.ToList();
 
 			return projectReferences;
+
+			ProjectReference CreateProjectReference(XElement x)
+			{
+				var projectGuid = x.Element(project.XmlNamespace + "Project")?.Value;
+				var embedInteropTypes = x.Element(project.XmlNamespace + "EmbedInteropTypes")?.Value;
+
+				var reference = new ProjectReference
+				{
+					Include = x.Attribute("Include").Value,
+					ProjectName = x.Element(project.XmlNamespace + "Name")?.Value,
+					Aliases = x.Element(project.XmlNamespace + "Aliases")?.Value,
+					EmbedInteropTypes = string.Equals(embedInteropTypes, "true", StringComparison.OrdinalIgnoreCase),
+					DefinitionElement = x
+				};
+
+				if (!string.IsNullOrEmpty(projectGuid))
+				{
+					reference.ProjectGuid = Guid.Parse(projectGuid);
+				}
+
+				return reference;
+			}
 		}
 
 		private List<AssemblyReference> LoadAssemblyReferences(Project project)
 		{
-			return project.ProjectDocument
-				.Element(project.XmlNamespace + "Project")
+			return project.ProjectDocument.Root
 				?.Elements(project.XmlNamespace + "ItemGroup")
 				.Elements(project.XmlNamespace + "Reference")
 				.Select(FormatAssemblyReference)

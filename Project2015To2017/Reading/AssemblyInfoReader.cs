@@ -26,6 +26,8 @@ namespace Project2015To2017.Reading
 										 .SelectMany(x => x.Descendants(project.XmlNamespace + "Compile"))
 										 .ToList();
 
+			var missingCount = 0u;
+
 			var assemblyInfoFiles = compileElements
 										   .Attributes("Include")
 										   .Select(x => x.Value.ToString())
@@ -43,6 +45,8 @@ namespace Project2015To2017.Reading
 													{
 														return true;
 													}
+
+													missingCount++;
 													this.logger.LogWarning($@"AssemblyInfo file '{x.FullName}' not found");
 													return false;
 												}
@@ -56,7 +60,7 @@ namespace Project2015To2017.Reading
 				return null;
 			}
 
-			if (assemblyInfoFiles.Count > 1)
+			if (assemblyInfoFiles.Count + missingCount > 1)
 			{
 				var fileList = string.Join($",{Environment.NewLine}", assemblyInfoFiles.Select(x => x.FullName));
 				this.logger.LogWarning($@"Could not read from assemblyinfo, multiple assemblyinfo files found:{Environment.NewLine}{fileList}");
