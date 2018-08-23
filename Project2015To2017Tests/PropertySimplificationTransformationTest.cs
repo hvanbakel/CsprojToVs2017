@@ -285,7 +285,7 @@ namespace Project2015To2017Tests
 			project.ProjectName = projectName;
 			project.FilePath = null;
 
-			new PropertySimplificationTransformation().Transform(project, NoopLogger.Instance);
+			new PropertySimplificationTransformation().Transform(project);
 
 			return project;
 		}

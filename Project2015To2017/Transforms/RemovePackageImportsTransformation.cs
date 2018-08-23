@@ -10,7 +10,7 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class RemovePackageImportsTransformation : ITransformation
 	{
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			if (definition.PackageReferences == null || definition.PackageReferences.Count == 0)
 			{

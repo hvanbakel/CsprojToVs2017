@@ -18,40 +18,6 @@ namespace Project2015To2017
 		private readonly ConversionOptions conversionOptions;
 		private readonly ProjectReader projectReader;
 
-		private static IReadOnlyCollection<ITransformation>
-			TransformationsToApply(ConversionOptions conversionOptions, bool modernProject)
-		{
-			var targetFrameworkTransformation = new TargetFrameworkTransformation(
-				conversionOptions.TargetFrameworks,
-				conversionOptions.AppendTargetFrameworkToOutputPath);
-
-			if (modernProject)
-			{
-				return new ITransformation[]
-				{
-					targetFrameworkTransformation
-				};
-			}
-
-			return new ITransformation[]
-			{
-				targetFrameworkTransformation,
-				new PropertySimplificationTransformation(),
-				new PropertyDeduplicationTransformation(),
-				new TestProjectPackageReferenceTransformation(),
-				new AssemblyReferenceTransformation(),
-				new RemovePackageAssemblyReferencesTransformation(),
-				new DefaultAssemblyReferenceRemovalTransformation(),
-				new RemovePackageImportsTransformation(),
-				new FileTransformation(),
-				new NugetPackageTransformation(),
-				new AssemblyAttributeTransformation(conversionOptions.KeepAssemblyInfo),
-				new XamlPagesTransformation(),
-				new PrimaryUnconditionalPropertyTransformation(),
-				new EmptyGroupRemoveTransformation(),
-			};
-		}
-
 		public ProjectConverter(ILogger logger, ConversionOptions conversionOptions = null)
 		{
 			this.logger = logger;
@@ -167,17 +133,17 @@ namespace Project2015To2017
 
 			foreach (var transform in this.conversionOptions.PreDefaultTransforms)
 			{
-				transform.Transform(project, this.logger);
+				transform.Transform(project);
 			}
 
-			foreach (var transform in TransformationsToApply(this.conversionOptions, project.IsModernProject))
+			foreach (var transform in TransformationsToApply(project.IsModernProject))
 			{
-				transform.Transform(project, this.logger);
+				transform.Transform(project);
 			}
 
 			foreach (var transform in this.conversionOptions.PostDefaultTransforms)
 			{
-				transform.Transform(project, this.logger);
+				transform.Transform(project);
 			}
 
 			return project;
@@ -192,6 +158,39 @@ namespace Project2015To2017
 
 			logger.LogError($"File {file.FullName} could not be found.");
 			return false;
+		}
+
+		private IReadOnlyCollection<ITransformation> TransformationsToApply(bool modernProject)
+		{
+			var targetFrameworkTransformation = new TargetFrameworkTransformation(
+				this.conversionOptions.TargetFrameworks,
+				this.conversionOptions.AppendTargetFrameworkToOutputPath);
+
+			if (modernProject)
+			{
+				return new ITransformation[]
+				{
+					targetFrameworkTransformation
+				};
+			}
+
+			return new ITransformation[]
+			{
+				targetFrameworkTransformation,
+				new PropertySimplificationTransformation(),
+				new PropertyDeduplicationTransformation(),
+				new TestProjectPackageReferenceTransformation(this.logger),
+				new AssemblyReferenceTransformation(),
+				new RemovePackageAssemblyReferencesTransformation(),
+				new DefaultAssemblyReferenceRemovalTransformation(),
+				new RemovePackageImportsTransformation(),
+				new FileTransformation(this.logger),
+				new NugetPackageTransformation(),
+				new AssemblyAttributeTransformation(this.logger, this.conversionOptions.KeepAssemblyInfo),
+				new XamlPagesTransformation(this.logger),
+				new PrimaryUnconditionalPropertyTransformation(),
+				new EmptyGroupRemoveTransformation(),
+			};
 		}
 	}
 }

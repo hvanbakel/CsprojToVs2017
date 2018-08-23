@@ -17,7 +17,7 @@ namespace Project2015To2017Tests
 			var project = new ProjectReader().Read(Path.Combine("TestFiles", "FileInclusion", "fileinclusion.testcsproj"));
 			var transformation = new FileTransformation();
 
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 

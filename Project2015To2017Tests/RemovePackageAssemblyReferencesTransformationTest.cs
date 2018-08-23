@@ -19,7 +19,7 @@ namespace Project2015To2017Tests
 			var project = new Project();
 
 			var transformation = new RemovePackageAssemblyReferencesTransformation();
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 		}
 
 		[TestMethod]
@@ -55,7 +55,7 @@ namespace Project2015To2017Tests
 
 			var transformation = new RemovePackageAssemblyReferencesTransformation();
 
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.AreEqual(2, project.AssemblyReferences.Count);
 		}
@@ -70,7 +70,7 @@ namespace Project2015To2017Tests
 			var transformation = new RemovePackageAssemblyReferencesTransformation();
 
 			//Then attempt to clear any referencing the nuget packages folder
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			//The only one left which points to another folder
 			Assert.AreEqual(1, project.AssemblyReferences.Count);
@@ -87,7 +87,7 @@ namespace Project2015To2017Tests
 			var transformation = new RemovePackageImportsTransformation();
 
 			//Then attempt to clear any referencing the nuget packages folder
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			var expectedRemaining = new []
 			{

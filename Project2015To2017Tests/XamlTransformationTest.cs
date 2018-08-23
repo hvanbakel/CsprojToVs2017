@@ -93,7 +93,7 @@ namespace Project2015To2017Tests
 
 			var transformation = new XamlPagesTransformation();
 
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 

@@ -14,12 +14,12 @@ namespace Project2015To2017.Transforms
 	public sealed class PropertySimplificationTransformation : ITransformation
 	{
 		private static readonly string[] IgnoreProjectNameValues =
-		{
+		   {
 			"$(MSBuildProjectName)",
 			"$(ProjectName)"
 		};
 
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			var msbuildProjectName = definition.FilePath?.Name;
 			if (!string.IsNullOrEmpty(msbuildProjectName))

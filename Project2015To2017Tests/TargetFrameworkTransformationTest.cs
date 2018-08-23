@@ -17,7 +17,7 @@ namespace Project2015To2017Tests
 			var targetFrameworks = new List<string> { "netstandard2.0" };
 
 			var transformation = new TargetFrameworkTransformation(targetFrameworks);
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.IsNull(project);
 		}
@@ -29,7 +29,7 @@ namespace Project2015To2017Tests
 			var targetFrameworks = new List<string> { "netstandard2.0" };
 
 			var transformation = new TargetFrameworkTransformation(targetFrameworks);
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
 			Assert.AreEqual("netstandard2.0", project.TargetFrameworks[0]);
@@ -44,7 +44,7 @@ namespace Project2015To2017Tests
 			};
 			
 			var transformation = new TargetFrameworkTransformation(null);
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
 			Assert.AreEqual("net46", project.TargetFrameworks[0]);
@@ -59,7 +59,7 @@ namespace Project2015To2017Tests
 			};
 
 			var transformation = new TargetFrameworkTransformation(new List<string>());
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
 			Assert.AreEqual("net46", project.TargetFrameworks[0]);
@@ -75,7 +75,7 @@ namespace Project2015To2017Tests
 			var targetFrameworks = new List<string> { "netstandard2.0" };
 
 			var transformation = new TargetFrameworkTransformation(targetFrameworks);
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
 			Assert.AreEqual("netstandard2.0", project.TargetFrameworks[0]);
@@ -91,7 +91,7 @@ namespace Project2015To2017Tests
 			var targetFrameworks = new List<string> { "netstandard2.0", "net47" };
 
 			var transformation = new TargetFrameworkTransformation(targetFrameworks);
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.AreEqual(2, project.TargetFrameworks.Count);
 			Assert.AreEqual("netstandard2.0", project.TargetFrameworks[0]);
@@ -104,7 +104,7 @@ namespace Project2015To2017Tests
 			var project = new Project();
 
 			var transformation = new TargetFrameworkTransformation(null, true);
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.AreEqual(true, project.AppendTargetFrameworkToOutputPath);
 		}
@@ -115,7 +115,7 @@ namespace Project2015To2017Tests
 			var project = new Project();
 
 			var transformation = new TargetFrameworkTransformation(null, false);
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			Assert.AreEqual(false, project.AppendTargetFrameworkToOutputPath);
 		}

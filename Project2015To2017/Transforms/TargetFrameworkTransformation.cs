@@ -15,7 +15,7 @@ namespace Project2015To2017.Transforms
 			this.AppendTargetFrameworkToOutputPath = appendTargetFrameworkToOutputPath;
 		}
 
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			if (null == definition)
 			{

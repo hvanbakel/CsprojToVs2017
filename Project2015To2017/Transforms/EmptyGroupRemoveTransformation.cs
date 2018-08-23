@@ -8,7 +8,7 @@ namespace Project2015To2017.Transforms
 {
 	public class EmptyGroupRemoveTransformation : ITransformation
 	{
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			definition.PropertyGroups = FilterNonEmpty(definition.PropertyGroups);
 			definition.ItemGroups = FilterNonEmpty(definition.ItemGroups).ToList();

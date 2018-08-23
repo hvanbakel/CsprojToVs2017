@@ -42,9 +42,9 @@ namespace Project2015To2017Tests
 				Deletions = new List<FileSystemInfo>()
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
 			Assert.IsNotNull(generateAssemblyInfo);
@@ -64,9 +64,9 @@ namespace Project2015To2017Tests
 				Deletions = new List<FileSystemInfo>()
 			};
 
-			var transform = new AssemblyAttributeTransformation(true);
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance, true);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
 			Assert.IsNotNull(generateAssemblyInfo);
@@ -85,9 +85,9 @@ namespace Project2015To2017Tests
 				Deletions = new List<FileSystemInfo>()
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			var expectedProperties = new[]
 			{
@@ -140,9 +140,9 @@ namespace Project2015To2017Tests
 				Deletions = new List<FileSystemInfo>()
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			var expectedProperties = new[]
 				{
@@ -185,9 +185,9 @@ namespace Project2015To2017Tests
 				Deletions = new List<FileSystemInfo>()
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			var expectedProperties = new[]
 				{
@@ -232,9 +232,9 @@ namespace Project2015To2017Tests
 				Deletions = new List<FileSystemInfo>()
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			var expectedProperties = new[]
 				{
@@ -274,9 +274,9 @@ namespace Project2015To2017Tests
 				Deletions = new List<FileSystemInfo>()
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			var expectedProperties = new[]
 				{
@@ -325,9 +325,9 @@ namespace Project2015To2017Tests
 				File = assemblyInfoFile
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
 		}
@@ -349,9 +349,9 @@ namespace Project2015To2017Tests
 								).GetRoot()
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			CollectionAssert.Contains(project.Deletions.ToList(), assemblyInfoFile);
 		}
@@ -373,9 +373,9 @@ namespace Project2015To2017Tests
 				).GetRoot()
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			CollectionAssert.DoesNotContain(project.Deletions.ToList(), assemblyInfoFile);
 		}
@@ -391,9 +391,9 @@ namespace Project2015To2017Tests
 				Deletions = new List<FileSystemInfo>()
 			};
 
-			var transform = new AssemblyAttributeTransformation();
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
 
-			transform.Transform(project, NoopLogger.Instance);
+			transform.Transform(project);
 
 			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
 			Assert.IsNotNull(generateAssemblyInfo);
