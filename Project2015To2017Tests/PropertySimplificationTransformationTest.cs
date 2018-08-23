@@ -46,6 +46,9 @@ namespace Project2015To2017Tests
     </SccProvider>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
     <DebugSymbols>true</DebugSymbols>

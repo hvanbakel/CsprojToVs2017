@@ -152,6 +152,9 @@ namespace Project2015To2017.Transforms
 					                         ):
 					case "RestorePackages" when ValidateDefaultValue("true"):
 					case "SchemaVersion" when ValidateDefaultValue("2.0"):
+					case "AssemblyVersion" when ValidateDefaultValue("1.0.0.0"):
+					case "FileVersion" when ValidateDefaultValue("1.0.0.0"):
+					case "Version" when ValidateDefaultValue("1.0.0"):
 					// Conditional platform default values
 					case "PlatformTarget" when parentConditionHasPlatform
 					                           && child.Value == parentConditionPlatform
