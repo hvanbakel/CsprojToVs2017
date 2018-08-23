@@ -113,15 +113,21 @@ namespace Project2015To2017.Reading
 
 		public static Dictionary<string, string> GetNonAmbiguousConditionContracts(string condition)
 		{
+			var state = GetConditionState(condition);
+			return GetNonAmbiguousConditionContracts(state);
+		}
+
+		public static Dictionary<string, string> GetNonAmbiguousConditionContracts(ConditionEvaluationStateImpl state)
+		{
 			var res = new Dictionary<string, string>();
 
 			// it makes little sense for condition to be that short
-			if (condition.Length < 2)
+			if (state.Condition.Length < 2)
 			{
 				return res;
 			}
 
-			foreach (var keyValuePair in GetConditionValues(condition))
+			foreach (var keyValuePair in GetConditionValues(state))
 			{
 				if (keyValuePair.Value.Count != 1)
 				{
@@ -137,6 +143,11 @@ namespace Project2015To2017.Reading
 		public static Dictionary<string, List<string>> GetConditionValues(string condition)
 		{
 			var state = GetConditionState(condition);
+			return GetConditionValues(state);
+		}
+
+		public static Dictionary<string, List<string>> GetConditionValues(ConditionEvaluationStateImpl state)
+		{
 			if (state.Evaluated)
 			{
 				return state.ConditionedPropertiesInProject;

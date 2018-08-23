@@ -14,8 +14,8 @@ namespace Project2015To2017.Transforms
 			{
 				return;
 			}
-			
-			var packageConfig = PopulatePlaceHolders(definition.PackageConfiguration, definition);
+
+			var packageConfig = PopulatePlaceHolders(definition);
 
 			ConstrainPackageReferences(definition.PackageReferences, packageConfig);
 
@@ -47,8 +47,9 @@ namespace Project2015To2017.Transforms
 			}
 		}
 
-		private PackageConfiguration PopulatePlaceHolders(PackageConfiguration rawPackageConfig, Project project)
+		private PackageConfiguration PopulatePlaceHolders(Project project)
 		{
+			var rawPackageConfig = project.PackageConfiguration;
 			var assemblyAttributes = project.AssemblyAttributes;
 
 			return new PackageConfiguration
@@ -76,10 +77,8 @@ namespace Project2015To2017.Transforms
 			{
 				return assemblyAttributeValue ?? nuSpecValue;
 			}
-			else
-			{
-				return nuSpecValue;
-			}
+
+			return nuSpecValue;
 		}
 	}
 }

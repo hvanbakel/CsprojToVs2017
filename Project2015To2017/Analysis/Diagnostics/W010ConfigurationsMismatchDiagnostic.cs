@@ -12,9 +12,6 @@ namespace Project2015To2017.Analysis.Diagnostics
 		/// <inheritdoc />
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
-			var propertyGroups = project.ProjectDocument.Element(project.XmlNamespace + "Project")
-				.Elements(project.XmlNamespace + "PropertyGroup").ToArray();
-
 			var configurationSet = new HashSet<string>();
 			var platformSet = new HashSet<string>();
 
@@ -81,9 +78,7 @@ namespace Project2015To2017.Analysis.Diagnostics
 
 			return list;
 
-			string[] ParseFromProperty(string name) => propertyGroups.Where(x => x.Attribute("Condition") == null)
-				.Elements(project.XmlNamespace + name)
-				.FirstOrDefault()
+			string[] ParseFromProperty(string name) => project.Property(name)
 				?.Value
 				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 		}

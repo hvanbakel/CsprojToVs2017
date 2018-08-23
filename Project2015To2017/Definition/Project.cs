@@ -32,8 +32,6 @@ namespace Project2015To2017.Definition
 		public IList<string> TargetFrameworks { get; } = new List<string>();
 		public bool AppendTargetFrameworkToOutputPath { get; set; } = true;
 		public ApplicationType Type { get; set; }
-		public string RootNamespace { get; set; }
-		public string AssemblyName { get; set; }
 		public FileInfo FilePath { get; set; }
 		public DirectoryInfo ProjectFolder => this.FilePath.Directory;
 
