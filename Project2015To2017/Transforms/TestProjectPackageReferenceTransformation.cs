@@ -23,9 +23,9 @@ namespace Project2015To2017.Transforms
 
 			var testReferences = new[]
 			{
-				new PackageReference {Id = "Microsoft.NET.Test.Sdk", Version = "15.0.0"},
-				new PackageReference {Id = "MSTest.TestAdapter", Version = "1.1.11"},
-				new PackageReference {Id = "MSTest.TestFramework", Version = "1.1.11"}
+				new PackageReference {Id = "Microsoft.NET.Test.Sdk", Version = "15.8.0"},
+				new PackageReference {Id = "MSTest.TestAdapter", Version = "1.3.2"},
+				new PackageReference {Id = "MSTest.TestFramework", Version = "1.3.2"}
 			};
 
 			var versions = definition.TargetFrameworks?
