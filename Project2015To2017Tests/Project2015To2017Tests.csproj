@@ -160,9 +160,6 @@
 	<None Include="TestFiles\OtherTestProjects\unittest.testcsproj">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Include="TestFiles\Solutions\sampleSolution.sln">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
   </ItemGroup>
 
   <ItemGroup>
@@ -232,6 +229,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestFiles\OtherTestProjects\test.nuspec">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\Solutions\sampleSolution.testsln">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestFiles\Solutions\TextFile.txt">

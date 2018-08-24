@@ -11,7 +11,7 @@ namespace Project2015To2017Tests
 		[TestMethod]
 		public void ReadsSolutionFileSuccessfully()
 		{
-			var testFile = @"TestFiles/Solutions/sampleSolution.sln";
+			var testFile = @"TestFiles/Solutions/sampleSolution.testsln";
 
 			var logger = new DummyLogger {MinimumLogLevel = LogLevel.Warning};
 
