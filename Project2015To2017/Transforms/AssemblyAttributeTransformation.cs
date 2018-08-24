@@ -47,6 +47,11 @@ namespace Project2015To2017.Transforms
 				definition.AssemblyAttributeProperties = new[] { new XElement("GenerateAssemblyInfo", "false") };
 			}
 
+			MarkForDeletion(definition);
+		}
+
+		private void MarkForDeletion(Project definition)
+		{
 			if (definition.AssemblyAttributes.File != null && PointlessAssemblyInfo(definition.AssemblyAttributes))
 			{
 				definition.Deletions = definition
