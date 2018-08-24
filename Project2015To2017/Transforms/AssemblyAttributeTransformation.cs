@@ -47,6 +47,9 @@ namespace Project2015To2017.Transforms
 				definition.AssemblyAttributeProperties = new[] { new XElement("GenerateAssemblyInfo", "false") };
 			}
 
+			//Add to the primary property group, which then gives scope for other generic transforms to process it
+			definition.PrimaryPropertyGroup().Add(definition.AssemblyAttributeProperties);
+
 			MarkForDeletion(definition);
 		}
 

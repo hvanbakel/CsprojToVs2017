@@ -54,7 +54,6 @@ namespace Project2015To2017.Transforms
 			AddPackageNodes(project);
 
 			var propertyGroup = project.PrimaryPropertyGroup();
-			propertyGroup.Add(project.AssemblyAttributeProperties);
 
 			if (project.BuildEvents != null && project.BuildEvents.Any())
 			{
