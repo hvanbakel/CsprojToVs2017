@@ -152,8 +152,8 @@ namespace Project2015To2017.Transforms
 					                         ):
 					case "RestorePackages" when ValidateDefaultValue("true"):
 					case "SchemaVersion" when ValidateDefaultValue("2.0"):
-					case "AssemblyVersion" when ValidateDefaultValue("1.0.0.0"):
-					case "FileVersion" when ValidateDefaultValue("1.0.0.0"):
+					case "AssemblyVersion" when ValidateDefaultVersion():
+					case "FileVersion" when ValidateDefaultVersion():
 					case "Version" when ValidateDefaultValue("1.0.0"):
 					// Conditional platform default values
 					case "PlatformTarget" when parentConditionHasPlatform
@@ -214,6 +214,14 @@ namespace Project2015To2017.Transforms
 				bool ValidateConditionedDefaultValue(string @default)
 				{
 					return (valueLower == @default) && (!hasGlobalOverride || globalOverrideLower == @default);
+				}
+				
+				bool ValidateDefaultVersion()
+				{
+					return ValidateDefaultValue("1.0.0.0")
+					       || ValidateDefaultValue("1.0.0")
+					       || ValidateDefaultValue("1.0")
+					       || ValidateDefaultValue("1");
 				}
 
 				string ReplaceWithPlaceholders(string value)
