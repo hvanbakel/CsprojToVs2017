@@ -9,6 +9,7 @@ using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
 using static Project2015To2017.Extensions;
 using Project2015To2017;
+using System.Text;
 
 namespace Project2015To2017Tests
 {
@@ -279,7 +280,7 @@ namespace Project2015To2017Tests
 		{
 			var testCsProjFile = $"{memberName}_test.csproj";
 
-			File.WriteAllText(testCsProjFile, xml);
+			File.WriteAllText(testCsProjFile, xml, Encoding.UTF8);
 
 			var project = new ProjectReader().Read(testCsProjFile);
 			project.ProjectName = projectName;

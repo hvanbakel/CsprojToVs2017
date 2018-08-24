@@ -7,6 +7,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
+using System.Text;
 
 namespace Project2015To2017Tests
 {
@@ -541,7 +542,7 @@ if $(ConfigurationName) == Debug (
 		{
 			var testCsProjFile = $"{memberName}_test.csproj";
 
-			await File.WriteAllTextAsync(testCsProjFile, xml);
+			await File.WriteAllTextAsync(testCsProjFile, xml, Encoding.UTF8);
 
 			var project = new ProjectReader().Read(testCsProjFile);
 

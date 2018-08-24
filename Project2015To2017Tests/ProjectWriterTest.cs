@@ -9,6 +9,7 @@ using Project2015To2017.Writing;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
+using System.Text;
 
 namespace Project2015To2017Tests
 {
@@ -186,7 +187,7 @@ namespace Project2015To2017Tests
 		{
 			var testCsProjFile = $"{memberName}_test.csproj";
 
-			await File.WriteAllTextAsync(testCsProjFile, xml);
+			await File.WriteAllTextAsync(testCsProjFile, xml, Encoding.UTF8);
 
 			var project = new ProjectReader().Read(testCsProjFile);
 
