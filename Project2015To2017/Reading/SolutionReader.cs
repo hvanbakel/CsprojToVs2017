@@ -35,6 +35,7 @@ namespace Project2015To2017.Reading
 		private const string cpsCsProjectGuid = "{9A19103F-16F7-4668-BE54-9A1E7A4F7556}";
 		private const string cpsVbProjectGuid = "{778DAE3C-4631-46EA-AA77-85C1314464D9}";
 		private const string fsProjectGuid = "{F2A71F9B-5D33-465A-A702-920D77279786}";
+		private const string solutionFolderGuid = "{2150E333-8FDC-42A3-9474-1A3956D46DE8}";
 
 		public Solution Read(string filePath)
 		{
@@ -64,7 +65,11 @@ namespace Project2015To2017.Reading
 					if (!ParseFirstProjectLine(line,
 						out var projectTypeGuid, out var projectName, out var path, out var projectGuid))
 					{
-						logger.LogWarning("Unsupported project[{Name}] type {Type}", projectName, projectTypeGuid);
+						if (projectTypeGuid != solutionFolderGuid)
+						{
+							logger.LogWarning("Unsupported project[{Name}] type {Type}", projectName, projectTypeGuid);
+						}
+
 						continue;
 					}
 
