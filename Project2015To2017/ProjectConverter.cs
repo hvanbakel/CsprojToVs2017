@@ -14,6 +14,13 @@ namespace Project2015To2017
 {
 	public sealed class ProjectConverter
 	{
+		private static readonly IReadOnlyDictionary<string, string> ProjectFileMappings = new Dictionary<string, string>
+		{
+			{ ".csproj", "cs" },
+			{ ".vbproj", "vb" },
+			{ ".fsproj", "fs" }
+		};
+
 		private readonly ILogger logger;
 		private readonly ConversionOptions conversionOptions;
 		private readonly ProjectReader projectReader;
@@ -30,7 +37,6 @@ namespace Project2015To2017
 			var extension = Path.GetExtension(target) ?? throw new ArgumentNullException(nameof(target));
 			if (extension.Length > 0)
 			{
-				extension = extension.ToLowerInvariant();
 				switch (extension)
 				{
 					case ".sln":
@@ -38,20 +44,15 @@ namespace Project2015To2017
 						{
 							yield return project;
 						}
-
 						break;
-
-					case ".csproj":
+					case string s when ProjectFileMappings.TryGetValue(extension, out var fileExtension):
 						var file = new FileInfo(target);
 						yield return this.ProcessFile(file, null);
 						break;
-
 					default:
 						this.logger.LogCritical("Please specify a project or solution file.");
-						break;
+						yield break;
 				}
-
-				yield break;
 			}
 
 			// Process the only solution in given directory
@@ -66,25 +67,34 @@ namespace Project2015To2017
 				yield break;
 			}
 
+			var projectsProcessed = 0;
 			// Process all csprojs found in given directory
-			var projectFiles = Directory.EnumerateFiles(target, "*.csproj", SearchOption.AllDirectories).ToArray();
-			if (projectFiles.Length == 0)
+			foreach (var mapping in ProjectFileMappings)
+			{
+				var projectFiles = Directory.EnumerateFiles(target, "*" + mapping.Key, SearchOption.AllDirectories).ToArray();
+				if (projectFiles.Length == 0)
+				{
+					continue;
+				}
+
+				if (projectFiles.Length > 1)
+				{
+					this.logger.LogInformation($"Multiple project files found under directory {target}:");
+				}
+
+				this.logger.LogInformation(string.Join(Environment.NewLine, projectFiles));
+
+				foreach (var projectFile in projectFiles)
+				{
+					// todo: rewrite both directory enumerations to use FileInfo instead of raw strings
+					yield return this.ProcessFile(new FileInfo(projectFile), null);
+					projectsProcessed++;
+				}
+			}
+
+			if (projectsProcessed == 0)
 			{
 				this.logger.LogCritical("Please specify a project file.");
-				yield break;
-			}
-
-			if (projectFiles.Length > 1)
-			{
-				this.logger.LogInformation($"Multiple project files found under directory {target}:");
-			}
-
-			this.logger.LogInformation(string.Join(Environment.NewLine, projectFiles));
-
-			foreach (var projectFile in projectFiles)
-			{
-				// todo: rewrite both directory enumerations to use FileInfo instead of raw strings
-				yield return this.ProcessFile(new FileInfo(projectFile), null);
 			}
 		}
 
@@ -124,6 +134,7 @@ namespace Project2015To2017
 				return null;
 			}
 
+			project.CodeFileExtension = ProjectFileMappings[file.Extension];
 			if (reference?.ProjectName != null)
 			{
 				project.ProjectName = reference.ProjectName;

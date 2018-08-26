@@ -15,6 +15,7 @@ namespace Project2015To2017Tests
 		public void TransformsFiles()
 		{
 			var project = new ProjectReader().Read(Path.Combine("TestFiles", "FileInclusion", "fileinclusion.testcsproj"));
+			project.CodeFileExtension = "cs";
 			var transformation = new FileTransformation();
 
 			transformation.Transform(project);
