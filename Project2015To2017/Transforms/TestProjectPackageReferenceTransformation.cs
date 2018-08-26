@@ -7,7 +7,14 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class TestProjectPackageReferenceTransformation : ITransformation
 	{
-		public void Transform(Project definition, ILogger logger)
+		private readonly ILogger logger;
+
+		public TestProjectPackageReferenceTransformation(ILogger logger = null)
+		{
+			this.logger = logger ?? NoopLogger.Instance;
+		}
+
+		public void Transform(Project definition)
 		{
 			var existingPackageReferences = definition.PackageReferences;
 

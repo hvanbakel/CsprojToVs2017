@@ -2,6 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017;
@@ -93,7 +94,7 @@ namespace Project2015To2017Tests
 
 			var transformation = new XamlPagesTransformation();
 
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 
@@ -121,7 +122,7 @@ namespace Project2015To2017Tests
 		{
 			var testCsProjFile = $"{memberName}_test.csproj";
 
-			await File.WriteAllTextAsync(testCsProjFile, xml);
+			await File.WriteAllTextAsync(testCsProjFile, xml, Encoding.UTF8);
 
 			var project = new ProjectReader().Read(testCsProjFile);
 

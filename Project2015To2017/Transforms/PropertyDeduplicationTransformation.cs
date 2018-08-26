@@ -9,7 +9,7 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class PropertyDeduplicationTransformation : ITransformation
 	{
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			var props = definition
 				.ConditionalGroups()

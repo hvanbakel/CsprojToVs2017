@@ -25,28 +25,6 @@ namespace Project2015To2017
 		private readonly ConversionOptions conversionOptions;
 		private readonly ProjectReader projectReader;
 
-		private static IReadOnlyCollection<ITransformation> TransformationsToApply(ConversionOptions conversionOptions)
-		{
-			return new ITransformation[]
-			{
-				new TargetFrameworkTransformation(
-					conversionOptions.TargetFrameworks,
-					conversionOptions.AppendTargetFrameworkToOutputPath),
-				new PropertySimplificationTransformation(),
-				new PropertyDeduplicationTransformation(),
-				new TestProjectPackageReferenceTransformation(),
-				new AssemblyReferenceTransformation(),
-				new RemovePackageAssemblyReferencesTransformation(),
-				new DefaultAssemblyReferenceRemovalTransformation(),
-				new RemovePackageImportsTransformation(),
-				new FileTransformation(),
-				new NugetPackageTransformation(),
-				new AssemblyAttributeTransformation(conversionOptions.KeepAssemblyInfo),
-				new XamlPagesTransformation(),
-				new PrimaryUnconditionalPropertyTransformation(),
-			};
-		}
-
 		public ProjectConverter(ILogger logger, ConversionOptions conversionOptions = null)
 		{
 			this.logger = logger;
@@ -130,21 +108,20 @@ namespace Project2015To2017
 				yield break;
 			}
 
-			foreach (var projectPath in solution.ProjectPaths)
+			foreach (var projectReference in solution.ProjectPaths)
 			{
-				this.logger.LogInformation("Project found: " + projectPath.Include);
-				if (!projectPath.ProjectFile.Exists)
+				this.logger.LogInformation("Project found: " + projectReference.Include);
+				if (!projectReference.ProjectFile.Exists)
 				{
-					this.logger.LogError("Project file not found at: " + projectPath.ProjectFile.FullName);
+					this.logger.LogError("Project file not found at: " + projectReference.ProjectFile.FullName);
+					continue;
 				}
-				else
-				{
-					yield return this.ProcessFile(projectPath.ProjectFile, solution);
-				}
+
+				yield return this.ProcessFile(projectReference.ProjectFile, solution, projectReference);
 			}
 		}
 
-		private Project ProcessFile(FileInfo file, Solution solution)
+		private Project ProcessFile(FileInfo file, Solution solution, ProjectReference reference = null)
 		{
 			if (!Validate(file, this.logger))
 			{
@@ -158,21 +135,26 @@ namespace Project2015To2017
 			}
 
 			project.CodeFileExtension = ProjectFileMappings[file.Extension];
+			if (reference?.ProjectName != null)
+			{
+				project.ProjectName = reference.ProjectName;
+			}
+
 			project.Solution = solution;
 
 			foreach (var transform in this.conversionOptions.PreDefaultTransforms)
 			{
-				transform.Transform(project, this.logger);
+				transform.Transform(project);
 			}
 
-			foreach (var transform in TransformationsToApply(this.conversionOptions))
+			foreach (var transform in TransformationsToApply(project.IsModernProject))
 			{
-				transform.Transform(project, this.logger);
+				transform.Transform(project);
 			}
 
 			foreach (var transform in this.conversionOptions.PostDefaultTransforms)
 			{
-				transform.Transform(project, this.logger);
+				transform.Transform(project);
 			}
 
 			return project;
@@ -187,6 +169,39 @@ namespace Project2015To2017
 
 			logger.LogError($"File {file.FullName} could not be found.");
 			return false;
+		}
+
+		private IReadOnlyCollection<ITransformation> TransformationsToApply(bool modernProject)
+		{
+			var targetFrameworkTransformation = new TargetFrameworkTransformation(
+				this.conversionOptions.TargetFrameworks,
+				this.conversionOptions.AppendTargetFrameworkToOutputPath);
+
+			if (modernProject)
+			{
+				return new ITransformation[]
+				{
+					targetFrameworkTransformation
+				};
+			}
+
+			return new ITransformation[]
+			{
+				targetFrameworkTransformation,
+				new NugetPackageTransformation(),
+				new AssemblyAttributeTransformation(this.logger, this.conversionOptions.KeepAssemblyInfo),
+				new PropertySimplificationTransformation(),
+				new PropertyDeduplicationTransformation(),
+				new TestProjectPackageReferenceTransformation(this.logger),
+				new AssemblyReferenceTransformation(),
+				new RemovePackageAssemblyReferencesTransformation(),
+				new DefaultAssemblyReferenceRemovalTransformation(),
+				new RemovePackageImportsTransformation(),
+				new FileTransformation(this.logger),
+				new XamlPagesTransformation(this.logger),
+				new PrimaryUnconditionalPropertyTransformation(),
+				new EmptyGroupRemoveTransformation(),
+			};
 		}
 	}
 }

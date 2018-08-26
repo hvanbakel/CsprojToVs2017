@@ -9,6 +9,7 @@ using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
 using static Project2015To2017.Extensions;
 using Project2015To2017;
+using System.Text;
 
 namespace Project2015To2017Tests
 {
@@ -16,9 +17,9 @@ namespace Project2015To2017Tests
 	public class PropertySimplificationTransformationTest
 	{
 		[TestMethod]
-		public async Task SimplifiesProperties1()
+		public void SimplifiesProperties1()
 		{
-			var xml = @"
+			const string xml = @"
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <Configuration Condition="" '$(Configuration)' == '' "">Debug</Configuration>
@@ -46,6 +47,15 @@ namespace Project2015To2017Tests
     </SccProvider>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+    <AssemblyVersion>1.0</AssemblyVersion>
+    <FileVersion>1.0</FileVersion>
+    <AssemblyVersion>1</AssemblyVersion>
+    <FileVersion>1</FileVersion>
+    <Version>1.0.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
     <DebugSymbols>true</DebugSymbols>
@@ -66,10 +76,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransform(xml, transform: false).ConfigureAwait(false);
-
-			project.ProjectName = "Dopamine.Tests";
-			Transform(project);
+			var project = ParseAndTransform(xml, projectName: "Dopamine.Tests");
 
 			Assert.AreEqual(3, project.PropertyGroups.Count);
 
@@ -92,9 +99,9 @@ namespace Project2015To2017Tests
 		}
 
 		[TestMethod]
-		public async Task SimplifiesProperties2()
+		public void SimplifiesProperties2()
 		{
-			var project = await ParseAndTransform(@"
+			const string xml = @"
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -110,10 +117,9 @@ namespace Project2015To2017Tests
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
-</Project>", transform: false);
+</Project>";
 
-			project.ProjectName = "Dopamine";
-			Transform(project);
+			var project = ParseAndTransform(xml, projectName: "Dopamine");
 
 			Assert.IsTrue(project.IsWindowsPresentationFoundationProject);
 			Assert.IsFalse(project.IsWindowsFormsProject);
@@ -151,9 +157,9 @@ namespace Project2015To2017Tests
 
 
 		[TestMethod]
-		public async Task HandlesComplexConditions()
+		public void HandlesComplexConditions()
 		{
-			var xml = @"
+			const string xml = @"
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -173,10 +179,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransform(xml, transform: false).ConfigureAwait(false);
-
-			project.ProjectName = "Dopamine.Tests";
-			Transform(project);
+			var project = ParseAndTransform(xml, projectName: "Dopamine.Tests");
 
 			Assert.AreEqual(2, project.Configurations.Count);
 			Assert.AreEqual(1, project.Configurations.Count(x => x == "Debug"));
@@ -205,9 +208,9 @@ namespace Project2015To2017Tests
 		}
 
 		[TestMethod]
-		public async Task HandlesUnknownConfigurationSimplifications()
+		public void HandlesUnknownConfigurationSimplifications()
 		{
-			var xml = @"
+			const string xml = @"
 <Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
   <Import Project=""$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"" Condition=""Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"" />
   <PropertyGroup>
@@ -238,10 +241,7 @@ namespace Project2015To2017Tests
   </PropertyGroup>
  </Project>";
 
-			var project = await ParseAndTransform(xml, transform: false).ConfigureAwait(false);
-
-			project.ProjectName = "Class1";
-			Transform(project);
+			var project = ParseAndTransform(xml, projectName: "Class1");
 
 			// Configurations property must take precedence
 			// Release_CI will be ignored, but still some transformations will apply
@@ -280,30 +280,24 @@ namespace Project2015To2017Tests
 				childrenReleaseCI.First(x => x.Name.LocalName == "OutputPath").Value);
 		}
 
-		private static async Task<Project> ParseAndTransform(
+		private static Project ParseAndTransform(
 			string xml,
 			[System.Runtime.CompilerServices.CallerMemberName]
 			string memberName = "",
-			bool transform = true
+			string projectName = null
 		)
 		{
 			var testCsProjFile = $"{memberName}_test.csproj";
 
-			await File.WriteAllTextAsync(testCsProjFile, xml);
+			File.WriteAllText(testCsProjFile, xml, Encoding.UTF8);
 
 			var project = new ProjectReader().Read(testCsProjFile);
+			project.ProjectName = projectName;
+			project.FilePath = null;
 
-			if (transform)
-			{
-				Transform(project);
-			}
+			new PropertySimplificationTransformation().Transform(project);
 
 			return project;
-		}
-
-		private static void Transform(Project project)
-		{
-			new PropertySimplificationTransformation().Transform(project, NoopLogger.Instance);
 		}
 	}
 }

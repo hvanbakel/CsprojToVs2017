@@ -22,7 +22,7 @@ namespace Project2015To2017Tests
 
             var transformation = new TestProjectPackageReferenceTransformation();
 
-            transformation.Transform(project, NoopLogger.Instance);
+            transformation.Transform(project);
 
             Assert.AreEqual(10, project.PackageReferences.Count);
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
@@ -40,7 +40,7 @@ namespace Project2015To2017Tests
 
 			var transformation = new TestProjectPackageReferenceTransformation();
 
-            transformation.Transform(project, NoopLogger.Instance);
+            transformation.Transform(project);
 
             Assert.AreEqual(10, project.PackageReferences.Count);
             Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.Owin.Host.HttpListener" && x.Version == "3.1.0"));
@@ -57,7 +57,7 @@ namespace Project2015To2017Tests
 
 	        project.TargetFrameworks.Add("net45");
 
-            transformation.Transform(project, NoopLogger.Instance);
+            transformation.Transform(project);
 
             Assert.AreEqual(6, project.PackageReferences.Count);
             Assert.AreEqual(0, project.PackageReferences.Count(x => x.Id == "MSTest.TestAdapter"));
@@ -70,7 +70,7 @@ namespace Project2015To2017Tests
 
             var transformation = new TestProjectPackageReferenceTransformation();
 
-            transformation.Transform(project, NoopLogger.Instance);
+            transformation.Transform(project);
 
             Assert.AreEqual(7, project.PackageReferences.Count);
             Assert.AreEqual(2, project.PackageReferences.Count(x => x.IsDevelopmentDependency));
@@ -83,7 +83,7 @@ namespace Project2015To2017Tests
             var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
             var transformation = new TestProjectPackageReferenceTransformation();
 
-            transformation.Transform(project, NoopLogger.Instance);
+            transformation.Transform(project);
         }
     }
 }

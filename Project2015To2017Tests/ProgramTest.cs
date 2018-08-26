@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017;
 using Project2015To2017.Reading;
@@ -94,27 +92,6 @@ namespace Project2015To2017Tests
 		public void ValidatesFileExists()
 		{
 			Assert.IsFalse(ProjectConverter.Validate(new FileInfo(Path.Combine("TestFiles", "OtherTestProjects", "nonexistent.testcsproj")), NoopLogger.Instance));
-		}
-
-		private class DummyLogger : ILogger
-		{
-			private readonly List<string> logs = new List<string>();
-			public IReadOnlyList<string> LogEntries => this.logs;
-
-			public IDisposable BeginScope<TState>(TState state)
-			{
-				throw new NotImplementedException();
-			}
-
-			public bool IsEnabled(LogLevel logLevel)
-			{
-				return logLevel == LogLevel.Error;
-			}
-
-			public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-			{
-				this.logs.Add(formatter(state, exception));
-			}
 		}
 	}
 }

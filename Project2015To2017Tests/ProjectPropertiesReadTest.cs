@@ -7,6 +7,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
+using System.Text;
 
 namespace Project2015To2017Tests
 {
@@ -140,40 +141,6 @@ namespace Project2015To2017Tests
 		}
 
 		[TestMethod]
-		public async Task ReadsRootNamespace()
-		{
-			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <RootNamespace>MyProject</RootNamespace>
-  </PropertyGroup>
-</Project>";
-
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
-
-			Assert.AreEqual("MyProject", project.RootNamespace);
-		}
-
-		[TestMethod]
-		public async Task ReadsAssemblyName()
-		{
-			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <AssemblyName>MyProject</AssemblyName>
-  </PropertyGroup>
-</Project>";
-
-			var project = await ParseAndTransform(xml).ConfigureAwait(false);
-
-			Assert.AreEqual("MyProject", project.AssemblyName);
-		}
-
-		[TestMethod]
 		[ExpectedException(typeof(NotSupportedException))]
 		public async Task ThrowsOnNoUnconditionalPropertyGroup()
 		{
@@ -280,8 +247,8 @@ namespace Project2015To2017Tests
 
 			var project = await ParseAndTransform(xml).ConfigureAwait(false);
 
-			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.AssemblyName);
-			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage", project.RootNamespace);
+			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage.Dsl", project.Property("AssemblyName")?.Value);
+			Assert.AreEqual("Croc.XFW3.DomainModelDefinitionLanguage", project.Property("RootNamespace")?.Value);
 			Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
 			Assert.AreEqual(2, project.PropertyGroups.Count);
 		}
@@ -575,7 +542,7 @@ if $(ConfigurationName) == Debug (
 		{
 			var testCsProjFile = $"{memberName}_test.csproj";
 
-			await File.WriteAllTextAsync(testCsProjFile, xml);
+			await File.WriteAllTextAsync(testCsProjFile, xml, Encoding.UTF8);
 
 			var project = new ProjectReader().Read(testCsProjFile);
 

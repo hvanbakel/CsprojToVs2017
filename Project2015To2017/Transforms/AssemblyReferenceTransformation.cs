@@ -8,7 +8,7 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class AssemblyReferenceTransformation : ITransformation
 	{
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			var packageReferences =
 				definition.PackageReferences ?? new List<PackageReference>();

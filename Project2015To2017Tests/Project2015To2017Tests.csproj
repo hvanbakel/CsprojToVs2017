@@ -7,8 +7,11 @@
 
   <ItemGroup>
 	<Compile Remove="TestFiles\FileInclusion\Resources.resx\**" />
+	<Compile Remove="TestFiles\Solutions\ClassLibrary\obj\**" />
 	<EmbeddedResource Remove="TestFiles\FileInclusion\Resources.resx\**" />
+	<EmbeddedResource Remove="TestFiles\Solutions\ClassLibrary\obj\**" />
 	<None Remove="TestFiles\FileInclusion\Resources.resx\**" />
+	<None Remove="TestFiles\Solutions\ClassLibrary\obj\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,11 +34,18 @@
     <Compile Remove="TestFiles\FileInclusion\SourceFileWithDesigner.cs" />
     <Compile Remove="TestFiles\FileInclusion\WildcardFolder\WildcardSubFolder\SubFolderWildcardFile.cs" />
     <Compile Remove="TestFiles\OtherTestProjects\AssemblyInfo.cs" />
+    <Compile Remove="TestFiles\Solutions\ClassLibrary\Properties\AssemblyInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
 	<EmbeddedResource Remove="TestFiles\FileInclusion\Properties\Resources.resx" />
 	<EmbeddedResource Remove="TestFiles\FileInclusion\Resources.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TestFiles\Solutions\ClassLibrary\Properties\AssemblyInfo.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -176,6 +186,9 @@
 	<Compile Update="TestFiles\Folder\FileInFolder.cs">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</Compile>
+	<Compile Update="TestFiles\Solutions\ClassLibrary\Class1.cs">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -216,6 +229,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestFiles\OtherTestProjects\test.nuspec">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\Solutions\sampleSolution.testsln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\Solutions\TextFile.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestFiles\test.nuspec">

@@ -10,7 +10,7 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class PrimaryUnconditionalPropertyTransformation : ITransformation
 	{
-		public void Transform(Project project, ILogger logger)
+		public void Transform(Project project)
 		{
 			AddTargetFrameworks(project, project.TargetFrameworks);
 
@@ -27,12 +27,6 @@ namespace Project2015To2017.Transforms
 				if (platforms.Count != 1 || !platforms.Contains("AnyCPU"))
 					project.SetProperty("Platforms", string.Join(";", platforms));
 
-			var outputProjectName = Path.GetFileNameWithoutExtension(project.FilePath.Name);
-
-			project.SetProperty("RootNamespace",
-				project.RootNamespace != outputProjectName ? project.RootNamespace : null);
-			project.SetProperty("AssemblyName",
-				project.AssemblyName != outputProjectName ? project.AssemblyName : null);
 			project.SetProperty("AppendTargetFrameworkToOutputPath",
 				project.AppendTargetFrameworkToOutputPath ? null : "false");
 
@@ -60,7 +54,6 @@ namespace Project2015To2017.Transforms
 			AddPackageNodes(project);
 
 			var propertyGroup = project.PrimaryPropertyGroup();
-			propertyGroup.Add(project.AssemblyAttributeProperties);
 
 			if (project.BuildEvents != null && project.BuildEvents.Any())
 			{

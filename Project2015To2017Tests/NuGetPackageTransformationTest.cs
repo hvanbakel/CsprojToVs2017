@@ -17,8 +17,6 @@ namespace Project2015To2017Tests
 		{
 			var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
 
-			project.AssemblyName = "TestAssembly";
-
 			project.AssemblyAttributes =
 								new AssemblyAttributes {
 									InformationalVersion = "7.0",
@@ -29,7 +27,7 @@ namespace Project2015To2017Tests
 									Company = "assembly author"
 								};
 
-			new NugetPackageTransformation().Transform(project, NoopLogger.Instance);
+			new NugetPackageTransformation().Transform(project);
 
 			var transformedPackageConfig = project.PackageConfiguration;
 
@@ -58,7 +56,7 @@ namespace Project2015To2017Tests
 					Company = "assembly author"
 				};
 
-			new NugetPackageTransformation().Transform(project, NoopLogger.Instance);
+			new NugetPackageTransformation().Transform(project);
 
 			var transformedPackageConfig = project.PackageConfiguration;
 
@@ -83,8 +81,8 @@ namespace Project2015To2017Tests
 												Version = "1.0.2"
 											}
 										};
-			
-			new NugetPackageTransformation().Transform(project, NoopLogger.Instance);
+
+			new NugetPackageTransformation().Transform(project);
 
 			Assert.AreEqual("[10.0.2,11)", project.PackageReferences.Single(x => x.Id == "Newtonsoft.Json").Version);
 			Assert.AreEqual("1.0.2", project.PackageReferences.Single(x => x.Id == "Other.Package").Version);

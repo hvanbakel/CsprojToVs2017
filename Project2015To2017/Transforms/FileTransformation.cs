@@ -35,7 +35,14 @@ namespace Project2015To2017.Transforms
 			"PackageReference",
 		};
 
-		public void Transform(Project definition, ILogger logger)
+		private readonly ILogger logger;
+
+		public FileTransformation(ILogger logger = null)
+		{
+			this.logger = logger ?? NoopLogger.Instance;
+		}
+
+		public void Transform(Project definition)
 		{
 			var (keepItems, removeQueue) = definition.ItemGroups
 				.SelectMany(x => x.Elements())

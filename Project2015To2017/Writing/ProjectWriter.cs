@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
@@ -69,7 +70,7 @@ namespace Project2015To2017.Writing
 				return false;
 			}
 
-			File.WriteAllText(projectFile.FullName, projectNode.ToString());
+			File.WriteAllText(projectFile.FullName, projectNode.ToString(), Encoding.UTF8);
 			return true;
 		}
 
@@ -100,7 +101,7 @@ namespace Project2015To2017.Writing
 				return false;
 			}
 
-			File.WriteAllText(file.FullName, newContents);
+			File.WriteAllText(file.FullName, newContents, Encoding.UTF8);
 
 			return true;
 		}

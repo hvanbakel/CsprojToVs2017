@@ -10,7 +10,6 @@ namespace Project2015To2017.Transforms
 		/// Alter the provided project in some way
 		/// </summary>
 		/// <param name="definition"></param>
-		/// <param name="logger"></param>
-        void Transform(Project definition, ILogger logger);
+        void Transform(Project definition);
     }
 }

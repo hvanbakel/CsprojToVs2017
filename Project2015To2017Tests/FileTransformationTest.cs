@@ -18,7 +18,7 @@ namespace Project2015To2017Tests
 			project.CodeFileExtension = "cs";
 			var transformation = new FileTransformation();
 
-			transformation.Transform(project, NoopLogger.Instance);
+			transformation.Transform(project);
 
 			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 

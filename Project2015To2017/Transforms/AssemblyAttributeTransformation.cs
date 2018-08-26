@@ -9,17 +9,21 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class AssemblyAttributeTransformation : ITransformation
 	{
-		public AssemblyAttributeTransformation() : this(false)
+		private readonly ILogger logger;
+
+		public AssemblyAttributeTransformation(ILogger logger) : this(logger, false)
 		{
 		}
-		public AssemblyAttributeTransformation(bool keepAssemblyInfoFile)
+
+		public AssemblyAttributeTransformation(ILogger logger, bool keepAssemblyInfoFile)
 		{
+			this.logger = logger;
 			this.KeepAssemblyInfoFile = keepAssemblyInfoFile;
 		}
 
 		public bool KeepAssemblyInfoFile { get; }
 
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			if (definition.AssemblyAttributes == null)
 			{
@@ -43,6 +47,14 @@ namespace Project2015To2017.Transforms
 				definition.AssemblyAttributeProperties = new[] { new XElement("GenerateAssemblyInfo", "false") };
 			}
 
+			//Add to the primary property group, which then gives scope for other generic transforms to process it
+			definition.PrimaryPropertyGroup().Add(definition.AssemblyAttributeProperties);
+
+			MarkForDeletion(definition);
+		}
+
+		private void MarkForDeletion(Project definition)
+		{
 			if (definition.AssemblyAttributes.File != null && PointlessAssemblyInfo(definition.AssemblyAttributes))
 			{
 				definition.Deletions = definition

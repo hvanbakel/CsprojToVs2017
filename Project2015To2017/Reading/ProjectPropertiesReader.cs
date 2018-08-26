@@ -28,9 +28,6 @@ namespace Project2015To2017.Reading
 		{
 			ReadPropertyGroups(project);
 
-			project.RootNamespace = project.Property("RootNamespace", tryConditional: true)?.Value;
-			project.AssemblyName = project.Property("AssemblyName", tryConditional: true)?.Value;
-
 			var targetFrameworkVersion = project.Property("TargetFrameworkVersion")?.Value;
 			if (targetFrameworkVersion != null)
 			{
@@ -145,7 +142,7 @@ namespace Project2015To2017.Reading
 				.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
 		}
 
-		private static void ReadPropertyGroups(Project project)
+		internal static void ReadPropertyGroups(Project project)
 		{
 			project.PropertyGroups = project.ProjectDocument.Root
 				.Elements(project.XmlNamespace + "PropertyGroup")

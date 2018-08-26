@@ -7,17 +7,15 @@ namespace Project2015To2017.Transforms
 {
 	public sealed class TargetFrameworkTransformation : ITransformation
 	{
-		public TargetFrameworkTransformation(IReadOnlyList<string> targetFrameworks)
-			: this(targetFrameworks, true)
-		{
-		}
-		public TargetFrameworkTransformation(IReadOnlyList<string> targetFrameworks, bool appendTargetFrameworkToOutputPath)
+		public TargetFrameworkTransformation(
+			IReadOnlyList<string> targetFrameworks,
+			bool appendTargetFrameworkToOutputPath = true)
 		{
 			this.TargetFrameworks = targetFrameworks;
 			this.AppendTargetFrameworkToOutputPath = appendTargetFrameworkToOutputPath;
 		}
 
-		public void Transform(Project definition, ILogger logger)
+		public void Transform(Project definition)
 		{
 			if (null == definition)
 			{
