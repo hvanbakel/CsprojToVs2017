@@ -177,6 +177,8 @@ namespace Project2015To2017
 			return new ITransformation[]
 			{
 				targetFrameworkTransformation,
+				new NugetPackageTransformation(),
+				new AssemblyAttributeTransformation(this.logger, this.conversionOptions.KeepAssemblyInfo),
 				new PropertySimplificationTransformation(),
 				new PropertyDeduplicationTransformation(),
 				new TestProjectPackageReferenceTransformation(this.logger),
@@ -185,8 +187,6 @@ namespace Project2015To2017
 				new DefaultAssemblyReferenceRemovalTransformation(),
 				new RemovePackageImportsTransformation(),
 				new FileTransformation(this.logger),
-				new NugetPackageTransformation(),
-				new AssemblyAttributeTransformation(this.logger, this.conversionOptions.KeepAssemblyInfo),
 				new XamlPagesTransformation(this.logger),
 				new PrimaryUnconditionalPropertyTransformation(),
 				new EmptyGroupRemoveTransformation(),

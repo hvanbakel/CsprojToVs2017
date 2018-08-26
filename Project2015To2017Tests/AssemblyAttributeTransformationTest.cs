@@ -14,6 +14,8 @@ namespace Project2015To2017Tests
 	[TestClass]
 	public class AssemblyAttributeTransformationTest
 	{
+		private List<XElement> ProjectPropertyGroups = new [] {new XElement("PropertyGroup")}.ToList();
+
 		private static AssemblyAttributes BaseAssemblyAttributes() =>
 			new AssemblyAttributes
 			{
@@ -39,7 +41,8 @@ namespace Project2015To2017Tests
 			{
 				AssemblyAttributes = new AssemblyAttributes(),
 				FilePath = new FileInfo("test.cs"),
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
@@ -61,7 +64,8 @@ namespace Project2015To2017Tests
 			{
 				AssemblyAttributes = BaseAssemblyAttributes(),
 				FilePath = new FileInfo("test.cs"),
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance, true);
@@ -82,7 +86,8 @@ namespace Project2015To2017Tests
 			var project = new Project
 			{
 				AssemblyAttributes = BaseAssemblyAttributes(),
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
@@ -120,6 +125,8 @@ namespace Project2015To2017Tests
 
 			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
 
+			CollectionAssert.AreEqual(project.AssemblyAttributeProperties.ToList(), project.PrimaryPropertyGroup().Elements().ToArray());
+
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}
 
@@ -137,7 +144,8 @@ namespace Project2015To2017Tests
 			var project = new Project
 			{
 				AssemblyAttributes = baseAssemblyAttributes,
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
@@ -182,7 +190,8 @@ namespace Project2015To2017Tests
 			var project = new Project
 			{
 				AssemblyAttributes = assemblyAttributes,
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
@@ -229,7 +238,8 @@ namespace Project2015To2017Tests
 					//but the converter needs to explicitly copy it
 					Version = "1.0.4.2"
 				},
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
@@ -271,7 +281,8 @@ namespace Project2015To2017Tests
 					Description = "Some other description",
 					Version = "1.5.2-otherVersion"
 				},
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
@@ -316,7 +327,8 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project
 			{
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var assemblyInfoFile = new FileInfo(@"TestFiles\AssemblyInfoHandling\Empty\Properties\AssemblyInfo.cs");
@@ -337,7 +349,8 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project
 			{
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var assemblyInfoFile = new FileInfo(@"TestFiles\AssemblyInfoHandling\Redundant\Properties\AssemblyInfo.cs");
@@ -361,7 +374,8 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project
 			{
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var assemblyInfoFile = new FileInfo(@"TestFiles\AssemblyInfoHandling\ClassDataLeft\Properties\AssemblyInfo.cs");
@@ -388,7 +402,8 @@ namespace Project2015To2017Tests
 				AssemblyAttributes = null,
 				HasMultipleAssemblyInfoFiles = true,
 				FilePath = new FileInfo("test.cs"),
-				Deletions = new List<FileSystemInfo>()
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
 			};
 
 			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
