@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class XamlPagesTransformation : ITransformation
+	public sealed class XamlPagesTransformation : ILegacyOnlyProjectTransformation
 	{
 		public XamlPagesTransformation(ILogger logger = null)
 		{

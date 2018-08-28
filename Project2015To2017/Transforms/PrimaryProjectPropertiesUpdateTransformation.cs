@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class PrimaryUnconditionalPropertyTransformation : ITransformation
+	public sealed class PrimaryProjectPropertiesUpdateTransformation : ITransformation
 	{
 		public void Transform(Project project)
 		{

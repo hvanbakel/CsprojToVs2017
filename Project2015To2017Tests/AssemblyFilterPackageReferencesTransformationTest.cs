@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
@@ -6,19 +5,18 @@ using System.Linq;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
-using Project2015To2017;
 
 namespace Project2015To2017Tests
 {
 	[TestClass]
-	public class AssemblyReferenceTransformationTest
+	public class AssemblyFilterPackageReferencesTransformationTest
 	{
 		[TestMethod]
 		public void TransformsAssemblyReferences()
 		{
 			var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
-			var transformation = new AssemblyReferenceTransformation();
-			
+			var transformation = new AssemblyFilterPackageReferencesTransformation();
+
 			transformation.Transform(project);
 
 			Assert.AreEqual(12, project.AssemblyReferences.Count);
@@ -69,8 +67,8 @@ namespace Project2015To2017Tests
 				}
 			};
 
-			var transformation = new AssemblyReferenceTransformation();
-			
+			var transformation = new AssemblyFilterPackageReferencesTransformation();
+
 			transformation.Transform(project);
 
 			Assert.AreEqual(1, project.AssemblyReferences.Count);

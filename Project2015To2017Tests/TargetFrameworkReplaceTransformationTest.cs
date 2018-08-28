@@ -1,14 +1,12 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Project2015To2017;
 using Project2015To2017.Definition;
 using Project2015To2017.Transforms;
 
 namespace Project2015To2017Tests
 {
 	[TestClass]
-	public class TargetFrameworkTransformationTest
+	public class TargetFrameworkReplaceTransformationTest
 	{
 		[TestMethod]
 		public void HandlesProjectNull()
@@ -16,19 +14,19 @@ namespace Project2015To2017Tests
 			Project project = null;
 			var targetFrameworks = new List<string> { "netstandard2.0" };
 
-			var transformation = new TargetFrameworkTransformation(targetFrameworks);
+			var transformation = new TargetFrameworkReplaceTransformation(targetFrameworks);
 			transformation.Transform(project);
 
 			Assert.IsNull(project);
 		}
-		
+
 		[TestMethod]
 		public void HandlesProjectTargetFrameworksEmpty()
 		{
 			var project = new Project();
 			var targetFrameworks = new List<string> { "netstandard2.0" };
 
-			var transformation = new TargetFrameworkTransformation(targetFrameworks);
+			var transformation = new TargetFrameworkReplaceTransformation(targetFrameworks);
 			transformation.Transform(project);
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
@@ -42,8 +40,8 @@ namespace Project2015To2017Tests
 			{
 				TargetFrameworks = { "net46" }
 			};
-			
-			var transformation = new TargetFrameworkTransformation(null);
+
+			var transformation = new TargetFrameworkReplaceTransformation(null);
 			transformation.Transform(project);
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
@@ -58,7 +56,7 @@ namespace Project2015To2017Tests
 				TargetFrameworks = { "net46" }
 			};
 
-			var transformation = new TargetFrameworkTransformation(new List<string>());
+			var transformation = new TargetFrameworkReplaceTransformation(new List<string>());
 			transformation.Transform(project);
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
@@ -74,7 +72,7 @@ namespace Project2015To2017Tests
 			};
 			var targetFrameworks = new List<string> { "netstandard2.0" };
 
-			var transformation = new TargetFrameworkTransformation(targetFrameworks);
+			var transformation = new TargetFrameworkReplaceTransformation(targetFrameworks);
 			transformation.Transform(project);
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
@@ -90,7 +88,7 @@ namespace Project2015To2017Tests
 			};
 			var targetFrameworks = new List<string> { "netstandard2.0", "net47" };
 
-			var transformation = new TargetFrameworkTransformation(targetFrameworks);
+			var transformation = new TargetFrameworkReplaceTransformation(targetFrameworks);
 			transformation.Transform(project);
 
 			Assert.AreEqual(2, project.TargetFrameworks.Count);
@@ -103,7 +101,7 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project();
 
-			var transformation = new TargetFrameworkTransformation(null, true);
+			var transformation = new TargetFrameworkReplaceTransformation(null, true);
 			transformation.Transform(project);
 
 			Assert.AreEqual(true, project.AppendTargetFrameworkToOutputPath);
@@ -114,7 +112,7 @@ namespace Project2015To2017Tests
 		{
 			var project = new Project();
 
-			var transformation = new TargetFrameworkTransformation(null, false);
+			var transformation = new TargetFrameworkReplaceTransformation(null, false);
 			transformation.Transform(project);
 
 			Assert.AreEqual(false, project.AppendTargetFrameworkToOutputPath);
