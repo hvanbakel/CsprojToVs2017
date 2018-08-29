@@ -19,7 +19,7 @@ namespace Project2015To2017Tests
 		private static readonly string deletionsPath = Path.Combine("TestFiles", "Deletions");
 
 		[TestMethod]
-		public void ValidatesFileIsWritable()
+		public void ValidatesFileIsWritableProgram()
 		{
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
@@ -28,8 +28,13 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			});
 
-			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects",
-				$"{nameof(ValidatesFileIsWritable)}.readonly");
+			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects", $"{nameof(ValidatesFileIsWritableProgram)}.readonly");
+			if (File.Exists(copiedProjectFile))
+			{
+				File.SetAttributes(copiedProjectFile, FileAttributes.Normal);
+				File.Delete(copiedProjectFile);
+			}
+
 			File.Copy(Path.Combine("TestFiles", "OtherTestProjects", "readonly.testcsproj"), copiedProjectFile);
 			File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
 			var project = new ProjectReader().Read(copiedProjectFile);
@@ -40,7 +45,7 @@ namespace Project2015To2017Tests
 				if (messageNum++ == 0)
 				{
 					Assert.AreEqual(
-						$@"TestFiles\OtherTestProjects\{nameof(ValidatesFileIsWritable)}.readonly is readonly, please make the file writable first (checkout from source control?).",
+						$@"TestFiles\OtherTestProjects\{nameof(ValidatesFileIsWritableProgram)}.readonly is readonly, please make the file writable first (checkout from source control?).",
 						x);
 				}
 			});
