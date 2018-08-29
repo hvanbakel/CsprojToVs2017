@@ -169,7 +169,7 @@ namespace Project2015To2017.Reading
 			throw new NotSupportedException($"Target framework {targetFramework} is not supported.");
 		}
 
-		private static ApplicationType ToApplicationType(string outputType)
+		private ApplicationType ToApplicationType(string outputType)
 		{
 			if (string.IsNullOrWhiteSpace(outputType))
 			{
@@ -178,9 +178,15 @@ namespace Project2015To2017.Reading
 
 			switch (outputType.ToLowerInvariant())
 			{
-				case "exe": return ApplicationType.ConsoleApplication;
-				case "library": return ApplicationType.ClassLibrary;
-				case "winexe": return ApplicationType.WindowsApplication;
+				case "exe":
+					return ApplicationType.ConsoleApplication;
+				case "library":
+					return ApplicationType.ClassLibrary;
+				case "appcontainerexe":
+					this._logger.LogWarning("Converting AppContainerExe to more generic Windows exe.");
+					return ApplicationType.WindowsApplication;
+				case "winexe":
+					return ApplicationType.WindowsApplication;
 				default: throw new NotSupportedException($"OutputType {outputType} is not supported.");
 			}
 		}
