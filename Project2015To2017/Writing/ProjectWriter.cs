@@ -343,8 +343,6 @@ namespace Project2015To2017.Writing
 					continue;
 				}
 
-				this.checkoutOperation(fileInfo);
-
 				var attributes = File.GetAttributes(fileInfo.FullName);
 				if ((attributes & FileAttributes.ReadOnly) != 0)
 				{
