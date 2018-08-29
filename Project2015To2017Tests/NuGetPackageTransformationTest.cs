@@ -27,7 +27,7 @@ namespace Project2015To2017Tests
 									Company = "assembly author"
 								};
 
-			new NugetPackageTransformation().Transform(project);
+			new NuGetPackageTransformation().Transform(project);
 
 			var transformedPackageConfig = project.PackageConfiguration;
 
@@ -56,7 +56,7 @@ namespace Project2015To2017Tests
 					Company = "assembly author"
 				};
 
-			new NugetPackageTransformation().Transform(project);
+			new NuGetPackageTransformation().Transform(project);
 
 			var transformedPackageConfig = project.PackageConfiguration;
 
@@ -82,7 +82,7 @@ namespace Project2015To2017Tests
 											}
 										};
 
-			new NugetPackageTransformation().Transform(project);
+			new NuGetPackageTransformation().Transform(project);
 
 			Assert.AreEqual("[10.0.2,11)", project.PackageReferences.Single(x => x.Id == "Newtonsoft.Json").Version);
 			Assert.AreEqual("1.0.2", project.PackageReferences.Single(x => x.Id == "Other.Package").Version);

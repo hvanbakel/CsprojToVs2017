@@ -2,6 +2,7 @@ using CommandLine;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Analysis;
 using Project2015To2017.Definition;
+using Project2015To2017.Transforms;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,7 +25,7 @@ namespace Project2015To2017.Console
 			ILogger logger = new ConsoleLogger("console", (s, l) => l >= LogLevel.Information, true);
 			foreach (var file in options.Files)
 			{
-				var projects = new ProjectConverter(logger, conversionOptions)
+				var projects = new ProjectConverter(logger, Vs15TransformationSet.Instance, conversionOptions)
 					.Convert(file)
 					.Where(x => x != null)
 					.ToList();
@@ -62,7 +63,7 @@ namespace Project2015To2017.Console
 
 			foreach (var file in options.Files)
 			{
-				var projects = new ProjectConverter(logger, conversionOptions)
+				var projects = new ProjectConverter(logger, BasicReadTransformationSet.Instance, conversionOptions)
 					.Convert(file)
 					.Where(x => x != null)
 					.ToList();

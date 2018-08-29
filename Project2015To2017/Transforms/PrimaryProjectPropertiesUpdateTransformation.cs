@@ -6,7 +6,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class PrimaryProjectPropertiesUpdateTransformation : ITransformation
+	public sealed class PrimaryProjectPropertiesUpdateTransformation : ITransformationWithTargetMoment
 	{
 		public void Transform(Project project)
 		{
@@ -102,5 +102,8 @@ namespace Project2015To2017.Transforms
 			project.ReplacePropertiesWith(newElement,
 				"TargetFrameworks", "TargetFramework", "TargetFrameworkVersion");
 		}
+
+		public TargetTransformationExecutionMoment ExecutionMoment =>
+			TargetTransformationExecutionMoment.Late;
 	}
 }

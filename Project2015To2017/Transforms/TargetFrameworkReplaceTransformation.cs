@@ -3,7 +3,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class TargetFrameworkReplaceTransformation : ITransformation
+	public sealed class TargetFrameworkReplaceTransformation : ITransformationWithTargetMoment
 	{
 		public TargetFrameworkReplaceTransformation(
 			IReadOnlyList<string> targetFrameworks,
@@ -34,5 +34,8 @@ namespace Project2015To2017.Transforms
 
 		public IReadOnlyList<string> TargetFrameworks { get; }
 		public bool AppendTargetFrameworkToOutputPath { get; }
+
+		public TargetTransformationExecutionMoment ExecutionMoment =>
+			TargetTransformationExecutionMoment.Early;
 	}
 }

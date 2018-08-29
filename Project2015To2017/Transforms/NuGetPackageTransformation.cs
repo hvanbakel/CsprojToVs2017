@@ -6,7 +6,8 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class NugetPackageTransformation : ILegacyOnlyProjectTransformation
+	public sealed class NuGetPackageTransformation
+		: ITransformationWithTargetMoment, ILegacyOnlyProjectTransformation
 	{
 		public void Transform(Project definition)
 		{
@@ -80,5 +81,8 @@ namespace Project2015To2017.Transforms
 
 			return nuSpecValue;
 		}
+
+		public TargetTransformationExecutionMoment ExecutionMoment =>
+			TargetTransformationExecutionMoment.Early;
 	}
 }
