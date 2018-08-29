@@ -11,7 +11,7 @@ using Project2015To2017.Reading.Conditionals;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class PropertySimplificationTransformation : ITransformation
+	public sealed class PropertySimplificationTransformation : ILegacyOnlyProjectTransformation
 	{
 		private static readonly string[] IgnoreProjectNameValues =
 		   {
@@ -215,7 +215,7 @@ namespace Project2015To2017.Transforms
 				{
 					return (valueLower == @default) && (!hasGlobalOverride || globalOverrideLower == @default);
 				}
-				
+
 				bool ValidateDefaultVersion()
 				{
 					return ValidateDefaultValue("1.0.0.0")

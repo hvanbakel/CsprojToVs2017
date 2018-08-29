@@ -6,7 +6,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class NugetPackageTransformation : ITransformation
+	public sealed class NugetPackageTransformation : ILegacyOnlyProjectTransformation
 	{
 		public void Transform(Project definition)
 		{

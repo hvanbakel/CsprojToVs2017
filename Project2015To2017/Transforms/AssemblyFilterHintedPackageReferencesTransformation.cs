@@ -1,12 +1,10 @@
-using System;
 using System.IO;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class RemovePackageAssemblyReferencesTransformation : ITransformation
+	public sealed class AssemblyFilterHintedPackageReferencesTransformation : ILegacyOnlyProjectTransformation
 	{
 		public void Transform(Project definition)
 		{

@@ -173,7 +173,7 @@ namespace Project2015To2017
 
 		private IReadOnlyCollection<ITransformation> TransformationsToApply(bool modernProject)
 		{
-			var targetFrameworkTransformation = new TargetFrameworkTransformation(
+			var targetFrameworkTransformation = new TargetFrameworkReplaceTransformation(
 				this.conversionOptions.TargetFrameworks,
 				this.conversionOptions.AppendTargetFrameworkToOutputPath);
 
@@ -193,13 +193,13 @@ namespace Project2015To2017
 				new PropertySimplificationTransformation(),
 				new PropertyDeduplicationTransformation(),
 				new TestProjectPackageReferenceTransformation(this.logger),
-				new AssemblyReferenceTransformation(),
-				new RemovePackageAssemblyReferencesTransformation(),
-				new DefaultAssemblyReferenceRemovalTransformation(),
-				new RemovePackageImportsTransformation(),
+				new AssemblyFilterPackageReferencesTransformation(),
+				new AssemblyFilterHintedPackageReferencesTransformation(),
+				new AssemblyFilterDefaultTransformation(),
+				new ImportsTargetsFilterPackageReferencesTransformation(),
 				new FileTransformation(this.logger),
 				new XamlPagesTransformation(this.logger),
-				new PrimaryUnconditionalPropertyTransformation(),
+				new PrimaryProjectPropertiesUpdateTransformation(),
 				new EmptyGroupRemoveTransformation(),
 			};
 		}

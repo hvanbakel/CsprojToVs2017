@@ -1,14 +1,13 @@
 using System.IO;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Project2015To2017;
 using Project2015To2017.Definition;
 using Project2015To2017.Transforms;
 
 namespace Project2015To2017Tests
 {
 	[TestClass]
-	public class PrimaryUnconditionalPropertyTransformationTest
+	public class PrimaryProjectPropertiesUpdateTransformationTest
 	{
 		[TestMethod]
 		public void OutputAppendTargetFrameworkToOutputPathTrue()
@@ -21,7 +20,7 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			};
 
-			new PrimaryUnconditionalPropertyTransformation().Transform(project);
+			new PrimaryProjectPropertiesUpdateTransformation().Transform(project);
 
 			var appendTargetFrameworkToOutputPath = project.Property("AppendTargetFrameworkToOutputPath");
 			Assert.IsNull(appendTargetFrameworkToOutputPath);
@@ -38,7 +37,7 @@ namespace Project2015To2017Tests
 				FilePath = new FileInfo("test.cs")
 			};
 
-			new PrimaryUnconditionalPropertyTransformation().Transform(project);
+			new PrimaryProjectPropertiesUpdateTransformation().Transform(project);
 
 			var appendTargetFrameworkToOutputPath = project.Property("AppendTargetFrameworkToOutputPath");
 			Assert.IsNotNull(appendTargetFrameworkToOutputPath);

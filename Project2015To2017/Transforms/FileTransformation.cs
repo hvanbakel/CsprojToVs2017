@@ -9,7 +9,7 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class FileTransformation : ITransformation
+	public sealed class FileTransformation : ILegacyOnlyProjectTransformation
 	{
 		private static readonly IReadOnlyCollection<string> ItemsToProjectChecked = new[]
 		{

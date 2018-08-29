@@ -1,11 +1,10 @@
-using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class TestProjectPackageReferenceTransformation : ITransformation
+	public sealed class TestProjectPackageReferenceTransformation : ILegacyOnlyProjectTransformation
 	{
 		private readonly ILogger logger;
 

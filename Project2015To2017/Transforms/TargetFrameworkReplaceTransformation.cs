@@ -1,13 +1,11 @@
-using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class TargetFrameworkTransformation : ITransformation
+	public sealed class TargetFrameworkReplaceTransformation : ITransformation
 	{
-		public TargetFrameworkTransformation(
+		public TargetFrameworkReplaceTransformation(
 			IReadOnlyList<string> targetFrameworks,
 			bool appendTargetFrameworkToOutputPath = true)
 		{
