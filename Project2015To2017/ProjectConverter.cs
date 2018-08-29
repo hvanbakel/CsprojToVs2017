@@ -48,6 +48,7 @@ namespace Project2015To2017
 					case string s when ProjectFileMappings.TryGetValue(extension, out var fileExtension):
 						var file = new FileInfo(target);
 						yield return this.ProcessFile(file, null);
+						yield break;
 						break;
 					default:
 						this.logger.LogCritical("Please specify a project or solution file.");
