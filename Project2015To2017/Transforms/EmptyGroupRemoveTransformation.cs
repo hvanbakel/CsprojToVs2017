@@ -6,7 +6,8 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public class EmptyGroupRemoveTransformation : ITransformation
+	public class EmptyGroupRemoveTransformation
+		: ITransformationWithTargetMoment, ITransformationWithDependencies
 	{
 		public void Transform(Project definition)
 		{
@@ -26,5 +27,13 @@ namespace Project2015To2017.Transforms
 
 			return keep;
 		}
+
+		public TargetTransformationExecutionMoment ExecutionMoment =>
+			TargetTransformationExecutionMoment.Late;
+
+		public IReadOnlyCollection<string> DependOn => new[]
+		{
+			typeof(PrimaryProjectPropertiesUpdateTransformation).Name,
+		};
 	}
 }

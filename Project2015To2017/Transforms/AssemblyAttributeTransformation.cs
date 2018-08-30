@@ -7,15 +7,12 @@ using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class AssemblyAttributeTransformation : ILegacyOnlyProjectTransformation
+	public sealed class AssemblyAttributeTransformation
+		: ITransformationWithTargetMoment, ILegacyOnlyProjectTransformation
 	{
 		private readonly ILogger logger;
 
-		public AssemblyAttributeTransformation(ILogger logger) : this(logger, false)
-		{
-		}
-
-		public AssemblyAttributeTransformation(ILogger logger, bool keepAssemblyInfoFile)
+		public AssemblyAttributeTransformation(ILogger logger, bool keepAssemblyInfoFile = false)
 		{
 			this.logger = logger;
 			this.KeepAssemblyInfoFile = keepAssemblyInfoFile;
@@ -198,5 +195,8 @@ namespace Project2015To2017.Transforms
 		{
 			return !string.IsNullOrEmpty(attribute) ? new XElement(name, attribute) : null;
 		}
+
+		public TargetTransformationExecutionMoment ExecutionMoment =>
+			TargetTransformationExecutionMoment.Early;
 	}
 }

@@ -24,11 +24,16 @@ namespace Project2015To2017
 		private readonly ILogger logger;
 		private readonly ConversionOptions conversionOptions;
 		private readonly ProjectReader projectReader;
+		private readonly ITransformationSet transformationSet;
 
-		public ProjectConverter(ILogger logger, ConversionOptions conversionOptions = null)
+		public ProjectConverter(
+			ILogger logger,
+			ITransformationSet transformationSet,
+			ConversionOptions conversionOptions = null)
 		{
 			this.logger = logger;
 			this.conversionOptions = conversionOptions ?? new ConversionOptions();
+			this.transformationSet = transformationSet ?? BasicReadTransformationSet.Instance;
 			this.projectReader = new ProjectReader(logger, this.conversionOptions);
 		}
 
@@ -48,12 +53,13 @@ namespace Project2015To2017
 					case string s when ProjectFileMappings.TryGetValue(extension, out var fileExtension):
 						var file = new FileInfo(target);
 						yield return this.ProcessFile(file, null);
-						yield break;
 						break;
 					default:
 						this.logger.LogCritical("Please specify a project or solution file.");
-						yield break;
+						break;
 				}
+
+				yield break;
 			}
 
 			// Process the only solution in given directory
@@ -148,8 +154,18 @@ namespace Project2015To2017
 				transform.Transform(project);
 			}
 
-			foreach (var transform in TransformationsToApply(project.IsModernProject))
+			foreach (var transform in TransformationsToApply())
 			{
+				if (project.IsModernProject && transform is ILegacyOnlyProjectTransformation)
+				{
+					continue;
+				}
+
+				if (!project.IsModernProject && transform is IModernOnlyProjectTransformation)
+				{
+					continue;
+				}
+
 				transform.Transform(project);
 			}
 
@@ -172,37 +188,114 @@ namespace Project2015To2017
 			return false;
 		}
 
-		private IReadOnlyCollection<ITransformation> TransformationsToApply(bool modernProject)
+		private IReadOnlyCollection<ITransformation> TransformationsToApply()
 		{
-			var targetFrameworkTransformation = new TargetFrameworkReplaceTransformation(
-				this.conversionOptions.TargetFrameworks,
-				this.conversionOptions.AppendTargetFrameworkToOutputPath);
+			var all = this.transformationSet.Transformations(this.logger, this.conversionOptions);
+			var (normal, others) = all.Split(FilterTargetNormalTransformations);
+			var (early, late) = others.Split(x =>
+				((ITransformationWithTargetMoment) x).ExecutionMoment == TargetTransformationExecutionMoment.Early);
+			var res = new List<ITransformation>(all.Count);
+			TopologicalSort(early, res, this.logger);
+			TopologicalSort(normal, res, this.logger);
+			TopologicalSort(late, res, this.logger);
+			return res;
+		}
 
-			if (modernProject)
+		private static void TopologicalSort(
+			IReadOnlyList<ITransformation> source,
+			ICollection<ITransformation> target,
+			ILogger logger)
+		{
+			var count = source.Count;
+			if (count == 0)
 			{
-				return new ITransformation[]
-				{
-					targetFrameworkTransformation
-				};
+				return;
 			}
 
-			return new ITransformation[]
+			// When Span<T> becomes available - replace with
+			// var used = count <= 256 ? stackalloc byte[count] : new byte[count];
+			var used = new byte[count];
+			var res = new LinkedList<ITransformation>();
+			var mappings = new Dictionary<string, int>();
+			for (var i = 0; i < count; i++)
 			{
-				targetFrameworkTransformation,
-				new NugetPackageTransformation(),
-				new AssemblyAttributeTransformation(this.logger, this.conversionOptions.KeepAssemblyInfo),
-				new PropertySimplificationTransformation(),
-				new PropertyDeduplicationTransformation(),
-				new TestProjectPackageReferenceTransformation(this.logger),
-				new AssemblyFilterPackageReferencesTransformation(),
-				new AssemblyFilterHintedPackageReferencesTransformation(),
-				new AssemblyFilterDefaultTransformation(),
-				new ImportsTargetsFilterPackageReferencesTransformation(),
-				new FileTransformation(this.logger),
-				new XamlPagesTransformation(this.logger),
-				new PrimaryProjectPropertiesUpdateTransformation(),
-				new EmptyGroupRemoveTransformation(),
-			};
+				var transformation = source[i];
+				if (transformation == null)
+				{
+					throw new ArgumentNullException(nameof(transformation),
+						"Transformation set must not contain null items");
+				}
+
+				mappings.Add(transformation.GetType().Name, i);
+			}
+
+			for (var i = 0; i < count; i++)
+			{
+				if (used[i] != 0)
+				{
+					continue;
+				}
+
+				TopologicalSortInternal(source, i, used, mappings, res, logger);
+			}
+
+			// topological order on reverse graph is reverse topological order on the original
+			var item = res.Last;
+			while (item != null)
+			{
+				target.Add(item.Value);
+				item = item.Previous;
+			}
+		}
+
+		private static void TopologicalSortInternal(
+			IReadOnlyList<ITransformation> source,
+			int vertex,
+			byte[] used,
+			IDictionary<string, int> mappings,
+			LinkedList<ITransformation> res,
+			ILogger logger)
+		{
+			if (used[vertex] == 1)
+			{
+				throw new InvalidOperationException(
+					"Transformation set contains dependency cycle, DAG is required to build transformation tree");
+			}
+
+			if (used[vertex] != 0)
+			{
+				return;
+			}
+
+			used[vertex] = 1;
+			var item = source[vertex];
+			var name = item.GetType().Name;
+			if (item is ITransformationWithDependencies itemWithDependencies)
+			{
+				foreach (var dependencyName in itemWithDependencies.DependOn)
+				{
+					if (!mappings.TryGetValue(dependencyName, out var mapping))
+					{
+						logger.LogWarning($"Unable to find {dependencyName} as dependency for {name}");
+						continue;
+					}
+
+					TopologicalSortInternal(source, mapping, used, mappings, res, logger);
+				}
+			}
+
+			used[vertex] = 2;
+			res.AddFirst(item);
+		}
+
+		private static bool FilterTargetNormalTransformations(ITransformation x)
+		{
+			if (x is ITransformationWithTargetMoment m)
+			{
+				return m.ExecutionMoment == TargetTransformationExecutionMoment.Normal;
+			}
+
+			return true;
 		}
 	}
 }

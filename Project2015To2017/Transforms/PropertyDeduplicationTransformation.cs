@@ -1,13 +1,11 @@
-using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Xml.Linq;
-using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class PropertyDeduplicationTransformation : ITransformation
+	public sealed class PropertyDeduplicationTransformation : ITransformationWithDependencies
 	{
 		public void Transform(Project definition)
 		{
@@ -53,5 +51,10 @@ namespace Project2015To2017.Transforms
 				definition.PrimaryPropertyGroup().Add(sourceForCopy);
 			}
 		}
+
+		public IReadOnlyCollection<string> DependOn => new[]
+		{
+			typeof(PropertySimplificationTransformation).Name,
+		};
 	}
 }
