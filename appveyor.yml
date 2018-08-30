@@ -8,22 +8,30 @@ pull_requests:
   do_not_increment_build_number: true
 skip_branch_with_pr: true
 before_build:
-- cmd: nuget restore
+- cmd: dotnet restore
 build:
   parallel: true
   verbosity: minimal
 before_test:
-- cmd: Dotnet test "Project2015To2017Tests\Project2015To2017Tests.csproj"
+- cmd: dotnet test "Project2015To2017Tests\Project2015To2017Tests.csproj"
 after_build:
 - cmd: dotnet publish -f netcoreapp2.1 -c Release -o ./out/netcoreapp2.1 ./Project2015To2017.Console/Project2015To2017.Console.csproj
 - cmd: dotnet publish -f net461 -c Release -o ./out/net461 ./Project2015To2017.Console/Project2015To2017.Console.csproj
 - cmd: 7z a ./Project2015To2017/out/CSProj2015To2017.zip ./Project2015To2017.Console/out/*
 - cmd: dotnet build /p:Pack=true -c Release ./Project2015To2017.Console/Project2015To2017.Console.csproj
+- cmd: dotnet publish -f netcoreapp2.1 -c Release -o ./out/netcoreapp2.1 ./Project2015To2017.Migrate2017.Tool/Project2015To2017.Migrate2017.Tool.csproj
+- cmd: dotnet publish -f net461 -c Release -o ./out/net461 ./Project2015To2017.Migrate2017.Tool/Project2015To2017.Migrate2017.Tool.csproj
+- cmd: 7z a ./Project2015To2017/out/dotnet-migrate-2017.zip ./Project2015To2017.Migrate2017.Tool/out/*
+- cmd: dotnet build /p:Pack=true -c Release ./Project2015To2017.Migrate2017.Tool/Project2015To2017.Migrate2017.Tool.csproj
 
 artifacts:
   - path: ./Project2015To2017.Console/bin/$(configuration)/Project2015To2017.Cli.**.nupkg
+    name: global-tool-legacy
+  - path: ./Project2015To2017.Migrate2017.Tool/bin/$(configuration)/Project2015To2017.Migrate2017.Tool.**.nupkg
     name: global-tool
   - path: ./Project2015To2017/out/CSProj2015To2017.zip
+    name: out-zip-legacy
+  - path: ./Project2015To2017/out/dotnet-migrate-2017.zip
     name: out-zip
   - path: Project2015To2017\bin\$(configuration)\Project2015To2017.**.nupkg
     name: nupkg
@@ -41,12 +49,12 @@ deploy:
   skip_symbols: false
   artifact: global-tool
     
-- provider: GitHub  
-  release: CSProj2015To2017-v$(APPVEYOR_BUILD_VERSION)
+- provider: GitHub
+  release: dotnet-migrate-2017-v$(APPVEYOR_BUILD_VERSION)
   description: 'Automatically built release v$(APPVEYOR_BUILD_VERSION).'
   auth_token:
-    secure: "LYFGDMnT4oJLpCsZUkhL/oTnG3ZpQnsjaTc10DfTf/jbkXtzctRkXEu2ea3YnyqP" # your encrypted token from GitHub
-  artifact: out-zip                # upload all NuGet packages to release assets
+    secure: "LYFGDMnT4oJLpCsZUkhL/oTnG3ZpQnsjaTc10DfTf/jbkXtzctRkXEu2ea3YnyqP"
+  artifact: out-zip,out-zip-legacy
   draft: true
   prerelease: true
   on:
