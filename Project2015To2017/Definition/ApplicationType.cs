@@ -6,6 +6,7 @@ namespace Project2015To2017.Definition
         ClassLibrary = 1,
         ConsoleApplication = 2,
         WindowsApplication = 3,
-        TestProject = 4
-    }
+        TestProject = 4,
+		AppContainerExe = 5
+	}
 }

@@ -42,6 +42,9 @@ namespace Project2015To2017.Transforms
 				case ApplicationType.WindowsApplication:
 					outputType = "WinExe";
 					break;
+				case ApplicationType.AppContainerExe:
+					outputType = "AppContainerExe";
+					break;
 				default:
 					outputType = null;
 					break;

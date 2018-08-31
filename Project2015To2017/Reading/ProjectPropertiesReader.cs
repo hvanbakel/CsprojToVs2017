@@ -181,6 +181,7 @@ namespace Project2015To2017.Reading
 				case "exe": return ApplicationType.ConsoleApplication;
 				case "library": return ApplicationType.ClassLibrary;
 				case "winexe": return ApplicationType.WindowsApplication;
+				case "appcontainerexe": return ApplicationType.AppContainerExe;
 				default: throw new NotSupportedException($"OutputType {outputType} is not supported.");
 			}
 		}
