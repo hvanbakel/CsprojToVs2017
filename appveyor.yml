@@ -47,7 +47,7 @@ deploy:
   api_key:
     secure: +o0/XtevmiegEOJLY9u6bm57gbFvGT/0mraL78vBCtEjNkdjWkZEQGxiL//UP88S
   skip_symbols: false
-  artifact: global-tool
+  artifact: global-tool-legacy
     
 - provider: GitHub
   release: dotnet-migrate-2017-v$(APPVEYOR_BUILD_VERSION)
