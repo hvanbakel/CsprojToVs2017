@@ -23,6 +23,10 @@ namespace Project2015To2017.Console
 			var convertedProjects = new List<Project>();
 
 			ILogger logger = new ConsoleLogger("console", (s, l) => l >= LogLevel.Information, true);
+
+			logger.LogWarning("csproj-to-2017 is deprecated and will be removed soon");
+			logger.LogInformation("Consider migrating to Project2015To2017.Migrate2017.Tool (dotnet migrate-2017)");
+
 			foreach (var file in options.Files)
 			{
 				var projects = new ProjectConverter(logger, Vs15TransformationSet.Instance, conversionOptions)

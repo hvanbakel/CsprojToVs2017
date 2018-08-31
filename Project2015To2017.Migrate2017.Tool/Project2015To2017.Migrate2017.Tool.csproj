@@ -1,20 +1,23 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<RootNamespace>Project2015To2017.Console</RootNamespace>
-		<AssemblyName>Project2015To2017.Console</AssemblyName>
-		<PackageId>Project2015To2017.Cli</PackageId>
+		<AssemblyName>dotnet-migrate-2017</AssemblyName>
+		<PackageId>Project2015To2017.Migrate2017.Tool</PackageId>
 		<Authors>hvanbakel et. al.</Authors>
-		<Product>Project2015To2017.Cli</Product>
+		<Product>Project2015To2017.Migrate2017.Tool</Product>
 		<Description>Tool for converting a MSBuild project file to VS2017 format and beyond.</Description>
 		<PackageProjectUrl>https://github.com/hvanbakel/CsprojToVs2017</PackageProjectUrl>
 		<PackageLicenseUrl>https://github.com/hvanbakel/CsprojToVs2017/blob/master/LICENSE</PackageLicenseUrl>
 		<RepositoryUrl>https://github.com/hvanbakel/CsprojToVs2017</RepositoryUrl>
 		<Copyright>Copyright Hans van Bakel</Copyright>
-		<PackageTags>dotnet csproj conversion vs2015 vs2017</PackageTags>
+		<PackageTags>dotnet csproj fsproj vbproj msbuild conversion vs2015 vs14 vs15 vs2017</PackageTags>
 		<Version>3.0.0</Version>
 		<OutputType>Exe</OutputType>
 		<AssemblyVersion>3.0.0.0</AssemblyVersion>
+		<RestoreAdditionalProjectSources>
+			$(RestoreAdditionalProjectSources);
+			https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
+		</RestoreAdditionalProjectSources>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(Pack) != 'true'">
@@ -22,15 +25,17 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(Pack) == 'true'">
-		<ToolCommandName>csproj-to-2017</ToolCommandName>
 		<PackAsTool>True</PackAsTool>
 		<TargetFramework>netcoreapp2.1</TargetFramework>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommandLineParser" Version="2.2.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.1" />
+		<PackageReference Include="Microsoft.DotNet.Cli.CommandLine" Version="0.2.1-alpha-63223-01" />
+		<PackageReference Include="Serilog" Version="2.7.1" />
+		<PackageReference Include="Serilog.Enrichers.Demystify" Version="0.1.0-dev-00016" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>
