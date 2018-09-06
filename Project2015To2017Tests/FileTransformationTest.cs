@@ -35,14 +35,14 @@ namespace Project2015To2017Tests
 
 			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 
-			Assert.AreEqual(36, includeItems.Count);
+			Assert.AreEqual(29, includeItems.Count);
 
 			Assert.AreEqual(12, includeItems.Count(x => x.Name.LocalName == "Reference"));
 			Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName == "ProjectReference"));
-			Assert.AreEqual(18, includeItems.Count(x => x.Name.LocalName == "Compile"));
+			Assert.AreEqual(11, includeItems.Count(x => x.Name.LocalName == "Compile"));
 			Assert.AreEqual(5, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Update") != null));
 			Assert.AreEqual(4, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Include") != null));
-			Assert.AreEqual(9, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Remove") != null));
+			Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Remove") != null));
 			Assert.AreEqual(3, includeItems.Count(x => x.Name.LocalName == "EmbeddedResource")); // #73 include things that are not ending in .resx
 			Assert.AreEqual(0, includeItems.Count(x => x.Name.LocalName == "Content"));
 			Assert.AreEqual(1, includeItems.Count(x => x.Name.LocalName == "None"));
@@ -99,7 +99,7 @@ namespace Project2015To2017Tests
 				)
 				.ToImmutableList();
 			Assert.IsNotNull(removeMatchingWildcard);
-			Assert.AreEqual(9, removeMatchingWildcard.Count);
+			Assert.AreEqual(2, removeMatchingWildcard.Count);
 			Assert.IsTrue(removeMatchingWildcard.Any(x => x.Attribute("Remove")?.Value == "SourceFileAsResource.cs"));
 			Assert.IsTrue(removeMatchingWildcard.Any(x => x.Attribute("Remove")?.Value == "Class1.cs"));
 		}

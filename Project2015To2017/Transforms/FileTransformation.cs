@@ -58,22 +58,25 @@ namespace Project2015To2017.Transforms
 				.Where(x => !string.IsNullOrEmpty(x))
 				.ToArray();
 
+			var otherIncludeFilesMatchingWildcard = includes
+				.Where(x => x.EndsWith("." + definition.CodeFileExtension, StringComparison.OrdinalIgnoreCase))
+				.ToArray();
+
 			var wildcardIncludes = keepItems.Where(x => x.Name.LocalName == "Compile").Select(x => x.Attribute("Include")?.Value).Where(x => x != null && x.Contains("*")).ToArray();
 			if (wildcardIncludes.Length > 0)
 			{
 				this.logger.LogWarning("Wildcard include detected, please check for erroneous inclusion of additional files.");
 			}
+			else
+			{
+				var removedIncludes = removeQueue
+					.Where(x => x.Name.LocalName == "Compile")
+					.Select(x => x.Attribute("Update")?.Value)
+					.Where(x => !string.IsNullOrEmpty(x))
+					.ToArray();
 
-			var removedIncludes = removeQueue
-				.Where(x => x.Name.LocalName == "Compile")
-				.Select(x => x.Attribute("Update")?.Value)
-				.Where(x => !string.IsNullOrEmpty(x))
-				.ToArray();
-
-			var otherIncludeFilesMatchingWildcard = includes
-				.Where(x => x.EndsWith("." + definition.CodeFileExtension, StringComparison.OrdinalIgnoreCase))
-				.Union(PreviouslyExcludedFiles(definition, removedIncludes))
-				.ToArray();
+				otherIncludeFilesMatchingWildcard = otherIncludeFilesMatchingWildcard.Union(PreviouslyExcludedFiles(definition, removedIncludes)).ToArray();
+			}
 
 			if (otherIncludeFilesMatchingWildcard.Length > 0)
 			{
