@@ -69,13 +69,13 @@ namespace Project2015To2017.Transforms
 			}
 			else
 			{
-				var removedIncludes = removeQueue
+				var referencedItems = removeQueue
 					.Where(x => x.Name.LocalName == "Compile")
 					.Select(x => x.Attribute("Update")?.Value)
 					.Where(x => !string.IsNullOrEmpty(x))
 					.ToArray();
 
-				otherIncludeFilesMatchingWildcard = otherIncludeFilesMatchingWildcard.Union(PreviouslyExcludedFiles(definition, removedIncludes)).ToArray();
+				otherIncludeFilesMatchingWildcard = otherIncludeFilesMatchingWildcard.Union(PreviouslyExcludedFiles(definition, referencedItems)).ToArray();
 			}
 
 			if (otherIncludeFilesMatchingWildcard.Length > 0)
@@ -107,9 +107,9 @@ namespace Project2015To2017.Transforms
 			logger.LogInformation($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");
 		}
 
-		private static IEnumerable<string> PreviouslyExcludedFiles(Project definition, string[] removedIncludes)
+		private static IEnumerable<string> PreviouslyExcludedFiles(Project definition, string[] referencedItems)
 		{
-			return definition.ProjectFolder.GetFiles("*." + definition.CodeFileExtension, SearchOption.AllDirectories).Select(x => x.FullName.Substring(definition.ProjectFolder.FullName.Length + 1)).Except(removedIncludes);
+			return definition.ProjectFolder.GetFiles("*." + definition.CodeFileExtension, SearchOption.AllDirectories).Select(x => x.FullName.Substring(definition.ProjectFolder.FullName.Length + 1)).Except(referencedItems);
 		}
 
 		private static bool KeepFileInclusion(XElement x, Project project)
