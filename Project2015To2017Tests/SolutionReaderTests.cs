@@ -15,9 +15,7 @@ namespace Project2015To2017Tests
 
 			var logger = new DummyLogger {MinimumLogLevel = LogLevel.Warning};
 
-			var reader = new SolutionReader();
-
-			reader.Read(testFile, logger);
+			SolutionReader.Instance.Read(testFile, logger);
 
 			//Should be no warnings or errors
 			Assert.IsFalse(logger.LogEntries.Any());

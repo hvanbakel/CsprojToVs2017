@@ -26,7 +26,7 @@ namespace Project2015To2017.Transforms
 			{
 				if (definition.HasMultipleAssemblyInfoFiles)
 				{
-					definition.AssemblyAttributeProperties = new[] { new XElement("GenerateAssemblyInfo", "false") };
+					definition.SetProperty("GenerateAssemblyInfo", "false");
 				}
 
 				return;

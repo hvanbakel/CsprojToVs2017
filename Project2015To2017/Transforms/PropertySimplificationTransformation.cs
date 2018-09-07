@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using Project2015To2017.Reading.Conditionals;
@@ -113,9 +112,6 @@ namespace Project2015To2017.Transforms
 					case "SccAuxPath" when emptyValue:
 					case "SccProvider" when emptyValue:
 					// Project properties set to defaults (Microsoft.NET.Sdk)
-					case "SolutionDir" when ValidateSolutionDir()
-					                        && valueLower.StartsWith("..")
-					                        && valueLower.Length <= 3:
 					case "OutputType" when ValidateDefaultValue("library"):
 					case "FileAlignment" when ValidateDefaultValue("512"):
 					case "ErrorReport" when ValidateDefaultValue("prompt"):
@@ -258,41 +254,6 @@ namespace Project2015To2017.Transforms
 						       IgnoreProjectNameValues.Contains(child.Value)
 					       );
 				}
-
-				bool ValidateSolutionDir()
-				{
-					if (!hasCondition || fullState == null)
-					{
-						return false;
-					}
-
-					if (!(fullState.Node is OrExpressionNode or))
-					{
-						return false;
-					}
-
-					if (!(or.LeftChild is EqualExpressionNode left))
-					{
-						return false;
-					}
-
-					if (!(or.RightChild is EqualExpressionNode right))
-					{
-						return false;
-					}
-
-					if (!VerifyEquals(left.LeftChild, left.RightChild, "$(SolutionDir)", ""))
-					{
-						return false;
-					}
-
-					if (!VerifyEquals(right.LeftChild, right.RightChild, "$(SolutionDir)", "*Undefined*"))
-					{
-						return false;
-					}
-
-					return true;
-				}
 			}
 
 			// we cannot remove elements correctly while iterating through elements, 2nd pass is needed
@@ -339,26 +300,6 @@ namespace Project2015To2017.Transforms
 		{
 			var defines = value.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
 			return Extensions.ValidateSet(defines, expected);
-		}
-
-		private static bool VerifyEquals(
-			GenericExpressionNode left,
-			GenericExpressionNode right,
-			string expectedLeft,
-			string expectedRight)
-		{
-			if (!(left is StringExpressionNode leftString))
-			{
-				return false;
-			}
-			if (!(right is StringExpressionNode rightString))
-			{
-				return false;
-			}
-
-			var leftValue = leftString.GetUnexpandedValue(null);
-			var rightValue = rightString.GetUnexpandedValue(null);
-			return (leftValue == expectedLeft) && (rightValue == expectedRight);
 		}
 	}
 }

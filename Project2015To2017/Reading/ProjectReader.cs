@@ -168,7 +168,7 @@ namespace Project2015To2017.Reading
 
 			if (!packagesConfig.Exists)
 			{
-				this.logger.LogInformation("Packages.config file not found.");
+				this.logger.LogDebug("Packages.config file not found.");
 				return null;
 			}
 
@@ -199,14 +199,14 @@ namespace Project2015To2017.Reading
 
 				foreach (var reference in packageReferences)
 				{
-					this.logger.LogDebug($"Found nuget reference to {reference.Id}, version {reference.Version}.");
+					this.logger.LogDebug($"Found NuGet reference to {reference.Id}, version {reference.Version}.");
 				}
 
 				return packageReferences;
 			}
 			catch (XmlException e)
 			{
-				this.logger.LogError($"Got xml exception reading packages.config: " + e.Message);
+				this.logger.LogError(default, e, "Got xml exception reading packages.config");
 			}
 
 			return Array.Empty<PackageReference>();

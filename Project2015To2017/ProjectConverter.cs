@@ -14,7 +14,7 @@ namespace Project2015To2017
 {
 	public sealed class ProjectConverter
 	{
-		private static readonly IReadOnlyDictionary<string, string> ProjectFileMappings = new Dictionary<string, string>
+		public static readonly IReadOnlyDictionary<string, string> ProjectFileMappings = new Dictionary<string, string>
 		{
 			{ ".csproj", "cs" },
 			{ ".vbproj", "vb" },
@@ -42,21 +42,28 @@ namespace Project2015To2017
 			var extension = Path.GetExtension(target) ?? throw new ArgumentNullException(nameof(target));
 			if (extension.Length > 0)
 			{
+				var file = new FileInfo(target);
 				switch (extension)
 				{
 					case ".sln":
-						foreach (var project in ConvertSolution(target))
+						{
+						var solution = SolutionReader.Instance.Read(file, this.logger);
+						foreach (var project in ProcessSolutionFile(solution))
 						{
 							yield return project;
 						}
 						break;
-					case string s when ProjectFileMappings.TryGetValue(extension, out var fileExtension):
-						var file = new FileInfo(target);
-						yield return this.ProcessFile(file, null);
+					}
+					case string s when ProjectFileMappings.ContainsKey(extension):
+					{
+						yield return this.ProcessProjectFile(file, null);
 						break;
+					}
 					default:
+					{
 						this.logger.LogCritical("Please specify a project or solution file.");
 						break;
+				}
 				}
 
 				yield break;
@@ -66,7 +73,8 @@ namespace Project2015To2017
 			var solutionFiles = Directory.EnumerateFiles(target, "*.sln", SearchOption.TopDirectoryOnly).ToArray();
 			if (solutionFiles.Length == 1)
 			{
-				foreach (var project in this.ConvertSolution(solutionFiles[0]))
+				var solution = SolutionReader.Instance.Read(solutionFiles[0], this.logger);
+				foreach (var project in this.ProcessSolutionFile(solution))
 				{
 					yield return project;
 				}
@@ -93,8 +101,7 @@ namespace Project2015To2017
 
 				foreach (var projectFile in projectFiles)
 				{
-					// todo: rewrite both directory enumerations to use FileInfo instead of raw strings
-					yield return this.ProcessFile(new FileInfo(projectFile), null);
+					yield return this.ProcessProjectFile(new FileInfo(projectFile), null);
 					projectsProcessed++;
 				}
 			}
@@ -105,13 +112,12 @@ namespace Project2015To2017
 			}
 		}
 
-		private IEnumerable<Project> ConvertSolution(string target)
+		public IEnumerable<Project> ProcessSolutionFile(Solution solution)
 		{
-			this.logger.LogDebug("Solution parsing started.");
-			var solution = SolutionReader.Instance.Read(target, this.logger);
-
+			this.logger.LogTrace("Solution parsing started.");
 			if (solution.ProjectPaths == null)
 			{
+				this.logger.LogTrace($"'{nameof(solution.ProjectPaths)}' is null");
 				yield break;
 			}
 
@@ -124,11 +130,11 @@ namespace Project2015To2017
 					continue;
 				}
 
-				yield return this.ProcessFile(projectReference.ProjectFile, solution, projectReference);
+				yield return this.ProcessProjectFile(projectReference.ProjectFile, solution, projectReference);
 			}
 		}
 
-		private Project ProcessFile(FileInfo file, Solution solution, ProjectReference reference = null)
+		public Project ProcessProjectFile(FileInfo file, Solution solution, ProjectReference reference = null)
 		{
 			if (!Validate(file, this.logger))
 			{
@@ -156,12 +162,16 @@ namespace Project2015To2017
 
 			foreach (var transform in TransformationsToApply())
 			{
-				if (project.IsModernProject && transform is ILegacyOnlyProjectTransformation)
+				if (project.IsModernProject
+				    && transform is ILegacyOnlyProjectTransformation
+				    && !this.conversionOptions.ForceDefaultTransforms.Contains(transform.GetType().Name))
 				{
 					continue;
 				}
 
-				if (!project.IsModernProject && transform is IModernOnlyProjectTransformation)
+				if (!project.IsModernProject
+				    && transform is IModernOnlyProjectTransformation
+				    && !this.conversionOptions.ForceDefaultTransforms.Contains(transform.GetType().Name))
 				{
 					continue;
 				}
