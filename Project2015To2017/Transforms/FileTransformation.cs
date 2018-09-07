@@ -52,12 +52,31 @@ namespace Project2015To2017.Transforms
 			// For all these paths we add <Compile Remove="(path)" />.
 			// So that there is no wildcard match like <Compile Include="**/*.cs" /> for file test.cs,
 			// already included as (e.g.) Content: <Content Include="test.cs" />
-			var otherIncludeFilesMatchingWildcard = keepItems
+			var includes = keepItems
 				.Where(x => x.Name.LocalName != "Compile")
 				.Select(x => x.Attribute("Include")?.Value)
 				.Where(x => !string.IsNullOrEmpty(x))
+				.ToArray();
+
+			var otherIncludeFilesMatchingWildcard = includes
 				.Where(x => x.EndsWith("." + definition.CodeFileExtension, StringComparison.OrdinalIgnoreCase))
 				.ToArray();
+
+			var wildcardIncludes = keepItems.Where(x => x.Name.LocalName == "Compile").Select(x => x.Attribute("Include")?.Value).Where(x => x != null && x.Contains("*")).ToArray();
+			if (wildcardIncludes.Length > 0)
+			{
+				this.logger.LogWarning("Wildcard include detected, please check for erroneous inclusion of additional files.");
+			}
+			else
+			{
+				var referencedItems = removeQueue
+					.Where(x => x.Name.LocalName == "Compile")
+					.Select(x => x.Attribute("Update")?.Value)
+					.Where(x => !string.IsNullOrEmpty(x))
+					.ToArray();
+
+				otherIncludeFilesMatchingWildcard = otherIncludeFilesMatchingWildcard.Union(PreviouslyExcludedFiles(definition, referencedItems)).ToArray();
+			}
 
 			if (otherIncludeFilesMatchingWildcard.Length > 0)
 			{
@@ -86,6 +105,11 @@ namespace Project2015To2017.Transforms
 			}
 
 			logger.LogDebug($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");
+		}
+
+		private static IEnumerable<string> PreviouslyExcludedFiles(Project definition, string[] referencedItems)
+		{
+			return definition.ProjectFolder.GetFiles("*." + definition.CodeFileExtension, SearchOption.AllDirectories).Select(x => x.FullName.Substring(definition.ProjectFolder.FullName.Length + 1)).Except(referencedItems);
 		}
 
 		private static bool KeepFileInclusion(XElement x, Project project)

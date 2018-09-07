@@ -12,6 +12,19 @@ namespace Project2015To2017Tests
 	public class FileTransformationTest
 	{
 		[TestMethod]
+		public void TransformsFilesExclude()
+		{
+			var project = new ProjectReader().Read(Path.Combine("TestFiles", "FileInclusion", "fileExclusion.testcsproj"));
+			project.CodeFileExtension = "cs";
+			var transformation = new FileTransformation();
+
+			transformation.Transform(project);
+
+			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
+			Assert.AreEqual(1, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Remove")?.Value == "Program.cs"));
+		}
+
+		[TestMethod]
 		public void TransformsFiles()
 		{
 			var project = new ProjectReader().Read(Path.Combine("TestFiles", "FileInclusion", "fileinclusion.testcsproj"));
