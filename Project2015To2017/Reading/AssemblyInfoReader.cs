@@ -35,7 +35,7 @@ namespace Project2015To2017.Reading
 										   .Select(x =>
 												{
 													var filePath = Path.IsPathRooted(x) ? x : Path.GetFullPath(Path.Combine(projectPath, x));
-													return new FileInfo(filePath);
+													return new FileInfo(Extensions.MaybeAdjustFilePath(filePath));
 												}
 											)
 										   .Where(IsAssemblyInfoFile)

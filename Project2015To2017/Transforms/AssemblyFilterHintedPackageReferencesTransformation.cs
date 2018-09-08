@@ -45,7 +45,7 @@ namespace Project2015To2017.Transforms
 
 				var fullHintPath = Path.IsPathRooted(hintPath) ? hintPath : Path.GetFullPath(Path.Combine(projectPath, hintPath));
 
-				return fullHintPath.ToLower().StartsWith(packagePath);
+				return Extensions.MaybeAdjustFilePath(fullHintPath).ToLower().StartsWith(Extensions.MaybeAdjustFilePath(packagePath));
 			}
 		}
 	}
