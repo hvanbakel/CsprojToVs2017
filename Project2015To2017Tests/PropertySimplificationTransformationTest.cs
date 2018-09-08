@@ -10,6 +10,7 @@ using Project2015To2017.Transforms;
 using static Project2015To2017.Extensions;
 using Project2015To2017;
 using System.Text;
+using System;
 
 namespace Project2015To2017Tests
 {
@@ -278,6 +279,49 @@ namespace Project2015To2017Tests
 			// check we are keeping original slashes and replacing configuration name with $(Configuration)
 			Assert.AreEqual(@"bin/$(Configuration)\",
 				childrenReleaseCI.First(x => x.Name.LocalName == "OutputPath").Value);
+		}
+
+		[TestMethod]
+		public void RemovesProjectGuidWhenMatchesSolution()
+		{
+			var guid = Guid.NewGuid();
+			var xml = @"
+<Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
+  <PropertyGroup>
+    <Configuration Condition="" '$(Configuration)' == '' "">Debug</Configuration>
+    <Platform Condition="" '$(Platform)' == '' "">AnyCPU</Platform>
+    <ProjectGuid>{" + guid.ToString() + @"}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ClassLibrary1</RootNamespace>
+    <AssemblyName>ClassLibrary1</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+ </Project>";
+
+			var project = ParseAndTransform(xml, projectName: "Class1");
+			var name = "someproject";
+			project.ProjectName = name;
+			project.Solution = new Solution
+			{
+				ProjectPaths = new[]
+					{
+						new ProjectReference
+						{
+							ProjectName = name,
+							ProjectGuid = guid
+						}
+					}
+			};
+
+			new PropertySimplificationTransformation().Transform(project);
+
+			Assert.IsTrue(!project.ProjectDocument.Descendants().Any(x => x.Name.LocalName == "ProjectGuid"));
 		}
 
 		private static Project ParseAndTransform(
