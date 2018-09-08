@@ -48,7 +48,13 @@ deploy:
     secure: +o0/XtevmiegEOJLY9u6bm57gbFvGT/0mraL78vBCtEjNkdjWkZEQGxiL//UP88S
   skip_symbols: false
   artifact: global-tool-legacy
-    
+  
+- provider: NuGet
+  api_key:
+    secure: 5MwxrP9zjSXiJ2WUmdQSR98h+ys28LHiDzVBaFmrDCDvBhvNf+QqDaNDs/+LhVQU
+  skip_symbols: false
+  artifact: global-tool
+
 - provider: GitHub
   release: dotnet-migrate-2017-v$(APPVEYOR_BUILD_VERSION)
   description: 'Automatically built release v$(APPVEYOR_BUILD_VERSION).'
