@@ -98,8 +98,7 @@ namespace Project2015To2017.Reading
 				.ToArray();
 		}
 
-		private static (List<string> configurations, List<string> platforms)
-			ReadConfigurationPlatformVariants(Project project)
+		private static (List<string>, List<string>) ReadConfigurationPlatformVariants(Project project)
 		{
 			var configurationSet = new HashSet<string>();
 			var platformSet = new HashSet<string>();

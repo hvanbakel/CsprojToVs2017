@@ -410,8 +410,10 @@ namespace Project2015To2017Tests
 
 			transform.Transform(project);
 
-			Assert.AreEqual(0, project.AssemblyAttributeProperties.Count);
-			Assert.AreEqual("false", project.Property("GenerateAssemblyInfo")?.Value);
+			var generateAssemblyInfo = project.AssemblyAttributeProperties.SingleOrDefault();
+			Assert.IsNotNull(generateAssemblyInfo);
+			Assert.AreEqual("GenerateAssemblyInfo", generateAssemblyInfo.Name);
+			Assert.AreEqual("false", generateAssemblyInfo.Value);
 
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
 		}

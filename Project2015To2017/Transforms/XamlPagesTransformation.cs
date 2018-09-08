@@ -41,7 +41,7 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			logger.LogDebug($"Removed {count} XAML items thanks to MSBuild.Sdk.Extras defaults");
+			logger.LogInformation($"Removed {count} XAML items thanks to MSBuild.Sdk.Extras defaults");
 		}
 
 		private static readonly string[] FilteredTags = {"Page", "ApplicationDefinition", "Compile", "None"};

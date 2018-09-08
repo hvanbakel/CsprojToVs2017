@@ -46,7 +46,7 @@ namespace Project2015To2017.Transforms
 
 			foreach (var reference in testReferences)
 			{
-				logger.LogInformation($"Adding NuGet reference to {reference.Id}, version {reference.Version}.");
+				logger.LogInformation($"Adding nuget reference to {reference.Id}, version {reference.Version}.");
 			}
 
 			definition.PackageReferences = adjustedPackageReferences;

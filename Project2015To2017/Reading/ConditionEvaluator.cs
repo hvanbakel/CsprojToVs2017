@@ -127,12 +127,6 @@ namespace Project2015To2017.Reading
 				return res;
 			}
 
-			// in case we don't know what some part of the condition does - don't make any assumptions at all
-			if (state.UnsupportedNodes.Count > 0)
-			{
-				return res;
-			}
-
 			foreach (var keyValuePair in GetConditionValues(state))
 			{
 				if (keyValuePair.Value.Count != 1)
@@ -195,11 +189,7 @@ namespace Project2015To2017.Reading
 			switch (node)
 			{
 				case OrExpressionNode or:
-					if (!IsSupportedSolutionDirNode(or))
-					{
-						yield return or;
-					}
-
+					yield return or;
 					break;
 				case NotExpressionNode not when !IsSupportedFunctionCallNode(not.LeftChild):
 					yield return not;
@@ -238,52 +228,6 @@ namespace Project2015To2017.Reading
 			}
 
 			return false;
-		}
-
-		internal static bool IsSupportedSolutionDirNode(OperatorExpressionNode or)
-		{
-			if (!(or.LeftChild is EqualExpressionNode left))
-			{
-				return false;
-			}
-
-			if (!(or.RightChild is EqualExpressionNode right))
-			{
-				return false;
-			}
-
-			if (!VerifyEquals(left.LeftChild, left.RightChild, "$(SolutionDir)", ""))
-			{
-				return false;
-			}
-
-			if (!VerifyEquals(right.LeftChild, right.RightChild, "$(SolutionDir)", "*Undefined*"))
-			{
-				return false;
-			}
-
-			return true;
-		}
-
-		public static bool VerifyEquals(
-			GenericExpressionNode left,
-			GenericExpressionNode right,
-			string expectedLeft,
-			string expectedRight)
-		{
-			if (!(left is StringExpressionNode leftString))
-			{
-				return false;
-			}
-
-			if (!(right is StringExpressionNode rightString))
-			{
-				return false;
-			}
-
-			var leftValue = leftString.GetUnexpandedValue(null);
-			var rightValue = rightString.GetUnexpandedValue(null);
-			return (leftValue == expectedLeft) && (rightValue == expectedRight);
 		}
 	}
 }

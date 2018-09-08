@@ -24,17 +24,14 @@ namespace Project2015To2017.Reading
 
 			if (nuspecFiles.Length == 0)
 			{
-				this.logger.LogDebug("No nuspec found, skipping package configuration.");
+				this.logger.LogInformation("No nuspec found, skipping package configuration.");
 				return null;
 			}
 
 			if (nuspecFiles.Length > 1)
 			{
-				this.logger.LogError(@"Could not read from nuspec, multiple nuspecs found.");
-				foreach (var item in nuspecFiles.Select(x => x.FullName))
-				{
-					this.logger.LogInformation(item);
-				}
+				this.logger.LogError($@"Could not read from nuspec, multiple nuspecs found: 
+{string.Join(Environment.NewLine, nuspecFiles.Select(x => x.FullName))}.");
 				return null;
 			}
 

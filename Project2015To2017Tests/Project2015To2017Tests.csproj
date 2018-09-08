@@ -73,9 +73,6 @@
     <None Include="TestFiles\FileInclusion\AnotherFile.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestFiles\FileInclusion\fileExclusion.testcsproj">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="TestFiles\FileInclusion\SourceFileSubTypeCode.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
