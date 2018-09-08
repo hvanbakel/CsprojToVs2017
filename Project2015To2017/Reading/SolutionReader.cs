@@ -37,19 +37,26 @@ namespace Project2015To2017.Reading
 		private const string fsProjectGuid = "{F2A71F9B-5D33-465A-A702-920D77279786}";
 		private const string solutionFolderGuid = "{2150E333-8FDC-42A3-9474-1A3956D46DE8}";
 
-		public Solution Read(string filePath)
+		private SolutionReader()
 		{
-			return Read(filePath, NoopLogger.Instance);
 		}
 
-		public Solution Read(string filePath, ILogger logger)
+		public Solution Read(string filePath, ILogger logger = null)
 		{
 			if (string.IsNullOrWhiteSpace(filePath))
 			{
 				throw new ArgumentException("Value cannot be null or whitespace.", nameof(filePath));
 			}
 
-			var fileInfo = new FileInfo(filePath);
+			logger = logger ?? NoopLogger.Instance;
+			return Read(new FileInfo(filePath), logger);
+		}
+
+		public Solution Read(FileInfo fileInfo, ILogger logger)
+		{
+			if (fileInfo == null) throw new ArgumentNullException(nameof(fileInfo));
+
+			var unsupported = new List<string>();
 			var projectPaths = new List<ProjectReference>();
 			using (var reader = new StreamReader(fileInfo.OpenRead()))
 			{
@@ -68,6 +75,7 @@ namespace Project2015To2017.Reading
 						if (projectTypeGuid != solutionFolderGuid)
 						{
 							logger.LogWarning("Unsupported project[{Name}] type {Type}", projectName, projectTypeGuid);
+							unsupported.Add(path);
 						}
 
 						continue;
@@ -90,7 +98,8 @@ namespace Project2015To2017.Reading
 			var solutionDefinition = new Solution
 			{
 				FilePath = fileInfo,
-				ProjectPaths = projectPaths
+				ProjectPaths = projectPaths,
+				UnsupportedProjectPaths = unsupported,
 			};
 
 			return solutionDefinition;
