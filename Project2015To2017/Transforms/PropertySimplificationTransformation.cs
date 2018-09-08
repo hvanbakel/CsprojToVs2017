@@ -178,10 +178,12 @@ namespace Project2015To2017.Transforms
 					case "RootNamespace" when IsDefaultProjectNameValued():
 					case "AssemblyName" when IsDefaultProjectNameValued():
 					case "TargetName" when IsDefaultProjectNameValued():
+					case "ProjectGuid" when ProjectGuidMatchesSolutionProjectGuid():
 					{
 						removeQueue.Add(child);
 						break;
 					}
+
 				}
 
 				if (parentConditionHasConfiguration || parentConditionHasPlatform)
@@ -260,6 +262,11 @@ namespace Project2015To2017.Transforms
 			foreach (var child in removeQueue)
 			{
 				child.Remove();
+			}
+
+			bool ProjectGuidMatchesSolutionProjectGuid()
+			{
+				return project.Solution != null && project.Solution.ProjectPaths.Any(x => x.ProjectName == project.ProjectName && x.ProjectGuid == project.ProjectGuid);
 			}
 		}
 

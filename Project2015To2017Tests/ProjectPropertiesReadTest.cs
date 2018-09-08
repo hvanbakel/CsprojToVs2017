@@ -534,6 +534,34 @@ if $(ConfigurationName) == Debug (
 			Assert.AreEqual(8, childrenReleaseCI.Length);
 		}
 
+		[TestMethod]
+		public async Task ReadsProjectGuid()
+		{
+			var xml = @"
+<Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
+  <Import Project=""$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"" Condition=""Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"" />
+  <PropertyGroup>
+    <Configuration Condition="" '$(Configuration)' == '' "">Debug</Configuration>
+    <Platform Condition="" '$(Platform)' == '' "">AnyCPU</Platform>
+    <ProjectGuid>{D8141286-2A5C-4CC4-8502-8E651D35F371}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ClassLibrary1</RootNamespace>
+    <AssemblyName>ClassLibrary1</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+ </Project>";
+
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
+
+			Assert.AreEqual(Guid.Parse("D8141286-2A5C-4CC4-8502-8E651D35F371"), project.ProjectGuid);
+		}
+
 		private static async Task<Project> ParseAndTransform(
 			string xml,
 			[System.Runtime.CompilerServices.CallerMemberName]

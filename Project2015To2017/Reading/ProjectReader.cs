@@ -78,6 +78,7 @@ namespace Project2015To2017.Reading
 
 			this.projectCache.Add(filePath, projectDefinition);
 
+			projectDefinition.ProjectGuid = ReadProjectGuid(projectDefinition);
 			projectDefinition.AssemblyReferences = LoadAssemblyReferences(projectDefinition);
 			projectDefinition.ProjectReferences = LoadProjectReferences(projectDefinition);
 			projectDefinition.PackagesConfigFile = FindPackagesConfigFile(projectFile);
@@ -95,6 +96,18 @@ namespace Project2015To2017.Reading
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
 
 			return projectDefinition;
+		}
+
+		private Guid? ReadProjectGuid(Project projectDefinition)
+		{
+			var projectTypeNode = projectDefinition
+				.ProjectDocument
+				.Descendants(projectDefinition.XmlNamespace + "ProjectGuid")
+				.FirstOrDefault();
+
+			return projectTypeNode != null
+				? Guid.Parse(projectTypeNode.Value)
+				: default(Guid?);
 		}
 
 		private void HandleSpecialProjectTypes(Project project)
