@@ -32,5 +32,10 @@ namespace Project2015To2017
 	    /// A collection of transforms executed after the execution of default ones
 	    /// </summary>
 	    public IReadOnlyList<ITransformation> PostDefaultTransforms { get; set; } = ImmutableArray<ITransformation>.Empty;
+	    /// <summary>
+	    /// A collection of transform class names executed despite being intended for different project system,
+	    /// like forcing <see cref="ILegacyOnlyProjectTransformation"/> run on already converted project.
+	    /// </summary>
+	    public IReadOnlyList<string> ForceDefaultTransforms { get; set; } = ImmutableArray<string>.Empty;
 	}
 }

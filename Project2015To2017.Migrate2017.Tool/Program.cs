@@ -99,6 +99,10 @@ namespace Project2015To2017.Migrate2017.Tool
 			if (frameworks != null)
 				conversionOptions.TargetFrameworks = frameworks;
 
+			var forceTransformations = command.ValueOrDefault<string[]>("force-transformations");
+			if (forceTransformations != null)
+				conversionOptions.ForceDefaultTransforms = forceTransformations;
+
 			var logic = new CommandLogic();
 			switch (command.Name)
 			{
@@ -145,6 +149,12 @@ namespace Project2015To2017.Migrate2017.Tool
 			OneOrMoreArguments()
 				.With("Target frameworks to be used instead of the ones in source projects", "frameworks"));
 
+		private static Option ForceTransformationsOption => Option(
+			"-f|--force-transformations",
+			"Force execution of transformations despite project conversion state by their specified names.",
+			OneOrMoreArguments()
+				.With("Transformation names to enforce execution", "names"));
+
 		private static Command Evaluate() =>
 			Command("evaluate",
 				"Examine the projects potential to be converted before actual migration",
@@ -163,6 +173,7 @@ namespace Project2015To2017.Migrate2017.Tool
 				TargetFrameworksOption,
 				Option("-o|--old-output-path",
 					"Preserve legacy behavior by not creating a subfolder with the target framework in the output path."),
+				ForceTransformationsOption,
 				HelpOption());
 
 		private static Command Analyze() =>

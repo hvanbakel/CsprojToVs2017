@@ -85,7 +85,7 @@ namespace Project2015To2017.Transforms
 				return;
 			}
 
-			logger.LogInformation($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");
+			logger.LogDebug($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");
 		}
 
 		private static bool KeepFileInclusion(XElement x, Project project)
