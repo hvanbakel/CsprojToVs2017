@@ -43,9 +43,11 @@ namespace Project2015To2017.Transforms
 					return false;
 				}
 
+				hintPath = Extensions.MaybeAdjustFilePath(hintPath, projectPath);
+
 				var fullHintPath = Path.IsPathRooted(hintPath) ? hintPath : Path.GetFullPath(Path.Combine(projectPath, hintPath));
 
-				return Extensions.MaybeAdjustFilePath(fullHintPath).ToLower().StartsWith(Extensions.MaybeAdjustFilePath(packagePath));
+				return fullHintPath.ToLowerInvariant().StartsWith(Extensions.MaybeAdjustFilePath(packagePath, projectPath));
 			}
 		}
 	}
