@@ -21,7 +21,8 @@ namespace Project2015To2017.Transforms
 
 			var packageReferenceIds = definition.PackageReferences.Select(x => x.Id).ToArray();
 
-			var packagePaths = packageReferenceIds.Select(packageId => Path.Combine(nugetRepositoryPath, packageId).ToLower())
+			var adjustedPath = Extensions.MaybeAdjustFilePath(nugetRepositoryPath);
+			var packagePaths = packageReferenceIds.Select(packageId => Path.Combine(adjustedPath, packageId).ToLower())
 												  .ToArray();
 
 			definition.Imports = FilteredImports(definition.Imports, packagePaths, projectPath);
