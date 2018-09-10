@@ -28,7 +28,7 @@ namespace Project2015To2017.Definition
 				//return the explicitly set path, or if there isn't one, then assume the 'packages' folder is in the solution folder
 				var path = repositoryPathSetting ?? Path.GetFullPath(Path.Combine(solutionFolder, "packages"));
 
-				return new DirectoryInfo(Extensions.MaybeAdjustFilePath(path));
+				return new DirectoryInfo(Extensions.MaybeAdjustFilePath(path, solutionFolder));
 			}
 		}
 	}
