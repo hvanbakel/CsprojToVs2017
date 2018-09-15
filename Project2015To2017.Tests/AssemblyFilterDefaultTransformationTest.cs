@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Definition;
-using Project2015To2017.Transforms;
+using Project2015To2017.Migrate2017.Transforms;
 
 namespace Project2015To2017Tests
 {

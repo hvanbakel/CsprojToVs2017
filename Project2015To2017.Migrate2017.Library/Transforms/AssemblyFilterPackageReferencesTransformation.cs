@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Project2015To2017.Definition;
+using Project2015To2017.Transforms;
 
-namespace Project2015To2017.Transforms
+namespace Project2015To2017.Migrate2017.Transforms
 {
 	public sealed class AssemblyFilterPackageReferencesTransformation : ILegacyOnlyProjectTransformation
 	{

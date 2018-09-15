@@ -2,13 +2,11 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Project2015To2017.Definition;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
 using static Project2015To2017.Extensions;
-using Project2015To2017;
 using System.Text;
 using System;
 

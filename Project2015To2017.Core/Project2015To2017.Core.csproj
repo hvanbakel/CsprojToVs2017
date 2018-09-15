@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
+    <RootNamespace>Project2015To2017</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.9.0" />
+    <PackageReference Include="NuGet.Configuration" Version="4.6.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.1.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFrameworkVersion)' == 'v2.0'">
+    <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
+    <Compile Remove="Reading/ConditionEvaluator.LegacyCache.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFrameworkVersion)' == 'v1.3'">
+    <Compile Remove="Reading/ConditionEvaluator.ModernCache.cs" />
+  </ItemGroup>
+
+</Project>

@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Project2015To2017Tests")]
+[assembly: InternalsVisibleTo("Project2015To2017.Tests")]
 
 namespace Project2015To2017
 {
@@ -36,82 +36,7 @@ namespace Project2015To2017
 			this.transformationSet = transformationSet ?? BasicReadTransformationSet.Instance;
 			this.projectReader = new ProjectReader(logger, this.conversionOptions);
 		}
-
-		public IEnumerable<Project> Convert(string target)
-		{
-			var extension = Path.GetExtension(target) ?? throw new ArgumentNullException(nameof(target));
-			if (extension.Length > 0)
-			{
-				var file = new FileInfo(target);
-				switch (extension)
-				{
-					case ".sln":
-						{
-						var solution = SolutionReader.Instance.Read(file, this.logger);
-						foreach (var project in ProcessSolutionFile(solution))
-						{
-							yield return project;
-						}
-						break;
-					}
-					case string s when ProjectFileMappings.ContainsKey(extension):
-					{
-						yield return this.ProcessProjectFile(file, null);
-						break;
-					}
-					default:
-					{
-						this.logger.LogCritical("Please specify a project or solution file.");
-						break;
-				}
-				}
-
-				yield break;
-			}
-
-			// Process the only solution in given directory
-			var solutionFiles = Directory.EnumerateFiles(target, "*.sln", SearchOption.TopDirectoryOnly).ToArray();
-			if (solutionFiles.Length == 1)
-			{
-				var solution = SolutionReader.Instance.Read(solutionFiles[0], this.logger);
-				foreach (var project in this.ProcessSolutionFile(solution))
-				{
-					yield return project;
-				}
-
-				yield break;
-			}
-
-			var projectsProcessed = 0;
-			// Process all csprojs found in given directory
-			foreach (var mapping in ProjectFileMappings)
-			{
-				var projectFiles = Directory.EnumerateFiles(target, "*" + mapping.Key, SearchOption.AllDirectories).ToArray();
-				if (projectFiles.Length == 0)
-				{
-					continue;
-				}
-
-				if (projectFiles.Length > 1)
-				{
-					this.logger.LogInformation($"Multiple project files found under directory {target}:");
-				}
-
-				this.logger.LogInformation(string.Join(Environment.NewLine, projectFiles));
-
-				foreach (var projectFile in projectFiles)
-				{
-					yield return this.ProcessProjectFile(new FileInfo(projectFile), null);
-					projectsProcessed++;
-				}
-			}
-
-			if (projectsProcessed == 0)
-			{
-				this.logger.LogCritical("Please specify a project file.");
-			}
-		}
-
+		
 		public IEnumerable<Project> ProcessSolutionFile(Solution solution)
 		{
 			this.logger.LogTrace("Solution parsing started.");
