@@ -12,7 +12,7 @@
 		<RepositoryUrl>https://github.com/hvanbakel/CsprojToVs2017</RepositoryUrl>
 		<Copyright>Copyright Hans van Bakel</Copyright>
 		<PackageTags>dotnet csproj conversion vs2015 vs2017</PackageTags>
-		<Version>3.0.1</Version>
+		<Version>3.0.2</Version>
 		<OutputType>Exe</OutputType>
 		<AssemblyVersion>3.0.0.0</AssemblyVersion>
 	</PropertyGroup>
