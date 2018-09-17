@@ -1,4 +1,4 @@
-version: 1.5.{build}
+version: 4.0.{build}
 skip_tags: true
 image: 
 - Visual Studio 2017
@@ -7,19 +7,22 @@ configuration:
 pull_requests:
   do_not_increment_build_number: true
 skip_branch_with_pr: true
-before_build:
-- cmd: dotnet restore
-build:
-  parallel: true
-  verbosity: minimal
-before_test:
-- cmd: dotnet test "Project2015To2017.Tests\Project2015To2017.Tests.csproj"
+environment:
+  LOGGER: '/l:"C:\Program Files\AppVeyor\BuildAgent\dotnetcore\Appveyor.MSBuildLogger.dll"'
+  LIBRARY: './Project2015To2017/Project2015To2017.csproj'
+  LEGACYCLITOOL: './Project2015To2017.Console/Project2015To2017.Console.csproj'
+  CLITOOL: './Project2015To2017.Migrate2017.Tool/Project2015To2017.Migrate2017.Tool.csproj'
+build_script:
+  - cmd: dotnet build %LOGGER% -v m -c %configuration%
+  - cmd: dotnet pack %LIBRARY% %LOGGER% -v m -c %configuration% --no-build
+  - cmd: dotnet pack %LEGACYCLITOOL% %LOGGER% -v m -c %configuration% --no-build /p:Pack=true
+  - cmd: dotnet pack %CLITOOL% %LOGGER% -v m -c %configuration% --no-build /p:Pack=true
+  - cmd: dotnet publish %CLITOOL% %LOGGER% -v m -c %configuration% -f netcoreapp2.1 -o ./out/netcoreapp2.1 --no-build
+  - cmd: dotnet publish %CLITOOL% %LOGGER% -v m -c %configuration% -f net461 -o ./out/net461 --no-build
 after_build:
-- cmd: dotnet build /p:Pack=true -c Release ./Project2015To2017.Console/Project2015To2017.Console.csproj
-- cmd: dotnet publish -f netcoreapp2.1 -c Release -o ./out/netcoreapp2.1 ./Project2015To2017.Migrate2017.Tool/Project2015To2017.Migrate2017.Tool.csproj
-- cmd: dotnet publish -f net461 -c Release -o ./out/net461 ./Project2015To2017.Migrate2017.Tool/Project2015To2017.Migrate2017.Tool.csproj
-- cmd: 7z a ./Project2015To2017/out/dotnet-migrate-2017.zip ./Project2015To2017.Migrate2017.Tool/out/*
-- cmd: dotnet build /p:Pack=true -c Release ./Project2015To2017.Migrate2017.Tool/Project2015To2017.Migrate2017.Tool.csproj
+  - cmd: 7z a ./Project2015To2017/out/dotnet-migrate-2017.zip ./Project2015To2017.Migrate2017.Tool/out/*
+test_script:
+  - cmd: dotnet test Project2015To2017.Tests/Project2015To2017.Tests.csproj -c %configuration% --no-build --test-adapter-path:. --logger:Appveyor
 
 artifacts:
   - path: ./Project2015To2017.Console/bin/$(configuration)/Project2015To2017.Cli.**.nupkg

@@ -1,20 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<TargetFrameworks Condition="$(Pack) != 'true'">net461;netcoreapp2.1</TargetFrameworks>
+		<TargetFramework Condition="$(Pack) == 'true'">netcoreapp2.1</TargetFramework>
+		<PackAsTool Condition="$(Pack) == 'true'">True</PackAsTool>
+
 		<PackageId>Project2015To2017.Cli</PackageId>
 		<Product>Project2015To2017.Cli</Product>
 		<OutputType>Exe</OutputType>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="$(Pack) != 'true'">
-		<TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="$(Pack) == 'true'">
 		<ToolCommandName>csproj-to-2017</ToolCommandName>
-		<PackAsTool>True</PackAsTool>
-		<TargetFramework>netcoreapp2.1</TargetFramework>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<ItemGroup>
