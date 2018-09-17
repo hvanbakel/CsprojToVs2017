@@ -20,7 +20,7 @@ There are a number of things [that VS2017 handles differently](http://www.natemc
 ## How it works
 ### As a Net Core Global Tool
 Assuming you have net core 2.1 installed you can run this on the command line:
-`dotnet tool install Project2015To2017.Cli --global`
+`dotnet tool install Project2015To2017.Migrate2017.Tool --global`
 This will install the tool for you to use it anywhere you would like. You can then call the tool as shown in the examples below.
 
 ### As a normal file download
@@ -28,23 +28,28 @@ Using the tool is simple, it is a simple command line utility that has a single 
 When you give it a directory path, the tool will discover all csproj files nested in it.
 
 ### Examples
-Below examples are for the global tool, for the normal file just replace `csproj-to-2017` with your executable.
+Below examples are for the global tool, for the normal file just replace `dotnet migrate-2017 migrate` with your executable.
 
-`csproj-to-2017 "D:\Path\To\My\TestProject.csproj"`
-
-Or
-
-`csproj-to-2017 "D:\Path\To\My\TestProject.sln"`
+`dotnet migrate-2017 migrate "D:\Path\To\My\TestProject.csproj"`
 
 Or
 
-`csproj-to-2017 "D:\Path\To\My\Directory"`
+`dotnet migrate-2017 migrate "D:\Path\To\My\TestProject.sln"`
+
+Or
+
+`dotnet migrate-2017 migrate "D:\Path\To\My\Directory"`
 
 After confirming this is an old style project file, it will start performing the conversion. When it has gathered all the data it needs it first creates a backup of the old files and puts them into a backup folder and then generates a new project file in the new format.
 
+## Commands
+As a sub command `migrate` being shown above there are 2 more options:
+* `evaluate` will run evaluation of projects found given the path specified
+* `analyze` will run analyzers to signal issues in the project files without converting
+
 ## Flags
-* `--dry-run` will not update any files, just outputs all the messages
-* `--no-backup` will not create a backup folder
-* `--assembly-info` keep Assembly Info in a file
-* `--target-frameworks` specific target frameworks
-* `--output-path` will not create a subfolder with the target framework in the output path
+* `target-frameworks` will set the target framework on the outputted project file
+* `force-transformations` allows specifying individual transforms to be run on the projects
+* `keep-assembly-info` instructs the migrate logic to keep the assembly info file 
+* `old-output-path` will set `AppendTargetFrameworkToOutputPath` in converted project file
+* `no-backup` do not create a backup folder (e.g. when your solution is under source control)
