@@ -12,6 +12,15 @@
 		<PackageTags>dotnet csproj fsproj vbproj msbuild conversion vs2015 vs14 vs15 vs2017</PackageTags>
 		<Version>3.0.2</Version>
 		<AssemblyVersion>3.0.0.0</AssemblyVersion>
+		
+		<!-- SourceLink -->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
+	</ItemGroup>
 
 </Project>
