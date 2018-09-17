@@ -1,16 +1,15 @@
+using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using Project2015To2017.Definition;
+using System.Text;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
-using static Project2015To2017.Extensions;
-using System.Text;
-using System;
 
-namespace Project2015To2017Tests
+namespace Project2015To2017.Tests
 {
 	[TestClass]
 	public class PropertySimplificationTransformationTest
@@ -85,16 +84,16 @@ namespace Project2015To2017Tests
 
 			var childrenGlobal = project.PrimaryPropertyGroup().Elements().ToImmutableArray();
 			Assert.AreEqual(8, childrenGlobal.Length);
-			Assert.IsTrue(ValidateChildren(childrenGlobal,
+			Assert.IsTrue(Extensions.ValidateChildren(childrenGlobal,
 				"ProjectGuid", "ProjectTypeGuids", "VisualStudioVersion", "VSToolsPath",
 				"ReferencePath", "IsCodedUITest", "TestProjectType", "TargetFrameworkVersion"));
 
 			var childrenDebug = project.PropertyGroups[1].Elements().ToImmutableArray();
 			Assert.AreEqual(2, childrenDebug.Length);
-			Assert.IsTrue(ValidateChildren(childrenDebug, "DebugType", "OutputPath"));
+			Assert.IsTrue(Extensions.ValidateChildren(childrenDebug, "DebugType", "OutputPath"));
 			var childrenRelease = project.PropertyGroups[2].Elements().ToImmutableArray();
 			Assert.AreEqual(2, childrenRelease.Length);
-			Assert.IsTrue(ValidateChildren(childrenRelease, "DebugType", "OutputPath"));
+			Assert.IsTrue(Extensions.ValidateChildren(childrenRelease, "DebugType", "OutputPath"));
 		}
 
 		[TestMethod]
@@ -142,13 +141,13 @@ namespace Project2015To2017Tests
 
 			var childrenGlobal = project.PrimaryPropertyGroup().Elements().ToImmutableArray();
 			Assert.AreEqual(3, childrenGlobal.Length);
-			Assert.IsTrue(ValidateChildren(childrenGlobal,
+			Assert.IsTrue(Extensions.ValidateChildren(childrenGlobal,
 				"OutputType", "TargetFrameworkVersion", "ProjectTypeGuids"));
 
 			var childrenDebug = project.PropertyGroups[1].Elements().ToImmutableArray();
 			Assert.AreEqual(1, childrenDebug.Length);
 			// non-standard additional WINDOWS_DESKTOP constant present only in Debug
-			Assert.IsTrue(ValidateChildren(childrenDebug, "DefineConstants"));
+			Assert.IsTrue(Extensions.ValidateChildren(childrenDebug, "DefineConstants"));
 
 			var childrenRelease = project.PropertyGroups[2].Elements().ToImmutableArray();
 			Assert.AreEqual(0, childrenRelease.Length);
@@ -195,15 +194,15 @@ namespace Project2015To2017Tests
 
 			var childrenGlobal = project.PrimaryPropertyGroup().Elements().ToImmutableArray();
 			Assert.AreEqual(1, childrenGlobal.Length);
-			Assert.IsTrue(ValidateChildren(childrenGlobal, "TargetFrameworkVersion"));
+			Assert.IsTrue(Extensions.ValidateChildren(childrenGlobal, "TargetFrameworkVersion"));
 
 			var childrenDebug = project.PropertyGroups[1].Elements().ToImmutableArray();
 			Assert.AreEqual(2, childrenDebug.Length);
-			Assert.IsTrue(ValidateChildren(childrenDebug, "DebugType", "OutputPath"));
+			Assert.IsTrue(Extensions.ValidateChildren(childrenDebug, "DebugType", "OutputPath"));
 
 			var childrenRelease = project.PropertyGroups[2].Elements().ToImmutableArray();
 			Assert.AreEqual(1, childrenRelease.Length);
-			Assert.IsTrue(ValidateChildren(childrenRelease, "OutputPath"));
+			Assert.IsTrue(Extensions.ValidateChildren(childrenRelease, "OutputPath"));
 		}
 
 		[TestMethod]
@@ -260,7 +259,7 @@ namespace Project2015To2017Tests
 
 			var childrenGlobal = project.UnconditionalGroups().Elements().ToImmutableArray();
 			Assert.AreEqual(2, childrenGlobal.Length);
-			Assert.IsTrue(ValidateChildren(childrenGlobal, "TargetFrameworkVersion"));
+			Assert.IsTrue(Extensions.ValidateChildren(childrenGlobal, "TargetFrameworkVersion"));
 
 			var childrenDebug = project.PropertyGroups[2].Elements().ToImmutableArray();
 			Assert.AreEqual(0, childrenDebug.Length);
@@ -271,7 +270,7 @@ namespace Project2015To2017Tests
 			var childrenReleaseCI = project.PropertyGroups[4].Elements().ToImmutableArray();
 			// We remove only one property set to global default (FileAlignment)
 			Assert.AreEqual(7, childrenReleaseCI.Length);
-			Assert.IsTrue(ValidateChildren(childrenReleaseCI,
+			Assert.IsTrue(Extensions.ValidateChildren(childrenReleaseCI,
 				"DefineConstants", "OutputPath", "Optimize", "CodeAnalysisRuleSet", "DocumentationFile",
 				"TreatWarningsAsErrors", "RunCodeAnalysis"));
 			// check we are keeping original slashes and replacing configuration name with $(Configuration)

@@ -1,15 +1,15 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
 using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
-using System.Text;
 
-namespace Project2015To2017Tests
+namespace Project2015To2017.Tests
 {
 	[TestClass]
 	public class ProjectPropertiesReadTest
