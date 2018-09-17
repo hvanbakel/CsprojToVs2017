@@ -1,8 +1,9 @@
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
+using Project2015To2017.Transforms;
 
-namespace Project2015To2017.Transforms
+namespace Project2015To2017.Migrate2017.Transforms
 {
 	public sealed class TestProjectPackageReferenceTransformation : ILegacyOnlyProjectTransformation
 	{

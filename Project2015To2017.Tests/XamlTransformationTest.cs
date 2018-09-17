@@ -1,14 +1,12 @@
-using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Project2015To2017;
 using Project2015To2017.Definition;
+using Project2015To2017.Migrate2017.Transforms;
 using Project2015To2017.Reading;
-using Project2015To2017.Transforms;
 
 namespace Project2015To2017Tests
 {

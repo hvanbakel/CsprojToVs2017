@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017;

@@ -1,20 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<RootNamespace>Project2015To2017.Console</RootNamespace>
-		<AssemblyName>Project2015To2017.Console</AssemblyName>
 		<PackageId>Project2015To2017.Cli</PackageId>
-		<Authors>hvanbakel et. al.</Authors>
 		<Product>Project2015To2017.Cli</Product>
-		<Description>Tool for converting a MSBuild project file to VS2017 format and beyond.</Description>
-		<PackageProjectUrl>https://github.com/hvanbakel/CsprojToVs2017</PackageProjectUrl>
-		<PackageLicenseUrl>https://github.com/hvanbakel/CsprojToVs2017/blob/master/LICENSE</PackageLicenseUrl>
-		<RepositoryUrl>https://github.com/hvanbakel/CsprojToVs2017</RepositoryUrl>
-		<Copyright>Copyright Hans van Bakel</Copyright>
-		<PackageTags>dotnet csproj conversion vs2015 vs2017</PackageTags>
-		<Version>3.0.2</Version>
 		<OutputType>Exe</OutputType>
-		<AssemblyVersion>3.0.0.0</AssemblyVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(Pack) != 'true'">
@@ -29,7 +18,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommandLineParser" Version="2.2.1" />
+		<PackageReference Include="CommandLineParser" Version="2.3.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.1" />
 	</ItemGroup>
 
