@@ -2,10 +2,9 @@ using System;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Project2015To2017;
 using Project2015To2017.Definition;
 
-namespace Project2015To2017Tests
+namespace Project2015To2017.Tests
 {
 	[TestClass]
 	public class UnsupportedProjectTypesTest

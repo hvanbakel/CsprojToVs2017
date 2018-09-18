@@ -2,11 +2,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Project2015To2017;
 using Project2015To2017.Reading;
 using Project2015To2017.Writing;
 
-namespace Project2015To2017Tests
+namespace Project2015To2017.Tests
 {
 	[TestClass]
 	public class ProgramTest

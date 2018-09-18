@@ -1,8 +1,8 @@
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Reading;
-using System.IO;
 
-namespace Project2015To2017Tests
+namespace Project2015To2017.Tests
 {
 	[TestClass]
     public class AssemblyInfoReadTest

@@ -4,7 +4,7 @@ using Project2015To2017.Analysis.Diagnostics;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 
-namespace Project2015To2017Tests
+namespace Project2015To2017.Tests
 {
 	[TestClass]
 	public class W001IllegalProjectTypeDiagnosticTest

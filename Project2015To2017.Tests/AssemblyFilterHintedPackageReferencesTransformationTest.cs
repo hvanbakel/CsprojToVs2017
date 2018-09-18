@@ -1,11 +1,11 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Definition;
-using Project2015To2017.Reading;
 using Project2015To2017.Migrate2017.Transforms;
+using Project2015To2017.Reading;
 
-namespace Project2015To2017Tests
+namespace Project2015To2017.Tests
 {
 	[TestClass]
 	public class AssemblyFilterHintedPackageReferencesTransformationTest

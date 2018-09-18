@@ -5,10 +5,10 @@ using System.Xml.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Project2015To2017;
 using Project2015To2017.Definition;
 using Project2015To2017.Transforms;
-namespace Project2015To2017Tests
+
+namespace Project2015To2017.Tests
 {
 	[TestClass]
 	public class AssemblyAttributeTransformationTest
