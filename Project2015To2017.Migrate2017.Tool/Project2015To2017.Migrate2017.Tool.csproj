@@ -25,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Project2015To2017.Migrate2017.Library\Project2015To2017.Migrate2017.Library.csproj" />
+	  <ProjectReference Include="..\Project2015To2017\Project2015To2017.csproj" />
 	</ItemGroup>
 
 </Project>

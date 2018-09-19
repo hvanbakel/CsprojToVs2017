@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Project2015To2017.Analysis;
 using Project2015To2017.Definition;
 
-namespace Project2015To2017.Analysis.Diagnostics
+namespace Project2015To2017.Migrate2017.Diagnostics
 {
 	public sealed class W031MSBuildSdkVersionSpecificationDiagnostic : DiagnosticBase
 	{
