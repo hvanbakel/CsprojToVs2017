@@ -1,6 +1,7 @@
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
 using System;
+using Project2015To2017.Analysis.Diagnostics;
 
 namespace Project2015To2017.Analysis
 {
@@ -58,19 +59,12 @@ namespace Project2015To2017.Analysis
 			{
 				if (!projectPath.ProjectFile.Exists)
 				{
-					this._reporter.Report(new[]
+					if (this._options.Diagnostics.Contains(DiagnosticSet.W002))
 					{
-						new DiagnosticResult
-						{
-							Code = "W002",
-							Message =
-								$"Referenced project file '{projectPath.Include}' was not found at '{projectPath.ProjectFile.FullName}'.",
-							Location = new DiagnosticLocation
-							{
-								Source = solution.FilePath
-							}
-						}
-					}, this._reporter.DefaultOptions);
+						this._reporter.Report(
+							W002MissingProjectFileDiagnostic.CreateResult(projectPath, solution),
+							this._reporter.DefaultOptions);
+					}
 					continue;
 				}
 
