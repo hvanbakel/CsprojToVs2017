@@ -50,6 +50,7 @@ As a sub command `migrate` being shown above there are 2 more options:
 ## Flags
 * `target-frameworks` will set the target framework on the outputted project file
 * `force-transformations` allows specifying individual transforms to be run on the projects
+* `force` ignores checks like project type being supported and will attempt a conversion regardless
 * `keep-assembly-info` instructs the migrate logic to keep the assembly info file 
 * `old-output-path` will set `AppendTargetFrameworkToOutputPath` in converted project file
 * `no-backup` do not create a backup folder (e.g. when your solution is under source control)
