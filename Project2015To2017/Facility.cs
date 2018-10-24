@@ -132,12 +132,17 @@ namespace Project2015To2017
 						{
 							var solution = SolutionReader.Instance.Read(file, logger);
 							convertedSolutions.Add(solution);
-							convertedProjects.AddRange(converter.ProcessSolutionFile(solution));
+							convertedProjects.AddRange(converter.ProcessSolutionFile(solution).Where(x => x != null));
 							break;
 						}
 					default:
 						{
-							convertedProjects.Add(converter.ProcessProjectFile(file, null));
+							var converted = converter.ProcessProjectFile(file, null);
+							if (converted != null)
+							{
+								convertedProjects.Add(converted);
+							}
+
 							break;
 						}
 				}

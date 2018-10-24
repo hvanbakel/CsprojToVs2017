@@ -110,8 +110,8 @@ namespace Project2015To2017.Migrate2017.Tool
 					logic.ExecuteEvaluate(items, conversionOptions);
 					break;
 				case "migrate":
-					conversionOptions.AppendTargetFrameworkToOutputPath =
-						!command.ValueOrDefault<bool>("old-output-path");
+					conversionOptions.AppendTargetFrameworkToOutputPath = !command.ValueOrDefault<bool>("old-output-path");
+					conversionOptions.Force = command.ValueOrDefault<bool>("force");
 					conversionOptions.KeepAssemblyInfo = command.ValueOrDefault<bool>("keep-assembly-info");
 
 					logic.ExecuteMigrate(items, command.ValueOrDefault<bool>("no-backup"), conversionOptions);
@@ -150,7 +150,7 @@ namespace Project2015To2017.Migrate2017.Tool
 				.With("Target frameworks to be used instead of the ones in source projects", "frameworks"));
 
 		private static Option ForceTransformationsOption => Option(
-			"-f|--force-transformations",
+			"-ft|--force-transformations",
 			"Force execution of transformations despite project conversion state by their specified names.",
 			OneOrMoreArguments()
 				.With("Transformation names to enforce execution", "names"));
@@ -168,6 +168,8 @@ namespace Project2015To2017.Migrate2017.Tool
 				ItemsArgument,
 				Option("-n|--no-backup",
 					"Skip moving project.json, global.json, and *.xproj to a `Backup` directory after successful migration."),
+				Option("-f|--force",
+					"Force a conversion even if not all preconditions are met."),
 				Option("-a|--keep-assembly-info",
 					"Keep assembly attributes in AssemblyInfo file instead of moving them to project file."),
 				TargetFrameworksOption,

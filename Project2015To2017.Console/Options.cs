@@ -24,13 +24,17 @@ namespace Project2015To2017.Console
 		[Option('o', "output-path", Default = false, HelpText = "Will not create a subfolder with the target framework in the output path")]
 		public bool NoTargetFrameworkToOutputPath { get; set; } = false;
 
+		[Option('f', "force", Default = false, HelpText = "Will force an upgrade even though certain preconditions might not have been met")]
+		public bool Force { get; set; } = false;
+
 		public ConversionOptions ConversionOptions
 			=> new ConversionOptions
 			{
 				KeepAssemblyInfo = AssemblyInfo,
 				TargetFrameworks = TargetFrameworks?.ToList(),
 				AppendTargetFrameworkToOutputPath = !NoTargetFrameworkToOutputPath,
-				ProjectCache = new Caching.DefaultProjectCache()
+				ProjectCache = new Caching.DefaultProjectCache(),
+				Force = this.Force
 			};
 	}
 }

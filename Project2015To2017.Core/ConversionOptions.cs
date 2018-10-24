@@ -37,5 +37,10 @@ namespace Project2015To2017
 	    /// like forcing <see cref="ILegacyOnlyProjectTransformation"/> run on already converted project.
 	    /// </summary>
 	    public IReadOnlyList<string> ForceDefaultTransforms { get; set; } = ImmutableArray<string>.Empty;
+
+		/// <summary>
+		/// Force conversion ignoring any checks we might do that prevent a conversion.
+		/// </summary>
+		public bool Force { get; set; }
 	}
 }

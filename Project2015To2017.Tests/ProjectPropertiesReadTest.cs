@@ -50,6 +50,74 @@ namespace Project2015To2017.Tests
 		}
 
 		[TestMethod]
+		public async Task ReadsUnsupportedProjectTypeWhenForced()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+  </PropertyGroup>
+ <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' "">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+</Project>";
+
+			var project = await ParseAndTransform(xml, nameof(ReadsUnsupportedProjectTypeWhenForced), new ConversionOptions { Force = true }).ConfigureAwait(false);
+
+			Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
+		}
+
+		[TestMethod]
+		public async Task DoesNotReadUnsupportedProjectTypeWhenNotForced()
+		{
+			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+  </PropertyGroup>
+ <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' "">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+</Project>";
+
+			var project = await ParseAndTransform(xml).ConfigureAwait(false);
+
+			Assert.IsNull(project);
+		}
+
+		[TestMethod]
 		public async Task ReadsTestProjectGuid()
 		{
 			var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -565,14 +633,15 @@ if $(ConfigurationName) == Debug (
 		private static async Task<Project> ParseAndTransform(
 			string xml,
 			[System.Runtime.CompilerServices.CallerMemberName]
-			string memberName = ""
+			string memberName = "",
+			ConversionOptions options = null
 		)
 		{
 			var testCsProjFile = $"{memberName}_test.csproj";
 
 			await File.WriteAllTextAsync(testCsProjFile, xml, Encoding.UTF8);
 
-			var project = new ProjectReader().Read(testCsProjFile);
+			var project = new ProjectReader(null, options).Read(testCsProjFile);
 
 			return project;
 		}
