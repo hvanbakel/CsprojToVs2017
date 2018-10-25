@@ -48,6 +48,9 @@ namespace Project2015To2017.Migrate2017.Transforms
 				.SelectMany(x => x.Elements())
 				.Split(x => KeepFileInclusion(x, definition));
 
+			//removeQueue = removeQueue
+			//	.Where(include => include.Attribute("Include")?.Value != null && !definition.IntermediateOutputPaths.Any(p => (definition.ProjectFolder.FullName + Path.DirectorySeparatorChar + include).StartsWith(p)))
+
 			// For all retained Page, Content, etc that have .cs extension we get file paths.
 			// For all these paths we add <Compile Remove="(path)" />.
 			// So that there is no wildcard match like <Compile Include="**/*.cs" /> for file test.cs,
@@ -109,7 +112,11 @@ namespace Project2015To2017.Migrate2017.Transforms
 
 		private static IEnumerable<string> PreviouslyExcludedFiles(Project definition, string[] referencedItems)
 		{
-			return definition.ProjectFolder.GetFiles("*." + definition.CodeFileExtension, SearchOption.AllDirectories).Select(x => x.FullName.Substring(definition.ProjectFolder.FullName.Length + 1)).Except(referencedItems);
+			return definition.ProjectFolder
+				.GetFiles("*." + definition.CodeFileExtension, SearchOption.AllDirectories)
+				.Where(x => !definition.IntermediateOutputPaths.Any(p => x.FullName.StartsWith(p)))
+				.Select(x => x.FullName.Substring(definition.ProjectFolder.FullName.Length + 1))
+				.Except(referencedItems);
 		}
 
 		private static bool KeepFileInclusion(XElement x, Project project)

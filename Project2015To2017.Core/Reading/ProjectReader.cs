@@ -93,6 +93,8 @@ namespace Project2015To2017.Reading
 
 			projectPropertiesReader.Read(projectDefinition);
 
+			projectDefinition.IntermediateOutputPaths = ReadIntermediateOutputPaths(projectDefinition);
+
 			var assemblyAttributes = this.assemblyInfoReader.Read(projectDefinition);
 
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
@@ -110,6 +112,16 @@ namespace Project2015To2017.Reading
 			return projectTypeNode != null
 				? Guid.Parse(projectTypeNode.Value)
 				: default(Guid?);
+		}
+
+		private IReadOnlyList<string> ReadIntermediateOutputPaths(Project projectDefinition)
+		{
+			return projectDefinition
+				.ProjectDocument
+				.Descendants(projectDefinition.XmlNamespace + "IntermediateOutputPath")
+				.Select(x => Path.IsPathRooted(x.Value) ? x.Value : projectDefinition.FilePath.DirectoryName + Path.DirectorySeparatorChar + x.Value)
+				.Union(projectDefinition.Configurations.Select(x => projectDefinition.FilePath.DirectoryName + Path.DirectorySeparatorChar + "obj\\" + x))
+				.ToArray();
 		}
 
 		private void HandleSpecialProjectTypes(Project project)

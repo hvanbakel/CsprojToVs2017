@@ -87,5 +87,7 @@ namespace Project2015To2017.Definition
 
 		public bool IsWindowsFormsProject { get; set; }
 		public bool IsWindowsPresentationFoundationProject { get; set; }
+
+		public IReadOnlyList<string> IntermediateOutputPaths { get; set; }
 	}
 }

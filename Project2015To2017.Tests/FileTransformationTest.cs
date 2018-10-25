@@ -11,6 +11,19 @@ namespace Project2015To2017.Tests
 	public class FileTransformationTest
 	{
 		[TestMethod]
+		public void TransformsFilesExcludeByIntermediateOutputPath()
+		{
+			var project = new ProjectReader().Read(Path.Combine("TestFiles", "FileInclusion", "intermediatePathExclusion.testcsproj"));
+			project.CodeFileExtension = "cs";
+			var transformation = new FileTransformation();
+
+			transformation.Transform(project);
+
+			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
+			Assert.AreEqual(0, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Remove")?.Value == "Folder\\FileIncludedByWildcard.cs"));
+		}
+
+		[TestMethod]
 		public void TransformsFilesExclude()
 		{
 			var project = new ProjectReader().Read(Path.Combine("TestFiles", "FileInclusion", "fileExclusion.testcsproj"));
