@@ -33,6 +33,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 			"Reference",
 			"ProjectReference",
 			"PackageReference",
+			"Import"
 		};
 
 		private readonly ILogger logger;
