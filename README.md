@@ -1,8 +1,8 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/bpo5n2yehpqrxbc4?svg=true)](https://ci.appveyor.com/project/hvanbakel/csprojtovs2017)
 [![NuGet Version](https://img.shields.io/nuget/v/Project2015To2017.svg?label=Nupkg%20Version)](https://www.nuget.org/packages/Project2015To2017)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Project2015To2017.svg?label=Nupkg%20Downloads)](https://www.nuget.org/packages/Project2015To2017)
-[![Global Tool NuGet Version](https://img.shields.io/nuget/v/Project2015To2017.Cli.svg?label=Global%20Tool%20Version)](https://www.nuget.org/packages/Project2015To2017.Cli)
-[![Global Tool NuGet Downloads](https://img.shields.io/nuget/dt/Project2015To2017.Cli.svg?label=Global%20Tool%20Downloads)](https://www.nuget.org/packages/Project2015To2017.Cli)
+[![Global Tool NuGet Version](https://img.shields.io/nuget/v/Project2015To2017.Migrate2017.Tool.svg?label=Global%20Tool%20Version)](https://www.nuget.org/packages/Project2015To2017.Migrate2017.Tool)
+[![Global Tool NuGet Downloads](https://img.shields.io/nuget/dt/Project2015To2017.Migrate2017.Tool.svg?label=Global%20Tool%20Downloads)](https://www.nuget.org/packages/Project2015To2017.Migrate2017.Tool)
 
 # Convert your old project files to the new 2017 format
 With the introduction of Visual Studio 2017, Microsoft added some optimizations to how a project file can be set up. However, no tooling was made available that performed this conversion as it was not necessary to do since Visual Studio 2017 would work with the old format too.

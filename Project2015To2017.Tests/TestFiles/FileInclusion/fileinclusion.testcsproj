@@ -131,6 +131,16 @@
 	  <Project>{E5D98CC5-93A3-450D-B33E-F9CAD02BBD8C}</Project>
 	  <Name>YetAnotherProject</Name>
 	</ProjectReference>
+	<Antlr4 Include="filename1.g4">
+	  <Generator>MSBuild:Compile</Generator>
+	  <TargetLanguage>CSharp_v4_5</TargetLanguage>
+	  <CustomToolNamespace>myFramework</CustomToolNamespace>
+	</Antlr4>
+	<Antlr4 Include="filename2.g4">
+	  <Generator>MSBuild:Compile</Generator>
+	  <TargetLanguage>CSharp_v4_5</TargetLanguage>
+	  <CustomToolNamespace>myFramework</CustomToolNamespace>
+	</Antlr4>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
