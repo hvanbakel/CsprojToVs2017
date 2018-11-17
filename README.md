@@ -20,7 +20,7 @@ There are a number of things [that VS2017 handles differently](http://www.natemc
 ## How it works
 ### As a Net Core Global Tool
 Assuming you have net core 2.1 installed you can run this on the command line:
-`dotnet tool install --global Project2015To2017.Migrate2017.Tool --version 3.0.5`
+`dotnet tool install --global Project2015To2017.Migrate2017.Tool`
 This will install the tool for you to use it anywhere you would like. You can then call the tool as shown in the examples below.
 
 ### As a normal file download
