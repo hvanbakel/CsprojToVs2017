@@ -47,11 +47,12 @@ namespace Project2015To2017.Tests
 
 			var includeItems = project.ItemGroups.SelectMany(x => x.Elements()).ToImmutableList();
 
-			Assert.AreEqual(31, includeItems.Count);
+			Assert.AreEqual(32, includeItems.Count);
 
 			Assert.AreEqual(12, includeItems.Count(x => x.Name.LocalName == "Reference"));
 			Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName == "ProjectReference"));
 			Assert.AreEqual(2, includeItems.Count(x=> x.Name.LocalName.Equals("Antlr4")));
+			Assert.AreEqual(1, includeItems.Count(x => x.Name.LocalName.Equals("Antlr3")));
 			Assert.AreEqual(11, includeItems.Count(x => x.Name.LocalName == "Compile"));
 			Assert.AreEqual(5, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Update") != null));
 			Assert.AreEqual(4, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Include") != null));
