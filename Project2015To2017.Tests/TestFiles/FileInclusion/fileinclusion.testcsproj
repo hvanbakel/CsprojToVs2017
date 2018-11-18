@@ -122,6 +122,10 @@
 	  <Project>{E5D98CC5-93A3-450D-B33E-F9CAD02BBD8C}</Project>
 	  <Name>YetAnotherProject</Name>
 	</ProjectReference>
+	<Antlr3 Include="filename.g">
+	  <Generator>MSBuild:Compile</Generator>
+	  <CustomToolNamespace>filename</CustomToolNamespace>
+	</Antlr3>
 	<Antlr4 Include="filename1.g4">
 	  <Generator>MSBuild:Compile</Generator>
 	  <TargetLanguage>CSharp_v4_5</TargetLanguage>

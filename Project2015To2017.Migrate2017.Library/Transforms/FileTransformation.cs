@@ -33,7 +33,8 @@ namespace Project2015To2017.Migrate2017.Transforms
 			"Reference",
 			"ProjectReference",
 			"PackageReference",
-			"Antlr4"
+			"Antlr4",
+			"Antlr3"
 		};
 
 		private readonly ILogger logger;
