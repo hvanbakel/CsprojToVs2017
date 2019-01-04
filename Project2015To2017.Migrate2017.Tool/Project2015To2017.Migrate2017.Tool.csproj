@@ -17,11 +17,15 @@
 
 	<ItemGroup>
 		<PackageReference Include="DotNet.Glob" Version="2.1.1" />
-		<PackageReference Include="Microsoft.DotNet.Cli.CommandLine" Version="0.2.1-alpha-63223-01" />
 		<PackageReference Include="Serilog" Version="2.7.1" />
 		<PackageReference Include="Serilog.Enrichers.Demystify" Version="0.1.0-dev-00016" />
 		<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(Pack) != 'true'">
+		<PackageReference Include="Microsoft.DotNet.Cli.CommandLine" Version="1.0.0-preview.18601.1" />
+		<Compile Remove="Microsoft.DotNet.Cli.CommandLine/*.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
