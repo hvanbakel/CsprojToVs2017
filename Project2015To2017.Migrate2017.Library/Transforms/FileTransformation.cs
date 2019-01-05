@@ -129,6 +129,8 @@ namespace Project2015To2017.Migrate2017.Transforms
 			// Wildcards from Microsoft.NET.Sdk.DefaultItems.props
 			switch (tagName)
 			{
+				case "Import"
+					when include != null: return true;
 				case "Compile":
 				case "EmbeddedResource"
 					when include != null && include.EndsWith(".resx", StringComparison.OrdinalIgnoreCase):

@@ -67,6 +67,15 @@
 	<Compile Include="**\*.cs" />
   </ItemGroup>
   <ItemGroup>
+	<Import Include="Microsoft.VisualBasic" />
+	<Import Include="System" />
+	<Import Include="System.Collections" />
+	<Import Include="System.Collections.Generic" />
+	<Import Include="System.Drawing" />
+	<Import Include="System.Diagnostics" />
+	<Import Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
 	<Compile Include="Folder\FileInFolder.cs" />
 	<Compile Include="AnotherFile.cs" AnotherAttribute="AttrValue" />
 	<Compile Include="..\..\FileTransformationTest.cs" />
