@@ -55,7 +55,11 @@ namespace Project2015To2017.Reading
 
 			if (assemblyInfoFiles.Count == 0)
 			{
-				this.logger.LogWarning($@"Could not read from assemblyinfo, no assemblyinfo file found");
+				// for modern projects an assembly info is not required.
+				if (!project.IsModernProject)
+				{
+					this.logger.LogWarning($@"Could not read from assemblyinfo, no assemblyinfo file found");
+				}
 
 				return null;
 			}
