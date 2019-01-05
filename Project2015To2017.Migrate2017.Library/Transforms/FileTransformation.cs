@@ -91,6 +91,8 @@ namespace Project2015To2017.Migrate2017.Transforms
 					var removeOtherInclude = new XElement(definition.XmlNamespace + "Compile");
 					removeOtherInclude.Add(new XAttribute("Remove", otherIncludeMatchingWildcard));
 					itemGroup.Add(removeOtherInclude);
+
+					logger.LogInformation("Excluding: " + otherIncludeMatchingWildcard);
 				}
 
 				definition.ItemGroups.Add(itemGroup);
