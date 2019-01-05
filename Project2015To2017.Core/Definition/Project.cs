@@ -33,7 +33,7 @@ namespace Project2015To2017.Definition
 		public bool AppendTargetFrameworkToOutputPath { get; set; } = true;
 		public ApplicationType Type { get; set; }
 		public FileInfo FilePath { get; set; }
-		public string CodeFileExtension { get; set; }
+		public string CodeFileExtension { get; set; } = "cs";
 		public DirectoryInfo ProjectFolder => this.FilePath.Directory;
 		public Guid? ProjectGuid { get; set; }
 
