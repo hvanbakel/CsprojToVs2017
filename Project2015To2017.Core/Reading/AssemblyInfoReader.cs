@@ -38,7 +38,7 @@ namespace Project2015To2017.Reading
 													return new FileInfo(Extensions.MaybeAdjustFilePath(filePath, projectPath));
 												}
 											)
-										   .Where(IsAssemblyInfoFile)
+										   .Where(x => IsAssemblyInfoFile(x, project.CodeFileExtension))
 										   .Where(x =>
 												{
 													if (x.Exists)
@@ -89,12 +89,12 @@ namespace Project2015To2017.Reading
 			return assemblyAttributes;
 		}
 
-		private static bool IsAssemblyInfoFile(FileInfo x)
+		private static bool IsAssemblyInfoFile(FileInfo x, string extension)
 		{
 			var nameLower = x.Name.ToLower();
-			if (nameLower == "assemblyinfo.cs")
+			if (nameLower == "assemblyinfo." + extension)
 				return true;
-			return nameLower.EndsWith(".cs") && nameLower.Contains("assemblyinfo");
+			return nameLower.EndsWith("." + extension) && nameLower.Contains("assemblyinfo");
 		}
 	}
 }
