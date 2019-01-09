@@ -1,7 +1,7 @@
 version: 4.0.{build}
 skip_tags: true
 image: 
-- Visual Studio 2017
+- Visual Studio 2019 Preview
 configuration:
 - Release
 pull_requests:
@@ -13,23 +13,23 @@ environment:
   LEGACYCLITOOL: './Project2015To2017.Console/Project2015To2017.Console.csproj'
   CLITOOL: './Project2015To2017.Migrate2017.Tool/Project2015To2017.Migrate2017.Tool.csproj'
 build_script:
-  - cmd: dotnet build %LOGGER% -v m -c %configuration%
-  - cmd: dotnet pack %LIBRARY% %LOGGER% -v m -c %configuration% --no-build
-  - cmd: dotnet pack %LEGACYCLITOOL% %LOGGER% -v m -c %configuration% --no-build /p:Pack=true
-  - cmd: dotnet pack %CLITOOL% %LOGGER% -v m -c %configuration% --no-build /p:Pack=true
-  - cmd: dotnet publish %CLITOOL% %LOGGER% -v m -c %configuration% -f netcoreapp2.1 -o ./out/netcoreapp2.1 --no-build
-  - cmd: dotnet publish %CLITOOL% %LOGGER% -v m -c %configuration% -f net461 -o ./out/net461 --no-build
+  - cmd: dotnet --version
+  - cmd: dotnet pack %LIBRARY% %LOGGER% -v m -c %configuration% --force /p:Pack=true
+  - cmd: dotnet pack %LEGACYCLITOOL% %LOGGER% -v m -c %configuration% --force /p:Pack=true
+  - cmd: dotnet pack %CLITOOL% %LOGGER% -v m -c %configuration% --force /p:Pack=true
+  - cmd: dotnet publish %CLITOOL% %LOGGER% -v m -c %configuration% -f netcoreapp2.1 -o ./out/netcoreapp2.1
+  - cmd: dotnet publish %CLITOOL% %LOGGER% -v m -c %configuration% -f net461 -o ./out/net461
 after_build:
-  - cmd: 7z a ./Project2015To2017/out/dotnet-migrate-2017.zip ./Project2015To2017.Migrate2017.Tool/out/*
+  - cmd: 7z a ./dotnet-migrate-2017.zip ./out/*
 test_script:
-  - cmd: dotnet test Project2015To2017.Tests/Project2015To2017.Tests.csproj -c %configuration% --no-build --test-adapter-path:. --logger:Appveyor
+  - cmd: dotnet test Project2015To2017.Tests/Project2015To2017.Tests.csproj -c %configuration% --test-adapter-path:. --logger:Appveyor
 
 artifacts:
   - path: ./Project2015To2017.Console/bin/$(configuration)/Project2015To2017.Cli.**.nupkg
     name: global-tool-legacy
   - path: ./Project2015To2017.Migrate2017.Tool/bin/$(configuration)/Project2015To2017.Migrate2017.Tool.**.nupkg
     name: global-tool
-  - path: ./Project2015To2017/out/dotnet-migrate-2017.zip
+  - path: ./dotnet-migrate-2017.zip
     name: out-zip
   - path: Project2015To2017\bin\$(configuration)\Project2015To2017.**.nupkg
     name: nupkg

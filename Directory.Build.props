@@ -10,7 +10,7 @@
 		<Copyright>Copyright Hans van Bakel</Copyright>
 		<Description>Tool for converting a MSBuild project file to VS2017 format and beyond.</Description>
 		<PackageTags>dotnet csproj fsproj vbproj msbuild conversion vs2015 vs14 vs15 vs2017</PackageTags>
-		<Version>3.0.7</Version>
+		<Version>3.0.8</Version>
 		<AssemblyVersion>3.0.0.0</AssemblyVersion>
 		
 		<!-- SourceLink -->
@@ -20,7 +20,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All"/>
 	</ItemGroup>
 
 </Project>
