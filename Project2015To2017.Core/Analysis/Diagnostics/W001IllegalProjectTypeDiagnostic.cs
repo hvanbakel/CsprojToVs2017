@@ -2,52 +2,43 @@ using System;
 using Project2015To2017.Definition;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Project2015To2017.Analysis.Diagnostics
 {
 	public sealed class W001IllegalProjectTypeDiagnostic : DiagnosticBase
 	{
-		private static readonly Dictionary<string, string> TypeGuids = new Dictionary<string, string>
+		private static readonly Dictionary<Guid, string> TypeGuids = new Dictionary<Guid, string>
 		{
-			["{EFBA0AD7-5A72-4C68-AF49-83D382785DCF}"] = "Xamarin.Android",
-			["{6BC8ED88-2882-458C-8E55-DFD12B67127B}"] = "Xamarin.iOS",
-			["{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A}"] = "UAP/UWP",
+			[Guid.ParseExact("EFBA0AD7-5A72-4C68-AF49-83D382785DCF", "D")] = "Xamarin.Android",
+			[Guid.ParseExact("6BC8ED88-2882-458C-8E55-DFD12B67127B", "D")] = "Xamarin.iOS",
+			[Guid.ParseExact("A5A43C5B-DE2A-4C0C-9213-0A381AF9435A", "D")] = "UAP/UWP",
 		};
 
 		/// <inheritdoc />
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
 			var list = new List<IDiagnosticResult>(TypeGuids.Count + 1);
-			if (project.IsWindowsFormsProject)
+			if (project.IsWindowsFormsProject())
 			{
 				list.Add(CreateDiagnosticResult(project,
 					"Windows Forms support in CPS is in early stages and support might depend on your working environment.",
 					project.FilePath));
 			}
 
-			// try to get project type - may not exist
-			var typeElement = project.Property("ProjectTypeGuids");
-			if (typeElement == null)
-			{
-				return Array.Empty<IDiagnosticResult>();
-			}
-
-			// parse the CSV list
-			var guidTypes = typeElement.Value
-				.Split(';')
-				.Select(x => x.Trim().ToUpperInvariant())
+			var guidTypes = project
+				.IterateProjectTypeGuids()
 				.ToImmutableHashSet();
 
-			foreach (var item in TypeGuids)
+			foreach (var (guid, source) in guidTypes)
 			{
-				if (!guidTypes.Contains(item.Key)) continue;
+				if (!TypeGuids.TryGetValue(guid, out var description))
+					continue;
 
 				list.Add(
 					CreateDiagnosticResult(project,
-							$"Project type {item.Value} is not tested thoroughly and support might depend on your working environment.",
+							$"Project type {description} is not tested thoroughly and support might depend on your working environment.",
 							project.FilePath)
-						.LoadLocationFromElement(typeElement));
+						.LoadLocationFromElement(source));
 			}
 
 			return list;

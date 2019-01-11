@@ -11,7 +11,6 @@ namespace Project2015To2017.Writing
 {
 	public sealed class ProjectWriter
 	{
-		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/1.6.47";
 		private readonly ILogger logger;
 		private readonly Action<FileSystemInfo> deleteFileOperation;
 		private readonly Action<FileSystemInfo> checkoutOperation;
@@ -174,12 +173,7 @@ namespace Project2015To2017.Writing
 
 		internal XElement CreateXml(Project project)
 		{
-			var outputFile = project.FilePath;
-
-			var netSdk = "Microsoft.NET.Sdk";
-			if (project.IsWindowsFormsProject || project.IsWindowsPresentationFoundationProject)
-				netSdk = SdkExtrasVersion;
-			var projectNode = new XElement("Project", new XAttribute("Sdk", netSdk));
+			var projectNode = new XElement("Project", new XAttribute("Sdk", project.ProjectSdk));
 
 			if (project.PropertyGroups != null)
 			{

@@ -32,6 +32,7 @@ namespace Project2015To2017.Migrate2017
 				new PrimaryProjectPropertiesUpdateTransformation(),
 				new EmptyGroupRemoveTransformation(),
 				// VS15 migration
+				new FrameworkReferencesTransformation(),
 				new TestProjectPackageReferenceTransformation(logger),
 				new AssemblyFilterPackageReferencesTransformation(),
 				new AssemblyFilterHintedPackageReferencesTransformation(),
@@ -39,6 +40,7 @@ namespace Project2015To2017.Migrate2017
 				new ImportsTargetsFilterPackageReferencesTransformation(),
 				new FileTransformation(logger),
 				new XamlPagesTransformation(logger),
+				new BrokenHookTargetsTransformation(logger),
 			};
 		}
 	}

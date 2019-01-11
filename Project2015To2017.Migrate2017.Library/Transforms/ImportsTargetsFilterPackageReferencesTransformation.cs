@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -58,75 +59,78 @@ namespace Project2015To2017.Migrate2017.Transforms
 
 		private static List<XElement> FilteredTargets(IReadOnlyList<XElement> targets, string[] packagePaths, string projectPath)
 		{
-			var filteredImports = targets
-									.Where(import => !packagePaths.Any(
-											packagePath => TargetMatchesPackage(import, packagePath)
-										)
-									).ToList();
+			var filteredImports = new List<XElement>();
+			foreach (var target in targets)
+			{
+				var propertyGroups = target.ElementsAnyNamespace("PropertyGroup")
+					.ToList();
+
+				// Expect no more than 1 property group
+				if (propertyGroups.Count == 1)
+				{
+					var errorTextPropertyGroup = propertyGroups.SingleOrDefault();
+
+					var properties = errorTextPropertyGroup?
+						.Elements()
+						.ToList();
+
+					// Expect no more than 1 'ErrorText' element
+					if ((properties?.Count ?? 0) == 1)
+					{
+						var errorTextElement = properties?.SingleOrDefault();
+
+						// Some other property
+						if (errorTextElement == null || errorTextElement.Name.LocalName == "ErrorText")
+						{
+							var otherElements = target
+								.Elements()
+								.Where(x => x.Name.LocalName != "PropertyGroup")
+								.ToList();
+
+							if (otherElements.All(x => x.Name.LocalName == "Error"))
+							{
+								var matched = true;
+								foreach (var errorElement in otherElements)
+								{
+									var errorCondition = errorElement.Attribute("Condition");
+
+									// Error element with condition is required
+									if (errorCondition == null)
+									{
+										// this target is not what we need
+										matched = false;
+										break;
+									}
+									var conditionPath = errorCondition.Value.Replace("!Exists('", "")
+										.Replace("')", "");
+
+									var fullConditionPath = Path.IsPathRooted(conditionPath)
+										? conditionPath
+										: Path.GetFullPath(Path.Combine(projectPath, conditionPath));
+
+									if (packagePaths.All(packagePath =>
+										!fullConditionPath.StartsWith(packagePath,
+											StringComparison.CurrentCultureIgnoreCase)))
+									{
+										matched = false;
+										break;
+									}
+								}
+
+								if (matched)
+								{
+									// Continue iterating targets, filter this one OUT.
+									continue;
+								}
+							}
+						}
+					}
+				}
+
+				filteredImports.Add(target);
+			}
 
 			return filteredImports;
-
-			bool TargetMatchesPackage(XElement target, string packagePath)
-			{
-				//To make sure we don't remove anything customly added, look for a
-				//very specific vanilla target as created by nuget
-
-				var propertyGroups = target.ElementsAnyNamespace("PropertyGroup")
-										   .ToList();
-
-				if (propertyGroups.Count() > 1)
-				{
-					//Expect no more than 1 property group
-					return false;
-				}
-
-				var errorTextPropertyGroup = propertyGroups.SingleOrDefault();
-
-				var properties = errorTextPropertyGroup?
-									.Elements()
-									.ToList();
-
-				if ((properties?.Count() ?? 0) > 1)
-				{
-					//Expect no more than 1 'ErrorText' element
-					return false;
-				}
-
-				var errorTextElement = properties?.SingleOrDefault();
-
-				if (errorTextElement != null && errorTextElement.Name.LocalName != "ErrorText")
-				{
-					//Some other property
-					return false;
-				}
-
-				var otherElements = target
-									 .Elements()
-									 .Where(x => x.Name.LocalName != "PropertyGroup").ToList();
-
-				if (otherElements.Count() > 1)
-				{
-					return false;
-				}
-
-				var errorElement = otherElements.SingleOrDefault(x => x.Name.LocalName == "Error");
-
-				var errorCondition = errorElement?.Attribute("Condition");
-
-				if (errorCondition == null)
-				{
-					//Error element with condition is required
-					return false;
-				}
-
-				var conditionPath = errorCondition.Value.Replace("!Exists('", "").Replace("')", "");
-
-				var fullConditionPath = Path.IsPathRooted(conditionPath)
-					? conditionPath
-					: Path.GetFullPath(Path.Combine(projectPath, conditionPath));
-
-				return fullConditionPath.ToLower().StartsWith(packagePath);
-			}
 		}
 	}
 }

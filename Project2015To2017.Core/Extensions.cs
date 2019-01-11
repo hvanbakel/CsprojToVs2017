@@ -17,7 +17,7 @@ namespace Project2015To2017
 				return (fsi is DirectoryInfo d) ? (d.FullName.TrimEnd('\\') + "\\") : fsi.FullName;
 			}
 
-			var fromPath = GetPath(@from);
+			var fromPath = GetPath(from);
 			var toPath = GetPath(to);
 
 			var fromUri = new Uri(fromPath);
@@ -70,12 +70,14 @@ namespace Project2015To2017
 		public static IEnumerable<XElement> ElementsAnyNamespace<T>(this IEnumerable<T> source, string localName)
 			where T : XContainer
 		{
+			if (source == null) throw new ArgumentNullException(nameof(source));
 			return source.Elements().Where(e => e.Name.LocalName == localName);
 		}
 
 		public static IEnumerable<XElement> ElementsAnyNamespace<T>(this T source, string localName)
 			where T : XContainer
 		{
+			if (source == null) throw new ArgumentNullException(nameof(source));
 			return source.Elements().Where(e => e.Name.LocalName == localName);
 		}
 

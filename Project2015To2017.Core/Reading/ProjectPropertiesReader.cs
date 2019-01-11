@@ -1,32 +1,41 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
-using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Reading
 {
 	public sealed class ProjectPropertiesReader
 	{
-		private readonly ILogger _logger;
-
 		private static readonly string[] RemoveMSBuildImports =
 		{
 			@"$(MSBuildToolsPath)\Microsoft.CSharp.targets",
 			@"$(MSBuildBinPath)\Microsoft.CSharp.targets",
 			@"$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props",
 		};
+		private static readonly Guid TestProjectTypeGuid = Guid.ParseExact("3AC096D0-A1C2-E12C-1390-A8335801FDAB", "D");
+
+		private readonly ILogger logger;
 
 		public ProjectPropertiesReader(ILogger logger)
 		{
-			_logger = logger ?? NoopLogger.Instance;
+			this.logger = logger ?? NoopLogger.Instance;
 		}
 
 		public void Read(Project project)
 		{
+			Debug.Assert(project.ProjectDocument.Root != null, "project.ProjectDocument.Root != null");
+
 			ReadPropertyGroups(project);
+
+			var projectSdk = project.ProjectDocument.Root.Attribute("Sdk")?.Value;
+			if (projectSdk != null)
+			{
+				project.ProjectSdk = projectSdk;
+			}
 
 			var targetFrameworkVersion = project.Property("TargetFrameworkVersion")?.Value;
 			if (targetFrameworkVersion != null)
@@ -53,7 +62,7 @@ namespace Project2015To2017.Reading
 					}
 					else
 					{
-						_logger.LogError(
+						logger.LogError(
 							"TargetFramework cannot be determined from project file. The scenario is not supported and highly bug-prone.");
 					}
 				}
@@ -61,9 +70,7 @@ namespace Project2015To2017.Reading
 
 			// Ref.: https://www.codeproject.com/Reference/720512/List-of-Visual-Studio-Project-Type-GUIDs
 			if (project.PropertyGroups.ElementsAnyNamespace("TestProjectType").Any() ||
-			    project.Property("ProjectTypeGuids")
-				    ?.Value
-				    .IndexOf("3AC096D0-A1C2-E12C-1390-A8335801FDAB", StringComparison.OrdinalIgnoreCase) > -1)
+			    project.IterateProjectTypeGuids().Any(x => x.guid == TestProjectTypeGuid))
 			{
 				project.Type = ApplicationType.TestProject;
 			}

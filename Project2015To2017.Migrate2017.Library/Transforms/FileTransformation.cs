@@ -57,42 +57,50 @@ namespace Project2015To2017.Migrate2017.Transforms
 			// For all these paths we add <Compile Remove="(path)" />.
 			// So that there is no wildcard match like <Compile Include="**/*.cs" /> for file test.cs,
 			// already included as (e.g.) Content: <Content Include="test.cs" />
-			var includes = keepItems
+			var otherIncludedFilesMatchingWildcard = keepItems
 				.Where(x => x.Name.LocalName != "Compile")
-				.Select(x => x.Attribute("Include")?.Value)
+				.Select(x => x.Attribute("Include")?.Value ?? x.Attribute("Update")?.Value)
 				.Where(x => !string.IsNullOrEmpty(x))
-				.ToArray();
-
-			var otherIncludeFilesMatchingWildcard = includes
 				.Where(x => x.EndsWith("." + definition.CodeFileExtension, StringComparison.OrdinalIgnoreCase))
 				.ToArray();
 
-			var wildcardIncludes = keepItems.Where(x => x.Name.LocalName == "Compile").Select(x => x.Attribute("Include")?.Value).Where(x => x != null && x.Contains("*")).ToArray();
+			var wildcardIncludes = keepItems
+				.Where(x => x.Name.LocalName == "Compile")
+				.Select(x => x.Attribute("Include")?.Value ?? x.Attribute("Update")?.Value)
+				.Where(x => x != null && x.Contains("*"))
+				.ToArray();
 			if (wildcardIncludes.Length > 0)
 			{
-				this.logger.LogWarning("Wildcard include detected, please check for erroneous inclusion of additional files.");
+				logger.LogWarning(
+					"Wildcard include detected, please check for erroneous inclusion of additional files.");
 			}
 			else
 			{
-				var referencedItems = removeQueue
+				var referencedItems = definition.ItemGroups
+					.SelectMany(x => x.Elements())
 					.Where(x => x.Name.LocalName == "Compile")
-					.Select(x => x.Attribute("Update")?.Value)
-					.Where(x => !string.IsNullOrEmpty(x))
-					.ToArray();
+					.Select(x => x.Attribute("Include")?.Value ?? x.Attribute("Update")?.Value)
+					.Where(x => !string.IsNullOrEmpty(x));
 
-				otherIncludeFilesMatchingWildcard = otherIncludeFilesMatchingWildcard.Union(PreviouslyExcludedFiles(definition, referencedItems)).ToArray();
+				// Do file search, find all real files matching glob pattern
+				var nonReferencedWildcardMatchingItems = FindAllWildcardFiles(definition)
+					.Except(referencedItems, StringComparer.CurrentCultureIgnoreCase);
+
+				otherIncludedFilesMatchingWildcard = otherIncludedFilesMatchingWildcard
+					.Union(nonReferencedWildcardMatchingItems, StringComparer.CurrentCultureIgnoreCase)
+					.ToArray();
 			}
 
-			if (otherIncludeFilesMatchingWildcard.Length > 0)
+			if (otherIncludedFilesMatchingWildcard.Length > 0)
 			{
 				var itemGroup = new XElement(definition.XmlNamespace + "ItemGroup");
-				foreach (var otherIncludeMatchingWildcard in otherIncludeFilesMatchingWildcard)
+				foreach (var otherIncludeMatchingWildcard in otherIncludedFilesMatchingWildcard)
 				{
 					var removeOtherInclude = new XElement(definition.XmlNamespace + "Compile");
 					removeOtherInclude.Add(new XAttribute("Remove", otherIncludeMatchingWildcard));
 					itemGroup.Add(removeOtherInclude);
 
-					logger.LogInformation("Excluding: " + otherIncludeMatchingWildcard);
+					logger.LogDebug("Excluding: " + otherIncludeMatchingWildcard);
 				}
 
 				definition.ItemGroups.Add(itemGroup);
@@ -114,13 +122,13 @@ namespace Project2015To2017.Migrate2017.Transforms
 			logger.LogDebug($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");
 		}
 
-		private static IEnumerable<string> PreviouslyExcludedFiles(Project definition, string[] referencedItems)
+		private static IEnumerable<string> FindAllWildcardFiles(Project definition)
 		{
 			return definition.ProjectFolder
 				.GetFiles("*." + definition.CodeFileExtension, SearchOption.AllDirectories)
 				.Where(x => !definition.IntermediateOutputPaths.Any(p => x.FullName.StartsWith(p)))
-				.Select(x => x.FullName.Substring(definition.ProjectFolder.FullName.Length + 1))
-				.Except(referencedItems);
+				.Select(x => definition.ProjectFolder.GetRelativePathTo(x))
+				.Where(x => !definition.IntermediateOutputPaths.Any(x.StartsWith));
 		}
 
 		private static bool KeepFileInclusion(XElement x, Project project)

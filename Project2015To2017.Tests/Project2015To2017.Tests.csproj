@@ -5,8 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="OtherPackagesConfig\**" />
     <Compile Remove="TestFiles\FileInclusion\Resources.resx\**" />
     <Compile Remove="TestFiles\Solutions\ClassLibrary\obj\**" />
+    <EmbeddedResource Remove="OtherPackagesConfig\**" />
     <EmbeddedResource Remove="TestFiles\FileInclusion\Resources.resx\**" />
     <EmbeddedResource Remove="TestFiles\Solutions\ClassLibrary\obj\**" />
     <None Remove="TestFiles\FileInclusion\Resources.resx\**" />

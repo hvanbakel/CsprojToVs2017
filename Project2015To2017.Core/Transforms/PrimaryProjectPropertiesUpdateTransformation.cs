@@ -28,11 +28,6 @@ namespace Project2015To2017.Transforms
 			project.SetProperty("AppendTargetFrameworkToOutputPath",
 				project.AppendTargetFrameworkToOutputPath ? null : "false");
 
-			project.SetProperty("ExtrasEnableWpfProjectSetup",
-				project.IsWindowsPresentationFoundationProject ? "true" : null);
-			project.SetProperty("ExtrasEnableWinFormsProjectSetup",
-				project.IsWindowsFormsProject ? "true" : null);
-
 			string outputType;
 			switch (project.Type)
 			{

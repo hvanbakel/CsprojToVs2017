@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using Project2015To2017.Definition;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -71,15 +70,6 @@ namespace Project2015To2017.Reading
 				AssemblyAttributeProperties = Array.Empty<XElement>()
 			};
 
-			// get ProjectTypeGuids and check for unsupported types
-			if (!this.forceConversion && UnsupportedProjectTypes.IsUnsupportedProjectType(projectDefinition))
-			{
-				this.logger.LogError("This project type is not supported for conversion.");
-				return null;
-			}
-
-			this.projectCache.Add(filePath, projectDefinition);
-
 			projectDefinition.ProjectGuid = ReadProjectGuid(projectDefinition);
 			projectDefinition.AssemblyReferences = LoadAssemblyReferences(projectDefinition);
 			projectDefinition.ProjectReferences = LoadProjectReferences(projectDefinition);
@@ -89,8 +79,6 @@ namespace Project2015To2017.Reading
 
 			ProcessProjectReferences(projectDefinition);
 
-			HandleSpecialProjectTypes(projectDefinition);
-
 			projectPropertiesReader.Read(projectDefinition);
 
 			projectDefinition.IntermediateOutputPaths = ReadIntermediateOutputPaths(projectDefinition);
@@ -98,6 +86,15 @@ namespace Project2015To2017.Reading
 			var assemblyAttributes = this.assemblyInfoReader.Read(projectDefinition);
 
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
+
+			// get ProjectTypeGuids and check for unsupported types
+			if (!this.forceConversion && UnsupportedProjectTypes.IsUnsupportedProjectType(projectDefinition))
+			{
+				this.logger.LogError("This project type is not supported for conversion.");
+				return null;
+			}
+
+			this.projectCache.Add(filePath, projectDefinition);
 
 			return projectDefinition;
 		}
@@ -122,55 +119,6 @@ namespace Project2015To2017.Reading
 				.Select(x => Path.IsPathRooted(x.Value) ? x.Value : projectDefinition.FilePath.DirectoryName + Path.DirectorySeparatorChar + x.Value)
 				.Union(projectDefinition.Configurations.Select(x => projectDefinition.FilePath.DirectoryName + Path.DirectorySeparatorChar + "obj\\" + x))
 				.ToArray();
-		}
-
-		private void HandleSpecialProjectTypes(Project project)
-		{
-			// get the MyType tag
-			var outputType = project.ProjectDocument
-				.Descendants(project.XmlNamespace + "MyType")
-				.FirstOrDefault();
-			// WinForms applications
-			if (outputType?.Value == "WindowsForms")
-			{
-				this.logger.LogWarning("This is a Windows Forms project file, support is limited.");
-				project.IsWindowsFormsProject = true;
-			}
-
-			// try to get project type - may not exist
-			var typeElement = project.ProjectDocument
-				.Descendants(project.XmlNamespace + "ProjectTypeGuids")
-				.FirstOrDefault();
-			if (typeElement == null)
-			{
-				return;
-			}
-
-			// parse the CSV list
-			var guidTypes = typeElement.Value
-				.Split(';')
-				.Select(x => x.Trim().ToUpperInvariant())
-				.ToImmutableHashSet();
-
-			if (guidTypes.Contains("{EFBA0AD7-5A72-4C68-AF49-83D382785DCF}"))
-			{
-				project.TargetFrameworks.Add("xamarin.android");
-			}
-
-			if (guidTypes.Contains("{6BC8ED88-2882-458C-8E55-DFD12B67127B}"))
-			{
-				project.TargetFrameworks.Add("xamarin.ios");
-			}
-
-			if (guidTypes.Contains("{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A}"))
-			{
-				project.TargetFrameworks.Add("uap");
-			}
-
-			if (guidTypes.Contains("{60DC8134-EBA5-43B8-BCC9-BB4BC16C2548}"))
-			{
-				project.IsWindowsPresentationFoundationProject = true;
-			}
 		}
 
 		private static void ProcessProjectReferences(Project projectDefinition)

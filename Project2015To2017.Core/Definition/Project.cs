@@ -36,6 +36,7 @@ namespace Project2015To2017.Definition
 		public string CodeFileExtension { get; set; } = "cs";
 		public DirectoryInfo ProjectFolder => this.FilePath.Directory;
 		public Guid? ProjectGuid { get; set; }
+		public string ProjectSdk { get; set; } = "Microsoft.NET.Sdk";
 
 		public bool HasMultipleAssemblyInfoFiles { get; set; }
 
@@ -84,9 +85,6 @@ namespace Project2015To2017.Definition
 		public Solution Solution { get; set; }
 
 		public IReadOnlyList<XElement> AssemblyAttributeProperties { get; set; } = Array.Empty<XElement>();
-
-		public bool IsWindowsFormsProject { get; set; }
-		public bool IsWindowsPresentationFoundationProject { get; set; }
 
 		public IReadOnlyList<string> IntermediateOutputPaths { get; set; }
 	}
