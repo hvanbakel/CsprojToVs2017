@@ -3,6 +3,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Definition;
+using Project2015To2017.Reading;
 
 namespace Project2015To2017.Tests
 {
@@ -12,9 +13,6 @@ namespace Project2015To2017.Tests
 		/// <summary>
 		/// Run test cases
 		/// </summary>
-		/// <param name="guidTypes"></param>
-		/// <param name="testCase"></param>
-		/// <param name="expected"></param>
 		[DataRow("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}", "ASP.NET 5", true)]
 		[DataRow("{349C5851-65DF-11DA-9384-00065B846F21};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}", "ASP.NET MVC5", true)]
 		[DataRow("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}", "C# only", false)]
@@ -32,9 +30,6 @@ namespace Project2015To2017.Tests
 		/// <summary>
 		/// Run test cases
 		/// </summary>
-		/// <param name="guidTypes"></param>
-		/// <param name="testCase"></param>
-		/// <param name="expected"></param>
 		[DataRow("WindowsForms", "WinForms", false)]
 		[DataRow("", "Other", false)]
 		[TestMethod]
@@ -71,7 +66,10 @@ namespace Project2015To2017.Tests
 				var propertyGroup = xmlDocument.Descendants(Project.XmlLegacyNamespace + "PropertyGroup").First();
 				propertyGroup.Add(new XElement(Project.XmlLegacyNamespace + elementName, value));
 			}
-			return new Project { ProjectDocument = xmlDocument };
+
+			var testProject = new Project { ProjectDocument = xmlDocument };
+			ProjectPropertiesReader.ReadPropertyGroups(testProject);
+			return testProject;
 		}
 
 		/// <summary>

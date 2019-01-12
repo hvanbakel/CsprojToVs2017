@@ -119,8 +119,8 @@ namespace Project2015To2017.Tests
 
 			var project = ParseAndTransform(xml, projectName: "Dopamine");
 
-			Assert.IsTrue(project.IsWindowsPresentationFoundationProject);
-			Assert.IsFalse(project.IsWindowsFormsProject);
+			Assert.IsTrue(project.IsWindowsPresentationFoundationProject());
+			Assert.IsFalse(project.IsWindowsFormsProject());
 
 			Assert.AreEqual(1, project.TargetFrameworks.Count);
 			Assert.AreEqual(1, project.TargetFrameworks.Count(x => x == "net461"));

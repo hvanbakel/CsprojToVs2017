@@ -32,9 +32,9 @@ namespace Project2015To2017.Analysis.Diagnostics
 
 				foreach (var (key, value) in pairs)
 				{
-					var countContext = value > 1 ? $"({value} occurrences)" : "";
+					var countContext = value > 1 ? $" ({value} occurrences)" : "";
 					list.Add(CreateDiagnosticResult(project,
-							$"Unsupported '{key}' expression in conditional {countContext}",
+							$"Unsupported '{key}' expression in conditional{countContext}, some simplification opportunities might have been missed.",
 							project.FilePath)
 						.LoadLocationFromElement(x));
 				}

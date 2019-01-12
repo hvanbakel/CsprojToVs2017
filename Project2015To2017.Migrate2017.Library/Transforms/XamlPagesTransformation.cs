@@ -19,7 +19,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 		/// <inheritdoc />
 		public void Transform(Project definition)
 		{
-			if (!definition.IsWindowsPresentationFoundationProject)
+			if (!definition.IsWindowsPresentationFoundationProject())
 			{
 				return;
 			}

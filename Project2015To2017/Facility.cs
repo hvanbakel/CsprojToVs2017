@@ -160,7 +160,15 @@ namespace Project2015To2017
 				return;
 			}
 
+			var alreadyConverted = projects.Where(x => x.IsModernProject).ToImmutableArray();
+
 			DoAnalysis(projects, new AnalysisOptions(DiagnosticSet.All));
+
+			logger.LogInformation("List of modern CPS projects:");
+			foreach (var projectPath in alreadyConverted.Select(x => x.FilePath))
+			{
+				logger.LogInformation("Project {ProjectPath} is already CPS-based", projectPath);
+			}
 
 			var projectPaths = solutions.SelectMany(x => x.UnsupportedProjectPaths).ToImmutableArray();
 			if (projectPaths.Length <= 0) return;
