@@ -29,7 +29,7 @@ namespace Project2015To2017
 		public readonly List<PatternProcessor> Processors;
 		// ReSharper restore MemberCanBePrivate.Global
 
-		private readonly ILogger logger;
+		public readonly ILogger Logger;
 
 		private readonly PatternProcessor fileProcessor = (converter, pattern, callback, _) =>
 		{
@@ -57,7 +57,7 @@ namespace Project2015To2017
 			}
 			else
 			{
-				self.logger.LogWarning(
+				self.Logger.LogWarning(
 					"Directory {Directory} contains {Count} matching files, specify which project or solution file to use.",
 					dir, cwdFiles.Length);
 			}
@@ -66,7 +66,7 @@ namespace Project2015To2017
 
 		public Facility(ILogger logger, params PatternProcessor[] additionalProcessors)
 		{
-			this.logger = logger;
+			Logger = logger;
 			Extensions = ProjectConverter.ProjectFileMappings.Keys.Concat(new[] { ".sln" }).ToImmutableArray();
 			Processors = new List<PatternProcessor>(2 + additionalProcessors.Length)
 			{
@@ -79,25 +79,25 @@ namespace Project2015To2017
 		{
 			if (Files != null && Files.Length > 0 && !force)
 			{
-				logger.LogTrace("Glob file list reevaluation skipped");
+				Logger.LogTrace("Glob file list reevaluation skipped");
 				return;
 			}
 
-			logger.LogTrace("Glob file list reevaluation started");
+			Logger.LogTrace("Glob file list reevaluation started");
 			Files = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.*", SearchOption.AllDirectories)
 				.Select(x => (path: x, extension: Path.GetExtension(x)?.ToLowerInvariant()))
 				.Where(x => !string.IsNullOrEmpty(x.extension))
 				.Where(x => Extensions.Contains(x.extension))
 				.ToImmutableArray();
-			logger.LogTrace("Glob file list reevaluation finished: {Count} items", Files.Length);
+			Logger.LogTrace("Glob file list reevaluation finished: {Count} items", Files.Length);
 		}
 
-		private void DoAnalysis(IEnumerable<Project> convertedProjects, AnalysisOptions options = null)
+		public void DoAnalysis(IEnumerable<Project> projects, AnalysisOptions options = null)
 		{
-			logger.LogTrace("Starting analysis...");
-			var analyzer = new Analyzer<LoggerReporter, LoggerReporterOptions>(new LoggerReporter(logger), options);
+			Logger.LogTrace("Starting analysis...");
+			var analyzer = new Analyzer<LoggerReporter, LoggerReporterOptions>(new LoggerReporter(Logger), options);
 
-			foreach (var project in convertedProjects)
+			foreach (var project in projects)
 			{
 				analyzer.Analyze(project);
 			}
@@ -108,7 +108,7 @@ namespace Project2015To2017
 			ITransformationSet transformationSet,
 			ConversionOptions conversionOptions)
 		{
-			var converter = new ProjectConverter(logger, transformationSet, conversionOptions);
+			var converter = new ProjectConverter(Logger, transformationSet, conversionOptions);
 			var convertedProjects = new List<Project>();
 			var convertedSolutions = new List<Solution>();
 
@@ -125,12 +125,12 @@ namespace Project2015To2017
 
 			void ProcessSingleItem(FileInfo file, string extension)
 			{
-				logger.LogTrace("Processing {Item}", file);
+				Logger.LogTrace("Processing {Item}", file);
 				switch (extension)
 				{
 					case ".sln":
 						{
-							var solution = SolutionReader.Instance.Read(file, logger);
+							var solution = SolutionReader.Instance.Read(file, Logger);
 							convertedSolutions.Add(solution);
 							convertedProjects.AddRange(converter.ProcessSolutionFile(solution).Where(x => x != null));
 							break;
@@ -162,21 +162,21 @@ namespace Project2015To2017
 
 			var alreadyConverted = projects.Where(x => x.IsModernProject).ToImmutableArray();
 
-			DoAnalysis(projects, new AnalysisOptions(DiagnosticSet.All));
+			DoAnalysis(projects, new AnalysisOptions(Vs15DiagnosticSet.All));
 
-			logger.LogInformation("List of modern CPS projects:");
+			Logger.LogInformation("List of modern CPS projects:");
 			foreach (var projectPath in alreadyConverted.Select(x => x.FilePath))
 			{
-				logger.LogInformation("Project {ProjectPath} is already CPS-based", projectPath);
+				Logger.LogInformation("Project {ProjectPath} is already CPS-based", projectPath);
 			}
 
 			var projectPaths = solutions.SelectMany(x => x.UnsupportedProjectPaths).ToImmutableArray();
 			if (projectPaths.Length <= 0) return;
 
-			logger.LogInformation("List of unsupported solution projects:");
+			Logger.LogInformation("List of unsupported solution projects:");
 			foreach (var projectPath in projectPaths)
 			{
-				logger.LogWarning("Project {ProjectPath} not supported", projectPath);
+				Logger.LogWarning("Project {ProjectPath} not supported", projectPath);
 			}
 		}
 
@@ -194,7 +194,7 @@ namespace Project2015To2017
 
 			var doBackup = !noBackup;
 
-			var writer = new ProjectWriter(logger, x => x.Delete(), _ => { });
+			var writer = new ProjectWriter(Logger, x => x.Delete(), _ => { });
 			foreach (var project in projects)
 			{
 				writer.Write(project, doBackup);

@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Project2015To2017.Analysis;
-using Project2015To2017.Analysis.Diagnostics;
 using Project2015To2017.Migrate2017.Diagnostics;
-using static Project2015To2017.Analysis.DiagnosticSet;
 
 namespace Project2015To2017.Migrate2017
 {

@@ -83,7 +83,9 @@ namespace Project2015To2017.Migrate2017.Transforms
 					.Where(x => !string.IsNullOrEmpty(x));
 
 				// Do file search, find all real files matching glob pattern
-				var nonReferencedWildcardMatchingItems = FindAllWildcardFiles(definition)
+				var nonReferencedWildcardMatchingItems = definition.FindAllWildcardFiles(definition.CodeFileExtension)
+					.Select(x => definition.ProjectFolder.GetRelativePathTo(x))
+					.Where(x => !definition.IntermediateOutputPaths.Any(x.StartsWith))
 					.Except(referencedItems, StringComparer.CurrentCultureIgnoreCase);
 
 				otherIncludedFilesMatchingWildcard = otherIncludedFilesMatchingWildcard
@@ -120,15 +122,6 @@ namespace Project2015To2017.Migrate2017.Transforms
 			}
 
 			logger.LogDebug($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");
-		}
-
-		private static IEnumerable<string> FindAllWildcardFiles(Project definition)
-		{
-			return definition.ProjectFolder
-				.GetFiles("*." + definition.CodeFileExtension, SearchOption.AllDirectories)
-				.Where(x => !definition.IntermediateOutputPaths.Any(p => x.FullName.StartsWith(p)))
-				.Select(x => definition.ProjectFolder.GetRelativePathTo(x))
-				.Where(x => !definition.IntermediateOutputPaths.Any(x.StartsWith));
 		}
 
 		private static bool KeepFileInclusion(XElement x, Project project)

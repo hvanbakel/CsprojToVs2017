@@ -13,15 +13,13 @@ namespace Project2015To2017.Migrate2017.Transforms
 				definition.PackageReferences ?? new List<PackageReference>();
 
 			var packageIds = packageReferences
-								.Select(x => x.Id)
-								.ToList();
+				.Select(x => x.Id)
+				.ToList();
 
-			var (assemblyReferences, removeQueue) =
-					definition
-						.AssemblyReferences
-						//We don't need to keep any references to package files as these are
-						//now generated dynamically at build time
-						.Split(assemblyReference => !packageIds.Contains(assemblyReference.Include));
+			var (assemblyReferences, removeQueue) = definition.AssemblyReferences
+				// We don't need to keep any references to package files as these are
+				// now generated dynamically at build time
+				.Split(assemblyReference => !packageIds.Contains(assemblyReference.Include));
 
 			foreach (var assemblyReference in removeQueue)
 			{

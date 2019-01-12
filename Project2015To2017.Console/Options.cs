@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using CommandLine;
 
 namespace Project2015To2017.Console
@@ -26,15 +25,5 @@ namespace Project2015To2017.Console
 
 		[Option('f', "force", Default = false, HelpText = "Will force an upgrade even though certain preconditions might not have been met")]
 		public bool Force { get; set; } = false;
-
-		public ConversionOptions ConversionOptions
-			=> new ConversionOptions
-			{
-				KeepAssemblyInfo = AssemblyInfo,
-				TargetFrameworks = TargetFrameworks?.ToList(),
-				AppendTargetFrameworkToOutputPath = !NoTargetFrameworkToOutputPath,
-				ProjectCache = new Caching.DefaultProjectCache(),
-				Force = this.Force
-			};
 	}
 }

@@ -12,14 +12,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommandLineParser" Version="2.3.0" />
+		<PackageReference Include="CommandLineParser" Version="2.4.3" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Project2015To2017.Core\Project2015To2017.Core.csproj" />
-		<ProjectReference Include="..\Project2015To2017.Migrate2017.Library\Project2015To2017.Migrate2017.Library.csproj" />
-		<ProjectReference Include="..\Project2015To2017\Project2015To2017.csproj" />
 	</ItemGroup>
 
 </Project>

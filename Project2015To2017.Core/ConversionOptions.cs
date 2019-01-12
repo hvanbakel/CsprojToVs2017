@@ -37,6 +37,11 @@ namespace Project2015To2017
 	    /// like forcing <see cref="ILegacyOnlyProjectTransformation"/> run on already converted project.
 	    /// </summary>
 	    public IReadOnlyList<string> ForceDefaultTransforms { get; set; } = ImmutableArray<string>.Empty;
+		/// <summary>
+		/// Action that will be executed when project reader cannot unambiguously determine target frameworks
+		/// for the currently processing project.
+		/// </summary>
+		public UnknownTargetFrameworkCallback UnknownTargetFrameworkCallback { get; set; }
 
 		/// <summary>
 		/// Force conversion ignoring any checks we might do that prevent a conversion.

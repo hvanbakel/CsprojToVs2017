@@ -37,6 +37,7 @@ namespace Project2015To2017.Definition
 		public DirectoryInfo ProjectFolder => this.FilePath.Directory;
 		public Guid? ProjectGuid { get; set; }
 		public string ProjectSdk { get; set; } = "Microsoft.NET.Sdk";
+		public bool Valid { get; set; } = true;
 
 		public bool HasMultipleAssemblyInfoFiles { get; set; }
 

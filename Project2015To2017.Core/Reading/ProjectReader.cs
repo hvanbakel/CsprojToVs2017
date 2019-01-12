@@ -25,7 +25,7 @@ namespace Project2015To2017.Reading
 			this.nuspecReader = new NuSpecReader(this.logger);
 			this.forceConversion = conversionOptions?.Force ?? false;
 			this.assemblyInfoReader = new AssemblyInfoReader(this.logger);
-			this.projectPropertiesReader = new ProjectPropertiesReader(this.logger);
+			this.projectPropertiesReader = new ProjectPropertiesReader(this.logger, conversionOptions?.UnknownTargetFrameworkCallback);
 		}
 
 		public Project Read(string projectFilePath)
@@ -80,6 +80,11 @@ namespace Project2015To2017.Reading
 			ProcessProjectReferences(projectDefinition);
 
 			projectPropertiesReader.Read(projectDefinition);
+
+			if (!projectDefinition.Valid)
+			{
+				return null;
+			}
 
 			projectDefinition.IntermediateOutputPaths = ReadIntermediateOutputPaths(projectDefinition);
 
