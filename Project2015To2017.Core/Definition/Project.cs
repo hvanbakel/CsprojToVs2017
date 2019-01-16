@@ -30,11 +30,11 @@ namespace Project2015To2017.Definition
 		public string ProjectName { get; set; }
 
 		public IList<string> TargetFrameworks { get; } = new List<string>();
-		public bool AppendTargetFrameworkToOutputPath { get; set; } = true;
+		public bool? AppendTargetFrameworkToOutputPath { get; set; }
 		public ApplicationType Type { get; set; }
 		public FileInfo FilePath { get; set; }
 		public string CodeFileExtension { get; set; } = "cs";
-		public DirectoryInfo ProjectFolder => this.FilePath.Directory;
+		public DirectoryInfo ProjectFolder => this.FilePath?.Directory;
 		public Guid? ProjectGuid { get; set; }
 		public string ProjectSdk { get; set; } = "Microsoft.NET.Sdk";
 		public bool Valid { get; set; } = true;

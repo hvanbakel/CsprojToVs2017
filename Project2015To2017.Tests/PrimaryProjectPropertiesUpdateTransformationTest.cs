@@ -10,6 +10,23 @@ namespace Project2015To2017.Tests
 	public class PrimaryProjectPropertiesUpdateTransformationTest
 	{
 		[TestMethod]
+		public void OutputAppendTargetFrameworkToOutputPathNull()
+		{
+			var project = new Project
+			{
+				IsModernProject = true,
+				AppendTargetFrameworkToOutputPath = null,
+				PropertyGroups = new[] { new XElement("PropertyGroup") },
+				FilePath = new FileInfo("test.cs")
+			};
+
+			new PrimaryProjectPropertiesUpdateTransformation().Transform(project);
+
+			var appendTargetFrameworkToOutputPath = project.Property("AppendTargetFrameworkToOutputPath");
+			Assert.IsNull(appendTargetFrameworkToOutputPath);
+		}
+
+		[TestMethod]
 		public void OutputAppendTargetFrameworkToOutputPathTrue()
 		{
 			var project = new Project
@@ -23,7 +40,8 @@ namespace Project2015To2017.Tests
 			new PrimaryProjectPropertiesUpdateTransformation().Transform(project);
 
 			var appendTargetFrameworkToOutputPath = project.Property("AppendTargetFrameworkToOutputPath");
-			Assert.IsNull(appendTargetFrameworkToOutputPath);
+			Assert.IsNotNull(appendTargetFrameworkToOutputPath);
+			Assert.AreEqual("true", appendTargetFrameworkToOutputPath.Value);
 		}
 
 		[TestMethod]

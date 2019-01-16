@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -14,8 +15,9 @@ namespace Project2015To2017.Migrate2017.Diagnostics
 
 		public override IReadOnlyList<IDiagnosticResult> Analyze(Project project)
 		{
-			var comparison = Extensions.BestAvailableStringIgnoreCaseComparison;
-			var pcls = project.TargetFrameworks.Where(x => x.StartsWith("portable-", comparison)).ToImmutableHashSet();
+			var pcls = project.TargetFrameworks
+				.Where(x => x.StartsWith("portable-", StringComparison.OrdinalIgnoreCase))
+				.ToImmutableHashSet();
 
 			// not all profiles can be mapped to .NET Standard (thanks to Silverlight & Framework 4.0)
 			// we could skip emitting diagnostics in such cases, but we don't

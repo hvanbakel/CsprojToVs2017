@@ -29,7 +29,9 @@ namespace Project2015To2017.Migrate2017
 				new EmptyGroupRemoveTransformation(),
 				// Modernization
 				new UpgradeDebugTypeTransformation(),
-				new UpgradeFrameworkAssembliesToNuGetTransformation(),
+				new UpgradeUseDefaultOutputPathTransformation(),
+				new UpgradeUseComVisibleDefaultTransformation(),
+				new UpgradeFrameworkAssembliesToNuGetTransformation(logger),
 			};
 		}
 	}

@@ -85,41 +85,48 @@ namespace Project2015To2017.Migrate2017.Tool
 				default:
 					throw new CommandParsingException($"Unknown verbosity level '{verbosityValue}'.", result.Command().HelpView().TrimEnd());
 			}
-			
+
 			Log.Verbose(result.Diagram());
 
 			var items = command.Value<string[]>();
 
 			var conversionOptions = new ConversionOptions
 			{
-				ProjectCache = new DefaultProjectCache()
+				ProjectCache = new DefaultProjectCache(),
+				Force = command.ValueOrDefault<bool>("force"),
+				KeepAssemblyInfo = command.ValueOrDefault<bool>("keep-assembly-info")
 			};
 
-			var frameworks = command.ValueOrDefault<string[]>("target-frameworks");
-			if (frameworks != null)
-				conversionOptions.TargetFrameworks = frameworks;
-
-			var forceTransformations = command.ValueOrDefault<string[]>("force-transformations");
-			if (forceTransformations != null)
-				conversionOptions.ForceDefaultTransforms = forceTransformations;
-
-			var logic = new CommandLogic();
-			conversionOptions.AppendTargetFrameworkToOutputPath = !command.ValueOrDefault<bool>("old-output-path");
-			conversionOptions.Force = command.ValueOrDefault<bool>("force");
-			conversionOptions.KeepAssemblyInfo = command.ValueOrDefault<bool>("keep-assembly-info");
 			switch (command.Name)
 			{
 				case "evaluate":
-					logic.ExecuteEvaluate(items, conversionOptions);
-					break;
 				case "migrate":
-					logic.ExecuteMigrate(items, command.ValueOrDefault<bool>("no-backup"), conversionOptions);
+					var frameworks = command.ValueOrDefault<string[]>("target-frameworks");
+					if (frameworks != null)
+						conversionOptions.TargetFrameworks = frameworks;
+					break;
+			}
+
+			var logic = new CommandLogic();
+			switch (command.Name)
+			{
+				case "wizard":
+					logic.ExecuteWizard(items, conversionOptions);
+					break;
+				case "evaluate":
+					logic.ExecuteEvaluate(items, conversionOptions);
 					break;
 				case "analyze":
 					logic.ExecuteAnalyze(items, conversionOptions);
 					break;
-				case "wizard":
-					logic.ExecuteWizard(items, conversionOptions);
+				case "migrate":
+					conversionOptions.AppendTargetFrameworkToOutputPath = !command.ValueOrDefault<bool>("old-output-path");
+
+					var forceTransformations = command.ValueOrDefault<string[]>("force-transformations");
+					if (forceTransformations != null)
+						conversionOptions.ForceDefaultTransforms = forceTransformations;
+
+					logic.ExecuteMigrate(items, command.ValueOrDefault<bool>("no-backup"), conversionOptions);
 					break;
 			}
 
@@ -148,18 +155,9 @@ namespace Project2015To2017.Migrate2017.Tool
 
 		private static Option TargetFrameworksOption => Option(
 			"-t|--target-frameworks",
-			"Override project target frameworks with ones specified.",
+			"Override project target frameworks with ones specified. Specify multiple times for multiple target frameworks.",
 			OneOrMoreArguments()
 				.With("Target frameworks to be used instead of the ones in source projects", "frameworks"));
-
-		private static Option ForceTransformationsOption => Option(
-			"-ft|--force-transformations",
-			"Force execution of transformations despite project conversion state by their specified names.",
-			OneOrMoreArguments()
-				.With("Transformation names to enforce execution", "names"));
-
-		private static Option OldOutputPathOption => Option("-o|--old-output-path",
-			"Preserve legacy behavior by not creating a subfolder with the target framework in the output path.");
 
 		private static Option KeepAssemblyInfoOption => Option("-a|--keep-assembly-info",
 			"Keep assembly attributes in AssemblyInfo file instead of moving them to project file.");
@@ -183,8 +181,14 @@ namespace Project2015To2017.Migrate2017.Tool
 				ForceOption,
 				KeepAssemblyInfoOption,
 				TargetFrameworksOption,
-				OldOutputPathOption,
-				ForceTransformationsOption,
+				Option("-o|--old-output-path",
+					"Preserve legacy behavior by not creating a subfolder with the target framework in the output path."),
+				Option(
+					"-ft|--force-transformations",
+					"Force execution of transformations despite project conversion state by their specified names. " +
+					"Specify multiple times for multiple enforced transformations.",
+					OneOrMoreArguments()
+						.With("Transformation names to enforce execution", "names")),
 				HelpOption());
 
 		private static Command Analyze() =>
@@ -199,8 +203,6 @@ namespace Project2015To2017.Migrate2017.Tool
 				ItemsArgument,
 				ForceOption,
 				KeepAssemblyInfoOption,
-				OldOutputPathOption,
-				ForceTransformationsOption,
 				HelpOption());
 
 		private static Option HelpOption() =>

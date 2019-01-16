@@ -29,7 +29,8 @@ namespace Project2015To2017.Transforms
 				}
 			}
 
-			definition.AppendTargetFrameworkToOutputPath = this.AppendTargetFrameworkToOutputPath;
+			if (!this.AppendTargetFrameworkToOutputPath)
+				definition.AppendTargetFrameworkToOutputPath = false;
 		}
 
 		public IReadOnlyList<string> TargetFrameworks { get; }
