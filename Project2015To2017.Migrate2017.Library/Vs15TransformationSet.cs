@@ -5,7 +5,7 @@ using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Migrate2017
 {
-	public class Vs15TransformationSet : ITransformationSet
+	public sealed class Vs15TransformationSet : ITransformationSet
 	{
 		public static readonly Vs15TransformationSet TrueInstance = new Vs15TransformationSet();
 

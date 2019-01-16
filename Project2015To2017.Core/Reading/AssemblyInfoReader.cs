@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -22,52 +24,55 @@ namespace Project2015To2017.Reading
 		{
 			var projectPath = project.ProjectFolder.FullName;
 
-			var compileElements = project.ItemGroups
-										 .SelectMany(x => x.Descendants(project.XmlNamespace + "Compile"))
-										 .ToList();
+			var (compileItems, wildcardCompileItems) = project.ItemGroups
+				.SelectMany(x => x.Descendants(project.XmlNamespace + "Compile"))
+				.Attributes("Include")
+				.Select(x => x.Value.ToString())
+				.Split(x => !x.Contains("*"));
 
-			var missingCount = 0u;
+			var allFiles = compileItems
+				.Select(x =>
+					{
+						var filePath = Path.IsPathRooted(x) ? x : Path.GetFullPath(Path.Combine(projectPath, x));
+						return new FileInfo(Extensions.MaybeAdjustFilePath(filePath, projectPath));
+					}
+				);
 
-			var assemblyInfoFiles = compileElements
-										   .Attributes("Include")
-										   .Select(x => x.Value.ToString())
-										   .Where(x => !x.Contains("*"))
-										   .Select(x =>
-												{
-													var filePath = Path.IsPathRooted(x) ? x : Path.GetFullPath(Path.Combine(projectPath, x));
-													return new FileInfo(Extensions.MaybeAdjustFilePath(filePath, projectPath));
-												}
-											)
-										   .Where(x => IsAssemblyInfoFile(x, project.CodeFileExtension))
-										   .Where(x =>
-												{
-													if (x.Exists)
-													{
-														return true;
-													}
+			if (project.IsModernProject || wildcardCompileItems.Count > 0)
+				allFiles = allFiles.Concat(project.FindAllWildcardFiles(project.CodeFileExtension));
 
-													missingCount++;
-													this.logger.LogWarning($@"AssemblyInfo file '{x.FullName}' not found");
-													return false;
-												}
-											)
-										   .ToList();
+			var assemblyInfoAllFiles = allFiles
+				.Where(x => IsAssemblyInfoFile(x, project.CodeFileExtension))
+				.ToList();
 
-			if (assemblyInfoFiles.Count == 0)
+			if (assemblyInfoAllFiles.Count == 0)
 			{
 				// for modern projects an assembly info is not required.
 				if (!project.IsModernProject)
 				{
-					this.logger.LogWarning($@"Could not read from assemblyinfo, no assemblyinfo file found");
+					this.logger.LogWarning("Could not read assembly information, no such file found");
 				}
 
 				return null;
 			}
 
-			if (assemblyInfoFiles.Count + missingCount > 1)
+			var rootDirectory = project.TryFindBestRootDirectory();
+			var (assemblyInfoFiles, assemblyInfoMissingFiles) = assemblyInfoAllFiles.Split(x => x.Exists);
+
+			foreach (var assemblyInfoMissingFile in assemblyInfoMissingFiles)
 			{
-				var fileList = string.Join($",{Environment.NewLine}", assemblyInfoFiles.Select(x => x.FullName));
-				this.logger.LogWarning($@"Could not read from assemblyinfo, multiple assemblyinfo files found:{Environment.NewLine}{fileList}");
+				this.logger.LogWarning(
+					$@"Assembly information file '{rootDirectory.GetRelativePathTo(assemblyInfoMissingFile)}' not found");
+
+				if (assemblyInfoAllFiles.Count == 1)
+					return null;
+			}
+
+			if (assemblyInfoAllFiles.Count > 1)
+			{
+				var fileList = string.Join(", ", assemblyInfoAllFiles.Select(x => rootDirectory.GetRelativePathTo(x)));
+				this.logger.LogWarning(
+					$@"Could not read assembly information, multiple files found:{Environment.NewLine}{fileList}");
 
 				project.HasMultipleAssemblyInfoFiles = true;
 				return null;
@@ -76,7 +81,7 @@ namespace Project2015To2017.Reading
 			var assemblyInfoFile = assemblyInfoFiles[0];
 			var assemblyInfoFileName = assemblyInfoFile.FullName;
 
-			this.logger.LogInformation($"Reading assembly info from {assemblyInfoFileName}.");
+			this.logger.LogDebug($"Reading assembly information from {assemblyInfoFileName}.");
 
 			var text = File.ReadAllText(assemblyInfoFileName);
 

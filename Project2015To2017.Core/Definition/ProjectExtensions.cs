@@ -252,5 +252,12 @@ namespace Project2015To2017.Definition
 
 			return project.Solution?.FilePath.Directory ?? project.FilePath.Directory;
 		}
+
+		public static IEnumerable<FileInfo> FindAllWildcardFiles(this Project project, string extension)
+		{
+			return project.ProjectFolder
+				.GetFiles("*." + extension, SearchOption.AllDirectories)
+				.Where(x => !project.IntermediateOutputPaths.Any(p => x.FullName.StartsWith(p)));
+		}
 	}
 }

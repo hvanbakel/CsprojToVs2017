@@ -104,20 +104,22 @@ namespace Project2015To2017.Migrate2017.Tool
 				conversionOptions.ForceDefaultTransforms = forceTransformations;
 
 			var logic = new CommandLogic();
+			conversionOptions.AppendTargetFrameworkToOutputPath = !command.ValueOrDefault<bool>("old-output-path");
+			conversionOptions.Force = command.ValueOrDefault<bool>("force");
+			conversionOptions.KeepAssemblyInfo = command.ValueOrDefault<bool>("keep-assembly-info");
 			switch (command.Name)
 			{
 				case "evaluate":
 					logic.ExecuteEvaluate(items, conversionOptions);
 					break;
 				case "migrate":
-					conversionOptions.AppendTargetFrameworkToOutputPath = !command.ValueOrDefault<bool>("old-output-path");
-					conversionOptions.Force = command.ValueOrDefault<bool>("force");
-					conversionOptions.KeepAssemblyInfo = command.ValueOrDefault<bool>("keep-assembly-info");
-
 					logic.ExecuteMigrate(items, command.ValueOrDefault<bool>("no-backup"), conversionOptions);
 					break;
 				case "analyze":
 					logic.ExecuteAnalyze(items, conversionOptions);
+					break;
+				case "wizard":
+					logic.ExecuteWizard(items, conversionOptions);
 					break;
 			}
 
@@ -133,6 +135,7 @@ namespace Project2015To2017.Migrate2017.Tool
 			Command("dotnet-migrate-2017",
 				".NET Project Migration Tool",
 				NoArguments(),
+				Wizard(),
 				Evaluate(),
 				Migrate(),
 				Analyze(),
@@ -155,6 +158,15 @@ namespace Project2015To2017.Migrate2017.Tool
 			OneOrMoreArguments()
 				.With("Transformation names to enforce execution", "names"));
 
+		private static Option OldOutputPathOption => Option("-o|--old-output-path",
+			"Preserve legacy behavior by not creating a subfolder with the target framework in the output path.");
+
+		private static Option KeepAssemblyInfoOption => Option("-a|--keep-assembly-info",
+			"Keep assembly attributes in AssemblyInfo file instead of moving them to project file.");
+
+		private static Option ForceOption => Option("-f|--force",
+			"Force a conversion even if not all preconditions are met.");
+
 		private static Command Evaluate() =>
 			Command("evaluate",
 				"Examine the projects potential to be converted before actual migration",
@@ -164,17 +176,14 @@ namespace Project2015To2017.Migrate2017.Tool
 
 		private static Command Migrate() =>
 			Command("migrate",
-				"Migrate projects to VS2017+ CPS format",
+				"Migrate projects to VS2017+ CPS format (non-interactive)",
 				ItemsArgument,
 				Option("-n|--no-backup",
 					"Skip moving project.json, global.json, and *.xproj to a `Backup` directory after successful migration."),
-				Option("-f|--force",
-					"Force a conversion even if not all preconditions are met."),
-				Option("-a|--keep-assembly-info",
-					"Keep assembly attributes in AssemblyInfo file instead of moving them to project file."),
+				ForceOption,
+				KeepAssemblyInfoOption,
 				TargetFrameworksOption,
-				Option("-o|--old-output-path",
-					"Preserve legacy behavior by not creating a subfolder with the target framework in the output path."),
+				OldOutputPathOption,
 				ForceTransformationsOption,
 				HelpOption());
 
@@ -182,6 +191,16 @@ namespace Project2015To2017.Migrate2017.Tool
 			Command("analyze",
 				"Do the analysis run and output diagnostics",
 				ItemsArgument,
+				HelpOption());
+
+		private static Command Wizard() =>
+			Command("wizard",
+				"Launch interactive migration wizard (recommended)",
+				ItemsArgument,
+				ForceOption,
+				KeepAssemblyInfoOption,
+				OldOutputPathOption,
+				ForceTransformationsOption,
 				HelpOption());
 
 		private static Option HelpOption() =>

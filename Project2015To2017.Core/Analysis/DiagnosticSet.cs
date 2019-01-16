@@ -31,5 +31,21 @@ namespace Project2015To2017.Analysis
 			All.UnionWith(System);
 			All.UnionWith(GenericProjectIssues);
 		}
+
+		public DiagnosticSet()
+		{
+		}
+
+		public DiagnosticSet(IEnumerable<IDiagnostic> collection) : base(collection)
+		{
+		}
+
+		public DiagnosticSet(IEnumerable<IDiagnostic> collection, IEqualityComparer<IDiagnostic> comparer) : base(collection, comparer)
+		{
+		}
+
+		public DiagnosticSet(IEqualityComparer<IDiagnostic> comparer) : base(comparer)
+		{
+		}
 	}
 }
