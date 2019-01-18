@@ -10,17 +10,20 @@ With the introduction of Visual Studio 2017, Microsoft added some optimizations 
 This project converts an existing csproj to the new format, shortening the project file and using all the nice new features that are part of Visual Studio 2017.
 
 ## What does it fix?
-There are a number of things [that VS2017 handles differently](http://www.natemcmaster.com/blog/2017/03/09/vs2015-to-vs2017-upgrade/) that are performed by this tool: 
-1. Include files using a wildcard as opposed to specifying every single file 
-2. A more succinct way of defining project references 
+There are a number of things [that VS2017 handles differently](http://www.natemcmaster.com/blog/2017/03/09/vs2015-to-vs2017-upgrade/) that are performed by this tool:
+1. Include files using a wildcard as opposed to specifying every single file
+2. A more succinct way of defining project references
 3. A more succinct way of handling NuGet package references
 4. Moving some of the attributes that used to be defined in AssemblyInfo.cs into the project file
 5. Defining the NuGet package definition as part of the project file
 
 ## How it works
-### As a Net Core Global Tool
-Assuming you have net core 2.1 installed you can run this on the command line:
-`dotnet tool install --global Project2015To2017.Migrate2017.Tool`
+### As a .NET Core Global Tool
+Assuming you have .NET Core 2.1+ installed you can run this on the command line:
+```
+> dotnet tool install --global Project2015To2017.Migrate2017.Tool
+```
+
 This will install the tool for you to use it anywhere you would like. You can then call the tool as shown in the examples below.
 
 ### As a normal file download
@@ -28,29 +31,46 @@ Using the tool is simple, it is a simple command line utility that has a single 
 When you give it a directory path, the tool will discover all csproj files nested in it.
 
 ### Examples
-Below examples are for the global tool, for the normal file just replace `dotnet migrate-2017 migrate` with your executable.
+Below examples are for the global tool, for the normal file just replace `dotnet migrate-2017` with your executable.
 
-`dotnet migrate-2017 migrate "D:\Path\To\My\TestProject.csproj"`
-
-Or
-
-`dotnet migrate-2017 migrate "D:\Path\To\My\TestProject.sln"`
+```
+> dotnet migrate-2017 migrate "D:\Path\To\My\TestProject.csproj"
+```
 
 Or
 
-`dotnet migrate-2017 migrate "D:\Path\To\My\Directory"`
+```
+> dotnet migrate-2017 migrate "D:\Path\To\My\TestProject.sln"
+```
+
+Or
+
+```
+> dotnet migrate-2017 migrate "D:\Path\To\My\Directory"
+```
 
 After confirming this is an old style project file, it will start performing the conversion. When it has gathered all the data it needs it first creates a backup of the old files and puts them into a backup folder and then generates a new project file in the new format.
 
+There is no need to specify paths if there is only one convertible object (project or solution) in your current working directory.
+The tool will discover them automatically.
+
 ## Commands
-As a sub command `migrate` being shown above there are 2 more options:
+* `migrate` will run non-interactive migration as shown above
 * `evaluate` will run evaluation of projects found given the path specified
-* `analyze` will run analyzers to signal issues in the project files without converting
+* `analyze` will run analyzers to signal issues in the project files without performing actual conversion
 
 ## Flags
 * `target-frameworks` will set the target framework on the outputted project file
 * `force-transformations` allows specifying individual transforms to be run on the projects
 * `force` ignores checks like project type being supported and will attempt a conversion regardless
-* `keep-assembly-info` instructs the migrate logic to keep the assembly info file 
+* `keep-assembly-info` instructs the migrate logic to keep the assembly info file
 * `old-output-path` will set `AppendTargetFrameworkToOutputPath` in converted project file
 * `no-backup` do not create a backup folder (e.g. when your solution is under source control)
+
+Not all flags are supported by all commands, verify help output of the command to learn which options apply to the particular command.
+
+In case you need to specify multiple values for option, specify it multiple times:
+
+```
+> dotnet migrate-2017 migrate -t net40 -t net45
+```

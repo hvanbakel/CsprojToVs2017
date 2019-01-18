@@ -38,7 +38,7 @@ namespace Project2015To2017
 			}
 
 			// EF Designer
-			if (project.FindAllWildcardFiles("tt").Any() || project.FindAllWildcardFiles("edmx").Any())
+			if (project.FindAllWildcardFiles("edmx").Any())
 			{
 				return true;
 			}
