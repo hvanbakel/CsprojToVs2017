@@ -103,6 +103,7 @@ namespace Project2015To2017.Transforms
 					case "NuGetPackageImportStamp":
 					// legacy generic properties
 					case "MinimumVisualStudioVersion":
+					case "OldToolsVersion":
 					// legacy frameworks
 					case "TargetFrameworkIdentifier" when !hasParentCondition:
 					case "TargetFrameworkProfile" when !hasParentCondition && emptyValue:

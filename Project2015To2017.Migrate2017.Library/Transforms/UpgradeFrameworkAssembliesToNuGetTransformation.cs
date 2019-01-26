@@ -23,7 +23,9 @@ namespace Project2015To2017.Migrate2017.Transforms
 				assemblyReference.DefinitionElement?.Remove();
 			}
 
-			definition.AssemblyReferences = definition.AssemblyReferences.Except(references.Select(x => x.reference)).ToImmutableArray();
+			definition.AssemblyReferences = definition.AssemblyReferences
+				.Except(references.Select(x => x.reference))
+				.ToImmutableArray();
 
 			var packageReferences = references
 				.Select(x => new PackageReference {Id = x.name, Version = x.version})

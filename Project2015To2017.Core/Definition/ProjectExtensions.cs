@@ -257,7 +257,30 @@ namespace Project2015To2017.Definition
 		{
 			return project.ProjectFolder
 				.GetFiles("*." + extension, SearchOption.AllDirectories)
-				.Where(x => !project.IntermediateOutputPaths.Any(p => x.FullName.StartsWith(p)));
+				.Where(x => !project.IsInIntermediateOutputDirectory(x.FullName));
+		}
+
+		public static bool IsInIntermediateOutputDirectory(this Project project, string path)
+		{
+			var isPathRooted = Path.IsPathRooted(path);
+			var pathWithProjectPath = isPathRooted
+				? path
+				: Path.Combine(project.ProjectFolder.FullName, path);
+			return project.IntermediateOutputPaths.Any(intermediatePath =>
+			{
+				if (path.IsSubPathOf(intermediatePath))
+					return true;
+				if (!isPathRooted && pathWithProjectPath.IsSubPathOf(intermediatePath))
+					return true;
+				if (Path.IsPathRooted(intermediatePath))
+					return false;
+				var intermediatePathWithProjectPath = Path.Combine(project.ProjectFolder.FullName, intermediatePath);
+				if (path.IsSubPathOf(intermediatePathWithProjectPath))
+					return true;
+				if (!isPathRooted && pathWithProjectPath.IsSubPathOf(intermediatePathWithProjectPath))
+					return true;
+				return false;
+			});
 		}
 	}
 }

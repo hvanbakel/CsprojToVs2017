@@ -60,6 +60,15 @@ namespace Project2015To2017
 				self.Logger.LogWarning(
 					"Directory {Directory} contains {Count} matching files, specify which project or solution file to use.",
 					dir, cwdFiles.Length);
+				if (cwdFiles.Length <= 4)
+				{
+					foreach (var cwdFile in cwdFiles)
+					{
+						self.Logger.LogInformation(
+							"File: {File}",
+							cwdFile.FullName);
+					}
+				}
 			}
 			return true;
 		};

@@ -14,19 +14,28 @@ namespace Project2015To2017.Transforms
 
 			var configurations = project.Configurations ?? Array.Empty<string>();
 			if (configurations.Count != 0)
+			{
 				// ignore default "Debug;Release" configuration set
 				if (configurations.Count != 2 || !configurations.Contains("Debug") ||
 				    !configurations.Contains("Release"))
+				{
 					project.SetProperty("Configurations", string.Join(";", configurations));
+				}
+			}
 
 			var platforms = project.Platforms ?? Array.Empty<string>();
 			if (platforms.Count != 0)
+			{
 				// ignore default "AnyCPU" platform set
 				if (platforms.Count != 1 || !platforms.Contains("AnyCPU"))
 					project.SetProperty("Platforms", string.Join(";", platforms));
+			}
 
-			project.SetProperty("AppendTargetFrameworkToOutputPath",
-				project.AppendTargetFrameworkToOutputPath ? null : "false");
+			if (project.AppendTargetFrameworkToOutputPath.HasValue)
+			{
+				project.SetProperty("AppendTargetFrameworkToOutputPath",
+					project.AppendTargetFrameworkToOutputPath.Value ? "true" : "false");
+			}
 
 			string outputType;
 			switch (project.Type)

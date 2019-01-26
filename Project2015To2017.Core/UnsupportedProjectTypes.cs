@@ -17,11 +17,33 @@ namespace Project2015To2017
 		public static bool IsUnsupportedProjectType(Project project)
 		{
 			if (project == null) throw new ArgumentNullException(nameof(project));
-			
+
+			if (project.ProjectFolder != null)
+				if (CheckForEntityFramework(project))
+					return true;
+
 			var guidTypes = project.IterateProjectTypeGuids();
 
 			// if any guid matches an unsupported type, return true
 			return guidTypes.Any(t => unsupportedGuids.Contains(t.guid));
+		}
+
+		private static bool CheckForEntityFramework(Project project)
+		{
+			// Code-first
+			if (project.ProjectFolder.EnumerateDirectories().Any(x =>
+				string.Equals(x.Name, "Migrations", StringComparison.OrdinalIgnoreCase)))
+			{
+				return true;
+			}
+
+			// EF Designer
+			if (project.FindAllWildcardFiles("edmx").Any())
+			{
+				return true;
+			}
+
+			return false;
 		}
 
 		/// <summary>

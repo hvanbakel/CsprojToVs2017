@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Project2015To2017.Analysis;
 using Project2015To2017.Definition;
@@ -18,10 +19,11 @@ namespace Project2015To2017.Migrate2017.Diagnostics
 			{
 				// last 2 versions + default
 				var version = x.Value;
-				if (version.Equals("7.2", Extensions.BestAvailableStringIgnoreCaseComparison)) continue;
-				if (version.Equals("7.3", Extensions.BestAvailableStringIgnoreCaseComparison)) continue;
-				if (version.Equals("latest", Extensions.BestAvailableStringIgnoreCaseComparison)) continue;
-				if (version.Equals("default", Extensions.BestAvailableStringIgnoreCaseComparison)) continue;
+				if (version.Equals("7.2", StringComparison.OrdinalIgnoreCase)) continue;
+				if (version.Equals("7.3", StringComparison.OrdinalIgnoreCase)) continue;
+				if (version.Equals("8.0", StringComparison.OrdinalIgnoreCase)) continue;
+				if (version.Equals("latest", StringComparison.OrdinalIgnoreCase)) continue;
+				if (version.Equals("default", StringComparison.OrdinalIgnoreCase)) continue;
 
 				list.Add(
 					CreateDiagnosticResult(project,

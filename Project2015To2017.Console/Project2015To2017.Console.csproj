@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks Condition="$(Pack) != 'true'">net461;netcoreapp2.1</TargetFrameworks>
@@ -13,7 +13,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="CommandLineParser" Version="2.4.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -50,47 +51,59 @@ namespace Project2015To2017.Migrate2017.Transforms
 				.SelectMany(x => x.Elements())
 				.Split(x => KeepFileInclusion(x, definition));
 
-			//removeQueue = removeQueue
-			//	.Where(include => include.Attribute("Include")?.Value != null && !definition.IntermediateOutputPaths.Any(p => (definition.ProjectFolder.FullName + Path.DirectorySeparatorChar + include).StartsWith(p)))
-
 			// For all retained Page, Content, etc that have .cs extension we get file paths.
 			// For all these paths we add <Compile Remove="(path)" />.
 			// So that there is no wildcard match like <Compile Include="**/*.cs" /> for file test.cs,
 			// already included as (e.g.) Content: <Content Include="test.cs" />
 			var otherIncludedFilesMatchingWildcard = keepItems
 				.Where(x => x.Name.LocalName != "Compile")
-				.Select(x => x.Attribute("Include")?.Value ?? x.Attribute("Update")?.Value)
+				.Select(x => x.ExtractIncludeItemPath().value)
 				.Where(x => !string.IsNullOrEmpty(x))
 				.Where(x => x.EndsWith("." + definition.CodeFileExtension, StringComparison.OrdinalIgnoreCase))
-				.ToArray();
+				.ToImmutableArray();
+
+			foreach (var includeMatchingWildcard in otherIncludedFilesMatchingWildcard)
+			{
+				logger.LogTrace("Excluding non-Compile code item: " + includeMatchingWildcard);
+			}
 
 			var wildcardIncludes = keepItems
 				.Where(x => x.Name.LocalName == "Compile")
-				.Select(x => x.Attribute("Include")?.Value ?? x.Attribute("Update")?.Value)
+				.Select(x => x.ExtractIncludeItemPath().value)
 				.Where(x => x != null && x.Contains("*"))
-				.ToArray();
+				.ToImmutableArray();
 			if (wildcardIncludes.Length > 0)
 			{
 				logger.LogWarning(
 					"Wildcard include detected, please check for erroneous inclusion of additional files.");
+
+				foreach (var wildcard in wildcardIncludes)
+				{
+					logger.LogTrace("Wildcard include: " + wildcard);
+				}
 			}
 			else
 			{
 				var referencedItems = definition.ItemGroups
 					.SelectMany(x => x.Elements())
 					.Where(x => x.Name.LocalName == "Compile")
-					.Select(x => x.Attribute("Include")?.Value ?? x.Attribute("Update")?.Value)
+					.Select(x => x.ExtractIncludeItemPath().value)
 					.Where(x => !string.IsNullOrEmpty(x));
 
 				// Do file search, find all real files matching glob pattern
 				var nonReferencedWildcardMatchingItems = definition.FindAllWildcardFiles(definition.CodeFileExtension)
 					.Select(x => definition.ProjectFolder.GetRelativePathTo(x))
-					.Where(x => !definition.IntermediateOutputPaths.Any(x.StartsWith))
-					.Except(referencedItems, StringComparer.CurrentCultureIgnoreCase);
+					.Except(referencedItems, Extensions.PathEqualityComparer)
+					.ToImmutableArray();
+
+				foreach (var includeMatchingWildcard in nonReferencedWildcardMatchingItems)
+				{
+					logger.LogTrace("Excluding non-Compile-referenced wildcard-matching item: " + includeMatchingWildcard);
+				}
 
 				otherIncludedFilesMatchingWildcard = otherIncludedFilesMatchingWildcard
-					.Union(nonReferencedWildcardMatchingItems, StringComparer.CurrentCultureIgnoreCase)
-					.ToArray();
+					.Union(nonReferencedWildcardMatchingItems, Extensions.PathEqualityComparer)
+					.ToImmutableArray();
 			}
 
 			if (otherIncludedFilesMatchingWildcard.Length > 0)
@@ -101,24 +114,21 @@ namespace Project2015To2017.Migrate2017.Transforms
 					var removeOtherInclude = new XElement(definition.XmlNamespace + "Compile");
 					removeOtherInclude.Add(new XAttribute("Remove", otherIncludeMatchingWildcard));
 					itemGroup.Add(removeOtherInclude);
-
-					logger.LogDebug("Excluding: " + otherIncludeMatchingWildcard);
 				}
 
 				definition.ItemGroups.Add(itemGroup);
 			}
 
-			var count = 0u;
-
-			foreach (var x in removeQueue)
-			{
-				x.Remove();
-				count++;
-			}
+			var count = removeQueue.Count;
 
 			if (count == 0)
 			{
 				return;
+			}
+
+			foreach (var x in removeQueue)
+			{
+				x.Remove();
 			}
 
 			logger.LogDebug($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");

@@ -84,7 +84,7 @@ namespace Project2015To2017.Transforms
 
 		private static IReadOnlyList<XElement> AssemblyAttributeNodes(AssemblyAttributes assemblyAttributes, PackageConfiguration packageConfig, ILogger logger)
 		{
-			logger.LogInformation("Moving attributes from AssemblyInfo to project file");
+			logger.LogDebug("Moving attributes from AssemblyInfo to project file");
 
 			var versioningProperties = VersioningProperties(assemblyAttributes, packageConfig, logger);
 			var otherProperties = OtherProperties(assemblyAttributes, packageConfig, logger);

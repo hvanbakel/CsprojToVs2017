@@ -97,14 +97,14 @@ namespace Project2015To2017.Tests
 		}
 
 		[TestMethod]
-		public void HandlesOptionAppendTargetFrameworkToOutputPathTrue()
+		public void HandlesOptionAppendTargetFrameworkToOutputPathNull()
 		{
 			var project = new Project();
 
 			var transformation = new TargetFrameworkReplaceTransformation(null, true);
 			transformation.Transform(project);
 
-			Assert.AreEqual(true, project.AppendTargetFrameworkToOutputPath);
+			Assert.IsFalse(project.AppendTargetFrameworkToOutputPath.HasValue);
 		}
 
 		[TestMethod]
@@ -115,7 +115,8 @@ namespace Project2015To2017.Tests
 			var transformation = new TargetFrameworkReplaceTransformation(null, false);
 			transformation.Transform(project);
 
-			Assert.AreEqual(false, project.AppendTargetFrameworkToOutputPath);
+			Assert.IsTrue(project.AppendTargetFrameworkToOutputPath.HasValue);
+			Assert.AreEqual(false, project.AppendTargetFrameworkToOutputPath.Value);
 		}
 	}
 }

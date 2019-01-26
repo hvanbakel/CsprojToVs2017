@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Project2015To2017.Analysis;
 using Project2015To2017.Definition;
@@ -16,7 +17,7 @@ namespace Project2015To2017.Migrate2017.Diagnostics
 
 			foreach (var x in project.ProjectDocument.Descendants(project.XmlNamespace + "DebugType"))
 			{
-				if (x.Value.Equals("portable", Extensions.BestAvailableStringIgnoreCaseComparison))
+				if (x.Value.Equals("portable", StringComparison.OrdinalIgnoreCase))
 					continue;
 
 				list.Add(

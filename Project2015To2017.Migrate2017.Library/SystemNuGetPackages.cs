@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Project2015To2017.Definition;
@@ -141,7 +142,7 @@ namespace Project2015To2017.Migrate2017
 		public static IReadOnlyList<(string name, string version, AssemblyReference reference)>
 			DetectUpgradeableReferences(Project project)
 		{
-			var comparison = Extensions.BestAvailableStringIgnoreCaseComparison;
+			const StringComparison comparison = StringComparison.OrdinalIgnoreCase;
 			var list = new List<(string name, string version, AssemblyReference reference)>();
 
 			var minTargetFramework = MaxTargetFramework;
@@ -196,13 +197,17 @@ namespace Project2015To2017.Migrate2017
 
 			void ReportForVersion(ICollection<(string name, string version)> packages)
 			{
-				foreach (var assembly in project.AssemblyReferences.Select(x => x.Include.ToLowerInvariant()).Distinct()
-					.Intersect(packages.Select(x => x.name.ToLowerInvariant())))
+				var matchingAssemblyRefs = project.AssemblyReferences
+					.Select(x => x.Include.ToLowerInvariant())
+					.Distinct()
+					.Intersect(packages.Select(x => x.name.ToLowerInvariant()));
+
+				foreach (var assembly in matchingAssemblyRefs)
 				{
-					var correctCaseAssembly = packages.First(x =>
-						string.Equals(x.name, assembly, comparison));
-					var correctCaseDefinition = project.AssemblyReferences.First(x =>
-						string.Equals(x.Include, assembly, comparison));
+					var correctCaseAssembly = packages
+						.First(x => string.Equals(x.name, assembly, comparison));
+					var correctCaseDefinition = project.AssemblyReferences
+						.First(x => string.Equals(x.Include, assembly, comparison));
 
 					list.Add((correctCaseAssembly.name, correctCaseAssembly.version, correctCaseDefinition));
 				}
