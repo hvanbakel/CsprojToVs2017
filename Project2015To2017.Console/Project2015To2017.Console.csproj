@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks Condition="$(Pack) != 'true'">net461;netcoreapp2.1</TargetFrameworks>
-		<TargetFramework Condition="$(Pack) == 'true'">netcoreapp2.1</TargetFramework>
-		<PackAsTool Condition="$(Pack) == 'true'">True</PackAsTool>
+		<TargetFramework>netcoreapp2.1</TargetFramework>
+		<PackAsTool>True</PackAsTool>
 
 		<PackageId>Project2015To2017.Cli</PackageId>
 		<Product>Project2015To2017.Cli</Product>
@@ -14,9 +13,6 @@
 	<ItemGroup>
 		<PackageReference Include="CommandLineParser" Version="2.4.3" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-	</ItemGroup>
-
-	<ItemGroup>
 	</ItemGroup>
 
 </Project>

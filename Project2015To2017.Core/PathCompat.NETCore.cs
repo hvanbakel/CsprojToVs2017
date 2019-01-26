@@ -18,7 +18,7 @@ namespace Project2015To2017
 		{
 			return Path.GetRelativePath(relativeTo, path);
 		}
-#elif !NETSTANDARD2_0
+#elif !(NETSTANDARD2_0 || NET461)
 #error "Revise conditional compilation clauses"
 #endif
 	}
