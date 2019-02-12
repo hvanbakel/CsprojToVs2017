@@ -85,7 +85,7 @@ namespace Project2015To2017.Tests
 			var childrenGlobal = project.PrimaryPropertyGroup().Elements().ToImmutableArray();
 			Assert.AreEqual(7, childrenGlobal.Length);
 			Assert.IsTrue(Extensions.ValidateChildren(childrenGlobal,
-				"ProjectGuid", "ProjectTypeGuids", "VisualStudioVersion", "VSToolsPath",
+				"ProjectGuid", "ProjectTypeGuids", "VSToolsPath",
 				"ReferencePath", "IsCodedUITest", "TestProjectType", "TargetFrameworkVersion"));
 
 			var childrenDebug = project.PropertyGroups[1].Elements().ToImmutableArray();
