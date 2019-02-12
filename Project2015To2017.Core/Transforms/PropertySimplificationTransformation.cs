@@ -180,6 +180,8 @@ namespace Project2015To2017.Transforms
 					case "AssemblyName" when IsDefaultProjectNameValued():
 					case "TargetName" when IsDefaultProjectNameValued():
 					case "ProjectGuid" when ProjectGuidMatchesSolutionProjectGuid():
+					case "VisualStudioVersion":
+					case "Service" when IncludeMatchesSpecificGuid():
 					{
 						removeQueue.Add(child);
 						break;
@@ -256,6 +258,11 @@ namespace Project2015To2017.Transforms
 						       ||
 						       IgnoreProjectNameValues.Contains(child.Value)
 					       );
+				}
+				
+				bool IncludeMatchesSpecificGuid()
+				{
+					return child.Attribute("Include")?.Value == "{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}";
 				}
 			}
 
