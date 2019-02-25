@@ -2,9 +2,7 @@
 using Project2015To2017;
 using Project2015To2017.Definition;
 using System.Linq;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -24,14 +22,14 @@ namespace Project2015To2017Tests
 
             await transformation.TransformAsync(doc, directoryInfo, project).ConfigureAwait(false);
 
-            Assert.AreEqual(6, project.ItemsToInclude.Count);
+            Assert.AreEqual(5, project.ItemsToInclude.Count);
 
             XNamespace nsSys = "http://schemas.microsoft.com/developer/msbuild/2003";
             Assert.AreEqual(1, project.ItemsToInclude.Count(x => x.Name == nsSys + "Compile"));
             Assert.AreEqual(2, project.ItemsToInclude.Count(x => x.Name == "Compile"));
             Assert.AreEqual(2, project.ItemsToInclude.Count(x => x.Name == "Compile" && x.Attribute("Update") != null));
             Assert.AreEqual(0, project.ItemsToInclude.Count(x => x.Name == nsSys + "EmbeddedResource"));
-            Assert.AreEqual(1, project.ItemsToInclude.Count(x => x.Name == nsSys + "Content"));
+            Assert.AreEqual(0, project.ItemsToInclude.Count(x => x.Name == nsSys + "Content"));
             Assert.AreEqual(2, project.ItemsToInclude.Count(x => x.Name == nsSys + "None"));
         }
     }
