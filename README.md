@@ -17,8 +17,7 @@ There are a number of things [that VS2017 handles differently](http://www.natemc
 4. Moving some of the attributes that used to be defined in AssemblyInfo.cs into the project file
 5. Defining the NuGet package definition as part of the project file
 
-## How it works
-### As a .NET Core Global Tool
+## Quick Start
 Assuming you have .NET Core 2.1+ installed you can run this on the command line:
 ```
 > dotnet tool install --global Project2015To2017.Migrate2017.Tool
@@ -26,41 +25,38 @@ Assuming you have .NET Core 2.1+ installed you can run this on the command line:
 
 This will install the tool for you to use it anywhere you would like. You can then call the tool as shown in the examples below.
 
-### As a normal file download
-Using the tool is simple, it is a simple command line utility that has a single argument being the project file, solution file or folder you would like to convert.
-When you give it a directory path, the tool will discover all csproj files nested in it.
-
-### Examples
-Below examples are for the global tool, for the normal file just replace `dotnet migrate-2017` with your executable.
-
 ```
-> dotnet migrate-2017 migrate "D:\Path\To\My\TestProject.csproj"
+> dotnet migrate-2017 wizard "D:\Path\To\My\TestProject.csproj"
 ```
 
 Or
 
 ```
-> dotnet migrate-2017 migrate "D:\Path\To\My\TestProject.sln"
+> dotnet migrate-2017 wizard "D:\Path\To\My\TestProject.sln"
 ```
 
 Or
 
 ```
-> dotnet migrate-2017 migrate "D:\Path\To\My\Directory"
+> dotnet migrate-2017 wizard "D:\Path\To\My\Directory"
 ```
 
-After confirming this is an old style project file, it will start performing the conversion. When it has gathered all the data it needs it first creates a backup of the old files and puts them into a backup folder and then generates a new project file in the new format.
+This will start the interactive wizard, which will guide you through the conversion process.
+You will have an option to create backups before all critical conversion stages.
 
 There is no need to specify paths if there is only one convertible object (project or solution) in your current working directory.
-The tool will discover them automatically.
+The tool will discover them automatically, or inform you in case it can't make definite (and safest) decision.
 
 ## Commands
-* `migrate` will run non-interactive migration as shown above
+* `wizard` will run interactive conversion wizard as shown above
+* `migrate` will run non-interactive migration (useful for scripts or advanced users)
 * `evaluate` will run evaluation of projects found given the path specified
 * `analyze` will run analyzers to signal issues in the project files without performing actual conversion
 
+Most likely the only command you would use is the `wizard`, since it will execute all others in a way to achieve best user experience.
+
 ## Flags
-* `target-frameworks` will set the target framework on the outputted project file
+* `target-frameworks` will override the target framework on the outputted project file
 * `force-transformations` allows specifying individual transforms to be run on the projects
 * `force` ignores checks like project type being supported and will attempt a conversion regardless
 * `keep-assembly-info` instructs the migrate logic to keep the assembly info file

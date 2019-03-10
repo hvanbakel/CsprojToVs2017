@@ -22,11 +22,6 @@ namespace Project2015To2017.Tests
 		public void ValidatesFileIsWritableProgram()
 		{
 			var writer = new ProjectWriter();
-			var xmlNode = writer.CreateXml(new Project
-			{
-				AssemblyAttributes = new AssemblyAttributes(),
-				FilePath = new FileInfo("test.cs")
-			});
 
 			var copiedProjectFile = Path.Combine("TestFiles", "OtherTestProjects", $"{nameof(ValidatesFileIsWritableProgram)}.readonly");
 			if (File.Exists(copiedProjectFile))
@@ -39,17 +34,7 @@ namespace Project2015To2017.Tests
 			File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
 			var project = new ProjectReader().Read(copiedProjectFile);
 
-			var messageNum = 0;
-			var progress = new Progress<string>(x =>
-			{
-				if (messageNum++ == 0)
-				{
-					Assert.AreEqual(
-						$@"TestFiles\OtherTestProjects\{nameof(ValidatesFileIsWritableProgram)}.readonly is readonly, please make the file writable first (checkout from source control?).",
-						x);
-				}
-			});
-			writer.Write(project, false);
+			Assert.IsFalse(writer.TryWrite(project, false));
 		}
 
 
@@ -219,7 +204,7 @@ namespace Project2015To2017.Tests
 
 			var writer = new ProjectWriter(Deletion, Checkout);
 
-			writer.Write(
+			Assert.IsTrue(writer.TryWrite(
 				new Project
 				{
 					FilePath = new FileInfo(Path.Combine(deletionsPath, "Test1.csproj")),
@@ -231,7 +216,7 @@ namespace Project2015To2017.Tests
 					Deletions = filesToDelete.ToArray()
 				},
 				false
-			);
+			));
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
 			CollectionAssert.DoesNotContain(checkedOutFiles, assemblyInfoFile);
@@ -252,14 +237,14 @@ namespace Project2015To2017.Tests
 
 			var writer = new ProjectWriter(Deletion, _ => { });
 
-			writer.Write(
+			Assert.IsTrue(writer.TryWrite(
 				new Project
 				{
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test1.csproj"),
 					Deletions = filesToDelete.ToArray()
 				},
 				false
-			);
+			));
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
 		}
@@ -282,14 +267,14 @@ namespace Project2015To2017.Tests
 
 			var writer = new ProjectWriter(Deletion, _ => { });
 
-			writer.Write(
+			Assert.IsTrue(writer.TryWrite(
 				new Project
 				{
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test2.csproj"),
 					Deletions = filesToDelete.ToArray()
 				},
 				false
-			);
+			));
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
 		}
@@ -320,14 +305,14 @@ namespace Project2015To2017.Tests
 			{
 				var writer = new ProjectWriter(Deletion, _ => { });
 
-				writer.Write(
+				Assert.IsTrue(writer.TryWrite(
 					new Project
 					{
 						FilePath = new FileInfo(@"TestFiles\Deletions\Test3.csproj"),
 						Deletions = filesToDelete.ToArray()
 					},
 					false
-				);
+				));
 
 				CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
 			}
@@ -361,14 +346,14 @@ namespace Project2015To2017.Tests
 
 			var writer = new ProjectWriter(Deletion, _ => { });
 
-			writer.Write(
+			Assert.IsTrue(writer.TryWrite(
 				new Project
 				{
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test4.csproj"),
 					Deletions = filesToDelete.ToArray()
 				},
 				false
-			);
+			));
 
 			CollectionAssert.AreEqual(new FileSystemInfo[0], actualDeletedFiles);
 		}

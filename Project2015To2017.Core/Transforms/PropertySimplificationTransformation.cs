@@ -13,9 +13,17 @@ namespace Project2015To2017.Transforms
 	public sealed class PropertySimplificationTransformation : ILegacyOnlyProjectTransformation
 	{
 		private static readonly string[] IgnoreProjectNameValues =
-		   {
+		{
 			"$(MSBuildProjectName)",
 			"$(ProjectName)"
+		};
+
+		private static readonly string[] KnownTestFrameworkIds =
+		{
+			"Microsoft.NET.Test.Sdk",
+			"xUnit.Core",
+			"xUnit",
+			"NUnit",
 		};
 
 		public void Transform(Project definition)
@@ -103,6 +111,7 @@ namespace Project2015To2017.Transforms
 					case "NuGetPackageImportStamp":
 					// legacy generic properties
 					case "MinimumVisualStudioVersion":
+					case "VisualStudioVersion":
 					case "OldToolsVersion":
 					// legacy frameworks
 					case "TargetFrameworkIdentifier" when !hasParentCondition:
@@ -180,7 +189,6 @@ namespace Project2015To2017.Transforms
 					case "AssemblyName" when IsDefaultProjectNameValued():
 					case "TargetName" when IsDefaultProjectNameValued():
 					case "ProjectGuid" when ProjectGuidMatchesSolutionProjectGuid():
-					case "VisualStudioVersion":
 					case "Service" when IncludeMatchesSpecificGuid():
 					{
 						removeQueue.Add(child);
@@ -262,7 +270,20 @@ namespace Project2015To2017.Transforms
 				
 				bool IncludeMatchesSpecificGuid()
 				{
+					// This is not required as of VS15.7 and above, but we expect VS15.0
+
+					if (!project.PackageReferences.Any(IsKnownTestProvider))
+						return false;
+
 					return child.Attribute("Include")?.Value == "{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}";
+
+					bool IsKnownTestProvider(PackageReference x)
+					{
+						// In theory, we should be checking versions of these test frameworks
+						// to see, if they have the fix included.
+
+						return KnownTestFrameworkIds.Contains(x.Id);
+					}
 				}
 			}
 

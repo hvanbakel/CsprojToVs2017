@@ -116,10 +116,19 @@ namespace Project2015To2017.Migrate2017.Tool
 							facility.Logger,
 							conversionOptions))
 						{
-							transformation.Transform(project);
+							try
+							{
+								transformation.Transform(project);
+							}
+							catch (Exception e)
+							{
+								Log.Error(e, "Transformation {Item} has thrown an exception, skipping...",
+									transformation.GetType().Name);
+							}
 						}
 
-						writer.Write(project, doBackups);
+						if (!writer.TryWrite(project, doBackups))
+							continue;
 						Log.Information("Project {ProjectName} has been converted", projectName);
 					}
 				}
@@ -146,10 +155,19 @@ namespace Project2015To2017.Migrate2017.Tool
 								facility.Logger,
 								conversionOptions))
 							{
-								transformation.Transform(project);
+								try
+								{
+									transformation.Transform(project);
+								}
+								catch (Exception e)
+								{
+									Log.Error(e, "Transformation {Item} has thrown an exception, skipping...",
+										transformation.GetType().Name);
+								}
 							}
 
-							writer.Write(project, false);
+							if (!writer.TryWrite(project, false))
+								continue;
 							Log.Information("Project {ProjectName} has been processed", projectName);
 						}
 					}
@@ -177,14 +195,24 @@ namespace Project2015To2017.Migrate2017.Tool
 							continue;
 						}
 
-						foreach (var transformation in Vs15ModernizationTransformationSet.TrueInstance.IterateTransformations(
-							facility.Logger,
-							conversionOptions))
+						foreach (var transformation in Vs15ModernizationTransformationSet.TrueInstance
+							.IterateTransformations(
+								facility.Logger,
+								conversionOptions))
 						{
-							transformation.Transform(project);
+							try
+							{
+								transformation.Transform(project);
+							}
+							catch (Exception e)
+							{
+								Log.Error(e, "Transformation {Item} has thrown an exception, skipping...",
+									transformation.GetType().Name);
+							}
 						}
 
-						writer.Write(project, doBackups);
+						if (!writer.TryWrite(project, doBackups))
+							continue;
 						Log.Information("Project {ProjectName} has been modernized", projectName);
 					}
 				}
@@ -199,7 +227,9 @@ namespace Project2015To2017.Migrate2017.Tool
 			facility.DoAnalysis(projects, new AnalysisOptions(diagnostics));
 		}
 
-		private readonly List<(ImmutableHashSet<(string when, string tfms)> variant, ImmutableArray<string> answer)> previousFrameworkResolutionAnswers = new List<(ImmutableHashSet<(string, string)>, ImmutableArray<string>)>();
+		private readonly List<(ImmutableHashSet<(string when, string tfms)> variant, ImmutableArray<string> answer)>
+			previousFrameworkResolutionAnswers =
+				new List<(ImmutableHashSet<(string, string)>, ImmutableArray<string>)>();
 
 		private bool WizardUnknownTargetFrameworkCallback(Project project,
 			IReadOnlyList<(IReadOnlyList<string> frameworks, XElement source, string condition)> foundTargetFrameworks)

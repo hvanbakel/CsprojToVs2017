@@ -33,27 +33,41 @@ namespace Project2015To2017.Writing
 			this.checkoutOperation = checkoutOperation;
 		}
 
-		public void Write(Project project, bool makeBackups)
+		public bool TryWrite(Project project, bool makeBackups)
+		{
+			try
+			{
+				return TryWriteOrThrow(project, makeBackups);
+			}
+			catch (Exception e)
+			{
+				this.logger.LogError(e, "Project {Item} has thrown an exception during writing, skipping...", project.ProjectName);
+				return false;
+			}
+		}
+
+		public bool TryWriteOrThrow(Project project, bool makeBackups)
 		{
 			if (makeBackups && !DoBackups(project))
 			{
 				this.logger.LogError("Couldn't do backup, so not applying any changes");
-				return;
+				return false;
 			}
 
 			if (!WriteProjectFile(project))
 			{
 				this.logger.LogError("Aborting as could not write to project file");
-				return;
+				return false;
 			}
 
 			if (!WriteAssemblyInfoFile(project))
 			{
 				this.logger.LogError("Aborting as could not write to assembly info file");
-				return;
+				return false;
 			}
 
 			DeleteUnusedFiles(project);
+			return true;
 		}
 
 		private bool WriteProjectFile(Project project)

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Analysis;
 using Project2015To2017.Definition;
@@ -108,7 +109,15 @@ namespace Project2015To2017
 
 			foreach (var project in projects)
 			{
-				analyzer.Analyze(project);
+				try
+				{
+					analyzer.Analyze(project);
+				}
+				catch (Exception e)
+				{
+					Logger.LogError(e, "Project {Item} analysis has thrown an exception, skipping...",
+						project.ProjectName);
+				}
 			}
 		}
 
@@ -135,16 +144,18 @@ namespace Project2015To2017
 			void ProcessSingleItem(FileInfo file, string extension)
 			{
 				Logger.LogTrace("Processing {Item}", file);
-				switch (extension)
+				try
 				{
-					case ".sln":
+					switch (extension)
+					{
+						case ".sln":
 						{
 							var solution = SolutionReader.Instance.Read(file, Logger);
 							convertedSolutions.Add(solution);
 							convertedProjects.AddRange(converter.ProcessSolutionFile(solution).Where(x => x != null));
 							break;
 						}
-					default:
+						default:
 						{
 							var converted = converter.ProcessProjectFile(file, null);
 							if (converted != null)
@@ -154,6 +165,11 @@ namespace Project2015To2017
 
 							break;
 						}
+					}
+				}
+				catch (Exception e)
+				{
+					Logger.LogError(e, "Project {Item} parsing has thrown an exception, skipping...", file);
 				}
 			}
 		}
@@ -206,7 +222,7 @@ namespace Project2015To2017
 			var writer = new ProjectWriter(Logger, x => x.Delete(), _ => { });
 			foreach (var project in projects)
 			{
-				writer.Write(project, doBackup);
+				writer.TryWrite(project, doBackup);
 			}
 
 			conversionOptions.ProjectCache?.Purge();

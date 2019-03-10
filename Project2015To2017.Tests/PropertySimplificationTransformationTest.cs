@@ -366,7 +366,55 @@ namespace Project2015To2017.Tests
 		}
 
 		[TestMethod]
-		public void RemovesServiceTag()
+		public void RemovesServiceTagWithKnownTestFramework()
+		{
+			var guid = Guid.NewGuid();
+			var xml = @"
+<Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
+  <PropertyGroup>
+    <Configuration Condition="" '$(Configuration)' == '' "">Debug</Configuration>
+    <Platform Condition="" '$(Platform)' == '' "">AnyCPU</Platform>
+    <ProjectGuid>{" + guid.ToString() + @"}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ClassLibrary1</RootNamespace>
+    <AssemblyName>ClassLibrary1</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <VisualStudioVersion Condition=""'$(VisualStudioVersion)' == ''"">10.0</VisualStudioVersion>
+    <Service Include=""{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}"" />
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include=""NUnit"" />
+  </ItemGroup>
+ </Project>";
+
+			var project = ParseAndTransform(xml, projectName: "Class1");
+			var name = "someproject";
+			project.ProjectName = name;
+			project.Solution = new Solution
+			{
+				ProjectPaths = new[]
+					{
+						new ProjectReference
+						{
+							ProjectName = name,
+							ProjectGuid = guid
+						}
+					}
+			};
+
+			new PropertySimplificationTransformation().Transform(project);
+
+			Assert.IsFalse(project.ProjectDocument.Descendants().Any(x => x.Name.LocalName == "Service"));
+		}
+
+		[TestMethod]
+		public void DoesNotRemoveServiceTag()
 		{
 			var guid = Guid.NewGuid();
 			var xml = @"
@@ -407,7 +455,7 @@ namespace Project2015To2017.Tests
 
 			new PropertySimplificationTransformation().Transform(project);
 
-			Assert.IsTrue(!project.ProjectDocument.Descendants().Any(x => x.Name.LocalName == "Service"));
+			Assert.IsTrue(project.ProjectDocument.Descendants().Any(x => x.Name.LocalName == "Service"));
 		}
 
 		private static Project ParseAndTransform(

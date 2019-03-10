@@ -162,16 +162,27 @@ namespace Project2015To2017.Reading
 				var existingPackageReferences = project.ProjectDocument.Root
 					.Elements(project.XmlNamespace + "ItemGroup")
 					.Elements(project.XmlNamespace + "PackageReference")
-					.Select(x => new PackageReference
+					.Select(x =>
 					{
-						Id = x.Attribute("Include").Value,
-						Version = x.Attribute("Version")?.Value ?? x.Element(project.XmlNamespace + "Version").Value,
-						IsDevelopmentDependency = x.Element(project.XmlNamespace + "PrivateAssets") != null,
-						DefinitionElement = x
-					});
+						var includeAttribute = x.Attribute("Include");
+						if (includeAttribute == null)
+						{
+							this.logger.LogWarning("PackageReference {Tag} is missing the required Include attribute", x);
+							return null;
+						}
+
+						return new PackageReference
+						{
+							Id = includeAttribute.Value,
+							Version = x.Attribute("Version")?.Value ??
+							          x.Element(project.XmlNamespace + "Version")?.Value,
+							IsDevelopmentDependency = x.Element(project.XmlNamespace + "PrivateAssets") != null,
+							DefinitionElement = x
+						};
+					})
+					.Where(x => x != null);
 
 				var packageConfigPackages = ExtractReferencesFromPackagesConfig(project.PackagesConfigFile);
-
 
 				var packageReferences = packageConfigPackages
 					.Concat(existingPackageReferences)
