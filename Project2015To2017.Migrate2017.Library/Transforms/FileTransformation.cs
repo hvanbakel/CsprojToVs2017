@@ -184,7 +184,8 @@ namespace Project2015To2017.Migrate2017.Transforms
 				return false;
 			}
 
-			if (tagName == "None" && include.EndsWith(".config", StringComparison.OrdinalIgnoreCase))
+			var isNotLinkedElement = x.Elements().FirstOrDefault(a => a.Name.LocalName == "Link") == null;
+			if (tagName == "None" && include.EndsWith(".config", StringComparison.OrdinalIgnoreCase) && isNotLinkedElement)
 			{
 				return false;
 			}
