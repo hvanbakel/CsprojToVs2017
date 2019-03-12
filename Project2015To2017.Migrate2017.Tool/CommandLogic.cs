@@ -1,18 +1,17 @@
 using System;
-using DotNet.Globbing;
-using Serilog;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using Microsoft.Extensions.Logging;
+using DotNet.Globbing;
 using Project2015To2017.Analysis;
+using Project2015To2017.CleanUp;
 using Project2015To2017.Definition;
 using Project2015To2017.Transforms;
 using Project2015To2017.Writing;
-using Project2015To2017.Migrate2017;
+using Serilog;
 
 namespace Project2015To2017.Migrate2017.Tool
 {
@@ -52,9 +51,10 @@ namespace Project2015To2017.Migrate2017.Tool
 		public void ExecuteMigrate(
 			IReadOnlyCollection<string> items,
 			bool noBackup,
+			bool doCleanup,
 			ConversionOptions conversionOptions)
 		{
-			facility.ExecuteMigrate(items, noBackup, conversionOptions);
+			facility.ExecuteMigrate(items, noBackup, doCleanup, conversionOptions);
 		}
 
 		public void ExecuteAnalyze(
@@ -130,6 +130,14 @@ namespace Project2015To2017.Migrate2017.Tool
 						if (!writer.TryWrite(project, doBackups))
 							continue;
 						Log.Information("Project {ProjectName} has been converted", projectName);
+
+						var doCleanup = AskBinaryChoice("Would you like to cleanup package references?");
+						if (doCleanup)
+						{
+							var cleaner = new PackageReferenceCleaner(facility.Logger);
+							if (cleaner.CleanUpProjectReferences(project))
+								writer.TryWrite(project, doBackups);
+						}
 					}
 				}
 			}
@@ -279,10 +287,10 @@ namespace Project2015To2017.Migrate2017.Tool
 			Log.Information("Please, enter target frameworks to use (comma or space separated):");
 			Console.Out.Flush();
 			var tfms = Console.ReadLine()
-				           ?.Trim()
-				           .Split(new[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries)
-				           .Where(s => !string.IsNullOrWhiteSpace(s))
-				           .ToImmutableArray() ?? ImmutableArray<string>.Empty;
+						   ?.Trim()
+						   .Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+						   .Where(s => !string.IsNullOrWhiteSpace(s))
+						   .ToImmutableArray() ?? ImmutableArray<string>.Empty;
 
 			if (tfms.IsDefaultOrEmpty)
 			{

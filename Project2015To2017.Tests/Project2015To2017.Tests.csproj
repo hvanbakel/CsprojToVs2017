@@ -164,6 +164,9 @@
     <None Include="TestFiles\OtherTestProjects\net46console.testcsproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestFiles\Transitive\TransitiveDependeny.testcsproj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestFiles\OtherTestProjects\unittest.testcsproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

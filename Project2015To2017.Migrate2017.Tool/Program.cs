@@ -1,11 +1,11 @@
+using System;
+using System.IO;
+using System.Linq;
 using Microsoft.DotNet.Cli.CommandLine;
 using Project2015To2017.Caching;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using System;
-using System.IO;
-using System.Linq;
 using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
@@ -126,7 +126,7 @@ namespace Project2015To2017.Migrate2017.Tool
 					if (forceTransformations != null)
 						conversionOptions.ForceDefaultTransforms = forceTransformations;
 
-					logic.ExecuteMigrate(items, command.ValueOrDefault<bool>("no-backup"), conversionOptions);
+					logic.ExecuteMigrate(items, command.ValueOrDefault<bool>("no-backup"), command.ValueOrDefault<bool>("cleanup"), conversionOptions);
 					break;
 			}
 
@@ -189,6 +189,7 @@ namespace Project2015To2017.Migrate2017.Tool
 					"Specify multiple times for multiple enforced transformations.",
 					OneOrMoreArguments()
 						.With("Transformation names to enforce execution", "names")),
+				Option("-c|--cleanup", "Cleanup package references, if transitive references are found"),
 				HelpOption());
 
 		private static Command Analyze() =>

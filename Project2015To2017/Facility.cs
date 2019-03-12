@@ -1,15 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Analysis;
+using Project2015To2017.CleanUp;
 using Project2015To2017.Definition;
 using Project2015To2017.Migrate2017;
 using Project2015To2017.Reading;
 using Project2015To2017.Transforms;
 using Project2015To2017.Writing;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
 
 namespace Project2015To2017
 {
@@ -149,22 +150,22 @@ namespace Project2015To2017
 					switch (extension)
 					{
 						case ".sln":
-						{
-							var solution = SolutionReader.Instance.Read(file, Logger);
-							convertedSolutions.Add(solution);
-							convertedProjects.AddRange(converter.ProcessSolutionFile(solution).Where(x => x != null));
-							break;
-						}
-						default:
-						{
-							var converted = converter.ProcessProjectFile(file, null);
-							if (converted != null)
 							{
-								convertedProjects.Add(converted);
+								var solution = SolutionReader.Instance.Read(file, Logger);
+								convertedSolutions.Add(solution);
+								convertedProjects.AddRange(converter.ProcessSolutionFile(solution).Where(x => x != null));
+								break;
 							}
+						default:
+							{
+								var converted = converter.ProcessProjectFile(file, null);
+								if (converted != null)
+								{
+									convertedProjects.Add(converted);
+								}
 
-							break;
-						}
+								break;
+							}
 					}
 				}
 				catch (Exception e)
@@ -208,6 +209,7 @@ namespace Project2015To2017
 		public void ExecuteMigrate(
 			IReadOnlyCollection<string> items,
 			bool noBackup,
+			bool doCleanup,
 			ConversionOptions conversionOptions)
 		{
 			var (projects, _) = ParseProjects(items, Vs15TransformationSet.Instance, conversionOptions);
@@ -223,6 +225,13 @@ namespace Project2015To2017
 			foreach (var project in projects)
 			{
 				writer.TryWrite(project, doBackup);
+
+				if (doCleanup)
+				{
+					var cleaner = new PackageReferenceCleaner(Logger);
+					if (cleaner.CleanUpProjectReferences(project))
+						writer.TryWrite(project, false);
+				}
 			}
 
 			conversionOptions.ProjectCache?.Purge();
