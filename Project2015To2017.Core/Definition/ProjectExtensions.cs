@@ -224,7 +224,7 @@ namespace Project2015To2017.Definition
 		{
 			if (project == null) throw new ArgumentNullException(nameof(project));
 
-			if (project.Property("UseWpf")?.Value == "true")
+			if (project.Property("UseWPF")?.Value == "true")
 				return true;
 
 			if (project.Property("ExtrasEnableWpfProjectSetup")?.Value == "true")

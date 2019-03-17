@@ -4,17 +4,17 @@ using Microsoft.Extensions.Logging;
 using Project2015To2017.Migrate2017.Transforms;
 using Project2015To2017.Transforms;
 
-namespace Project2015To2017.Migrate2017
+namespace Project2015To2017.Migrate2019.Library
 {
-	public sealed class Vs15TransformationSet : ITransformationSet
+	public sealed class Vs16TransformationSet : ITransformationSet
 	{
-		public static readonly Vs15TransformationSet TrueInstance = new Vs15TransformationSet();
+		public static readonly Vs16TransformationSet TrueInstance = new Vs16TransformationSet();
 
 		public static readonly ITransformationSet Instance = new ChainTransformationSet(
 			BasicReadTransformationSet.Instance,
 			TrueInstance);
 
-		private Vs15TransformationSet()
+		private Vs16TransformationSet()
 		{
 		}
 
@@ -22,7 +22,7 @@ namespace Project2015To2017.Migrate2017
 			ILogger logger,
 			ConversionOptions conversionOptions)
 		{
-			var targetVisualStudioVersion = new Version(15, 0);
+			var targetVisualStudioVersion = new Version(16, 0);
 			return new ITransformation[]
 			{
 				// Generic

@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Project2015To2017.Definition;
 using Project2015To2017.Reading;
-using Project2015To2017.Reading.Conditionals;
 
 namespace Project2015To2017.Transforms
 {
@@ -25,6 +24,14 @@ namespace Project2015To2017.Transforms
 			"xUnit",
 			"NUnit",
 		};
+
+		private readonly Version targetVisualStudioVersion;
+		private static readonly Version Vs15TestServiceFixVersion = new Version(15, 7);
+
+		public PropertySimplificationTransformation(Version targetVisualStudioVersion = null)
+		{
+			this.targetVisualStudioVersion = targetVisualStudioVersion ?? new Version(15, 0);
+		}
 
 		public void Transform(Project definition)
 		{
@@ -62,7 +69,7 @@ namespace Project2015To2017.Transforms
 			}
 		}
 
-		private static void FilterUnneededProperties(Project project,
+		private void FilterUnneededProperties(Project project,
 			XElement propertyGroup,
 			IDictionary<string, string> globalOverrides,
 			string msbuildProjectName)
@@ -194,7 +201,6 @@ namespace Project2015To2017.Transforms
 						removeQueue.Add(child);
 						break;
 					}
-
 				}
 
 				if (parentConditionHasConfiguration || parentConditionHasPlatform)
@@ -267,13 +273,13 @@ namespace Project2015To2017.Transforms
 						       IgnoreProjectNameValues.Contains(child.Value)
 					       );
 				}
-				
+
 				bool IncludeMatchesSpecificGuid()
 				{
-					// This is not required as of VS15.7 and above, but we expect VS15.0
-
-					if (!project.PackageReferences.Any(IsKnownTestProvider))
-						return false;
+					// This is not required as of VS15.7 and above, but we might target VS15.0
+					if (targetVisualStudioVersion < Vs15TestServiceFixVersion)
+						if (!project.PackageReferences.Any(IsKnownTestProvider))
+							return false;
 
 					return child.Attribute("Include")?.Value == "{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}";
 
@@ -295,7 +301,8 @@ namespace Project2015To2017.Transforms
 
 			bool ProjectGuidMatchesSolutionProjectGuid()
 			{
-				return project.Solution != null && project.Solution.ProjectPaths.Any(x => x.ProjectName == project.ProjectName && x.ProjectGuid == project.ProjectGuid);
+				return project.Solution != null && project.Solution.ProjectPaths
+					       .Any(x => x.ProjectName == project.ProjectName && x.ProjectGuid == project.ProjectGuid);
 			}
 		}
 
@@ -325,7 +332,7 @@ namespace Project2015To2017.Transforms
 					return true;
 				}
 
-				var condition = conditionAttribute.Value.Trim() ?? "";
+				var condition = conditionAttribute.Value.Trim();
 
 				// no sane condition is 1 char long
 				return condition.Length <= 1;
