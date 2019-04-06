@@ -92,10 +92,21 @@ namespace Project2015To2017.Reading
 
 			projectDefinition.AssemblyAttributes = assemblyAttributes;
 
+			var projectSupported = UnsupportedProjectTypes.IsUnsupportedProjectType(projectDefinition);
 			// get ProjectTypeGuids and check for unsupported types
-			if (!this.forceConversion && UnsupportedProjectTypes.IsUnsupportedProjectType(projectDefinition))
+			if (!this.forceConversion && projectSupported != UnsupportedProjectReason.Supported)
 			{
-				this.logger.LogError("This project type is not supported for conversion.");
+				var message = default(string);
+				switch (projectSupported)
+				{
+					case UnsupportedProjectReason.EntityFramework:
+						message = "Entity framework was detected. We do not support conversion of these projects.";
+						break;
+					case UnsupportedProjectReason.NotSupportedProjectType:
+						message = "An unsupported project type was detected. We do not support conversion of these projects.";
+						break;
+				}
+				this.logger.LogError(message);
 				return null;
 			}
 

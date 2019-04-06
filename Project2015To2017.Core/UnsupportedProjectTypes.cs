@@ -14,18 +14,18 @@ namespace Project2015To2017
 		/// </summary>
 		/// <param name="project">source project to check</param>
 		/// <returns></returns>
-		public static bool IsUnsupportedProjectType(Project project)
+		public static UnsupportedProjectReason IsUnsupportedProjectType(Project project)
 		{
 			if (project == null) throw new ArgumentNullException(nameof(project));
 
 			if (project.ProjectFolder != null)
 				if (CheckForEntityFramework(project))
-					return true;
+					return UnsupportedProjectReason.EntityFramework;
 
 			var guidTypes = project.IterateProjectTypeGuids();
 
 			// if any guid matches an unsupported type, return true
-			return guidTypes.Any(t => unsupportedGuids.Contains(t.guid));
+			return guidTypes.Any(t => unsupportedGuids.Contains(t.guid)) ? UnsupportedProjectReason.NotSupportedProjectType : UnsupportedProjectReason.Supported;
 		}
 
 		private static bool CheckForEntityFramework(Project project)

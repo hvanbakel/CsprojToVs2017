@@ -13,12 +13,12 @@ namespace Project2015To2017.Tests
 		/// <summary>
 		/// Run test cases
 		/// </summary>
-		[DataRow("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}", "ASP.NET 5", true)]
-		[DataRow("{349C5851-65DF-11DA-9384-00065B846F21};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}", "ASP.NET MVC5", true)]
-		[DataRow("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}", "C# only", false)]
-		[DataRow("", "No ProjectTypeGuids tag", false)]
+		[DataRow("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}", "ASP.NET 5", UnsupportedProjectReason.NotSupportedProjectType)]
+		[DataRow("{349C5851-65DF-11DA-9384-00065B846F21};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}", "ASP.NET MVC5", UnsupportedProjectReason.NotSupportedProjectType)]
+		[DataRow("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}", "C# only", UnsupportedProjectReason.Supported)]
+		[DataRow("", "No ProjectTypeGuids tag", UnsupportedProjectReason.Supported)]
 		[TestMethod]
-		public void CheckAnUnsupportedProjectTypeReturnsCorrectResult(string guidTypes, string testCase, bool expected)
+		public void CheckAnUnsupportedProjectTypeReturnsCorrectResult(string guidTypes, string testCase, UnsupportedProjectReason expected)
 		{
 			var xmlDocument = CreateTestProject("ProjectTypeGuids", guidTypes);
 
@@ -30,10 +30,10 @@ namespace Project2015To2017.Tests
 		/// <summary>
 		/// Run test cases
 		/// </summary>
-		[DataRow("WindowsForms", "WinForms", false)]
-		[DataRow("", "Other", false)]
+		[DataRow("WindowsForms", "WinForms", UnsupportedProjectReason.Supported)]
+		[DataRow("", "Other", UnsupportedProjectReason.Supported)]
 		[TestMethod]
-		public void CheckAnUnsupportedProjectOutputReturnsCorrectResult(string outputType, string testCase, bool expected)
+		public void CheckAnUnsupportedProjectOutputReturnsCorrectResult(string outputType, string testCase, UnsupportedProjectReason expected)
 		{
 			var xmlDocument = CreateTestProject("MyType", outputType);
 
