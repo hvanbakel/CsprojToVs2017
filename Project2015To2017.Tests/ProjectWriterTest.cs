@@ -34,7 +34,7 @@ namespace Project2015To2017.Tests
 			File.SetAttributes(copiedProjectFile, FileAttributes.ReadOnly);
 			var project = new ProjectReader().Read(copiedProjectFile);
 
-			Assert.IsFalse(writer.TryWrite(project, false));
+			Assert.IsFalse(writer.TryWrite(project));
 		}
 
 
@@ -135,7 +135,7 @@ namespace Project2015To2017.Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				PropertyGroups = new[] {new XElement("PropertyGroup")},
+				PropertyGroups = new[] { new XElement("PropertyGroup") },
 				FilePath = new FileInfo("test.cs")
 			});
 
@@ -149,7 +149,7 @@ namespace Project2015To2017.Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				PropertyGroups = new[] {new XElement("PropertyGroup", new XElement("DelaySign", "true"))},
+				PropertyGroups = new[] { new XElement("PropertyGroup", new XElement("DelaySign", "true")) },
 				FilePath = new FileInfo("test.cs")
 			});
 
@@ -164,7 +164,7 @@ namespace Project2015To2017.Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				PropertyGroups = new[] {new XElement("PropertyGroup", new XElement("DelaySign", "false"))},
+				PropertyGroups = new[] { new XElement("PropertyGroup", new XElement("DelaySign", "false")) },
 				FilePath = new FileInfo("test.cs")
 			});
 
@@ -202,7 +202,7 @@ namespace Project2015To2017.Tests
 			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
 			void Checkout(FileSystemInfo info) => checkedOutFiles.Add(info);
 
-			var writer = new ProjectWriter(Deletion, Checkout);
+			var writer = new ProjectWriter(new ProjectWriteOptions { DeleteFileOperation = Deletion, CheckoutOperation = Checkout });
 
 			Assert.IsTrue(writer.TryWrite(
 				new Project
@@ -214,8 +214,7 @@ namespace Project2015To2017.Tests
 						Company = "A Company"
 					},
 					Deletions = filesToDelete.ToArray()
-				},
-				false
+				}
 			));
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -235,15 +234,14 @@ namespace Project2015To2017.Tests
 			//Just simulate deletion so we can just check the list
 			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
 
-			var writer = new ProjectWriter(Deletion, _ => { });
+			var writer = new ProjectWriter(new ProjectWriteOptions { DeleteFileOperation = Deletion });
 
 			Assert.IsTrue(writer.TryWrite(
 				new Project
 				{
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test1.csproj"),
 					Deletions = filesToDelete.ToArray()
-				},
-				false
+				}
 			));
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -265,15 +263,14 @@ namespace Project2015To2017.Tests
 			//Just simulate deletion so we can just check the list
 			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
 
-			var writer = new ProjectWriter(Deletion, _ => { });
+			var writer = new ProjectWriter(new ProjectWriteOptions { DeleteFileOperation = Deletion });
 
 			Assert.IsTrue(writer.TryWrite(
 				new Project
 				{
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test2.csproj"),
 					Deletions = filesToDelete.ToArray()
-				},
-				false
+				}
 			));
 
 			CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -303,15 +300,14 @@ namespace Project2015To2017.Tests
 
 			try
 			{
-				var writer = new ProjectWriter(Deletion, _ => { });
+				var writer = new ProjectWriter(new ProjectWriteOptions { DeleteFileOperation = Deletion });
 
 				Assert.IsTrue(writer.TryWrite(
 					new Project
 					{
 						FilePath = new FileInfo(@"TestFiles\Deletions\Test3.csproj"),
 						Deletions = filesToDelete.ToArray()
-					},
-					false
+					}
 				));
 
 				CollectionAssert.AreEqual(filesToDelete, actualDeletedFiles);
@@ -344,15 +340,14 @@ namespace Project2015To2017.Tests
 			//Just simulate deletion so we can just check the list
 			void Deletion(FileSystemInfo info) => actualDeletedFiles.Add(info);
 
-			var writer = new ProjectWriter(Deletion, _ => { });
+			var writer = new ProjectWriter(new ProjectWriteOptions { DeleteFileOperation = Deletion });
 
 			Assert.IsTrue(writer.TryWrite(
 				new Project
 				{
 					FilePath = new FileInfo(@"TestFiles\Deletions\Test4.csproj"),
 					Deletions = filesToDelete.ToArray()
-				},
-				false
+				}
 			));
 
 			CollectionAssert.AreEqual(new FileSystemInfo[0], actualDeletedFiles);

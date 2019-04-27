@@ -14,30 +14,33 @@ namespace Project2015To2017.Writing
 		private readonly ILogger logger;
 		private readonly Action<FileSystemInfo> deleteFileOperation;
 		private readonly Action<FileSystemInfo> checkoutOperation;
+		private readonly bool makeBackups;
+
 
 		public ProjectWriter(ILogger logger = null)
-			: this(logger, _ => { }, _ => { })
+			: this(logger, new ProjectWriteOptions {DeleteFileOperation = _ => { }})
 		{
 		}
 
-		public ProjectWriter(Action<FileSystemInfo> deleteFileOperation, Action<FileSystemInfo> checkoutOperation)
-			: this(null, deleteFileOperation, checkoutOperation)
+		public ProjectWriter(ProjectWriteOptions options)
+			: this(null, options)
 		{
 
 		}
 
-		public ProjectWriter(ILogger logger, Action<FileSystemInfo> deleteFileOperation, Action<FileSystemInfo> checkoutOperation)
+		public ProjectWriter(ILogger logger, ProjectWriteOptions options)
 		{
 			this.logger = logger ?? NoopLogger.Instance;
-			this.deleteFileOperation = deleteFileOperation;
-			this.checkoutOperation = checkoutOperation;
+			deleteFileOperation = options.DeleteFileOperation;
+			checkoutOperation = options.CheckoutOperation;
+			makeBackups = options.MakeBackups;
 		}
 
-		public bool TryWrite(Project project, bool makeBackups)
+		public bool TryWrite(Project project)
 		{
 			try
 			{
-				return TryWriteOrThrow(project, makeBackups);
+				return TryWriteOrThrow(project);
 			}
 			catch (Exception e)
 			{
@@ -46,7 +49,7 @@ namespace Project2015To2017.Writing
 			}
 		}
 
-		public bool TryWriteOrThrow(Project project, bool makeBackups)
+		public bool TryWriteOrThrow(Project project)
 		{
 			if (makeBackups && !DoBackups(project))
 			{

@@ -149,22 +149,22 @@ namespace Project2015To2017
 					switch (extension)
 					{
 						case ".sln":
-						{
-							var solution = SolutionReader.Instance.Read(file, Logger);
-							convertedSolutions.Add(solution);
-							convertedProjects.AddRange(converter.ProcessSolutionFile(solution).Where(x => x != null));
-							break;
-						}
-						default:
-						{
-							var converted = converter.ProcessProjectFile(file, null);
-							if (converted != null)
 							{
-								convertedProjects.Add(converted);
+								var solution = SolutionReader.Instance.Read(file, Logger);
+								convertedSolutions.Add(solution);
+								convertedProjects.AddRange(converter.ProcessSolutionFile(solution).Where(x => x != null));
+								break;
 							}
+						default:
+							{
+								var converted = converter.ProcessProjectFile(file, null);
+								if (converted != null)
+								{
+									convertedProjects.Add(converted);
+								}
 
-							break;
-						}
+								break;
+							}
 					}
 				}
 				catch (Exception e)
@@ -219,10 +219,10 @@ namespace Project2015To2017
 
 			var doBackup = !noBackup;
 
-			var writer = new ProjectWriter(Logger, x => x.Delete(), _ => { });
+			var writer = new ProjectWriter(Logger, new ProjectWriteOptions { MakeBackups = doBackup });
 			foreach (var project in projects)
 			{
-				writer.TryWrite(project, doBackup);
+				writer.TryWrite(project);
 			}
 
 			conversionOptions.ProjectCache?.Purge();

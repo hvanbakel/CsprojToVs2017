@@ -93,11 +93,11 @@ namespace Project2015To2017.Migrate2017.Tool
 
 			facility.DoAnalysis(projects, new AnalysisOptions(DiagnosticSet.All));
 
-			var writer = new ProjectWriter(facility.Logger, x => x.Delete(), _ => { });
-
 			if (legacy.Count > 0)
 			{
 				var doBackups = AskBinaryChoice("Would you like to create backups?");
+
+				var writer = new ProjectWriter(facility.Logger, new ProjectWriteOptions { MakeBackups = doBackups });
 
 				foreach (var project in legacy)
 				{
@@ -127,7 +127,7 @@ namespace Project2015To2017.Migrate2017.Tool
 							}
 						}
 
-						if (!writer.TryWrite(project, doBackups))
+						if (!writer.TryWrite(project))
 							continue;
 						Log.Information("Project {ProjectName} has been converted", projectName);
 					}
@@ -135,6 +135,8 @@ namespace Project2015To2017.Migrate2017.Tool
 			}
 			else
 			{
+				var writer = new ProjectWriter(facility.Logger, new ProjectWriteOptions());
+
 				Log.Information("It appears you already have everything converted to CPS.");
 				if (AskBinaryChoice("Would you like to process CPS projects to clean up and reformat them?"))
 				{
@@ -166,7 +168,7 @@ namespace Project2015To2017.Migrate2017.Tool
 								}
 							}
 
-							if (!writer.TryWrite(project, false))
+							if (!writer.TryWrite(project))
 								continue;
 							Log.Information("Project {ProjectName} has been processed", projectName);
 						}
@@ -182,6 +184,9 @@ namespace Project2015To2017.Migrate2017.Tool
 			if (AskBinaryChoice("Would you like to modernize projects?"))
 			{
 				var doBackups = AskBinaryChoice("Would you like to create backups?");
+
+				var writer = new ProjectWriter(facility.Logger, new ProjectWriteOptions { MakeBackups = doBackups });
+
 				foreach (var project in projects)
 				{
 					using (facility.Logger.BeginScope(project.FilePath))
@@ -211,7 +216,7 @@ namespace Project2015To2017.Migrate2017.Tool
 							}
 						}
 
-						if (!writer.TryWrite(project, doBackups))
+						if (!writer.TryWrite(project))
 							continue;
 						Log.Information("Project {ProjectName} has been modernized", projectName);
 					}
@@ -279,10 +284,10 @@ namespace Project2015To2017.Migrate2017.Tool
 			Log.Information("Please, enter target frameworks to use (comma or space separated):");
 			Console.Out.Flush();
 			var tfms = Console.ReadLine()
-				           ?.Trim()
-				           .Split(new[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries)
-				           .Where(s => !string.IsNullOrWhiteSpace(s))
-				           .ToImmutableArray() ?? ImmutableArray<string>.Empty;
+						   ?.Trim()
+						   .Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+						   .Where(s => !string.IsNullOrWhiteSpace(s))
+						   .ToImmutableArray() ?? ImmutableArray<string>.Empty;
 
 			if (tfms.IsDefaultOrEmpty)
 			{
