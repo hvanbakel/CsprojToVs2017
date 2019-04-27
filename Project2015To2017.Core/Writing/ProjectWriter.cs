@@ -18,7 +18,7 @@ namespace Project2015To2017.Writing
 
 
 		public ProjectWriter(ILogger logger = null)
-			: this(logger, new ProjectWriteOptions {DeleteFileOperation = _ => { }})
+			: this(logger, new ProjectWriteOptions { DeleteFileOperation = _ => { } })
 		{
 		}
 
@@ -34,6 +34,19 @@ namespace Project2015To2017.Writing
 			deleteFileOperation = options.DeleteFileOperation;
 			checkoutOperation = options.CheckoutOperation;
 			makeBackups = options.MakeBackups;
+		}
+
+		[Obsolete("Pass in ProjectWriteOptions instead of separate delete and checkout operations")]
+		public ProjectWriter(ILogger logger, Action<FileSystemInfo> deleteFileOperation, Action<FileSystemInfo> checkoutOperation)
+			: this(logger, new ProjectWriteOptions { DeleteFileOperation = deleteFileOperation, CheckoutOperation = checkoutOperation })
+		{
+		}
+
+		[Obsolete("Pass in ProjectWriteOptions instead of separate delete and checkout operations")]
+		public ProjectWriter(Action<FileSystemInfo> deleteFileOperation, Action<FileSystemInfo> checkoutOperation)
+			: this(null, new ProjectWriteOptions { DeleteFileOperation = deleteFileOperation, CheckoutOperation = checkoutOperation })
+		{
+
 		}
 
 		public bool TryWrite(Project project)
