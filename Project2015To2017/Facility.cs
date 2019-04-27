@@ -207,19 +207,36 @@ namespace Project2015To2017
 
 		public void ExecuteMigrate(
 			IReadOnlyCollection<string> items,
-			bool noBackup,
-			ConversionOptions conversionOptions)
+			ITransformationSet transformations
+		)
 		{
-			var (projects, _) = ParseProjects(items, Vs15TransformationSet.Instance, conversionOptions);
+			ExecuteMigrate(items, transformations, new ConversionOptions(), new ProjectWriteOptions());
+		}
+
+		public void ExecuteMigrate(
+				IReadOnlyCollection<string> items,
+				ConversionOptions conversionOptions,
+				ProjectWriteOptions writeOptions
+			)
+		{
+			ExecuteMigrate(items, Vs15TransformationSet.Instance, conversionOptions, writeOptions);
+		}
+
+		public void ExecuteMigrate(
+			IReadOnlyCollection<string> items,
+			ITransformationSet transformations,
+			ConversionOptions conversionOptions,
+			ProjectWriteOptions writeOptions
+			)
+		{
+			var (projects, _) = ParseProjects(items, transformations, conversionOptions);
 
 			if (projects.Count == 0)
 			{
 				return;
 			}
-
-			var doBackup = !noBackup;
-
-			var writer = new ProjectWriter(Logger, new ProjectWriteOptions { MakeBackups = doBackup });
+			
+			var writer = new ProjectWriter(Logger, writeOptions);
 			foreach (var project in projects)
 			{
 				writer.TryWrite(project);

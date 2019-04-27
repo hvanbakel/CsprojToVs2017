@@ -52,9 +52,11 @@ namespace Project2015To2017.Migrate2017.Tool
 		public void ExecuteMigrate(
 			IReadOnlyCollection<string> items,
 			bool noBackup,
-			ConversionOptions conversionOptions)
+			ConversionOptions conversionOptions
+			)
 		{
-			facility.ExecuteMigrate(items, noBackup, conversionOptions);
+			var writeOptions = new ProjectWriteOptions { MakeBackups = !noBackup };
+			facility.ExecuteMigrate(items, conversionOptions, writeOptions);
 		}
 
 		public void ExecuteAnalyze(
