@@ -6,7 +6,7 @@ namespace Project2015To2017.Writing
 	public class ProjectWriteOptions
 	{
 		/// <summary>
-		/// Make backups of changed and deleted files before changing/deleting them
+		/// Make backup copies of files before their modification or deletion
 		/// </summary>
 		public bool MakeBackups { get; set; }
 
