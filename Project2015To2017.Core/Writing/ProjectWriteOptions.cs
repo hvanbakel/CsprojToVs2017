@@ -19,6 +19,6 @@ namespace Project2015To2017.Writing
 		/// <summary>
 		/// The operation to use to checkout a file (if required)
 		/// </summary>
-		public Action<FileSystemInfo> CheckoutOperation { get; set; } = _ => {};
-}
+		public Action<FileSystemInfo> CheckoutOperation { get; set; } = _ => { };
+	}
 }
