@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-    <RootNamespace>Project2015To2017.Migrate2017</RootNamespace>
+	<TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+	<RootNamespace>Project2015To2017.Migrate2017</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Project2015To2017.Core\Project2015To2017.Core.csproj" />
+	<ProjectReference Include="..\Project2015To2017.Core\Project2015To2017.Core.csproj" />
   </ItemGroup>
 
 </Project>
