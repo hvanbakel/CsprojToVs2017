@@ -8,138 +8,138 @@ using System.Text;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public static class ParseResultExtensions
-    {
-        public static string TextToMatch(this ParseResult source)
-        {
-            var lastToken = source.Tokens.LastOrDefault();
+	public static class ParseResultExtensions
+	{
+		public static string TextToMatch(this ParseResult source)
+		{
+			var lastToken = source.Tokens.LastOrDefault();
 
-            if (string.IsNullOrWhiteSpace(lastToken))
-            {
-                return "";
-            }
+			if (string.IsNullOrWhiteSpace(lastToken))
+			{
+				return "";
+			}
 
-            if (source.IsProgressive)
-            {
-                return lastToken;
-            }
+			if (source.IsProgressive)
+			{
+				return lastToken;
+			}
 
-            return source.UnmatchedTokens.LastOrDefault() ?? "";
-        }
+			return source.UnmatchedTokens.LastOrDefault() ?? "";
+		}
 
-        internal static Command Command(this AppliedOptionSet options) =>
-            options.FlattenBreadthFirst()
-                   .Select(a => a.Option)
-                   .OfType<Command>()
-                   .LastOrDefault();
+		internal static Command Command(this AppliedOptionSet options) =>
+			options.FlattenBreadthFirst()
+				   .Select(a => a.Option)
+				   .OfType<Command>()
+				   .LastOrDefault();
 
-        public static AppliedOption AppliedCommand(this ParseResult result)
-        {
-            var commandPath = result
-                .Command()
-                .RecurseWhileNotNull(c => c.Parent as Command)
-                .Select(c => c.Name)
-                .Reverse()
-                .ToArray();
+		public static AppliedOption AppliedCommand(this ParseResult result)
+		{
+			var commandPath = result
+				.Command()
+				.RecurseWhileNotNull(c => c.Parent as Command)
+				.Select(c => c.Name)
+				.Reverse()
+				.ToArray();
 
-            var option = result[commandPath.First()];
+			var option = result[commandPath.First()];
 
-            foreach (var commandName in commandPath.Skip(1))
-            {
-                option = option[commandName];
-            }
+			foreach (var commandName in commandPath.Skip(1))
+			{
+				option = option[commandName];
+			}
 
-            return option;
-        }
+			return option;
+		}
 
-        internal static AppliedOption CurrentOption(this ParseResult result) =>
-            result.AppliedOptions
-                  .LastOrDefault()
-                  .AllOptions()
-                  .LastOrDefault();
+		internal static AppliedOption CurrentOption(this ParseResult result) =>
+			result.AppliedOptions
+				  .LastOrDefault()
+				  .AllOptions()
+				  .LastOrDefault();
 
-        public static string Diagram(this ParseResult result)
-        {
-            var builder = new StringBuilder();
+		public static string Diagram(this ParseResult result)
+		{
+			var builder = new StringBuilder();
 
-            foreach (var o in result.AppliedOptions)
-            {
-                builder.Diagram(o);
-            }
+			foreach (var o in result.AppliedOptions)
+			{
+				builder.Diagram(o);
+			}
 
-            if (result.UnmatchedTokens.Any())
-            {
-                builder.Append("   ???-->");
+			if (result.UnmatchedTokens.Any())
+			{
+				builder.Append("   ???-->");
 
-                foreach (var error in result.UnmatchedTokens)
-                {
-                    builder.Append(" ");
-                    builder.Append(error);
-                }
-            }
+				foreach (var error in result.UnmatchedTokens)
+				{
+					builder.Append(" ");
+					builder.Append(error);
+				}
+			}
 
-            return builder.ToString();
-        }
+			return builder.ToString();
+		}
 
-        public static string Diagram(this AppliedOption option)
-        {
-            var stringbuilder = new StringBuilder();
+		public static string Diagram(this AppliedOption option)
+		{
+			var stringbuilder = new StringBuilder();
 
-            stringbuilder.Diagram(option);
+			stringbuilder.Diagram(option);
 
-            return stringbuilder.ToString();
-        }
+			return stringbuilder.ToString();
+		}
 
-        private static void Diagram(
-            this StringBuilder builder,
-            AppliedOption option)
-        {
-            builder.Append("[ ");
+		private static void Diagram(
+			this StringBuilder builder,
+			AppliedOption option)
+		{
+			builder.Append("[ ");
 
-            builder.Append(option.Option);
+			builder.Append(option.Option);
 
-            foreach (var childOption in option.AppliedOptions)
-            {
-                builder.Append(" ");
-                builder.Diagram(childOption);
-            }
+			foreach (var childOption in option.AppliedOptions)
+			{
+				builder.Append(" ");
+				builder.Diagram(childOption);
+			}
 
-            foreach (var arg in option.Arguments)
-            {
-                builder.Append(" <");
-                builder.Append(arg);
-                builder.Append(">");
-            }
+			foreach (var arg in option.Arguments)
+			{
+				builder.Append(" <");
+				builder.Append(arg);
+				builder.Append(">");
+			}
 
-            builder.Append(" ]");
-        }
+			builder.Append(" ]");
+		}
 
-        public static CommandExecutionResult Execute(this ParseResult parseResult)
-        {
-            if (parseResult == null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
+		public static CommandExecutionResult Execute(this ParseResult parseResult)
+		{
+			if (parseResult == null)
+			{
+				throw new ArgumentNullException(nameof(parseResult));
+			}
 
-            return new CommandExecutionResult(parseResult);
-        }
+			return new CommandExecutionResult(parseResult);
+		}
 
-        public static bool HasOption(
-            this ParseResult parseResult,
-            string alias)
-        {
-            if (parseResult == null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
+		public static bool HasOption(
+			this ParseResult parseResult,
+			string alias)
+		{
+			if (parseResult == null)
+			{
+				throw new ArgumentNullException(nameof(parseResult));
+			}
 
-            return parseResult.AppliedOptions.Contains(alias);
-        }
+			return parseResult.AppliedOptions.Contains(alias);
+		}
 
-        public static IEnumerable<string> Suggestions(this ParseResult parseResult) =>
-            parseResult?.CurrentOption()
-                       ?.Option
-                       ?.Suggest(parseResult) ??
-            Array.Empty<string>();
-    }
+		public static IEnumerable<string> Suggestions(this ParseResult parseResult) =>
+			parseResult?.CurrentOption()
+					   ?.Option
+					   ?.Suggest(parseResult) ??
+			Array.Empty<string>();
+	}
 }

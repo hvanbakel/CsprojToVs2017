@@ -279,10 +279,10 @@ namespace Project2015To2017.Migrate2017.Tool
 			Log.Information("Please, enter target frameworks to use (comma or space separated):");
 			Console.Out.Flush();
 			var tfms = Console.ReadLine()
-				           ?.Trim()
-				           .Split(new[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries)
-				           .Where(s => !string.IsNullOrWhiteSpace(s))
-				           .ToImmutableArray() ?? ImmutableArray<string>.Empty;
+						   ?.Trim()
+						   .Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+						   .Where(s => !string.IsNullOrWhiteSpace(s))
+						   .ToImmutableArray() ?? ImmutableArray<string>.Empty;
 
 			if (tfms.IsDefaultOrEmpty)
 			{

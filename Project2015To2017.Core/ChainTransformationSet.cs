@@ -15,7 +15,7 @@ namespace Project2015To2017
 		}
 
 		public ChainTransformationSet(params ITransformationSet[] sets)
-			: this((IReadOnlyCollection<ITransformationSet>) sets)
+			: this((IReadOnlyCollection<ITransformationSet>)sets)
 		{
 		}
 

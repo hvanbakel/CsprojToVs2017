@@ -13,7 +13,7 @@ namespace Project2015To2017.Tests
 	[TestClass]
 	public class AssemblyAttributeTransformationTest
 	{
-		private List<XElement> ProjectPropertyGroups = new [] {new XElement("PropertyGroup")}.ToList();
+		private List<XElement> ProjectPropertyGroups = new[] { new XElement("PropertyGroup") }.ToList();
 
 		private static AssemblyAttributes BaseAssemblyAttributes() =>
 			new AssemblyAttributes

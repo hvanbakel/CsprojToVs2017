@@ -87,7 +87,7 @@ namespace Project2015To2017.Reading
 
 			var tree = CSharpSyntaxTree.ParseText(text);
 
-			var root = (CompilationUnitSyntax) tree.GetRoot();
+			var root = (CompilationUnitSyntax)tree.GetRoot();
 
 			var assemblyAttributes = new AssemblyAttributes
 			{

@@ -13,7 +13,7 @@ namespace Project2015To2017
 			var all = set.Transformations(logger, conversionOptions);
 			var (normal, others) = all.Split(FilterTargetNormalTransformations);
 			var (early, late) = others.Split(x =>
-				((ITransformationWithTargetMoment) x).ExecutionMoment == TargetTransformationExecutionMoment.Early);
+				((ITransformationWithTargetMoment)x).ExecutionMoment == TargetTransformationExecutionMoment.Early);
 			var res = new List<ITransformation>(all.Count);
 			TopologicalSort(early, res, logger);
 			TopologicalSort(normal, res, logger);

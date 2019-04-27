@@ -28,7 +28,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 				.ToImmutableArray();
 
 			var packageReferences = references
-				.Select(x => new PackageReference {Id = x.name, Version = x.version})
+				.Select(x => new PackageReference { Id = x.name, Version = x.version })
 				.ToImmutableArray();
 
 			var adjustedPackageReferences = definition.PackageReferences

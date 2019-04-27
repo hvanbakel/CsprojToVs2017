@@ -23,9 +23,9 @@ namespace Project2015To2017
 			// Don't bother with arrays or properties or network paths, or those that
 			// have no slashes.
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-			    || string.IsNullOrEmpty(value)
-			    || value.StartsWith("$(", comparisonType) || value.StartsWith("@(", comparisonType)
-			    || value.StartsWith("\\\\", comparisonType))
+				|| string.IsNullOrEmpty(value)
+				|| value.StartsWith("$(", comparisonType) || value.StartsWith("@(", comparisonType)
+				|| value.StartsWith("\\\\", comparisonType))
 			{
 				return value;
 			}
@@ -35,7 +35,7 @@ namespace Project2015To2017
 
 			// Find the part of the name we want to check, that is remove quotes, if present
 			var shouldAdjust = newValue.IndexOf('/') != -1 &&
-			                   LooksLikeUnixFilePath(RemoveQuotes(newValue), baseDirectory);
+							   LooksLikeUnixFilePath(RemoveQuotes(newValue), baseDirectory);
 			return shouldAdjust ? newValue : value;
 		}
 
@@ -73,8 +73,8 @@ namespace Project2015To2017
 			const char doubleQuote = '\"';
 
 			var hasQuotes = path.Length > 2
-			                && (path[0] == singleQuote && path[endId] == singleQuote
-			                    || path[0] == doubleQuote && path[endId] == doubleQuote);
+							&& (path[0] == singleQuote && path[endId] == singleQuote
+								|| path[0] == doubleQuote && path[endId] == doubleQuote);
 
 			return hasQuotes ? path.Substring(1, endId - 1) : path;
 		}
@@ -104,8 +104,8 @@ namespace Project2015To2017
 			var shouldCheckFileOrDirectory = !shouldCheckDirectory && value.Length > 0 && value[0] == '/';
 
 			return shouldCheckDirectory &&
-			       Directory.Exists(Path.Combine(baseDirectory, value.Substring(0, directoryLength)))
-			       || shouldCheckFileOrDirectory && (File.Exists(value) || Directory.Exists(value));
+				   Directory.Exists(Path.Combine(baseDirectory, value.Substring(0, directoryLength)))
+				   || shouldCheckFileOrDirectory && (File.Exists(value) || Directory.Exists(value));
 		}
 	}
 }

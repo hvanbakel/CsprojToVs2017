@@ -21,32 +21,38 @@ namespace Project2015To2017.Definition
 			set => SetAttribute(typeof(AssemblyTitleAttribute), value);
 		}
 
-		public string Company {
+		public string Company
+		{
 			get => GetAttribute(typeof(AssemblyCompanyAttribute));
 			set => SetAttribute(typeof(AssemblyCompanyAttribute), value);
 		}
 
-		public string Product {
+		public string Product
+		{
 			get => GetAttribute(typeof(AssemblyProductAttribute));
 			set => SetAttribute(typeof(AssemblyProductAttribute), value);
 		}
 
-		public string Copyright {
+		public string Copyright
+		{
 			get => GetAttribute(typeof(AssemblyCopyrightAttribute));
 			set => SetAttribute(typeof(AssemblyCopyrightAttribute), value);
 		}
 
-		public string InformationalVersion {
+		public string InformationalVersion
+		{
 			get => GetAttribute(typeof(AssemblyInformationalVersionAttribute));
 			set => SetAttribute(typeof(AssemblyInformationalVersionAttribute), value);
 		}
 
-		public string Version {
+		public string Version
+		{
 			get => GetAttribute(typeof(AssemblyVersionAttribute));
 			set => SetAttribute(typeof(AssemblyVersionAttribute), value);
 		}
 
-		public string Description {
+		public string Description
+		{
 			get => GetAttribute(typeof(AssemblyDescriptionAttribute));
 			set => SetAttribute(typeof(AssemblyDescriptionAttribute), value);
 		}
@@ -69,12 +75,14 @@ namespace Project2015To2017.Definition
 			set => SetAttribute(typeof(NeutralResourcesLanguageAttribute), value);
 		}
 
-		public string Configuration {
+		public string Configuration
+		{
 			get => GetAttribute(typeof(AssemblyConfigurationAttribute));
 			set => SetAttribute(typeof(AssemblyConfigurationAttribute), value);
 		}
 
-		public string FileVersion {
+		public string FileVersion
+		{
 			get => GetAttribute(typeof(AssemblyFileVersionAttribute));
 			set => SetAttribute(typeof(AssemblyFileVersionAttribute), value);
 		}
@@ -164,7 +172,7 @@ namespace Project2015To2017.Definition
 
 		private static AttributeListSyntax CreateAttribute(Type attributeType, string value)
 		{
-			var root = (CompilationUnitSyntax) SyntaxFactory
+			var root = (CompilationUnitSyntax)SyntaxFactory
 				.ParseSyntaxTree($"[assembly: {attributeType.Name}(\"{value}\")]")
 				.GetRoot();
 

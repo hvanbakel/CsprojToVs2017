@@ -117,18 +117,18 @@ namespace Project2015To2017
 		/// Returns true if the two paths have the same root
 		/// </summary>
 		private static bool AreRootsEqual(string first, string second, StringComparison comparisonType)
-        {
-            int firstRootLength = GetRootLength(first.AsSpan());
-            int secondRootLength = GetRootLength(second.AsSpan());
+		{
+			int firstRootLength = GetRootLength(first.AsSpan());
+			int secondRootLength = GetRootLength(second.AsSpan());
 
-            return firstRootLength == secondRootLength
-                && string.Compare(
-                    strA: first,
-                    indexA: 0,
-                    strB: second,
-                    indexB: 0,
-                    length: firstRootLength,
-                    comparisonType: comparisonType) == 0;
+			return firstRootLength == secondRootLength
+				&& string.Compare(
+					strA: first,
+					indexA: 0,
+					strB: second,
+					indexB: 0,
+					length: firstRootLength,
+					comparisonType: comparisonType) == 0;
 		}
 
 		// \\?\, \\.\, \??\
@@ -149,10 +149,10 @@ namespace Project2015To2017
 			// While paths like "//?/C:/" will work, they're treated the same as "\\.\" paths.
 			// Skipping of normalization will *only* occur if back slashes ('\') are used.
 			return path.Length >= DevicePrefixLength
-			       && path[0] == '\\'
-			       && (path[1] == '\\' || path[1] == '?')
-			       && path[2] == '?'
-			       && path[3] == '\\';
+				   && path[0] == '\\'
+				   && (path[1] == '\\' || path[1] == '?')
+				   && path[2] == '?'
+				   && path[3] == '\\';
 		}
 
 		/// <summary>
@@ -163,14 +163,14 @@ namespace Project2015To2017
 			// If the path begins with any two separators is will be recognized and normalized and prepped with
 			// "\??\" for internal usage correctly. "\??\" is recognized and handled, "/??/" is not.
 			return IsExtended(path)
-			       ||
-			       (
-				       path.Length >= DevicePrefixLength
-				       && IsDirectorySeparator(path[0])
-				       && IsDirectorySeparator(path[1])
-				       && (path[2] == '.' || path[2] == '?')
-				       && IsDirectorySeparator(path[3])
-			       );
+				   ||
+				   (
+					   path.Length >= DevicePrefixLength
+					   && IsDirectorySeparator(path[0])
+					   && IsDirectorySeparator(path[1])
+					   && (path[2] == '.' || path[2] == '?')
+					   && IsDirectorySeparator(path[3])
+				   );
 		}
 
 		/// <summary>
@@ -179,11 +179,11 @@ namespace Project2015To2017
 		private static bool IsDeviceUNC(ReadOnlySpan<char> path)
 		{
 			return path.Length >= UncExtendedPrefixLength
-			       && IsDevice(path)
-			       && IsDirectorySeparator(path[7])
-			       && path[4] == 'U'
-			       && path[5] == 'N'
-			       && path[6] == 'C';
+				   && IsDevice(path)
+				   && IsDirectorySeparator(path[7])
+				   && path[4] == 'U'
+				   && path[5] == 'N'
+				   && path[6] == 'C';
 		}
 
 		/// <summary>
@@ -245,8 +245,8 @@ namespace Project2015To2017
 					i++;
 			}
 			else if (pathLength >= 2
-			         && path[1] == VolumeSeparatorChar
-			         && IsValidDriveChar(path[0]))
+					 && path[1] == VolumeSeparatorChar
+					 && IsValidDriveChar(path[0]))
 			{
 				// Valid drive specified path ("C:", "D:", etc.)
 				i = 2;
@@ -265,16 +265,16 @@ namespace Project2015To2017
 		/// just spaces ((char)32).
 		/// </summary>
 		private static bool IsEffectivelyEmpty(ReadOnlySpan<char> path)
-        {
-            if (path.IsEmpty)
-                return true;
+		{
+			if (path.IsEmpty)
+				return true;
 
-            foreach (char c in path)
-            {
-                if (c != ' ')
-                    return false;
-            }
-            return true;
+			foreach (char c in path)
+			{
+				if (c != ' ')
+					return false;
+			}
+			return true;
 		}
 
 		/// <summary>
@@ -299,7 +299,7 @@ namespace Project2015To2017
 
 			// Or we're a full string and equal length or match to a separator
 			if (commonChars == first.Length
-			    && (commonChars == second.Length || IsDirectorySeparator(second[commonChars])))
+				&& (commonChars == second.Length || IsDirectorySeparator(second[commonChars])))
 				return commonChars;
 
 			if (commonChars == second.Length && IsDirectorySeparator(first[commonChars]))
@@ -330,7 +330,7 @@ namespace Project2015To2017
 				char* rightEnd = r + second.Length;
 
 				while (l != leftEnd && r != rightEnd
-				                    && (*l == *r || (ignoreCase && char.ToUpperInvariant((*l)) == char.ToUpperInvariant((*r)))))
+									&& (*l == *r || (ignoreCase && char.ToUpperInvariant((*l)) == char.ToUpperInvariant((*r)))))
 				{
 					commonChars++;
 					l++;

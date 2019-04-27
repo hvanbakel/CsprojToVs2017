@@ -3,12 +3,12 @@
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public enum TokenType
-    {
-        Argument,
-        Command,
-        Option,
-        EndOfArguments,
-        Operand
-    }
+	public enum TokenType
+	{
+		Argument,
+		Command,
+		Option,
+		EndOfArguments,
+		Operand
+	}
 }

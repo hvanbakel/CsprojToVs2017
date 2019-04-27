@@ -45,7 +45,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 			logger.LogDebug($"Removed {count} XAML items thanks to MSBuild.Sdk.Extras defaults");
 		}
 
-		private static readonly string[] FilteredTags = {"Page", "ApplicationDefinition", "Compile", "None"};
+		private static readonly string[] FilteredTags = { "Page", "ApplicationDefinition", "Compile", "None" };
 		private readonly ILogger logger;
 
 		private static bool XamlPageFilter(XElement x, Project definition)
@@ -100,7 +100,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 				}
 
 				return link.EndsWith(".xaml.cs", StringComparison.OrdinalIgnoreCase)
-				       && x.Descendants().All(VerifyDefaultXamlCompileItem);
+					   && x.Descendants().All(VerifyDefaultXamlCompileItem);
 			}
 
 			if (update != null)
@@ -116,7 +116,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 				var lastGenOutput = x.Element("LastGenOutput")?.Value ?? ".cs";
 
 				return string.Equals(generator, "SettingsSingleFileGenerator")
-				       && lastGenOutput.EndsWith(".cs", StringComparison.OrdinalIgnoreCase);
+					   && lastGenOutput.EndsWith(".cs", StringComparison.OrdinalIgnoreCase);
 			}
 
 			return include.EndsWith(".xaml", StringComparison.OrdinalIgnoreCase);
