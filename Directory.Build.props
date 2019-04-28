@@ -10,8 +10,8 @@
 		<Copyright>Copyright Hans van Bakel</Copyright>
 		<Description>Tool for converting a MSBuild project file to VS2017 format and beyond.</Description>
 		<PackageTags>dotnet csproj fsproj vbproj msbuild conversion vs2015 vs14 vs15 vs2017</PackageTags>
-		<Version>4.0.0</Version>
-		<AssemblyVersion>4.0.0.0</AssemblyVersion>
+		<Version>4.1.0-beta.2</Version>
+		<AssemblyVersion>4.1.0.0</AssemblyVersion>
 		
 		<!-- SourceLink -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
