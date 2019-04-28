@@ -254,6 +254,7 @@ namespace Project2015To2017.Writing
 					{
 						reference.Add(new XAttribute("Version", packageReference.Version));
 					}
+					
 					if (packageReference.IsDevelopmentDependency)
 					{
 						reference.Add(new XElement("PrivateAssets", "all"));
