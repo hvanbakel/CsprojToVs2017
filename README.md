@@ -118,3 +118,30 @@ namespace Acme.ProjectMigration
     }
 }
 ```
+
+To provide a custom set of project transforms, provide these to the `ExecuteMigrate` function call:
+
+```c#
+var preTransforms = new BasicTransformationSet(
+							new MyCustomPreTransform1(),
+							new MyCustomPreTransform2()
+						);
+
+var postTransforms = new BasicTransformationSet(
+							new MyCustomPostTransform1(),
+							new MyCustomPostTransform2()
+						);
+
+var customTransforms = new ChainTransformationSet(
+								preTransforms,
+								Vs15TransformationSet.Instance,
+								postTransforms
+							);
+
+facility.ExecuteMigrate(
+        new[] { @"c:\full-path-to-solution-or-project-file.sln" },
+        customTransforms,
+        new ConversionOptions(),
+        new ProjectWriteOptions()
+    );
+```
