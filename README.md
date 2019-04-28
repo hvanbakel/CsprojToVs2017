@@ -70,3 +70,51 @@ In case you need to specify multiple values for option, specify it multiple time
 ```
 > dotnet migrate-2017 migrate -t net40 -t net45
 ```
+
+## Use as a NuGet library from your own code
+
+For additional control of the project migration process, you can use the NuGet packages directly from your code.
+
+Add the `Project2015To2017.Migrate2017.Library` package to your project e.g.
+
+```
+dotnet add package Project2015To2017.Migrate2017.Library
+```
+
+Then, to apply the default project migration:
+
+```c#
+//We use Serilog, but you can use any logging provider
+using Serilog;
+using Serilog.Extensions.Logging;
+
+using Project2015To2017;
+using Project2015To2017.Migrate2017;
+using Project2015To2017.Writing;
+
+namespace Acme.ProjectMigration
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var logger = new LoggerConfiguration()
+                                .Enrich.FromLogContext()
+                                .MinimumLevel.Debug()
+                                .WriteTo.Console()
+                                .CreateLogger();
+
+            var genericLogger = new SerilogLoggerProvider(logger).CreateLogger(nameof(Serilog));
+
+            var facility = new Facility(genericLogger);
+
+            facility.ExecuteMigrate(
+                    new[] { @"c:\full-path-to-solution-or-project-file.sln" },
+                    Vs15TransformationSet.Instance, //the default set of project file transformations
+                    new ConversionOptions(), //control over things like target framework and AssemblyInfo treatment
+                    new ProjectWriteOptions() //control over backup creation and custom source control logic
+                );
+        }
+    }
+}
+```
