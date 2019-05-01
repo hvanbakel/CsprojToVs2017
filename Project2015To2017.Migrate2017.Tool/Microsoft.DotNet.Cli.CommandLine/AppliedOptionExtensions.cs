@@ -7,40 +7,40 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public static class AppliedOptionExtensions
-    {
-        public static IEnumerable<OptionError> ValidateAll(
-            this AppliedOption option) =>
-            new[] { option.Validate() }
-                .Concat(
-                    option.AppliedOptions
-                          .SelectMany(ValidateAll))
-                .Where(o => o != null);
+	public static class AppliedOptionExtensions
+	{
+		public static IEnumerable<OptionError> ValidateAll(
+			this AppliedOption option) =>
+			new[] { option.Validate() }
+				.Concat(
+					option.AppliedOptions
+						  .SelectMany(ValidateAll))
+				.Where(o => o != null);
 
-        internal static IEnumerable<AppliedOption> FlattenBreadthFirst(
-            this IEnumerable<AppliedOption> options)
-        {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+		internal static IEnumerable<AppliedOption> FlattenBreadthFirst(
+			this IEnumerable<AppliedOption> options)
+		{
+			if (options == null)
+			{
+				throw new ArgumentNullException(nameof(options));
+			}
 
-            foreach (var item in options.FlattenBreadthFirst(o => o.AppliedOptions))
-            {
-                yield return item;
-            }
-        }
+			foreach (var item in options.FlattenBreadthFirst(o => o.AppliedOptions))
+			{
+				yield return item;
+			}
+		}
 
-        public static bool HasOption(
-            this AppliedOption option,
-            string alias)
-        {
-            if (option == null)
-            {
-                throw new ArgumentNullException(nameof(option));
-            }
+		public static bool HasOption(
+			this AppliedOption option,
+			string alias)
+		{
+			if (option == null)
+			{
+				throw new ArgumentNullException(nameof(option));
+			}
 
-            return option.AppliedOptions.Contains(alias);
-        }
-    }
+			return option.AppliedOptions.Contains(alias);
+		}
+	}
 }

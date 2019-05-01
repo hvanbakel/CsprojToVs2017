@@ -5,18 +5,18 @@ using System;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class Token
-    {
-        public Token(string value, TokenType type)
-        {
-            Value = value ?? "";
-            Type = type;
-        }
+	public class Token
+	{
+		public Token(string value, TokenType type)
+		{
+			Value = value ?? "";
+			Type = type;
+		}
 
-        public string Value { get; }
+		public string Value { get; }
 
-        public TokenType Type { get; }
+		public TokenType Type { get; }
 
-        public override string ToString() => $"{Type}: {Value}";
-    }
+		public override string ToString() => $"{Type}: {Value}";
+	}
 }

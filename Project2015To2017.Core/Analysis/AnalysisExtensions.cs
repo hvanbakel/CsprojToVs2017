@@ -29,7 +29,7 @@ namespace Project2015To2017.Analysis
 				{
 					Location = new DiagnosticLocation(self.Location)
 					{
-						SourceLine = (uint) elementOnLine.LineNumber
+						SourceLine = (uint)elementOnLine.LineNumber
 					}
 				};
 			}

@@ -19,7 +19,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 			var existingPackageReferences = definition.PackageReferences;
 
 			if (definition.Type != ApplicationType.TestProject ||
-			    existingPackageReferences.Any(x => x.Id == "Microsoft.NET.Test.Sdk")) return;
+				existingPackageReferences.Any(x => x.Id == "Microsoft.NET.Test.Sdk")) return;
 
 			var testReferences = new[]
 			{

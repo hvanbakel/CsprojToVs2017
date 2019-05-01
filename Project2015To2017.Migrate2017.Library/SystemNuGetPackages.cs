@@ -137,7 +137,7 @@ namespace Project2015To2017.Migrate2017
 
 		private const string MaxTargetFramework = "net499";
 		private const string MaxTargetStandard = "netstandard9.9";
-		private static readonly string[] IncompatiblePrefixes = {"net1", "net2", "net3", "net40"};
+		private static readonly string[] IncompatiblePrefixes = { "net1", "net2", "net3", "net40" };
 
 		public static IReadOnlyList<(string name, string version, AssemblyReference reference)>
 			DetectUpgradeableReferences(Project project)
@@ -159,12 +159,12 @@ namespace Project2015To2017.Migrate2017
 				}
 
 				if (framework.StartsWith("netstandard", comparison) &&
-				    string.Compare(minTargetStandard, framework, comparison) > 0)
+					string.Compare(minTargetStandard, framework, comparison) > 0)
 				{
 					minTargetStandard = framework;
 				}
 				else if (framework.StartsWith("net4", comparison) &&
-				         string.Compare(minTargetFramework, framework, comparison) > 0)
+						 string.Compare(minTargetFramework, framework, comparison) > 0)
 				{
 					minTargetFramework = framework;
 				}

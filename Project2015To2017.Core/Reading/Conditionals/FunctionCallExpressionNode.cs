@@ -6,39 +6,39 @@ using System.Collections.Generic;
 
 namespace Project2015To2017.Reading.Conditionals
 {
-    /// <summary>
-    /// Evaluates a function expression, such as "Exists('foo')"
-    /// </summary>
-    internal sealed class FunctionCallExpressionNode : OperatorExpressionNode
-    {
-        private readonly List<GenericExpressionNode> _arguments;
-        public readonly string _functionName;
+	/// <summary>
+	/// Evaluates a function expression, such as "Exists('foo')"
+	/// </summary>
+	internal sealed class FunctionCallExpressionNode : OperatorExpressionNode
+	{
+		private readonly List<GenericExpressionNode> _arguments;
+		public readonly string _functionName;
 
-        internal FunctionCallExpressionNode(string functionName, List<GenericExpressionNode> arguments)
-        {
+		internal FunctionCallExpressionNode(string functionName, List<GenericExpressionNode> arguments)
+		{
 			this._functionName = functionName;
 			this._arguments = arguments;
-        }
+		}
 
-        /// <summary>
-        /// Evaluate node as boolean
-        /// </summary>
-        internal override bool BoolEvaluate(IConditionEvaluationState state)
-        {
-	        if (String.Compare(this._functionName, "exists", StringComparison.OrdinalIgnoreCase) == 0)
-            {
-                return true;
-            }
+		/// <summary>
+		/// Evaluate node as boolean
+		/// </summary>
+		internal override bool BoolEvaluate(IConditionEvaluationState state)
+		{
+			if (String.Compare(this._functionName, "exists", StringComparison.OrdinalIgnoreCase) == 0)
+			{
+				return true;
+			}
 
-	        if (String.Compare(this._functionName, "HasTrailingSlash", StringComparison.OrdinalIgnoreCase) == 0)
-	        {
-		        // often used to append slash to path so return false to enable this codepath
-		        return false;
-	        }
+			if (String.Compare(this._functionName, "HasTrailingSlash", StringComparison.OrdinalIgnoreCase) == 0)
+			{
+				// often used to append slash to path so return false to enable this codepath
+				return false;
+			}
 
-	        // We haven't implemented any other "functions"
+			// We haven't implemented any other "functions"
 
-	        return false;
-        }
-    }
+			return false;
+		}
+	}
 }

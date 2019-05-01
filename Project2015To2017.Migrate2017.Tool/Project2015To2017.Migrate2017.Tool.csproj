@@ -1,28 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks Condition="$(Pack) != 'true'">net461;netcoreapp2.1</TargetFrameworks>
-		<TargetFramework Condition="$(Pack) == 'true'">netcoreapp2.1</TargetFramework>
-		<PackAsTool Condition="$(Pack) == 'true'">True</PackAsTool>
+  <PropertyGroup>
+	<TargetFrameworks Condition="$(Pack) != 'true'">net461;netcoreapp2.1</TargetFrameworks>
+	<TargetFramework Condition="$(Pack) == 'true'">netcoreapp2.1</TargetFramework>
+	<PackAsTool Condition="$(Pack) == 'true'">True</PackAsTool>
 
-		<AssemblyName>dotnet-migrate-2017</AssemblyName>
-		<PackageId>Project2015To2017.Migrate2017.Tool</PackageId>
-		<Product>Project2015To2017.Migrate2017.Tool</Product>
-		<OutputType>Exe</OutputType>
-	</PropertyGroup>
+	<AssemblyName>dotnet-migrate-2017</AssemblyName>
+	<PackageId>Project2015To2017.Migrate2017.Tool</PackageId>
+	<Product>Project2015To2017.Migrate2017.Tool</Product>
+	<OutputType>Exe</OutputType>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="DotNet.Glob" Version="2.1.1" />
-		<PackageReference Include="Serilog" Version="2.8.0" />
-		<PackageReference Include="Serilog.Enrichers.Demystify" Version="0.1.0-dev-00016" />
-		<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
-		<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-	</ItemGroup>
+  <ItemGroup>
+	<PackageReference Include="DotNet.Glob" Version="2.1.1" />
+	<PackageReference Include="Serilog" Version="2.8.0" />
+	<PackageReference Include="Serilog.Enrichers.Demystify" Version="0.1.0-dev-00016" />
+	<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
+	<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+  </ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\Project2015To2017.Core\Project2015To2017.Core.csproj" />
-	  <ProjectReference Include="..\Project2015To2017.Migrate2017.Library\Project2015To2017.Migrate2017.Library.csproj" />
-	  <ProjectReference Include="..\Project2015To2017\Project2015To2017.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+	<ProjectReference Include="..\Project2015To2017.Core\Project2015To2017.Core.csproj" />
+	<ProjectReference Include="..\Project2015To2017.Migrate2017.Library\Project2015To2017.Migrate2017.Library.csproj" />
+	<ProjectReference Include="..\Project2015To2017\Project2015To2017.csproj" />
+  </ItemGroup>
 
 </Project>

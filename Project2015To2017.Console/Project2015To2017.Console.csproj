@@ -1,18 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>netcoreapp2.1</TargetFramework>
-		<PackAsTool>True</PackAsTool>
+  <PropertyGroup>
+	<TargetFramework>netcoreapp2.1</TargetFramework>
+	<PackAsTool>True</PackAsTool>
 
-		<PackageId>Project2015To2017.Cli</PackageId>
-		<Product>Project2015To2017.Cli</Product>
-		<OutputType>Exe</OutputType>
-		<ToolCommandName>csproj-to-2017</ToolCommandName>
-	</PropertyGroup>
+	<PackageId>Project2015To2017.Cli</PackageId>
+	<Product>Project2015To2017.Cli</Product>
+	<OutputType>Exe</OutputType>
+	<ToolCommandName>csproj-to-2017</ToolCommandName>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="CommandLineParser" Version="2.4.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-	</ItemGroup>
+  <ItemGroup>
+	<PackageReference Include="CommandLineParser" Version="2.4.3" />
+	<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
+  </ItemGroup>
 
 </Project>

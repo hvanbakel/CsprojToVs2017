@@ -143,7 +143,8 @@ namespace Project2015To2017.Migrate2017.Transforms
 			switch (tagName)
 			{
 				case "Import"
-					when include != null: return true;
+					when include != null:
+					return true;
 				case "Compile":
 				case "EmbeddedResource"
 					when include != null && include.EndsWith(".resx", StringComparison.OrdinalIgnoreCase):
@@ -157,7 +158,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 
 			// Visual Studio Test Projects
 			if (tagName == "Service" && string.Equals(include,
-				    "{82a7f48d-3b50-4b1e-b82e-3ada8210c358}", StringComparison.OrdinalIgnoreCase))
+					"{82a7f48d-3b50-4b1e-b82e-3ada8210c358}", StringComparison.OrdinalIgnoreCase))
 			{
 				return true;
 			}

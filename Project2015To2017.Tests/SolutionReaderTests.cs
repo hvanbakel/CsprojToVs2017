@@ -13,7 +13,7 @@ namespace Project2015To2017.Tests
 		{
 			var testFile = @"TestFiles/Solutions/sampleSolution.testsln";
 
-			var logger = new DummyLogger {MinimumLogLevel = LogLevel.Warning};
+			var logger = new DummyLogger { MinimumLogLevel = LogLevel.Warning };
 
 			SolutionReader.Instance.Read(testFile, logger);
 

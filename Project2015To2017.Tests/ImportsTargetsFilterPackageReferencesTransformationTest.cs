@@ -20,7 +20,7 @@ namespace Project2015To2017.Tests
 			//Then attempt to clear any referencing the nuget packages folder
 			transformation.Transform(project);
 
-			var expectedRemaining = new []
+			var expectedRemaining = new[]
 			{
 				@"<Import Project=""C:\SomeTargets.props"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" />",
 				@"<Import Project=""C:\SomeTargets.targets"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" />"

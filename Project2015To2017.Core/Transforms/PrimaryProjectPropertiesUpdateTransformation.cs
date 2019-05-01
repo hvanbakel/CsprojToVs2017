@@ -17,7 +17,7 @@ namespace Project2015To2017.Transforms
 			{
 				// ignore default "Debug;Release" configuration set
 				if (configurations.Count != 2 || !configurations.Contains("Debug") ||
-				    !configurations.Contains("Release"))
+					!configurations.Contains("Release"))
 				{
 					project.SetProperty("Configurations", string.Join(";", configurations));
 				}

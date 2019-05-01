@@ -55,7 +55,7 @@ namespace Project2015To2017.Definition
 
 			var (unconditional, conditional) = project.PropertyAll(name);
 			return unconditional.LastOrDefault()
-			       ?? (tryConditional ? conditional.Select(x => x.element).LastOrDefault() : null);
+				   ?? (tryConditional ? conditional.Select(x => x.element).LastOrDefault() : null);
 		}
 
 		public static IEnumerable<(Guid guid, XElement source)> IterateProjectTypeGuids(this Project project)
@@ -71,7 +71,7 @@ namespace Project2015To2017.Definition
 			{
 				// parse the CSV list
 				foreach (var guid in element.Value
-					.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries)
+					.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
 					.Select(x =>
 						Guid.TryParse(x.Trim(), out var res)
 							? res
@@ -132,14 +132,14 @@ namespace Project2015To2017.Definition
 		public static IEnumerable<XElement> AllUnconditional(this PropertyFindResult self)
 		{
 			return self.LastUnconditionalElement != null
-				? self.OtherUnconditionalElements.Concat(new[] {self.LastUnconditionalElement})
+				? self.OtherUnconditionalElements.Concat(new[] { self.LastUnconditionalElement })
 				: Array.Empty<XElement>();
 		}
 
 		public static IEnumerable<XElement> AllConditional(this PropertyFindResult self)
 		{
 			return self.LastConditionalElement != null
-				? self.OtherConditionalElements.Concat(new[] {self.LastConditionalElement})
+				? self.OtherConditionalElements.Concat(new[] { self.LastConditionalElement })
 				: Array.Empty<XElement>();
 		}
 

@@ -46,7 +46,7 @@ namespace Project2015To2017.Reading
 
 			// Ref.: https://www.codeproject.com/Reference/720512/List-of-Visual-Studio-Project-Type-GUIDs
 			if (project.PropertyGroups.ElementsAnyNamespace("TestProjectType").Any() ||
-			    project.IterateProjectTypeGuids().Any(x => x.guid == TestProjectTypeGuid))
+				project.IterateProjectTypeGuids().Any(x => x.guid == TestProjectTypeGuid))
 			{
 				project.Type = ApplicationType.TestProject;
 			}
@@ -143,14 +143,14 @@ namespace Project2015To2017.Reading
 				return last.Contains("$") ? null : last;
 			}
 
-			IReadOnlyList<string> ProcessTargetFrameworkVersion(string s) => new[] {ToTargetFramework(s)};
+			IReadOnlyList<string> ProcessTargetFrameworkVersion(string s) => new[] { ToTargetFramework(s) };
 
 			IReadOnlyList<string> ProcessTargetFrameworks(string s) => s
-				.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries)
+				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
 				.Select(x => x.Trim())
 				.ToImmutableArray();
 
-			IReadOnlyList<string> ProcessTargetFramework(string s) => new[] {s.Trim()};
+			IReadOnlyList<string> ProcessTargetFramework(string s) => new[] { s.Trim() };
 		}
 
 		private static (List<string> configurations, List<string> platforms)
@@ -195,7 +195,7 @@ namespace Project2015To2017.Reading
 
 			string[] ParseFromProperty(string name) => project.Property(name)
 				?.Value
-				.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		internal static void ReadPropertyGroups(Project project)

@@ -7,35 +7,35 @@ using static Microsoft.DotNet.Cli.CommandLine.Accept;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class Command : Option
-    {
-        public Command(
-            string name,
-            string help,
-            Option[] options = null,
-            ArgumentsRule arguments = null,
-            bool treatUnmatchedTokensAsErrors = true) :
-            base(new[] { name }, help, arguments, options)
-        {
-            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-        }
+	public class Command : Option
+	{
+		public Command(
+			string name,
+			string help,
+			Option[] options = null,
+			ArgumentsRule arguments = null,
+			bool treatUnmatchedTokensAsErrors = true) :
+			base(new[] { name }, help, arguments, options)
+		{
+			TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+		}
 
-        public Command(
-            string name,
-            string help,
-            Command[] subcommands) :
-            base(new[] { name }, help, options: subcommands)
-        {
-            var commandNames = subcommands.SelectMany(o => o.Aliases).ToArray();
+		public Command(
+			string name,
+			string help,
+			Command[] subcommands) :
+			base(new[] { name }, help, options: subcommands)
+		{
+			var commandNames = subcommands.SelectMany(o => o.Aliases).ToArray();
 
-            ArgumentsRule =
-                ExactlyOneCommandRequired()
-                    .WithSuggestionsFrom(commandNames)
-                    .And(ArgumentsRule);
-        }
+			ArgumentsRule =
+				ExactlyOneCommandRequired()
+					.WithSuggestionsFrom(commandNames)
+					.And(ArgumentsRule);
+		}
 
-        internal override bool IsCommand => true;
+		internal override bool IsCommand => true;
 
-        public bool TreatUnmatchedTokensAsErrors { get; } = true;
-    }
+		public bool TreatUnmatchedTokensAsErrors { get; } = true;
+	}
 }

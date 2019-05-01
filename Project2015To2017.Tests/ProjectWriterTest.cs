@@ -135,7 +135,7 @@ namespace Project2015To2017.Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				PropertyGroups = new[] {new XElement("PropertyGroup")},
+				PropertyGroups = new[] { new XElement("PropertyGroup") },
 				FilePath = new FileInfo("test.cs")
 			});
 
@@ -149,7 +149,7 @@ namespace Project2015To2017.Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				PropertyGroups = new[] {new XElement("PropertyGroup", new XElement("DelaySign", "true"))},
+				PropertyGroups = new[] { new XElement("PropertyGroup", new XElement("DelaySign", "true")) },
 				FilePath = new FileInfo("test.cs")
 			});
 
@@ -164,7 +164,7 @@ namespace Project2015To2017.Tests
 			var writer = new ProjectWriter();
 			var xmlNode = writer.CreateXml(new Project
 			{
-				PropertyGroups = new[] {new XElement("PropertyGroup", new XElement("DelaySign", "false"))},
+				PropertyGroups = new[] { new XElement("PropertyGroup", new XElement("DelaySign", "false")) },
 				FilePath = new FileInfo("test.cs")
 			});
 

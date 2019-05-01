@@ -19,7 +19,7 @@ namespace Project2015To2017.Reading
 		public PackageConfiguration Read(FileInfo projectFile)
 		{
 			var nuspecFiles = projectFile.Directory
-										 .EnumerateFiles("*.nuspec", SearchOption.TopDirectoryOnly)								
+										 .EnumerateFiles("*.nuspec", SearchOption.TopDirectoryOnly)
 										 .ToArray();
 
 			if (nuspecFiles.Length == 0)
@@ -90,7 +90,8 @@ namespace Project2015To2017.Reading
 									   ?.Elements(ns + "dependency")
 										.ToList();
 
-			var packageConfig = new PackageConfiguration {
+			var packageConfig = new PackageConfiguration
+			{
 				Id = id,
 				Version = version,
 				Authors = GetElement(metadata, ns + "authors"),

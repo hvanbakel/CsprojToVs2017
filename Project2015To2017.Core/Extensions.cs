@@ -93,11 +93,11 @@ namespace Project2015To2017
 		{
 			return new XElement(e.Name.LocalName,
 				(from n in e.Nodes()
-					select ((n is XElement element) ? RemoveAllNamespaces(element) : n)),
+				 select ((n is XElement element) ? RemoveAllNamespaces(element) : n)),
 				(e.HasAttributes)
 					? (from a in e.Attributes()
-						where (!a.IsNamespaceDeclaration)
-						select new XAttribute(a.Name.LocalName, a.Value))
+					   where (!a.IsNamespaceDeclaration)
+					   select new XAttribute(a.Name.LocalName, a.Value))
 					: null);
 		}
 
