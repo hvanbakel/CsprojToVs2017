@@ -90,7 +90,7 @@ namespace Project2015To2017.Transforms
 				var parentConditionConfigurationLower = parentConditionConfiguration?.ToLowerInvariant();
 				var isDebugOnly = parentConditionHasConfiguration && parentConditionConfigurationLower == "debug";
 				var isReleaseOnly = parentConditionHasConfiguration &&
-				                    parentConditionConfigurationLower == "release";
+									parentConditionConfigurationLower == "release";
 
 				var tagLocalName = child.Name.LocalName;
 				var valueLower = child.Value.ToLowerInvariant();
@@ -157,12 +157,12 @@ namespace Project2015To2017.Transforms
 					case "TargetRuntime" when ValidateDefaultValue("managed"):
 					case "Utf8Output" when ValidateDefaultValue("true"):
 					case "PlatformName" when ValidateDefaultValue("$(platform)")
-					                         ||
-					                         (
-						                         parentConditionHasPlatform
-						                         &&
-						                         ValidateDefaultValue(parentConditionPlatformLower)
-					                         ):
+											 ||
+											 (
+												 parentConditionHasPlatform
+												 &&
+												 ValidateDefaultValue(parentConditionPlatformLower)
+											 ):
 					case "RestorePackages" when ValidateDefaultValue("true"):
 					case "SchemaVersion" when ValidateDefaultValue("2.0"):
 					case "AssemblyVersion" when ValidateDefaultVersion():
@@ -170,37 +170,37 @@ namespace Project2015To2017.Transforms
 					case "Version" when ValidateDefaultValue("1.0.0"):
 					// Conditional platform default values
 					case "PlatformTarget" when parentConditionHasPlatform
-					                           && child.Value == parentConditionPlatform
-					                           && !hasGlobalOverride:
+											   && child.Value == parentConditionPlatform
+											   && !hasGlobalOverride:
 					// Conditional configuration (Debug/Release) default values
 					case "DefineConstants" when isDebugOnly
-					                            && ValidateDefaultConstants(valueLower, "debug", "trace")
-					                            && !hasGlobalOverride:
+												&& ValidateDefaultConstants(valueLower, "debug", "trace")
+												&& !hasGlobalOverride:
 					case "DefineConstants" when isReleaseOnly
-					                            && ValidateDefaultConstants(valueLower, "trace")
-					                            && !hasGlobalOverride:
+												&& ValidateDefaultConstants(valueLower, "trace")
+												&& !hasGlobalOverride:
 					case "Optimize" when isDebugOnly && valueLower == "false" && !hasGlobalOverride:
 					case "Optimize" when isReleaseOnly && valueLower == "true" && !hasGlobalOverride:
 					case "DebugSymbols" when isDebugOnly && valueLower == "true" && !hasGlobalOverride:
 					// Default project values for Platform and Configuration
 					case "Platform" when ValidateEmptyConditionValue()
-					                     && valueLower == "anycpu":
+										 && valueLower == "anycpu":
 					case "Configuration" when ValidateEmptyConditionValue()
-					                          && valueLower == "debug":
+											  && valueLower == "debug":
 					case "Platforms" when !hasParentCondition
-					                      && ValidateDefaultConstants(valueLower, "anycpu"):
+										  && ValidateDefaultConstants(valueLower, "anycpu"):
 					case "Configurations" when !hasParentCondition
-					                           && ValidateDefaultConstants(valueLower, "debug", "release"):
+											   && ValidateDefaultConstants(valueLower, "debug", "release"):
 					// Extra ProjectName duplicates
 					case "RootNamespace" when IsDefaultProjectNameValued():
 					case "AssemblyName" when IsDefaultProjectNameValued():
 					case "TargetName" when IsDefaultProjectNameValued():
 					case "ProjectGuid" when ProjectGuidMatchesSolutionProjectGuid():
 					case "Service" when IncludeMatchesSpecificGuid():
-					{
-						removeQueue.Add(child);
-						break;
-					}
+						{
+							removeQueue.Add(child);
+							break;
+						}
 				}
 
 				if (parentConditionHasConfiguration || parentConditionHasPlatform)
@@ -211,11 +211,11 @@ namespace Project2015To2017.Transforms
 						case "IntermediateOutputPath":
 						case "DocumentationFile":
 						case "CodeAnalysisRuleSet":
-						{
-							child.Value = ReplaceWithPlaceholders(child.Value);
+							{
+								child.Value = ReplaceWithPlaceholders(child.Value);
 
-							break;
-						}
+								break;
+							}
 					}
 				}
 
@@ -223,7 +223,7 @@ namespace Project2015To2017.Transforms
 				bool ValidateDefaultValue(string @default)
 				{
 					return (!hasParentCondition && valueLower == @default) ||
-					       (hasParentCondition && ValidateConditionedDefaultValue(@default));
+						   (hasParentCondition && ValidateConditionedDefaultValue(@default));
 				}
 
 				bool ValidateConditionedDefaultValue(string @default)
@@ -234,9 +234,9 @@ namespace Project2015To2017.Transforms
 				bool ValidateDefaultVersion()
 				{
 					return ValidateDefaultValue("1.0.0.0")
-					       || ValidateDefaultValue("1.0.0")
-					       || ValidateDefaultValue("1.0")
-					       || ValidateDefaultValue("1");
+						   || ValidateDefaultValue("1.0.0")
+						   || ValidateDefaultValue("1.0")
+						   || ValidateDefaultValue("1");
 				}
 
 				string ReplaceWithPlaceholders(string value)
@@ -267,11 +267,11 @@ namespace Project2015To2017.Transforms
 				bool IsDefaultProjectNameValued()
 				{
 					return ValidateEmptyConditionValue()
-					       && (
-						       child.Value == msbuildProjectName
-						       ||
-						       IgnoreProjectNameValues.Contains(child.Value)
-					       );
+						   && (
+							   child.Value == msbuildProjectName
+							   ||
+							   IgnoreProjectNameValues.Contains(child.Value)
+						   );
 				}
 
 				bool IncludeMatchesSpecificGuid()
@@ -302,7 +302,7 @@ namespace Project2015To2017.Transforms
 			bool ProjectGuidMatchesSolutionProjectGuid()
 			{
 				return project.Solution != null && project.Solution.ProjectPaths
-					       .Any(x => x.ProjectName == project.ProjectName && x.ProjectGuid == project.ProjectGuid);
+						   .Any(x => x.ProjectName == project.ProjectName && x.ProjectGuid == project.ProjectGuid);
 			}
 		}
 
@@ -341,7 +341,7 @@ namespace Project2015To2017.Transforms
 
 		private static bool ValidateDefaultConstants(string value, params string[] expected)
 		{
-			var defines = value.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+			var defines = value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 			return Extensions.ValidateSet(defines, expected);
 		}
 	}

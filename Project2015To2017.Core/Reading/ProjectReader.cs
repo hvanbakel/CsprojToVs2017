@@ -186,7 +186,7 @@ namespace Project2015To2017.Reading
 						{
 							Id = includeAttribute.Value,
 							Version = x.Attribute("Version")?.Value ??
-							          x.Element(project.XmlNamespace + "Version")?.Value,
+									  x.Element(project.XmlNamespace + "Version")?.Value,
 							IsDevelopmentDependency = x.Element(project.XmlNamespace + "PrivateAssets") != null,
 							DefinitionElement = x
 						};

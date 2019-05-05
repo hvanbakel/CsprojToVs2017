@@ -7,106 +7,106 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class Option
-    {
-        private readonly HashSet<string> aliases = new HashSet<string>();
+	public class Option
+	{
+		private readonly HashSet<string> aliases = new HashSet<string>();
 
-        private readonly Suggest suggest;
-        private readonly HashSet<string> rawAliases;
+		private readonly Suggest suggest;
+		private readonly HashSet<string> rawAliases;
 
-        public Option(
-            string[] aliases,
-            string help,
-            ArgumentsRule arguments = null) :
-            this(aliases, help, arguments, null)
-        {
-        }
+		public Option(
+			string[] aliases,
+			string help,
+			ArgumentsRule arguments = null) :
+			this(aliases, help, arguments, null)
+		{
+		}
 
-        protected internal Option(
-            string[] aliases,
-            string help,
-            ArgumentsRule arguments = null,
-            Option[] options = null)
-        {
-            if (aliases == null)
-            {
-                throw new ArgumentNullException(nameof(aliases));
-            }
+		protected internal Option(
+			string[] aliases,
+			string help,
+			ArgumentsRule arguments = null,
+			Option[] options = null)
+		{
+			if (aliases == null)
+			{
+				throw new ArgumentNullException(nameof(aliases));
+			}
 
-            if (!aliases.Any())
-            {
-                throw new ArgumentException("An option must have at least one alias.");
-            }
+			if (!aliases.Any())
+			{
+				throw new ArgumentException("An option must have at least one alias.");
+			}
 
-            if (aliases.Any(string.IsNullOrWhiteSpace))
-            {
-                throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
-            }
+			if (aliases.Any(string.IsNullOrWhiteSpace))
+			{
+				throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
+			}
 
-            rawAliases = new HashSet<string>(aliases);
+			rawAliases = new HashSet<string>(aliases);
 
-            foreach (var alias in aliases)
-            {
-                this.aliases.Add(alias.RemovePrefix());
-            }
+			foreach (var alias in aliases)
+			{
+				this.aliases.Add(alias.RemovePrefix());
+			}
 
-            HelpText = help;
+			HelpText = help;
 
-            Name = aliases
-                .Select(a => a.RemovePrefix())
-                .OrderBy(a => a.Length)
-                .Last();
+			Name = aliases
+				.Select(a => a.RemovePrefix())
+				.OrderBy(a => a.Length)
+				.Last();
 
-            if (options != null && options.Any())
-            {
-                foreach (var option in options)
-                {
-                    option.Parent = this;
-                    DefinedOptions.Add(option);
-                }
-            }
+			if (options != null && options.Any())
+			{
+				foreach (var option in options)
+				{
+					option.Parent = this;
+					DefinedOptions.Add(option);
+				}
+			}
 
-            ArgumentsRule = arguments ?? Accept.NoArguments();
+			ArgumentsRule = arguments ?? Accept.NoArguments();
 
-            if (options != null)
-            {
-                ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(options));
-            }
+			if (options != null)
+			{
+				ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(options));
+			}
 
-            AllowedValues = ArgumentsRule.AllowedValues;
+			AllowedValues = ArgumentsRule.AllowedValues;
 
-            suggest = ArgumentsRule.Suggest;
-        }
+			suggest = ArgumentsRule.Suggest;
+		}
 
-        public IReadOnlyCollection<string> Aliases => aliases.ToArray();
+		public IReadOnlyCollection<string> Aliases => aliases.ToArray();
 
-        public IReadOnlyCollection<string> RawAliases => rawAliases.ToArray();
+		public IReadOnlyCollection<string> RawAliases => rawAliases.ToArray();
 
-        protected internal virtual IReadOnlyCollection<string> AllowedValues { get; }
+		protected internal virtual IReadOnlyCollection<string> AllowedValues { get; }
 
-        public OptionSet DefinedOptions { get; } = new OptionSet();
+		public OptionSet DefinedOptions { get; } = new OptionSet();
 
-        public string HelpText { get; }
+		public string HelpText { get; }
 
-        public ArgumentsRule ArgumentsRule { get; protected set; }
+		public ArgumentsRule ArgumentsRule { get; protected set; }
 
-        public string Name { get; }
+		public string Name { get; }
 
-        public IEnumerable<string> Suggest(ParseResult parseResult) => suggest(parseResult);
+		public IEnumerable<string> Suggest(ParseResult parseResult) => suggest(parseResult);
 
-        internal virtual bool IsCommand => false;
+		internal virtual bool IsCommand => false;
 
-        public Option Parent { get; protected internal set; }
+		public Option Parent { get; protected internal set; }
 
-        public bool HasAlias(string alias) => aliases.Contains(alias.RemovePrefix());
+		public bool HasAlias(string alias) => aliases.Contains(alias.RemovePrefix());
 
-        public bool HasRawAlias(string alias) => rawAliases.Contains(alias);
+		public bool HasRawAlias(string alias) => rawAliases.Contains(alias);
 
-        public Option this[string alias] => DefinedOptions[alias];
+		public Option this[string alias] => DefinedOptions[alias];
 
-        public override string ToString() =>
-            IsCommand
-                ? Name
-                : RawAliases.Single(a => a.RemovePrefix() == Name);
-    }
+		public override string ToString() =>
+			IsCommand
+				? Name
+				: RawAliases.Single(a => a.RemovePrefix() == Name);
+	}
 }

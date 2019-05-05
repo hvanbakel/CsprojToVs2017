@@ -56,14 +56,14 @@ namespace Project2015To2017.Transforms
 			{
 				definition.Deletions = definition
 					.Deletions
-					.Concat(new[] {definition.AssemblyAttributes.File})
+					.Concat(new[] { definition.AssemblyAttributes.File })
 					.ToArray();
 
 				if (AssemblyInfoFolderJustAssemblyInfo(definition.AssemblyAttributes))
 				{
 					definition.Deletions = definition
 						.Deletions
-						.Concat(new[] {definition.AssemblyAttributes.File.Directory})
+						.Concat(new[] { definition.AssemblyAttributes.File.Directory })
 						.ToArray();
 				}
 			}

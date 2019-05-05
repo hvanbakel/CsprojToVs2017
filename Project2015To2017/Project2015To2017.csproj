@@ -1,20 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-		<PackageId>Project2015To2017</PackageId>
-		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
-	</PropertyGroup>
+  <PropertyGroup>
+	<TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+	<PackageId>Project2015To2017</PackageId>
+	<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
 
+  <ItemGroup>
+	<ProjectReference Include="..\Project2015To2017.Core\Project2015To2017.Core.csproj" PrivateAssets="All" />
+	<ProjectReference Include="..\Project2015To2017.Migrate2017.Library\Project2015To2017.Migrate2017.Library.csproj" PrivateAssets="All" />
+  </ItemGroup>
+
+  <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
 	<ItemGroup>
-		<ProjectReference Include="..\Project2015To2017.Core\Project2015To2017.Core.csproj" PrivateAssets="All" />
-		<ProjectReference Include="..\Project2015To2017.Migrate2017.Library\Project2015To2017.Migrate2017.Library.csproj" PrivateAssets="All" />
+	  <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
 	</ItemGroup>
-
-	<Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
-		<ItemGroup>
-			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
-		</ItemGroup>
-	</Target>
+  </Target>
 
 </Project>

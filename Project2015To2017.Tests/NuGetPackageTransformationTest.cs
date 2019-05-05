@@ -16,7 +16,8 @@ namespace Project2015To2017.Tests
 			var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
 
 			project.AssemblyAttributes =
-								new AssemblyAttributes {
+								new AssemblyAttributes
+								{
 									InformationalVersion = "7.0",
 									Version = "8.0",
 									FileVersion = "9.0",
@@ -46,7 +47,8 @@ namespace Project2015To2017.Tests
 			var project = new ProjectReader().Read(Path.Combine("TestFiles", "OtherTestProjects", "net46console.testcsproj"));
 
 			project.AssemblyAttributes =
-				new AssemblyAttributes {
+				new AssemblyAttributes
+				{
 					Version = "8.0",
 					FileVersion = "9.0",
 					Copyright = "copyright from assembly",

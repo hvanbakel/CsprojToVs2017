@@ -18,7 +18,7 @@ namespace Project2015To2017.Transforms
 		{
 			var (keep, remove) = groups
 				.Split(x => x.HasElements
-				            || (x.HasAttributes && x.Attributes().Any(a => a.Name.LocalName != "Condition")));
+							|| (x.HasAttributes && x.Attributes().Any(a => a.Name.LocalName != "Condition")));
 			foreach (var element in remove)
 			{
 				element.Remove();

@@ -36,7 +36,7 @@ namespace Project2015To2017
 			this.transformationSet = transformationSet ?? BasicReadTransformationSet.Instance;
 			projectReader = new ProjectReader(logger, this.conversionOptions);
 		}
-		
+
 		public IEnumerable<Project> ProcessSolutionFile(Solution solution)
 		{
 			logger.LogTrace("Solution parsing started.");
@@ -94,15 +94,15 @@ namespace Project2015To2017
 			foreach (var transform in transformationSet.IterateTransformations(logger, conversionOptions))
 			{
 				if (project.IsModernProject
-				    && transform is ILegacyOnlyProjectTransformation
-				    && !conversionOptions.ForceDefaultTransforms.Contains(transform.GetType().Name))
+					&& transform is ILegacyOnlyProjectTransformation
+					&& !conversionOptions.ForceDefaultTransforms.Contains(transform.GetType().Name))
 				{
 					continue;
 				}
 
 				if (!project.IsModernProject
-				    && transform is IModernOnlyProjectTransformation
-				    && !conversionOptions.ForceDefaultTransforms.Contains(transform.GetType().Name))
+					&& transform is IModernOnlyProjectTransformation
+					&& !conversionOptions.ForceDefaultTransforms.Contains(transform.GetType().Name))
 				{
 					continue;
 				}

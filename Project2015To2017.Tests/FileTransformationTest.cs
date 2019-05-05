@@ -53,7 +53,7 @@ namespace Project2015To2017.Tests
 			Assert.AreEqual(7, includeItems.Count(x => x.Name.LocalName == "Import"));
 			Assert.AreEqual(0, includeItems.Count(x => x.Name.LocalName == "Import" && x.Attribute("Include") == null));
 			Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName == "ProjectReference"));
-			Assert.AreEqual(2, includeItems.Count(x=> x.Name.LocalName.Equals("Antlr4")));
+			Assert.AreEqual(2, includeItems.Count(x => x.Name.LocalName.Equals("Antlr4")));
 			Assert.AreEqual(1, includeItems.Count(x => x.Name.LocalName.Equals("Antlr3")));
 			Assert.AreEqual(11, includeItems.Count(x => x.Name.LocalName == "Compile"));
 			Assert.AreEqual(5, includeItems.Count(x => x.Name.LocalName == "Compile" && x.Attribute("Update") != null));
@@ -66,7 +66,7 @@ namespace Project2015To2017.Tests
 
 			var resourceDesigner = includeItems.Single(
 				x => x.Name.LocalName == "Compile"
-				     && x.Attribute("Update")?.Value == @"Properties\Resources.Designer.cs"
+					 && x.Attribute("Update")?.Value == @"Properties\Resources.Designer.cs"
 			);
 
 			Assert.AreEqual(3, resourceDesigner.Elements().Count());
@@ -76,7 +76,7 @@ namespace Project2015To2017.Tests
 
 			var linkedFile = includeItems.Single(
 				x => x.Name.LocalName == "Compile"
-				     && x.Attribute("Include")?.Value == @"..\OtherTestProjects\OtherTestClass.cs"
+					 && x.Attribute("Include")?.Value == @"..\OtherTestProjects\OtherTestClass.cs"
 			);
 			var linkAttribute = linkedFile.Attributes().FirstOrDefault(a => a.Name.LocalName == "Link");
 			Assert.IsNotNull(linkAttribute);
@@ -84,7 +84,7 @@ namespace Project2015To2017.Tests
 
 			var sourceWithDesigner = includeItems.Single(
 				x => x.Name.LocalName == "Compile"
-				     && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.cs"
+					 && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.cs"
 			);
 
 			var subTypeElement = sourceWithDesigner.Elements().Single();
@@ -93,7 +93,7 @@ namespace Project2015To2017.Tests
 
 			var designerForSource = includeItems.Single(
 				x => x.Name.LocalName == "Compile"
-				     && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.Designer.cs"
+					 && x.Attribute("Update")?.Value == @"SourceFileWithDesigner.Designer.cs"
 			);
 
 			var dependentUponElement2 = designerForSource.Elements().Single();
@@ -103,7 +103,7 @@ namespace Project2015To2017.Tests
 
 			var fileWithAnotherAttribute = includeItems.Single(
 				x => x.Name.LocalName == "Compile"
-				     && x.Attribute("Update")?.Value == @"AnotherFile.cs"
+					 && x.Attribute("Update")?.Value == @"AnotherFile.cs"
 			);
 
 			Assert.AreEqual(2, fileWithAnotherAttribute.Attributes().Count());
@@ -111,7 +111,7 @@ namespace Project2015To2017.Tests
 
 			var removeMatchingWildcard = includeItems.Where(
 					x => x.Name.LocalName == "Compile"
-					     && x.Attribute("Remove")?.Value != null
+						 && x.Attribute("Remove")?.Value != null
 				)
 				.ToImmutableList();
 			Assert.IsNotNull(removeMatchingWildcard);
