@@ -87,6 +87,10 @@ namespace Project2015To2017.Definition
 			set => SetAttribute(typeof(AssemblyFileVersionAttribute), value);
 		}
 
+		public bool IsNonDeterministic =>
+			(this.FileVersion != null && this.FileVersion.Contains("*")) ||
+			(this.Version != null && this.Version.Contains("*"));
+
 		public FileInfo File { get; set; }
 
 		private (AttributeListSyntax attList, AttributeSyntax att) FindAttribute(Type attributeType)

@@ -322,6 +322,71 @@ namespace Project2015To2017.Tests
 		}
 
 		[TestMethod]
+		public void TransformsWildcardVersionIntoNonDeterministicFlag()
+		{
+			var project = new Project
+			{
+				AssemblyAttributes = new AssemblyAttributes
+				{
+					FileVersion = "1.5.*"
+				},
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
+			};
+
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
+
+			transform.Transform(project);
+
+			var expectedProperties = new[]
+				{
+					new XElement("FileVersion", "1.5.*"),
+					new XElement("Deterministic", false),
+				}
+				.Select(x => x.ToString())
+				.ToList();
+
+			var actualProperties = project.AssemblyAttributeProperties
+										  .Select(x => x.ToString())
+										  .ToList();
+
+			CollectionAssert.AreEquivalent(expectedProperties, actualProperties);
+		}
+
+		[TestMethod]
+		public void DoesNotTransformsNonWildcardVersionIntoNonDeterministicFlag()
+		{
+			var project = new Project
+			{
+				AssemblyAttributes = new AssemblyAttributes
+				{
+					FileVersion = "1.5.0"
+				},
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
+			};
+
+			project.AssemblyAttributes.FileVersion = "1.5.0";
+
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
+
+			transform.Transform(project);
+
+			var expectedProperties = new[]
+				{
+					new XElement("FileVersion", "1.5.0"),
+				}
+				.Select(x => x.ToString())
+				.ToList();
+
+			var actualProperties = project.AssemblyAttributeProperties
+										  .Select(x => x.ToString())
+										  .ToList();
+
+			CollectionAssert.AreEquivalent(expectedProperties, actualProperties);
+		}
+
+		[TestMethod]
 		public void EmptyAssemblyInfoIsDeleted()
 		{
 			var project = new Project
