@@ -235,7 +235,7 @@ namespace Project2015To2017
 			{
 				return;
 			}
-			
+
 			var writer = new ProjectWriter(Logger, writeOptions);
 			foreach (var project in projects)
 			{

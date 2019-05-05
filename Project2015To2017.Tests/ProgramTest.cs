@@ -73,10 +73,10 @@ namespace Project2015To2017.Tests
 
 				var projectWriter = new ProjectWriter(
 					new ProjectWriteOptions
-				{
-					CheckoutOperation = file => File.SetAttributes(file.FullName, FileAttributes.Normal),
-					DeleteFileOperation = _ => {}
-				});
+					{
+						CheckoutOperation = file => File.SetAttributes(file.FullName, FileAttributes.Normal),
+						DeleteFileOperation = _ => { }
+					});
 
 				Assert.IsTrue(projectWriter.TryWrite(project));
 

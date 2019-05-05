@@ -5,7 +5,7 @@
 	<RootNamespace>Project2015To2017</RootNamespace>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
-	
+
   <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
 	<!-- PathCompat.NETFramework.cs -->
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
