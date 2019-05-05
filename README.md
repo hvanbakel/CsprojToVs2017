@@ -84,13 +84,13 @@ dotnet add package Project2015To2017.Migrate2017.Library
 Then, to apply the default project migration:
 
 ```c#
-//We use Serilog, but you can use any logging provider
-using Serilog;
-using Serilog.Extensions.Logging;
-
 using Project2015To2017;
 using Project2015To2017.Migrate2017;
 using Project2015To2017.Writing;
+
+//We use Serilog, but you can use any logging provider
+using Serilog;
+using Serilog.Extensions.Logging;
 
 namespace Acme.ProjectMigration
 {
@@ -123,11 +123,19 @@ To provide a custom set of project transforms, provide these to the `ExecuteMigr
 
 ```c#
 var preTransforms = new BasicTransformationSet(
+                            //Note that these should implement
+                            //ITransformationWithTargetMoment in order 
+                            //to make sure that they run before 
+                            //the standard transforms
 							new MyCustomPreTransform1(),
 							new MyCustomPreTransform2()
 						);
 
 var postTransforms = new BasicTransformationSet(
+                            //Note that these should implement 
+                            //ITransformationWithTargetMoment in order 
+                            //to make sure that they run after 
+                            //the standard transforms
 							new MyCustomPostTransform1(),
 							new MyCustomPostTransform2()
 						);
