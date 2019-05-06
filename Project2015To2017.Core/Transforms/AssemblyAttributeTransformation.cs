@@ -176,6 +176,7 @@ namespace Project2015To2017.Transforms
 		{
 			var toReturn = new[]
 			{
+				assemblyAttributes.IsNonDeterministic ? new XElement("Deterministic", false) : null,
 				CreateElementIfNotNullOrEmpty(assemblyAttributes.InformationalVersion, packageConfig?.Version, "Version", logger),
 				CreateElementIfNotNullOrEmpty(assemblyAttributes.Version, "AssemblyVersion"),
 
