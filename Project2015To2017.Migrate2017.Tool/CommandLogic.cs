@@ -34,12 +34,12 @@ namespace Project2015To2017.Migrate2017.Tool
 			return true;
 		};
 
-		private readonly Facility facility;
+		private readonly MigrationFacility facility;
 
 		public CommandLogic()
 		{
 			var genericLogger = new Serilog.Extensions.Logging.SerilogLoggerProvider().CreateLogger(nameof(Serilog));
-			facility = new Facility(genericLogger, globProcessor);
+			facility = new MigrationFacility(genericLogger, globProcessor);
 		}
 
 		public void ExecuteEvaluate(

@@ -13,7 +13,7 @@ using System.Linq;
 
 namespace Project2015To2017
 {
-	public class Facility
+	public class MigrationFacility
 	{
 		// ReSharper disable MemberCanBePrivate.Global
 		/// <summary>
@@ -74,7 +74,7 @@ namespace Project2015To2017
 			return true;
 		};
 
-		public Facility(ILogger logger, params PatternProcessor[] additionalProcessors)
+		public MigrationFacility(ILogger logger, params PatternProcessor[] additionalProcessors)
 		{
 			Logger = logger;
 			Extensions = ProjectConverter.ProjectFileMappings.Keys.Concat(new[] { ".sln" }).ToImmutableArray();
