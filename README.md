@@ -106,7 +106,7 @@ namespace Acme.ProjectMigration
 
             var genericLogger = new SerilogLoggerProvider(logger).CreateLogger(nameof(Serilog));
 
-            var facility = new ConversionFacility(genericLogger);
+            var facility = new MigrationFacility(genericLogger);
 
             facility.ExecuteMigrate(
                     new[] { @"c:\full-path-to-solution-or-project-file.sln" },
