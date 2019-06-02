@@ -34,12 +34,12 @@ namespace Project2015To2017.Migrate2017.Tool
 			return true;
 		};
 
-		private readonly Facility facility;
+		private readonly MigrationFacility facility;
 
 		public CommandLogic()
 		{
 			var genericLogger = new Serilog.Extensions.Logging.SerilogLoggerProvider().CreateLogger(nameof(Serilog));
-			facility = new Facility(genericLogger, globProcessor);
+			facility = new MigrationFacility(genericLogger, globProcessor);
 		}
 
 		public void ExecuteEvaluate(
@@ -54,7 +54,8 @@ namespace Project2015To2017.Migrate2017.Tool
 			bool noBackup,
 			ConversionOptions conversionOptions)
 		{
-			facility.ExecuteMigrate(items, noBackup, conversionOptions);
+			var writeOptions = new ProjectWriteOptions { MakeBackups = !noBackup };
+			facility.ExecuteMigrate(items, conversionOptions, writeOptions);
 		}
 
 		public void ExecuteAnalyze(
@@ -93,11 +94,11 @@ namespace Project2015To2017.Migrate2017.Tool
 
 			facility.DoAnalysis(projects, new AnalysisOptions(DiagnosticSet.All));
 
-			var writer = new ProjectWriter(facility.Logger, x => x.Delete(), _ => { });
-
 			if (legacy.Count > 0)
 			{
 				var doBackups = AskBinaryChoice("Would you like to create backups?");
+
+				var writer = new ProjectWriter(facility.Logger, new ProjectWriteOptions { MakeBackups = doBackups });
 
 				foreach (var project in legacy)
 				{
@@ -127,7 +128,7 @@ namespace Project2015To2017.Migrate2017.Tool
 							}
 						}
 
-						if (!writer.TryWrite(project, doBackups))
+						if (!writer.TryWrite(project))
 							continue;
 						Log.Information("Project {ProjectName} has been converted", projectName);
 					}
@@ -135,6 +136,8 @@ namespace Project2015To2017.Migrate2017.Tool
 			}
 			else
 			{
+				var writer = new ProjectWriter(facility.Logger, new ProjectWriteOptions());
+
 				Log.Information("It appears you already have everything converted to CPS.");
 				if (AskBinaryChoice("Would you like to process CPS projects to clean up and reformat them?"))
 				{
@@ -166,7 +169,7 @@ namespace Project2015To2017.Migrate2017.Tool
 								}
 							}
 
-							if (!writer.TryWrite(project, false))
+							if (!writer.TryWrite(project))
 								continue;
 							Log.Information("Project {ProjectName} has been processed", projectName);
 						}
@@ -182,6 +185,9 @@ namespace Project2015To2017.Migrate2017.Tool
 			if (AskBinaryChoice("Would you like to modernize projects?"))
 			{
 				var doBackups = AskBinaryChoice("Would you like to create backups?");
+
+				var writer = new ProjectWriter(facility.Logger, new ProjectWriteOptions { MakeBackups = doBackups });
+
 				foreach (var project in projects)
 				{
 					using (facility.Logger.BeginScope(project.FilePath))
@@ -211,7 +217,7 @@ namespace Project2015To2017.Migrate2017.Tool
 							}
 						}
 
-						if (!writer.TryWrite(project, doBackups))
+						if (!writer.TryWrite(project))
 							continue;
 						Log.Information("Project {ProjectName} has been modernized", projectName);
 					}

@@ -35,7 +35,7 @@ namespace Project2015To2017.Tests
 
 				var writer = new ProjectWriter(logger);
 
-				Assert.IsFalse(writer.TryWrite(project, makeBackups: false));
+				Assert.IsFalse(writer.TryWrite(project));
 
 				Assert.IsTrue(logger.LogEntries.Any(x => x.Contains("Aborting as could not write to project file")));
 			}
@@ -71,9 +71,14 @@ namespace Project2015To2017.Tests
 
 				var project = new ProjectReader().Read(copiedProjectFile);
 
-				var projectWriter = new ProjectWriter(_ => { }, file => File.SetAttributes(file.FullName, FileAttributes.Normal));
+				var projectWriter = new ProjectWriter(
+					new ProjectWriteOptions
+					{
+						CheckoutOperation = file => File.SetAttributes(file.FullName, FileAttributes.Normal),
+						DeleteFileOperation = _ => { }
+					});
 
-				Assert.IsTrue(projectWriter.TryWrite(project, makeBackups: false));
+				Assert.IsTrue(projectWriter.TryWrite(project));
 
 				Assert.IsFalse(logs.Any(x => x.Contains("Aborting as could not write to project file")));
 			}

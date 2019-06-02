@@ -13,7 +13,7 @@ using System.Linq;
 
 namespace Project2015To2017
 {
-	public class Facility
+	public class MigrationFacility
 	{
 		// ReSharper disable MemberCanBePrivate.Global
 		/// <summary>
@@ -74,7 +74,7 @@ namespace Project2015To2017
 			return true;
 		};
 
-		public Facility(ILogger logger, params PatternProcessor[] additionalProcessors)
+		public MigrationFacility(ILogger logger, params PatternProcessor[] additionalProcessors)
 		{
 			Logger = logger;
 			Extensions = ProjectConverter.ProjectFileMappings.Keys.Concat(new[] { ".sln" }).ToImmutableArray();
@@ -207,22 +207,39 @@ namespace Project2015To2017
 
 		public void ExecuteMigrate(
 			IReadOnlyCollection<string> items,
-			bool noBackup,
-			ConversionOptions conversionOptions)
+			ITransformationSet transformations
+		)
 		{
-			var (projects, _) = ParseProjects(items, Vs15TransformationSet.Instance, conversionOptions);
+			ExecuteMigrate(items, transformations, new ConversionOptions(), new ProjectWriteOptions());
+		}
+
+		public void ExecuteMigrate(
+				IReadOnlyCollection<string> items,
+				ConversionOptions conversionOptions,
+				ProjectWriteOptions writeOptions
+			)
+		{
+			ExecuteMigrate(items, Vs15TransformationSet.Instance, conversionOptions, writeOptions);
+		}
+
+		public void ExecuteMigrate(
+			IReadOnlyCollection<string> items,
+			ITransformationSet transformations,
+			ConversionOptions conversionOptions,
+			ProjectWriteOptions writeOptions
+			)
+		{
+			var (projects, _) = ParseProjects(items, transformations, conversionOptions);
 
 			if (projects.Count == 0)
 			{
 				return;
 			}
 
-			var doBackup = !noBackup;
-
-			var writer = new ProjectWriter(Logger, x => x.Delete(), _ => { });
+			var writer = new ProjectWriter(Logger, writeOptions);
 			foreach (var project in projects)
 			{
-				writer.TryWrite(project, doBackup);
+				writer.TryWrite(project);
 			}
 
 			conversionOptions.ProjectCache?.Purge();
