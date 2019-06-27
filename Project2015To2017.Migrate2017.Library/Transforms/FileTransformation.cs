@@ -47,6 +47,11 @@ namespace Project2015To2017.Migrate2017.Transforms
 
 		public void Transform(Project definition)
 		{
+			if (definition.IsModernProject)
+			{
+				return;
+			}
+		
 			var (keepItems, removeQueue) = definition.ItemGroups
 				.SelectMany(x => x.Elements())
 				.Split(x => KeepFileInclusion(x, definition));
