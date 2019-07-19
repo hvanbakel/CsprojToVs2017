@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace Project2015To2017.Transforms
@@ -22,6 +21,7 @@ namespace Project2015To2017.Transforms
 			{
 				new PropertyDeduplicationTransformation(),
 				new PropertySimplificationTransformation(targetVisualStudioVersion),
+				new ServiceFilterTransformation(targetVisualStudioVersion),
 				new PrimaryProjectPropertiesUpdateTransformation(),
 				new EmptyGroupRemoveTransformation(),
 			};

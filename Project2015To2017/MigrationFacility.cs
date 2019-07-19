@@ -139,7 +139,7 @@ namespace Project2015To2017
 				}
 			}
 
-			return (convertedProjects, convertedSolutions);
+			return (convertedProjects.Distinct(Project.ProjectNameFilePathComparer).ToArray(), convertedSolutions.Distinct(Solution.FilePathComparer).ToArray());
 
 			void ProcessSingleItem(FileInfo file, string extension)
 			{
@@ -176,9 +176,31 @@ namespace Project2015To2017
 
 		public void ExecuteEvaluate(
 			IReadOnlyCollection<string> items,
-			ConversionOptions conversionOptions)
+			ConversionOptions conversionOptions = null,
+			ITransformationSet transformationSet = null,
+			AnalysisOptions analysisOptions = null)
 		{
-			var (projects, solutions) = ParseProjects(items, Vs15TransformationSet.Instance, conversionOptions);
+			if (transformationSet != null && analysisOptions == null)
+			{
+				Logger.LogWarning("You should pass AnalysisOptions if you pass ITransformationSet, falling back to using default diagnostic set");
+			}
+
+			if (transformationSet == null && analysisOptions == null)
+			{
+				Logger.LogDebug("Legacy signature usage, please specify all options instead");
+				analysisOptions = new AnalysisOptions(Vs15DiagnosticSet.All);
+			}
+
+			if (transformationSet == null)
+			{
+				Logger.LogDebug("Using default VS2015 migration transformation set, please specify the one you need instead");
+				transformationSet = Vs15TransformationSet.Instance;
+			}
+
+			conversionOptions = conversionOptions ?? new ConversionOptions();
+			analysisOptions = analysisOptions ?? new AnalysisOptions();
+
+			var (projects, solutions) = ParseProjects(items, transformationSet, conversionOptions);
 
 			if (projects.Count == 0)
 			{
@@ -187,7 +209,7 @@ namespace Project2015To2017
 
 			var alreadyConverted = projects.Where(x => x.IsModernProject).ToImmutableArray();
 
-			DoAnalysis(projects, new AnalysisOptions(Vs15DiagnosticSet.All));
+			DoAnalysis(projects, analysisOptions);
 
 			Logger.LogInformation("List of modern CPS projects:");
 			foreach (var projectPath in alreadyConverted.Select(x => x.FilePath))
@@ -205,19 +227,11 @@ namespace Project2015To2017
 			}
 		}
 
-		public void ExecuteMigrate(
-			IReadOnlyCollection<string> items,
-			ITransformationSet transformations
-		)
-		{
-			ExecuteMigrate(items, transformations, new ConversionOptions(), new ProjectWriteOptions());
-		}
-
+		[Obsolete]
 		public void ExecuteMigrate(
 				IReadOnlyCollection<string> items,
 				ConversionOptions conversionOptions,
-				ProjectWriteOptions writeOptions
-			)
+				ProjectWriteOptions writeOptions)
 		{
 			ExecuteMigrate(items, Vs15TransformationSet.Instance, conversionOptions, writeOptions);
 		}
@@ -225,10 +239,13 @@ namespace Project2015To2017
 		public void ExecuteMigrate(
 			IReadOnlyCollection<string> items,
 			ITransformationSet transformations,
-			ConversionOptions conversionOptions,
-			ProjectWriteOptions writeOptions
-			)
+			ConversionOptions conversionOptions = null,
+			ProjectWriteOptions writeOptions = null,
+			AnalysisOptions analysisOptions = null)
 		{
+			conversionOptions = conversionOptions ?? new ConversionOptions();
+			writeOptions = writeOptions ?? new ProjectWriteOptions();
+
 			var (projects, _) = ParseProjects(items, transformations, conversionOptions);
 
 			if (projects.Count == 0)
@@ -246,12 +263,13 @@ namespace Project2015To2017
 
 			(projects, _) = ParseProjects(items, BasicReadTransformationSet.Instance, conversionOptions);
 
-			DoAnalysis(projects);
+			DoAnalysis(projects, analysisOptions);
 		}
 
 		public void ExecuteAnalyze(
 			IReadOnlyCollection<string> items,
-			ConversionOptions conversionOptions)
+			ConversionOptions conversionOptions,
+			AnalysisOptions analysisOptions = null)
 		{
 			var (projects, _) = ParseProjects(items, BasicReadTransformationSet.Instance, conversionOptions);
 
@@ -260,7 +278,7 @@ namespace Project2015To2017
 				return;
 			}
 
-			DoAnalysis(projects);
+			DoAnalysis(projects, analysisOptions);
 		}
 	}
 }

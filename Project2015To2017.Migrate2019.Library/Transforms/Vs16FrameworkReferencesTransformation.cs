@@ -8,7 +8,7 @@ namespace Project2015To2017.Migrate2019.Library.Transforms
 {
 	public sealed class Vs16FrameworkReferencesTransformation : ILegacyOnlyProjectTransformation
 	{
-		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/2.0.0-preview.21";
+		private const string SdkExtrasVersion = "MSBuild.Sdk.Extras/2.0.31";
 		private const string WindowsDesktopVersion = "Microsoft.NET.Sdk.WindowsDesktop";
 		private static readonly Guid XamarinAndroid = Guid.ParseExact("EFBA0AD7-5A72-4C68-AF49-83D382785DCF", "D");
 		private static readonly Guid XamarinIos = Guid.ParseExact("6BC8ED88-2882-458C-8E55-DFD12B67127B", "D");

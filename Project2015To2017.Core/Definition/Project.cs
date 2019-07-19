@@ -88,5 +88,35 @@ namespace Project2015To2017.Definition
 		public IReadOnlyList<XElement> AssemblyAttributeProperties { get; set; } = Array.Empty<XElement>();
 
 		public IReadOnlyList<string> IntermediateOutputPaths { get; set; }
+
+		private sealed class ProjectNameFilePathEqualityComparer : IEqualityComparer<Project>
+		{
+			public bool Equals(Project x, Project y)
+			{
+				if (ReferenceEquals(x, y)) return true;
+				if (x is null) return false;
+				if (y is null) return false;
+				if (x.GetType() != y.GetType()) return false;
+				return string.Equals(x.ProjectName, y.ProjectName, StringComparison.InvariantCultureIgnoreCase) &&
+				       string.Equals(x.FilePath.FullName, y.FilePath.FullName,
+					       StringComparison.InvariantCultureIgnoreCase);
+			}
+
+			public int GetHashCode(Project obj)
+			{
+				var a = obj.ProjectName != null
+					? StringComparer.InvariantCultureIgnoreCase.GetHashCode(obj.ProjectName)
+					: 0;
+				var b = obj.FilePath != null
+					? StringComparer.InvariantCultureIgnoreCase.GetHashCode(obj.FilePath.FullName)
+					: 0;
+				unchecked
+				{
+					return (a * 397) ^ b;
+				}
+			}
+		}
+
+		public static IEqualityComparer<Project> ProjectNameFilePathComparer { get; } = new ProjectNameFilePathEqualityComparer();
 	}
 }

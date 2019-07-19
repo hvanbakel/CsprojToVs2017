@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Project2015To2017.Migrate2017.Transforms;
+using Project2015To2017.Migrate2019.Library.Transforms;
 using Project2015To2017.Transforms;
 
 namespace Project2015To2017.Migrate2019.Library
@@ -31,8 +32,8 @@ namespace Project2015To2017.Migrate2019.Library
 				new TargetFrameworkReplaceTransformation(
 					conversionOptions.TargetFrameworks,
 					conversionOptions.AppendTargetFrameworkToOutputPath),
-				// VS15 migration
-				new FrameworkReferencesTransformation(),
+				// VS16 migration
+				new Vs16FrameworkReferencesTransformation(),
 				new TestProjectPackageReferenceTransformation(logger),
 				new AssemblyFilterPackageReferencesTransformation(),
 				new AssemblyFilterHintedPackageReferencesTransformation(),
