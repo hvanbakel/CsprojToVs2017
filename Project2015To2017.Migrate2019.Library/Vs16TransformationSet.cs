@@ -8,10 +8,13 @@ namespace Project2015To2017.Migrate2019.Library
 {
 	public sealed class Vs16TransformationSet : ITransformationSet
 	{
+		public static readonly Version TargetVisualStudioVersion = new Version(16, 0);
+
 		public static readonly Vs16TransformationSet TrueInstance = new Vs16TransformationSet();
 
 		public static readonly ITransformationSet Instance = new ChainTransformationSet(
 			BasicReadTransformationSet.Instance,
+			new BasicSimplifyTransformationSet(TargetVisualStudioVersion),
 			TrueInstance);
 
 		private Vs16TransformationSet()
@@ -22,17 +25,12 @@ namespace Project2015To2017.Migrate2019.Library
 			ILogger logger,
 			ConversionOptions conversionOptions)
 		{
-			var targetVisualStudioVersion = new Version(16, 0);
 			return new ITransformation[]
 			{
 				// Generic
 				new TargetFrameworkReplaceTransformation(
 					conversionOptions.TargetFrameworks,
 					conversionOptions.AppendTargetFrameworkToOutputPath),
-				new PropertyDeduplicationTransformation(),
-				new PropertySimplificationTransformation(targetVisualStudioVersion),
-				new PrimaryProjectPropertiesUpdateTransformation(),
-				new EmptyGroupRemoveTransformation(),
 				// VS15 migration
 				new FrameworkReferencesTransformation(),
 				new TestProjectPackageReferenceTransformation(logger),

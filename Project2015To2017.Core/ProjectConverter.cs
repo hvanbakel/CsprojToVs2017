@@ -91,22 +91,8 @@ namespace Project2015To2017
 				transform.Transform(project);
 			}
 
-			foreach (var transform in transformationSet.IterateTransformations(logger, conversionOptions))
+			foreach (var transform in transformationSet.IterateSuitableTransformations(project, logger, conversionOptions))
 			{
-				if (project.IsModernProject
-					&& transform is ILegacyOnlyProjectTransformation
-					&& !conversionOptions.ForceDefaultTransforms.Contains(transform.GetType().Name))
-				{
-					continue;
-				}
-
-				if (!project.IsModernProject
-					&& transform is IModernOnlyProjectTransformation
-					&& !conversionOptions.ForceDefaultTransforms.Contains(transform.GetType().Name))
-				{
-					continue;
-				}
-
 				transform.Transform(project);
 			}
 

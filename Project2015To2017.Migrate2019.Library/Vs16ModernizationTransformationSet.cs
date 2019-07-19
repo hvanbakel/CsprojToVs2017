@@ -11,7 +11,9 @@ namespace Project2015To2017.Migrate2019.Library
 			new Vs16ModernizationTransformationSet();
 
 		public static readonly ITransformationSet Instance = new ChainTransformationSet(
-			Vs15ModernizationTransformationSet.Instance,
+			BasicReadTransformationSet.Instance,
+			new BasicSimplifyTransformationSet(Vs16TransformationSet.TargetVisualStudioVersion),
+			Vs15ModernizationTransformationSet.TrueInstance,
 			TrueInstance);
 
 		private Vs16ModernizationTransformationSet()

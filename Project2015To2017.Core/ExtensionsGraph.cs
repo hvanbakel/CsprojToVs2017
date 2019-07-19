@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
+using Project2015To2017.Definition;
 using Project2015To2017.Transforms;
 
 namespace Project2015To2017
 {
 	public static partial class Extensions
 	{
-		public static IReadOnlyCollection<ITransformation> IterateTransformations(this ITransformationSet set,
+		public static IReadOnlyCollection<ITransformation> CollectAndOrderTransformations(this ITransformationSet set,
 			ILogger logger, ConversionOptions conversionOptions)
 		{
 			var all = set.Transformations(logger, conversionOptions);
@@ -18,7 +20,57 @@ namespace Project2015To2017
 			TopologicalSort(early, res, logger);
 			TopologicalSort(normal, res, logger);
 			TopologicalSort(late, res, logger);
+
+			foreach (var (transformation, index) in res.Select((x, i) => (x, i)))
+			{
+				logger.LogTrace("{Index}: {TransformName}", index + 1, transformation.GetType().Name);
+			}
+
 			return res;
+		}
+
+		/// <summary>
+		/// Choose and order all transformations from set that are suitable for the project type.
+		/// </summary>
+		/// <param name="set">Transformation set to choose from</param>
+		/// <param name="project">Project to be based upon when determining suitability</param>
+		/// <param name="logger">Logger for transformations to use</param>
+		/// <param name="conversionOptions">Conversion options for transformations to use, or to override suitability choice</param>
+		/// <returns></returns>
+		public static IEnumerable<ITransformation> IterateSuitableTransformations(this ITransformationSet set,
+			Project project, ILogger logger, ConversionOptions conversionOptions)
+		{
+			return set.CollectAndOrderTransformations(logger, conversionOptions).WhereSuitable(project, conversionOptions);
+		}
+
+		/// <summary>
+		/// Choose all transformations from sequence that are suitable for the project type.
+		/// </summary>
+		/// <param name="source">Sequence to choose from</param>
+		/// <param name="project">Project to be based upon when determining suitability</param>
+		/// <param name="conversionOptions">Conversion options for transformations to use, or to override suitability choice</param>
+		/// <returns></returns>
+		public static IEnumerable<ITransformation> WhereSuitable(this IEnumerable<ITransformation> source,
+			Project project, ConversionOptions conversionOptions)
+		{
+			foreach (var transformation in source)
+			{
+				if (project.IsModernProject
+				    && transformation is ILegacyOnlyProjectTransformation
+				    && !conversionOptions.ForceDefaultTransforms.Contains(transformation.GetType().Name))
+				{
+					continue;
+				}
+
+				if (!project.IsModernProject
+				    && transformation is IModernOnlyProjectTransformation
+				    && !conversionOptions.ForceDefaultTransforms.Contains(transformation.GetType().Name))
+				{
+					continue;
+				}
+
+				yield return transformation;
+			}
 		}
 
 		private static void TopologicalSort(

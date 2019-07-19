@@ -38,6 +38,14 @@ namespace Project2015To2017.Migrate2017.Transforms
 			"Antlr3"
 		};
 
+		private static readonly IReadOnlyCollection<string> EnableDefaultItemsPropertyNames = new[]
+		{
+			"EnableDefaultItems",
+			"EnableDefaultCompileItems",
+			"EnableDefaultEmbeddedResourceItems",
+			"EnableDefaultNoneItems",
+		};
+
 		private readonly ILogger logger;
 
 		public FileTransformation(ILogger logger = null)
@@ -64,46 +72,63 @@ namespace Project2015To2017.Migrate2017.Transforms
 
 			foreach (var includeMatchingWildcard in otherIncludedFilesMatchingWildcard)
 			{
-				logger.LogTrace("Excluding non-Compile code item: " + includeMatchingWildcard);
+				logger.LogTrace("Excluding non-Compile code item: {Item}", includeMatchingWildcard);
 			}
 
-			var wildcardIncludes = keepItems
-				.Where(x => x.Name.LocalName == "Compile")
-				.Select(x => x.ExtractIncludeItemPath().value)
-				.Where(x => x != null && x.Contains("*"))
-				.ToImmutableArray();
-			if (wildcardIncludes.Length > 0)
+			if (definition.IsModernProject)
 			{
-				logger.LogWarning(
-					"Wildcard include detected, please check for erroneous inclusion of additional files.");
-
-				foreach (var wildcard in wildcardIncludes)
+				var foundDefaultWildcardSwitch = EnableDefaultItemsPropertyNames.FirstOrDefault(x => definition.Property(x, true) != null);
+				if (!string.IsNullOrEmpty(foundDefaultWildcardSwitch))
 				{
-					logger.LogTrace("Wildcard include: " + wildcard);
+					logger.LogDebug("Modern project has some default wildcards disabled ({Switch}); still, no glob search will be performed to avoid introducing errors", foundDefaultWildcardSwitch);
+				}
+				else
+				{
+					logger.LogTrace("Modern project has default wildcards, no glob search will be performed");
 				}
 			}
 			else
 			{
-				var referencedItems = definition.ItemGroups
-					.SelectMany(x => x.Elements())
+				var wildcardIncludes = keepItems
 					.Where(x => x.Name.LocalName == "Compile")
 					.Select(x => x.ExtractIncludeItemPath().value)
-					.Where(x => !string.IsNullOrEmpty(x));
-
-				// Do file search, find all real files matching glob pattern
-				var nonReferencedWildcardMatchingItems = definition.FindAllWildcardFiles(definition.CodeFileExtension)
-					.Select(x => definition.ProjectFolder.GetRelativePathTo(x))
-					.Except(referencedItems, Extensions.PathEqualityComparer)
+					.Where(x => x != null && x.Contains("*"))
 					.ToImmutableArray();
-
-				foreach (var includeMatchingWildcard in nonReferencedWildcardMatchingItems)
+				if (wildcardIncludes.Length > 0)
 				{
-					logger.LogTrace("Excluding non-Compile-referenced wildcard-matching item: " + includeMatchingWildcard);
-				}
+					logger.LogWarning(
+						"Wildcard include detected, please check for erroneous inclusion of additional files.");
 
-				otherIncludedFilesMatchingWildcard = otherIncludedFilesMatchingWildcard
-					.Union(nonReferencedWildcardMatchingItems, Extensions.PathEqualityComparer)
-					.ToImmutableArray();
+					foreach (var wildcard in wildcardIncludes)
+					{
+						logger.LogTrace("Wildcard include: {Item}", wildcard);
+					}
+				}
+				else
+				{
+					var referencedItems = definition.ItemGroups
+						.SelectMany(x => x.Elements())
+						.Where(x => x.Name.LocalName == "Compile")
+						.Select(x => x.ExtractIncludeItemPath().value)
+						.Where(x => !string.IsNullOrEmpty(x));
+
+					// Do file search, find all real files matching glob pattern
+					var nonReferencedWildcardMatchingItems = definition
+						.FindAllWildcardFiles(definition.CodeFileExtension)
+						.Select(x => definition.ProjectFolder.GetRelativePathTo(x))
+						.Except(referencedItems, Extensions.PathEqualityComparer)
+						.ToImmutableArray();
+
+					foreach (var includeMatchingWildcard in nonReferencedWildcardMatchingItems)
+					{
+						logger.LogTrace("Excluding non-Compile-referenced wildcard-matching item: {Item}",
+						                includeMatchingWildcard);
+					}
+
+					otherIncludedFilesMatchingWildcard = otherIncludedFilesMatchingWildcard
+						.Union(nonReferencedWildcardMatchingItems, Extensions.PathEqualityComparer)
+						.ToImmutableArray();
+				}
 			}
 
 			if (otherIncludedFilesMatchingWildcard.Length > 0)
@@ -131,7 +156,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 				x.Remove();
 			}
 
-			logger.LogDebug($"Removed {count} include items thanks to Microsoft.NET.Sdk defaults");
+			logger.LogDebug("Removed {Count} include items thanks to Microsoft.NET.Sdk defaults", count);
 		}
 
 		private static bool KeepFileInclusion(XElement x, Project project)

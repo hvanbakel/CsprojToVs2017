@@ -12,6 +12,7 @@ namespace Project2015To2017.Migrate2017
 
 		public static readonly ITransformationSet Instance = new ChainTransformationSet(
 			BasicReadTransformationSet.Instance,
+			new BasicSimplifyTransformationSet(Vs15TransformationSet.TargetVisualStudioVersion),
 			TrueInstance);
 
 		private Vs15ModernizationTransformationSet()
@@ -24,10 +25,6 @@ namespace Project2015To2017.Migrate2017
 		{
 			return new ITransformation[]
 			{
-				// Generic
-				new PrimaryProjectPropertiesUpdateTransformation(),
-				new EmptyGroupRemoveTransformation(),
-				// Modernization
 				new UpgradeDebugTypeTransformation(),
 				new UpgradeUseDefaultOutputPathTransformation(),
 				new UpgradeUseComVisibleDefaultTransformation(),

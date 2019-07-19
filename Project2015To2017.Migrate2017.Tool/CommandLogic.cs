@@ -100,6 +100,11 @@ namespace Project2015To2017.Migrate2017.Tool
 
 				var writer = new ProjectWriter(facility.Logger, new ProjectWriteOptions { MakeBackups = doBackups });
 
+				var transformations = new ChainTransformationSet(
+						new BasicSimplifyTransformationSet(Vs15TransformationSet.TargetVisualStudioVersion),
+						Vs15TransformationSet.TrueInstance)
+					.CollectAndOrderTransformations(facility.Logger, conversionOptions);
+
 				foreach (var project in legacy)
 				{
 					using (facility.Logger.BeginScope(project.FilePath))
@@ -113,9 +118,7 @@ namespace Project2015To2017.Migrate2017.Tool
 							continue;
 						}
 
-						foreach (var transformation in Vs15TransformationSet.TrueInstance.IterateTransformations(
-							facility.Logger,
-							conversionOptions))
+						foreach (var transformation in transformations.WhereSuitable(project, conversionOptions))
 						{
 							try
 							{
@@ -141,6 +144,10 @@ namespace Project2015To2017.Migrate2017.Tool
 				Log.Information("It appears you already have everything converted to CPS.");
 				if (AskBinaryChoice("Would you like to process CPS projects to clean up and reformat them?"))
 				{
+					var transformations =
+						new BasicSimplifyTransformationSet(Vs15TransformationSet.TargetVisualStudioVersion)
+							.CollectAndOrderTransformations(facility.Logger, conversionOptions);
+
 					foreach (var project in modern)
 					{
 						using (facility.Logger.BeginScope(project.FilePath))
@@ -154,9 +161,7 @@ namespace Project2015To2017.Migrate2017.Tool
 								continue;
 							}
 
-							foreach (var transformation in Vs15TransformationSet.TrueInstance.IterateTransformations(
-								facility.Logger,
-								conversionOptions))
+							foreach (var transformation in transformations.WhereSuitable(project, conversionOptions))
 							{
 								try
 								{
@@ -188,6 +193,11 @@ namespace Project2015To2017.Migrate2017.Tool
 
 				var writer = new ProjectWriter(facility.Logger, new ProjectWriteOptions { MakeBackups = doBackups });
 
+				var transformations = new ChainTransformationSet(
+						new BasicSimplifyTransformationSet(Vs15TransformationSet.TargetVisualStudioVersion),
+						Vs15ModernizationTransformationSet.TrueInstance)
+					.CollectAndOrderTransformations(facility.Logger, conversionOptions);
+
 				foreach (var project in projects)
 				{
 					using (facility.Logger.BeginScope(project.FilePath))
@@ -201,10 +211,7 @@ namespace Project2015To2017.Migrate2017.Tool
 							continue;
 						}
 
-						foreach (var transformation in Vs15ModernizationTransformationSet.TrueInstance
-							.IterateTransformations(
-								facility.Logger,
-								conversionOptions))
+						foreach (var transformation in transformations.WhereSuitable(project, conversionOptions))
 						{
 							try
 							{
