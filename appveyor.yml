@@ -43,15 +43,21 @@ deploy:
   
 - provider: NuGet
   api_key:
-    secure: +o0/XtevmiegEOJLY9u6bm57gbFvGT/0mraL78vBCtEjNkdjWkZEQGxiL//UP88S
+    secure: AwfCakaWfhBSFa7M+QoESC9wuzZSDQ5/hn3Rpgj7b5nPM1zm6ge6crkvbW7L6i7U
   skip_symbols: false
   artifact: global-tool-legacy
   
 - provider: NuGet
   api_key:
-    secure: 5MwxrP9zjSXiJ2WUmdQSR98h+ys28LHiDzVBaFmrDCDvBhvNf+QqDaNDs/+LhVQU
+    secure: ONRE7O/9v0W/ZyO0EwYRW7BOFZhVV9h8pxGtaFCO7aNglrElUGZ+MEFbDh0j5A9S
   skip_symbols: false
   artifact: global-tool
+  
+#- provider: NuGet
+#  api_key:
+#    secure: BmoLFLk70U1TUsSiscVfwGFaT8v8N4G9eJNCnPQRvFoXiGKYed6IxYaN6eRr28t3
+#  skip_symbols: false
+#  artifact: global-tool-2019
 
 - provider: GitHub
   release: dotnet-migrate-2017-v$(APPVEYOR_BUILD_VERSION)
