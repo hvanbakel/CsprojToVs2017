@@ -16,7 +16,7 @@ namespace Project2015To2017.Migrate2017.Tool
 			rule.With(defaultValue: () => PathUtility.EnsureTrailingSlash(Directory.GetCurrentDirectory()));
 
 		internal static Option ForceOption => Create.Option("-f|--force",
-			"Force a conversion even if not all preconditions are met.");
+			"Force a conversion of projects otherwise considered of an unsupported type (e.g. Entity Framework/ASP.NET).");
 
 		internal static Option HelpOption() =>
 			Create.Option("-h|--help",

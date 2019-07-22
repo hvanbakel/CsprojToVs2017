@@ -23,7 +23,7 @@ namespace Project2015To2017.Reading
 			this.logger = logger ?? NoopLogger.Instance;
 			this.projectCache = conversionOptions?.ProjectCache ?? Caching.NoProjectCache.Instance;
 			this.nuspecReader = new NuSpecReader(this.logger);
-			this.forceConversion = conversionOptions?.Force ?? false;
+			this.forceConversion = conversionOptions?.ForceOnUnsupportedProjects ?? false;
 			this.assemblyInfoReader = new AssemblyInfoReader(this.logger);
 			this.projectPropertiesReader = new ProjectPropertiesReader(this.logger, conversionOptions?.UnknownTargetFrameworkCallback);
 		}

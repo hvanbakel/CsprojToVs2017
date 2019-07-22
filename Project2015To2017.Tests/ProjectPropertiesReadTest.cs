@@ -78,7 +78,7 @@ namespace Project2015To2017.Tests
   </PropertyGroup>
 </Project>";
 
-			var project = await ParseAndTransform(xml, nameof(ReadsUnsupportedProjectTypeWhenForced), new ConversionOptions { Force = true }).ConfigureAwait(false);
+			var project = await ParseAndTransform(xml, nameof(ReadsUnsupportedProjectTypeWhenForced), new ConversionOptions { ForceOnUnsupportedProjects = true }).ConfigureAwait(false);
 
 			Assert.AreEqual(ApplicationType.ClassLibrary, project.Type);
 		}

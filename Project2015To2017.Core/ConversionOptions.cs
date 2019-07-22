@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Project2015To2017.Transforms;
@@ -27,10 +28,12 @@ namespace Project2015To2017
 		/// <summary>
 		/// A collection of transforms executed before the execution of default ones
 		/// </summary>
+		[Obsolete("Use ITransformationSet as transformation collection, inherit transformations from ITransformationWithTargetMoment to set Early execution moment.")]
 		public IReadOnlyList<ITransformation> PreDefaultTransforms { get; set; } = ImmutableArray<ITransformation>.Empty;
 		/// <summary>
 		/// A collection of transforms executed after the execution of default ones
 		/// </summary>
+		[Obsolete("Use ITransformationSet as transformation collection, inherit transformations from ITransformationWithTargetMoment to set Late execution moment.")]
 		public IReadOnlyList<ITransformation> PostDefaultTransforms { get; set; } = ImmutableArray<ITransformation>.Empty;
 		/// <summary>
 		/// A collection of transform class names executed despite being intended for different project system,
@@ -46,6 +49,16 @@ namespace Project2015To2017
 		/// <summary>
 		/// Force conversion ignoring any checks we might do that prevent a conversion.
 		/// </summary>
-		public bool Force { get; set; }
+		[Obsolete("Use ForceOnUnsupportedProjects instead", true)]
+		public bool Force
+		{
+			get => ForceOnUnsupportedProjects;
+			set => ForceOnUnsupportedProjects = value;
+		}
+
+		/// <summary>
+		/// Force conversion of projects otherwise considered of an unsupported type.
+		/// </summary>
+		public bool ForceOnUnsupportedProjects { get; set; }
 	}
 }

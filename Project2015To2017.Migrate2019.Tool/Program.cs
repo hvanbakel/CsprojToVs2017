@@ -62,7 +62,7 @@ namespace Project2015To2017.Migrate2019.Tool
 			var conversionOptions = new ConversionOptions
 			{
 				ProjectCache = new DefaultProjectCache(),
-				Force = command.ValueOrDefault<bool>("force"),
+				ForceOnUnsupportedProjects = command.ValueOrDefault<bool>("force"),
 				KeepAssemblyInfo = command.ValueOrDefault<bool>("keep-assembly-info")
 			};
 
