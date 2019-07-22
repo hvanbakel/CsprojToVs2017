@@ -2,13 +2,15 @@ using System;
 using Microsoft.DotNet.Cli.CommandLine;
 using Project2015To2017.Analysis;
 using Project2015To2017.Caching;
+using Project2015To2017.Migrate2017.Tool;
+using Project2015To2017.Migrate2019.Library;
 using Project2015To2017.Transforms;
 using Serilog;
 using Serilog.Events;
 using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
-namespace Project2015To2017.Migrate2017.Tool
+namespace Project2015To2017.Migrate2019.Tool
 {
 	internal static class Program
 	{
@@ -50,7 +52,7 @@ namespace Project2015To2017.Migrate2017.Tool
 			result.ShowHelpOrErrorIfAppropriate();
 
 			var command = result.AppliedCommand();
-			var globalOptions = result["dotnet-migrate-2017"];
+			var globalOptions = result["dotnet-migrate-2019"];
 			ProgramBase.ApplyVerbosity(result, globalOptions);
 
 			Log.Verbose(result.Diagram());
@@ -78,28 +80,28 @@ namespace Project2015To2017.Migrate2017.Tool
 			switch (command.Name)
 			{
 				case "wizard":
-					var diagnostics = new DiagnosticSet(Vs15DiagnosticSet.All);
+					var diagnostics = new DiagnosticSet(Vs16DiagnosticSet.All);
 					diagnostics.ExceptWith(DiagnosticSet.All);
 					var sets = new WizardTransformationSets
 					{
 						MigrateSet = new ChainTransformationSet(
-							new BasicSimplifyTransformationSet(Vs15TransformationSet.TargetVisualStudioVersion),
-							Vs15TransformationSet.TrueInstance),
+							new BasicSimplifyTransformationSet(Vs16TransformationSet.TargetVisualStudioVersion),
+							Vs16TransformationSet.TrueInstance),
 						ModernCleanUpSet = new BasicSimplifyTransformationSet(
-							Vs15TransformationSet.TargetVisualStudioVersion),
+							Vs16TransformationSet.TargetVisualStudioVersion),
 						ModernizeSet = new ChainTransformationSet(
-							new BasicSimplifyTransformationSet(Vs15TransformationSet.TargetVisualStudioVersion),
-							Vs15ModernizationTransformationSet.TrueInstance),
+							new BasicSimplifyTransformationSet(Vs16TransformationSet.TargetVisualStudioVersion),
+							Vs16ModernizationTransformationSet.TrueInstance),
 						Diagnostics = diagnostics
 					};
 
 					logic.ExecuteWizard(items, conversionOptions, sets);
 					break;
 				case "evaluate":
-					logic.ExecuteEvaluate(items, conversionOptions, Vs15TransformationSet.Instance, new AnalysisOptions(Vs15DiagnosticSet.All));
+					logic.ExecuteEvaluate(items, conversionOptions, Vs16TransformationSet.Instance, new AnalysisOptions(Vs16DiagnosticSet.All));
 					break;
 				case "analyze":
-					logic.ExecuteAnalyze(items, conversionOptions, new AnalysisOptions(Vs15DiagnosticSet.All));
+					logic.ExecuteAnalyze(items, conversionOptions, new AnalysisOptions(Vs16DiagnosticSet.All));
 					break;
 				case "migrate":
 					conversionOptions.AppendTargetFrameworkToOutputPath = !command.ValueOrDefault<bool>("old-output-path");
@@ -108,7 +110,7 @@ namespace Project2015To2017.Migrate2017.Tool
 					if (forceTransformations != null)
 						conversionOptions.ForceDefaultTransforms = forceTransformations;
 
-					logic.ExecuteMigrate(items, command.ValueOrDefault<bool>("no-backup"), conversionOptions, Vs15TransformationSet.Instance);
+					logic.ExecuteMigrate(items, command.ValueOrDefault<bool>("no-backup"), conversionOptions, Vs16TransformationSet.Instance);
 					break;
 			}
 
@@ -116,7 +118,7 @@ namespace Project2015To2017.Migrate2017.Tool
 		}
 
 		private static Command RootCommand() =>
-			Command("dotnet-migrate-2017",
+			Command("dotnet-migrate-2019",
 				".NET Project Migration Tool",
 				NoArguments(),
 				ProgramBase.Wizard(),

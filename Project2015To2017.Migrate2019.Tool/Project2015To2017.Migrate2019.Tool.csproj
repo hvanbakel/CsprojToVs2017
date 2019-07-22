@@ -5,9 +5,9 @@
 	<TargetFramework Condition="$(Pack) == 'true'">netcoreapp2.1</TargetFramework>
 	<PackAsTool Condition="$(Pack) == 'true'">True</PackAsTool>
 
-	<AssemblyName>dotnet-migrate-2017</AssemblyName>
-	<PackageId>Project2015To2017.Migrate2017.Tool</PackageId>
-	<Product>Project2015To2017.Migrate2017.Tool</Product>
+	<AssemblyName>dotnet-migrate-2019</AssemblyName>
+	<PackageId>Project2015To2017.Migrate2019.Tool</PackageId>
+	<Product>Project2015To2017.Migrate2019.Tool</Product>
 	<OutputType>Exe</OutputType>
   </PropertyGroup>
 
@@ -23,8 +23,12 @@
 
   <ItemGroup>
 	<ProjectReference Include="..\Project2015To2017.Core\Project2015To2017.Core.csproj" />
-	<ProjectReference Include="..\Project2015To2017.Migrate2017.Library\Project2015To2017.Migrate2017.Library.csproj" />
+	<ProjectReference Include="..\Project2015To2017.Migrate2019.Library\Project2015To2017.Migrate2019.Library.csproj" />
 	<ProjectReference Include="..\Project2015To2017\Project2015To2017.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>

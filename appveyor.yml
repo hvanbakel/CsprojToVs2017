@@ -1,4 +1,4 @@
-version: 4.0.{build}
+version: 4.1.{build}
 skip_tags: true
 image: 
 - Visual Studio 2019 Preview
@@ -10,65 +10,70 @@ skip_branch_with_pr: true
 environment:
   LOGGER: '/l:"C:\Program Files\AppVeyor\BuildAgent\dotnetcore\Appveyor.MSBuildLogger.dll"'
   LIBRARY: './Project2015To2017/Project2015To2017.csproj'
-  LEGACYCLITOOL: './Project2015To2017.Console/Project2015To2017.Console.csproj'
-  CLITOOL: './Project2015To2017.Migrate2017.Tool/Project2015To2017.Migrate2017.Tool.csproj'
+  CLITOOL2017: './Project2015To2017.Migrate2017.Tool/Project2015To2017.Migrate2017.Tool.csproj'
+  CLITOOL2019: './Project2015To2017.Migrate2019.Tool/Project2015To2017.Migrate2019.Tool.csproj'
 build_script:
   - cmd: dotnet --version
   - cmd: dotnet pack %LIBRARY% %LOGGER% -v m -c %configuration% --force /p:Pack=true
-  - cmd: dotnet pack %LEGACYCLITOOL% %LOGGER% -v m -c %configuration% --force /p:Pack=true
-  - cmd: dotnet pack %CLITOOL% %LOGGER% -v m -c %configuration% --force /p:Pack=true
-  - cmd: dotnet publish %CLITOOL% %LOGGER% -v m -c %configuration% -f netcoreapp2.1 -o ./out/netcoreapp2.1
-  - cmd: dotnet publish %CLITOOL% %LOGGER% -v m -c %configuration% -f net461 -o ./out/net461
+  - cmd: dotnet pack %CLITOOL2017% %LOGGER% -v m -c %configuration% --force /p:Pack=true
+  - cmd: dotnet publish %CLITOOL2017% %LOGGER% -v m -c %configuration% -f netcoreapp2.1 -o ./out2017/netcoreapp2.1
+  - cmd: dotnet publish %CLITOOL2017% %LOGGER% -v m -c %configuration% -f net461 -o ./out2017/net461
+  - cmd: dotnet pack %CLITOOL2019% %LOGGER% -v m -c %configuration% --force /p:Pack=true
+  - cmd: dotnet publish %CLITOOL2019% %LOGGER% -v m -c %configuration% -f netcoreapp2.1 -o ./out2019/netcoreapp2.1
+  - cmd: dotnet publish %CLITOOL2019% %LOGGER% -v m -c %configuration% -f net461 -o ./out2019/net461
 after_build:
-  - cmd: 7z a ./dotnet-migrate-2017.zip ./out/*
+  - cmd: 7z a ./dotnet-migrate-2017.zip ./out2017/*
+  - cmd: 7z a ./dotnet-migrate-2019.zip ./out2019/*
 test_script:
   - cmd: dotnet test Project2015To2017.Tests/Project2015To2017.Tests.csproj -c %configuration% --test-adapter-path:. --logger:Appveyor
 
 artifacts:
-  - path: ./Project2015To2017.Console/bin/$(configuration)/Project2015To2017.Cli.**.nupkg
-    name: global-tool-legacy
   - path: ./Project2015To2017.Migrate2017.Tool/bin/$(configuration)/Project2015To2017.Migrate2017.Tool.**.nupkg
-    name: global-tool
+    name: global-tool-2017
+  - path: ./Project2015To2017.Migrate2019.Tool/bin/$(configuration)/Project2015To2017.Migrate2019.Tool.**.nupkg
+    name: global-tool-2019
   - path: ./dotnet-migrate-2017.zip
-    name: out-zip
+    name: out-zip-2017
+  - path: ./dotnet-migrate-2019.zip
+    name: out-zip-2019
   - path: Project2015To2017\bin\$(configuration)\Project2015To2017.**.nupkg
     name: nupkg
-    
+
 deploy:
 - provider: NuGet
   api_key:
     secure: BzG/1VAXhFOoaGkbPFAKE1/D2jV7fbwBoXe2wCJsj5jtIANB1THXwOIcFGmNaQtH
   skip_symbols: false
   artifact: nupkg
-  
-- provider: NuGet
-  api_key:
-    secure: AwfCakaWfhBSFa7M+QoESC9wuzZSDQ5/hn3Rpgj7b5nPM1zm6ge6crkvbW7L6i7U
-  skip_symbols: false
-  artifact: global-tool-legacy
-  
+  on:
+    branch: master
+
 - provider: NuGet
   api_key:
     secure: ONRE7O/9v0W/ZyO0EwYRW7BOFZhVV9h8pxGtaFCO7aNglrElUGZ+MEFbDh0j5A9S
   skip_symbols: false
-  artifact: global-tool
-  
-#- provider: NuGet
-#  api_key:
-#    secure: BmoLFLk70U1TUsSiscVfwGFaT8v8N4G9eJNCnPQRvFoXiGKYed6IxYaN6eRr28t3
-#  skip_symbols: false
-#  artifact: global-tool-2019
+  artifact: global-tool-2017
+  on:
+    branch: master
+
+- provider: NuGet
+  api_key:
+    secure: BmoLFLk70U1TUsSiscVfwGFaT8v8N4G9eJNCnPQRvFoXiGKYed6IxYaN6eRr28t3
+  skip_symbols: false
+  artifact: global-tool-2019
+  on:
+    branch: master
 
 - provider: GitHub
-  release: dotnet-migrate-2017-v$(APPVEYOR_BUILD_VERSION)
+  release: dotnet-migrate-v$(APPVEYOR_BUILD_VERSION)
   description: 'Automatically built release v$(APPVEYOR_BUILD_VERSION).'
   auth_token:
     secure: "LYFGDMnT4oJLpCsZUkhL/oTnG3ZpQnsjaTc10DfTf/jbkXtzctRkXEu2ea3YnyqP"
-  artifact: out-zip
+  artifact: out-zip-2017,out-zip-2019
   draft: true
   prerelease: true
   on:
-    branch: master        # deploy on tag push only
+    branch: master
     
 # build cache to preserve files/folders between builds
 cache:

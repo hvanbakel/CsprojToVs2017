@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using NuGet.Configuration;
@@ -31,5 +32,24 @@ namespace Project2015To2017.Definition
 				return new DirectoryInfo(Extensions.MaybeAdjustFilePath(path, solutionFolder));
 			}
 		}
+
+		private sealed class FilePathEqualityComparer : IEqualityComparer<Solution>
+		{
+			public bool Equals(Solution x, Solution y)
+			{
+				if (ReferenceEquals(x, y)) return true;
+				if (x is null) return false;
+				if (y is null) return false;
+				if (x.GetType() != y.GetType()) return false;
+				return string.Equals(x.FilePath.FullName, y.FilePath.FullName, StringComparison.InvariantCultureIgnoreCase);
+			}
+
+			public int GetHashCode(Solution obj)
+			{
+				return (obj.FilePath != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(obj.FilePath.FullName) : 0);
+			}
+		}
+
+		public static IEqualityComparer<Solution> FilePathComparer { get; } = new FilePathEqualityComparer();
 	}
 }

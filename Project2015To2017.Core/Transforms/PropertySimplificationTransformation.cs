@@ -9,7 +9,7 @@ using Project2015To2017.Reading;
 
 namespace Project2015To2017.Transforms
 {
-	public sealed class PropertySimplificationTransformation : ILegacyOnlyProjectTransformation
+	public sealed class PropertySimplificationTransformation : ITransformation
 	{
 		private static readonly string[] IgnoreProjectNameValues =
 		{
@@ -17,16 +17,7 @@ namespace Project2015To2017.Transforms
 			"$(ProjectName)"
 		};
 
-		private static readonly string[] KnownTestFrameworkIds =
-		{
-			"Microsoft.NET.Test.Sdk",
-			"xUnit.Core",
-			"xUnit",
-			"NUnit",
-		};
-
 		private readonly Version targetVisualStudioVersion;
-		private static readonly Version Vs15TestServiceFixVersion = new Version(15, 7);
 
 		public PropertySimplificationTransformation(Version targetVisualStudioVersion = null)
 		{
@@ -196,7 +187,6 @@ namespace Project2015To2017.Transforms
 					case "AssemblyName" when IsDefaultProjectNameValued():
 					case "TargetName" when IsDefaultProjectNameValued():
 					case "ProjectGuid" when ProjectGuidMatchesSolutionProjectGuid():
-					case "Service" when IncludeMatchesSpecificGuid():
 						{
 							removeQueue.Add(child);
 							break;
@@ -272,24 +262,6 @@ namespace Project2015To2017.Transforms
 							   ||
 							   IgnoreProjectNameValues.Contains(child.Value)
 						   );
-				}
-
-				bool IncludeMatchesSpecificGuid()
-				{
-					// This is not required as of VS15.7 and above, but we might target VS15.0
-					if (targetVisualStudioVersion < Vs15TestServiceFixVersion)
-						if (!project.PackageReferences.Any(IsKnownTestProvider))
-							return false;
-
-					return child.Attribute("Include")?.Value == "{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}";
-
-					bool IsKnownTestProvider(PackageReference x)
-					{
-						// In theory, we should be checking versions of these test frameworks
-						// to see, if they have the fix included.
-
-						return KnownTestFrameworkIds.Contains(x.Id);
-					}
 				}
 			}
 

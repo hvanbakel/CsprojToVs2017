@@ -1,12 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Xml.Linq;
-using Microsoft.Extensions.Logging;
-using Project2015To2017.Transforms;
 
 namespace Project2015To2017
 {
