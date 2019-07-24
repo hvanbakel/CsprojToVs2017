@@ -12,10 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="DotNet.Glob" Version="2.1.1" />
+	<PackageReference Include="DotNet.Glob" Version="3.0.5" />
 	<PackageReference Include="Serilog" Version="2.8.0" />
-	<PackageReference Include="Serilog.Enrichers.Demystify" Version="0.1.0-dev-00016" />
-	<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
+	<PackageReference Include="Serilog.Enrichers.Demystify" Version="1.0.0-dev-00019" />
+	<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.4" />
 	<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
   </ItemGroup>
 

@@ -171,7 +171,7 @@
 
   <ItemGroup>
 	<PackageReference Include="Appveyor.TestLogger" Version="2.0.0" />
-	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
 	<PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
 	<PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
   </ItemGroup>
