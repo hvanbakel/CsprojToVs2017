@@ -57,10 +57,10 @@ namespace Project2015To2017.Transforms
 			{
 				//Id does not need to be specified in new project format if it is just the same as the assembly name
 				Id = rawPackageConfig.Id == "$id$" ? null : rawPackageConfig.Id,
-				Version = PopulatePlaceHolder("version", rawPackageConfig.Version, assemblyAttributes.InformationalVersion ?? assemblyAttributes.Version),
-				Authors = PopulatePlaceHolder("author", rawPackageConfig.Authors, assemblyAttributes.Company),
-				Description = PopulatePlaceHolder("description", rawPackageConfig.Description, assemblyAttributes.Description),
-				Copyright = PopulatePlaceHolder("copyright", rawPackageConfig.Copyright, assemblyAttributes.Copyright),
+				Version = PopulatePlaceHolder("version", rawPackageConfig.Version, assemblyAttributes?.InformationalVersion ?? assemblyAttributes?.Version),
+				Authors = PopulatePlaceHolder("author", rawPackageConfig.Authors, assemblyAttributes?.Company),
+				Description = PopulatePlaceHolder("description", rawPackageConfig.Description, assemblyAttributes?.Description ),
+				Copyright = PopulatePlaceHolder("copyright", rawPackageConfig.Copyright, assemblyAttributes?.Copyright),
 				LicenseUrl = rawPackageConfig.LicenseUrl,
 				ProjectUrl = rawPackageConfig.ProjectUrl,
 				IconUrl = rawPackageConfig.IconUrl,
