@@ -91,6 +91,21 @@ namespace Project2015To2017.Definition
 			(this.FileVersion != null && this.FileVersion.Contains("*")) ||
 			(this.Version != null && this.Version.Contains("*"));
 
+		public bool IsSigned => 
+			this.KeyFile != null;
+
+		public string DelaySign
+		{
+			get => GetAttribute(typeof(AssemblyDelaySignAttribute));
+			set => SetAttribute(typeof(AssemblyDelaySignAttribute), value);
+		}
+
+		public string KeyFile
+		{
+			get => GetAttribute(typeof(AssemblyKeyFileAttribute));
+			set => SetAttribute(typeof(AssemblyKeyFileAttribute), value);
+		}
+
 		public FileInfo File { get; set; }
 
 		private (AttributeListSyntax attList, AttributeSyntax att) FindAttribute(Type attributeType)
@@ -121,7 +136,7 @@ namespace Project2015To2017.Definition
 
 			//Make the assumption that it just has a single string argument
 			//because all of the attributes we currently look for do have
-			return att?.ArgumentList.Arguments.Single().ToString().Trim('"');
+			return att?.ArgumentList.Arguments.Single().ToString().TrimStart('@').Trim('"');
 		}
 
 		public void SetAttribute(Type attributeType, string value)

@@ -87,9 +87,10 @@ namespace Project2015To2017.Transforms
 			logger.LogDebug("Moving attributes from AssemblyInfo to project file");
 
 			var versioningProperties = VersioningProperties(assemblyAttributes, packageConfig, logger);
+			var signingProperties = SigningProperties(assemblyAttributes, packageConfig, logger);
 			var otherProperties = OtherProperties(assemblyAttributes, packageConfig, logger);
 
-			var childNodes = otherProperties.Concat(versioningProperties).ToArray();
+			var childNodes = otherProperties.Concat(signingProperties).Concat(versioningProperties).ToArray();
 
 			if (childNodes.Length == 0)
 			{
@@ -188,6 +189,22 @@ namespace Project2015To2017.Transforms
 			assemblyAttributes.InformationalVersion = null;
 			assemblyAttributes.Version = null;
 			assemblyAttributes.FileVersion = null;
+
+			return toReturn;
+		}
+
+		private static IReadOnlyList<XElement> SigningProperties(AssemblyAttributes assemblyAttributes,
+			PackageConfiguration packageConfig, ILogger logger)
+		{
+			var toReturn = new[]
+			{
+				assemblyAttributes.IsSigned ? new XElement("SignAssembly", true) : null,
+				assemblyAttributes.KeyFile != null ? CreateElementIfNotNullOrEmpty(assemblyAttributes.DelaySign, "DelaySign") : null,
+				CreateElementIfNotNullOrEmpty(assemblyAttributes.KeyFile, "AssemblyOriginatorKeyFile")
+			}.Where(x => x != null).ToArray();
+
+			assemblyAttributes.DelaySign = null;
+			assemblyAttributes.KeyFile = null;
 
 			return toReturn;
 		}
