@@ -30,7 +30,9 @@ namespace Project2015To2017.Tests
 				File = new FileInfo("DummyAssemblyInfo.cs"),
 				Trademark = "A trademark",
 				Culture = "A culture",
-				NeutralLanguage = "someLanguage"
+				NeutralLanguage = "someLanguage",
+				DelaySign = "true",
+				KeyFile = "PublicKey.snk"
 			};
 
 		[TestMethod]
@@ -105,6 +107,9 @@ namespace Project2015To2017.Tests
 				new XElement("AssemblyVersion", "1.0.4.2"),
 				new XElement("FileVersion", "1.1.7.9"),
 				new XElement("NeutralLanguage", "someLanguage"),
+				new XElement("SignAssembly", "true"),
+				new XElement("DelaySign", "true"),
+				new XElement("AssemblyOriginatorKeyFile", "PublicKey.snk"),
 			}
 			.Select(x => x.ToString())
 			.ToList();
@@ -158,7 +163,10 @@ namespace Project2015To2017.Tests
 					new XElement("GenerateAssemblyConfigurationAttribute", false),
 					new XElement("Version", "1.8.4.3-beta.1"),
 					new XElement("AssemblyVersion", "1.0.4.2"),
-					new XElement("FileVersion", "1.1.7.9")
+					new XElement("FileVersion", "1.1.7.9"),
+					new XElement("SignAssembly", "true"),
+				    new XElement("DelaySign", "true"),
+				    new XElement("AssemblyOriginatorKeyFile", "PublicKey.snk")
 				}
 				.Select(x => x.ToString())
 				.ToList();
@@ -207,7 +215,10 @@ namespace Project2015To2017.Tests
 					new XElement("Version", "1.8.4.3-beta.1"),
 					new XElement("AssemblyVersion", "1.0.4.2"),
 					new XElement("FileVersion", "1.1.7.9"),
-					new XElement("NeutralLanguage", "someLanguage")
+					new XElement("NeutralLanguage", "someLanguage"),
+					new XElement("SignAssembly", "true"),
+				    new XElement("DelaySign", "true"),
+				    new XElement("AssemblyOriginatorKeyFile", "PublicKey.snk")
 				}
 				.Select(x => x.ToString())
 				.ToList();
@@ -299,7 +310,10 @@ namespace Project2015To2017.Tests
 					new XElement("Version", "1.5.2-otherVersion"),
 					new XElement("AssemblyVersion", "1.0.4.2"),
 					new XElement("FileVersion", "1.1.7.9"),
-					new XElement("NeutralLanguage", "someLanguage")
+					new XElement("NeutralLanguage", "someLanguage"),
+					new XElement("SignAssembly", "true"),
+				    new XElement("DelaySign", "true"),
+				    new XElement("AssemblyOriginatorKeyFile", "PublicKey.snk")
 				}
 				.Select(x => x.ToString())
 				.ToList();
@@ -475,6 +489,67 @@ namespace Project2015To2017.Tests
 			transform.Transform(project);
 
 			Assert.AreEqual(0, project.AssemblyAttributeProperties.Count);
+			Assert.AreEqual("false", project.Property("GenerateAssemblyInfo")?.Value);
+
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
+		}
+
+		[TestMethod]
+		public void GeneratesSignAssemblyAttributeInCsProj()
+		{
+			var project = new Project
+			{
+				AssemblyAttributes = new AssemblyAttributes
+				{
+					KeyFile = "PrivateKey.snk"
+				},
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
+			};
+
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
+
+			transform.Transform(project);
+
+			var expectedProperties = new[]
+				{
+					new XElement("SignAssembly", "true"),
+					new XElement("AssemblyOriginatorKeyFile", "PrivateKey.snk")
+				}
+				.Select(x => x.ToString())
+				.ToList();
+
+			var actualProperties = project.AssemblyAttributeProperties
+				.Select(x => x.ToString())
+				.ToList();
+
+			CollectionAssert.AreEquivalent(expectedProperties, actualProperties);
+
+			var expectedAttributes = new AssemblyAttributes();
+
+			Assert.IsTrue(expectedAttributes.Equals(project.AssemblyAttributes));
+
+			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
+		}
+
+		[TestMethod]
+		public void GeneratesNoSignAssemblyAttributeInCsProj()
+		{
+			var project = new Project
+			{
+				AssemblyAttributes = new AssemblyAttributes
+				{
+					DelaySign = "true"
+				},
+				Deletions = new List<FileSystemInfo>(),
+				PropertyGroups = ProjectPropertyGroups
+			};
+
+			var transform = new AssemblyAttributeTransformation(NoopLogger.Instance);
+
+			transform.Transform(project);
+
+			Assert.AreEqual(1, project.AssemblyAttributeProperties.Count);
 			Assert.AreEqual("false", project.Property("GenerateAssemblyInfo")?.Value);
 
 			CollectionAssert.DoesNotContain(project.Deletions?.ToList(), BaseAssemblyAttributes().File);
