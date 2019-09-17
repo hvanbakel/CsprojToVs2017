@@ -119,9 +119,9 @@ namespace Project2015To2017.Definition
 		{
 			var att = FindAttribute(attributeType).att;
 
-			//Make the assumption that it just has a single string argument
+			//Make the assumption that it at least has a string argument
 			//because all of the attributes we currently look for do have
-			return att?.ArgumentList.Arguments.Single().ToString().Trim('"');
+			return att?.ArgumentList.Arguments.First().ToString().Trim('"');
 		}
 
 		public void SetAttribute(Type attributeType, string value)
