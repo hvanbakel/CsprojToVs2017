@@ -34,6 +34,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 			"Reference",
 			"ProjectReference",
 			"PackageReference",
+			"COMReference",
 			"Antlr4",
 			"Antlr3"
 		};

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Project2015To2017.Migrate2017.Transforms;
 using Project2015To2017.Reading;
@@ -118,6 +119,30 @@ namespace Project2015To2017.Tests
 			Assert.AreEqual(2, removeMatchingWildcard.Count);
 			Assert.IsTrue(removeMatchingWildcard.Any(x => x.Attribute("Remove")?.Value == "SourceFileAsResource.cs"));
 			Assert.IsTrue(removeMatchingWildcard.Any(x => x.Attribute("Remove")?.Value == "Class1.cs"));
+		}
+
+		[TestMethod]
+		public void TransformsFilesPreserveCOMReferences()
+		{
+			var project = new ProjectReader().Read(Path.Combine("TestFiles", "FileInclusion", "projectWithCOMRefs.testcsproj"));
+			project.CodeFileExtension = "cs";
+			var transformation = new FileTransformation();
+
+			var comReferencesBefore = project.ProjectDocument.Root.DescendantNodes().
+				Where(node => node.NodeType == System.Xml.XmlNodeType.Element).
+				Where(node => (node as XElement).Name.LocalName.Equals("COMReference")).ToList();
+
+			Assert.AreEqual(2, comReferencesBefore.Count);
+
+			transformation.Transform(project);
+
+			var comReferencesAfter = project.ProjectDocument.Root.DescendantNodes().
+				Where(node => node.NodeType == System.Xml.XmlNodeType.Element).
+				Where(node => (node as XElement).Name.LocalName.Equals("COMReference")).ToList();
+
+			Assert.AreEqual(2, comReferencesAfter.Count);
+			Assert.AreEqual((comReferencesBefore[0] as XElement).Value, (comReferencesAfter[0] as XElement).Value);
+			Assert.AreEqual((comReferencesBefore[1] as XElement).Value, (comReferencesAfter[1] as XElement).Value);
 		}
 	}
 }
