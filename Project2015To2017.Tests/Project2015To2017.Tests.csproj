@@ -100,6 +100,9 @@
 	<None Include="TestFiles\FileInclusion\fileinclusion.testcsproj">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
+	<None Include="TestFiles\FileInclusion\projectWithCOMRefs.testcsproj">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
 	<None Include="TestFiles\FileInclusion\Folder\FileIncludedByWildcard.cs">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
