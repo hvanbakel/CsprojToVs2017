@@ -42,7 +42,7 @@ artifacts:
 deploy:
 - provider: NuGet
   api_key:
-    secure: BzG/1VAXhFOoaGkbPFAKE1/D2jV7fbwBoXe2wCJsj5jtIANB1THXwOIcFGmNaQtH
+    secure: zG/1VAXhFOoaGkbPFAKE1/D2jV7fbwBoXe2wCJsj5jtIANB1THXwOIcFGmNaQtH
   skip_symbols: false
   artifact: nupkg
   on:
@@ -50,7 +50,7 @@ deploy:
 
 - provider: NuGet
   api_key:
-    secure: ONRE7O/9v0W/ZyO0EwYRW7BOFZhVV9h8pxGtaFCO7aNglrElUGZ+MEFbDh0j5A9S
+    secure: AWmxgfUIxEYPpNtEyU8Ayr5zO1D1SN5KJtEsonA9NQYY0Io8jxkqGNALEJx7jzcj
   skip_symbols: false
   artifact: global-tool-2017
   on:
@@ -58,7 +58,7 @@ deploy:
 
 - provider: NuGet
   api_key:
-    secure: BmoLFLk70U1TUsSiscVfwGFaT8v8N4G9eJNCnPQRvFoXiGKYed6IxYaN6eRr28t3
+    secure: o7xzc2iQ6Gz2N+W7tH6iSULUlxCDlvrV/BU16+F2HtsQvsUjGsThFVqSc6Qew53X
   skip_symbols: false
   artifact: global-tool-2019
   on:
