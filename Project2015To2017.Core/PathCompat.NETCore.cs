@@ -5,7 +5,7 @@ namespace Project2015To2017
 {
 	public static partial class PathCompat
 	{
-#if NETCOREAPP2_1
+#if NET6_0
 		/// <summary>
 		/// Create a relative path from one path to another. Paths will be resolved before calculating the difference.
 		/// Default path comparison for the active platform will be used (OrdinalIgnoreCase for Windows or Mac, Ordinal for Unix).

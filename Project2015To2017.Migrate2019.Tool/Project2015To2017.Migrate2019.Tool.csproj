@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFrameworks Condition="$(Pack) != 'true'">net461;netcoreapp2.1</TargetFrameworks>
-	<TargetFramework Condition="$(Pack) == 'true'">netcoreapp2.1</TargetFramework>
+	<TargetFrameworks Condition="$(Pack) != 'true'">net461;net6.0</TargetFrameworks>
+	<TargetFramework Condition="$(Pack) == 'true'">net6.0</TargetFramework>
 	<PackAsTool Condition="$(Pack) == 'true'">True</PackAsTool>
 
 	<AssemblyName>dotnet-migrate-2019</AssemblyName>
