@@ -16,10 +16,10 @@ build_script:
   - cmd: dotnet --version
   - cmd: dotnet pack %LIBRARY% %LOGGER% -v m -c %configuration% --force /p:Pack=true
   - cmd: dotnet pack %CLITOOL2017% %LOGGER% -v m -c %configuration% --force /p:Pack=true
-  - cmd: dotnet publish %CLITOOL2017% %LOGGER% -v m -c %configuration% -f netcoreapp2.1 -o ./out2017/netcoreapp2.1
+  - cmd: dotnet publish %CLITOOL2017% %LOGGER% -v m -c %configuration% -f net6.0 -o ./out2017/net6.0
   - cmd: dotnet publish %CLITOOL2017% %LOGGER% -v m -c %configuration% -f net461 -o ./out2017/net461
   - cmd: dotnet pack %CLITOOL2019% %LOGGER% -v m -c %configuration% --force /p:Pack=true
-  - cmd: dotnet publish %CLITOOL2019% %LOGGER% -v m -c %configuration% -f netcoreapp2.1 -o ./out2019/netcoreapp2.1
+  - cmd: dotnet publish %CLITOOL2019% %LOGGER% -v m -c %configuration% -f net6.0 -o ./out2019/net6.0
   - cmd: dotnet publish %CLITOOL2019% %LOGGER% -v m -c %configuration% -f net461 -o ./out2019/net461
 after_build:
   - cmd: 7z a ./dotnet-migrate-2017.zip ./out2017/*
