@@ -42,7 +42,7 @@ artifacts:
 deploy:
 - provider: NuGet
   api_key:
-    secure: q4FHLX2wVW/coI+QkeX40/BlPVnW8dvhKxW3NE0/Y95QMQQMM414cjazUvbq7fwn
+    secure: XgL0jfFteFgz1h0IZ/2HlUueX/x29Yyx+fRBY+nkPENYoolCc/SjIF7Ai3lYKEh7
   skip_symbols: false
   artifact: nupkg
   on:
@@ -50,7 +50,7 @@ deploy:
 
 - provider: NuGet
   api_key:
-    secure: AWmxgfUIxEYPpNtEyU8Ayr5zO1D1SN5KJtEsonA9NQYY0Io8jxkqGNALEJx7jzcj
+    secure: /7SagrjYy7txH+NI9rSerjV/hpJBLH28KUkg4F2x5Bdd+EUt6qaFj+dna0uyaxXx
   skip_symbols: false
   artifact: global-tool-2017
   on:
@@ -58,7 +58,7 @@ deploy:
 
 - provider: NuGet
   api_key:
-    secure: o7xzc2iQ6Gz2N+W7tH6iSULUlxCDlvrV/BU16+F2HtsQvsUjGsThFVqSc6Qew53X
+    secure: ESWfOIJ3cy+Gn/U8TMMAzH7q5M4LjCReyeyhnRAJgGIOSjIlgasSbv+S72sIytyX
   skip_symbols: false
   artifact: global-tool-2019
   on:
@@ -68,7 +68,7 @@ deploy:
   release: dotnet-migrate-v$(APPVEYOR_BUILD_VERSION)
   description: 'Automatically built release v$(APPVEYOR_BUILD_VERSION).'
   auth_token:
-    secure: "LYFGDMnT4oJLpCsZUkhL/oTnG3ZpQnsjaTc10DfTf/jbkXtzctRkXEu2ea3YnyqP"
+    secure: "aw2QlhQ+yq+i7WPenHdqPBfcGtIMz177Yzf7S27+Zs/95CxsWhjqbHJ+54jKKnXiLBQ6mBt8JYI7sreOHZdyAbRrJX2kTNOfFc5mYP0TUBk4V3xOqdJ/qU5YuAZrlLWg"
   artifact: out-zip-2017,out-zip-2019
   draft: true
   prerelease: true
