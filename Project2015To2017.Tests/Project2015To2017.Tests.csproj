@@ -80,6 +80,9 @@
 	<None Include="TestFiles\FileInclusion\intermediatePathExclusion.testcsproj">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
+	<None Include="TestFiles\FileInclusion\projectWithProtobuf.testcsproj">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
 	<None Include="TestFiles\FileInclusion\SourceFileSubTypeCode.cs">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>

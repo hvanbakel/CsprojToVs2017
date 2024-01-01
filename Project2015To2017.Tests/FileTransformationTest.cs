@@ -144,5 +144,29 @@ namespace Project2015To2017.Tests
 			Assert.AreEqual((comReferencesBefore[0] as XElement).Value, (comReferencesAfter[0] as XElement).Value);
 			Assert.AreEqual((comReferencesBefore[1] as XElement).Value, (comReferencesAfter[1] as XElement).Value);
 		}
+
+		[TestMethod]
+		public void TransformsFilesPreserveProtobuf()
+		{
+			var project = new ProjectReader().Read(Path.Combine("TestFiles", "FileInclusion", "projectWithProtobuf.testcsproj"));
+			project.CodeFileExtension = "cs";
+			var transformation = new FileTransformation();
+
+			var protobufBefore = project.ProjectDocument.Root.DescendantNodes().
+				Where(node => node.NodeType == System.Xml.XmlNodeType.Element).
+				Where(node => (node as XElement).Name.LocalName.Equals("Protobuf")).ToList();
+
+			Assert.AreEqual(2, protobufBefore.Count);
+
+			transformation.Transform(project);
+
+			var protobufAfter = project.ProjectDocument.Root.DescendantNodes().
+				Where(node => node.NodeType == System.Xml.XmlNodeType.Element).
+				Where(node => (node as XElement).Name.LocalName.Equals("Protobuf")).ToList();
+
+			Assert.AreEqual(2, protobufAfter.Count);
+			Assert.AreEqual((protobufBefore[0] as XElement).Value, (protobufAfter[0] as XElement).Value);
+			Assert.AreEqual((protobufBefore[1] as XElement).Value, (protobufAfter[1] as XElement).Value);
+		}
 	}
 }
