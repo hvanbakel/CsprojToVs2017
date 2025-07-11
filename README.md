@@ -22,31 +22,31 @@ There are a number of things [that VS2017+ handles differently](http://www.natem
 ## Quick Start
 Assuming you have .NET Core 2.1+ installed you can run this on the command line:
 ```
-> dotnet tool install --global Project2015To2017.Migrate2019.Tool
+dotnet tool install --global Project2015To2017.Migrate2019.Tool
 ```
 
 This will install the tool for you to use it anywhere you would like. You can then call the tool as shown in the examples below.
 
 ```
-> dotnet migrate-2019 wizard "D:\Path\To\My\TestProject.csproj"
+dotnet migrate-2019 wizard "D:\Path\To\My\TestProject.csproj"
 ```
 
 Or
 
 ```
-> dotnet migrate-2019 wizard "D:\Path\To\My\TestProject.sln"
+dotnet migrate-2019 wizard "D:\Path\To\My\TestProject.sln"
 ```
 
 Or
 
 ```
-> dotnet migrate-2019 wizard .\MyProjectDirectory
+dotnet migrate-2019 wizard .\MyProjectDirectory
 ```
 
 Or even
 
 ```
-> dotnet migrate-2019 wizard **\*
+dotnet migrate-2019 wizard **\*
 ```
 
 This will start the interactive wizard, which will guide you through the conversion process.
@@ -79,7 +79,7 @@ Not all flags are supported by all commands, verify help output of the command t
 In case you need to specify multiple values for option, specify it multiple times:
 
 ```
-> dotnet migrate-2019 migrate -t net40 -t net45
+dotnet migrate-2019 migrate -t net40 -t net45
 ```
 
 ## Use as a NuGet library from your own code
@@ -88,7 +88,7 @@ For additional control of the project migration process, you can use the NuGet p
 
 Add the `Project2015To2017.Migrate2019.Library` package to your project e.g.
 ```
-> dotnet add package Project2015To2017.Migrate2019.Library
+dotnet add package Project2015To2017.Migrate2019.Library
 ```
 
 Then, to apply the default project migration:
