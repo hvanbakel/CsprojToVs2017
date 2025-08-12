@@ -18,8 +18,7 @@ namespace Project2015To2017.Migrate2017.Transforms
 		{
 			var existingPackageReferences = definition.PackageReferences;
 
-			if (definition.Type != ApplicationType.TestProject ||
-				existingPackageReferences.Any(x => x.Id == "Microsoft.NET.Test.Sdk")) return;
+			if (definition.Type != ApplicationType.TestProject) return;
 
 			var testReferences = new[]
 			{
@@ -41,11 +40,24 @@ namespace Project2015To2017.Migrate2017.Transforms
 				}
 			}
 
-			var adjustedPackageReferences = existingPackageReferences
-				.Concat(testReferences)
+			// Check if any test packages already exist
+			var hasTestSdk = existingPackageReferences.Any(x => x.Id == "Microsoft.NET.Test.Sdk");
+			var hasMSTestAdapter = existingPackageReferences.Any(x => x.Id == "MSTest.TestAdapter");
+			var hasMSTestFramework = existingPackageReferences.Any(x => x.Id == "MSTest.TestFramework");
+
+			// If Microsoft.NET.Test.Sdk already exists, don't add anything (maintain backward compatibility)
+			if (hasTestSdk) return;
+
+			// Only add packages that don't already exist
+			var packagesToAdd = testReferences
+				.Where(testRef => !existingPackageReferences.Any(existingRef => existingRef.Id == testRef.Id))
 				.ToArray();
 
-			foreach (var reference in testReferences)
+			var adjustedPackageReferences = existingPackageReferences
+				.Concat(packagesToAdd)
+				.ToArray();
+
+			foreach (var reference in packagesToAdd)
 			{
 				logger.LogInformation($"Adding NuGet reference to {reference.Id}, version {reference.Version}.");
 			}

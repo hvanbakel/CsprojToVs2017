@@ -83,5 +83,55 @@ namespace Project2015To2017.Tests
 
 			transformation.Transform(project);
 		}
+
+		[TestMethod]
+		public void DoesNotAddDuplicateMSTestPackages()
+		{
+			var project = new ProjectReader().Read(Path.Combine("TestFiles", "MSTestDuplicateTests", "existingMSTestPackages.testcsproj"));
+
+			project.Type = ApplicationType.TestProject;
+			project.TargetFrameworks.Add("net45");
+
+			var transformation = new TestProjectPackageReferenceTransformation();
+
+			// Check initial state
+			Assert.AreEqual(2, project.PackageReferences.Count);
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "MSTest.TestAdapter" && x.Version == "2.2.10"));
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "MSTest.TestFramework" && x.Version == "2.2.10"));
+
+			transformation.Transform(project);
+
+			// Should only add Microsoft.NET.Test.Sdk since MSTest packages already exist
+			Assert.AreEqual(3, project.PackageReferences.Count);
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk"));
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "MSTest.TestAdapter" && x.Version == "2.2.10"));
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "MSTest.TestFramework" && x.Version == "2.2.10"));
+		}
+
+		[TestMethod]
+		public void AddsOnlyMissingTestPackages()
+		{
+			var project = new ProjectReader().Read(Path.Combine("TestFiles", "MSTestDuplicateTests", "partialMSTestPackages.testcsproj"));
+
+			project.Type = ApplicationType.TestProject;
+			project.TargetFrameworks.Add("net45");
+
+			var transformation = new TestProjectPackageReferenceTransformation();
+
+			// Check initial state - should have MSTest packages and another package
+			Assert.AreEqual(3, project.PackageReferences.Count);
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "MSTest.TestAdapter" && x.Version == "2.2.10"));
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "MSTest.TestFramework" && x.Version == "2.2.10"));
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "SomeOtherPackage" && x.Version == "1.0.0"));
+
+			transformation.Transform(project);
+
+			// Should only add Microsoft.NET.Test.Sdk since MSTest packages already exist
+			Assert.AreEqual(4, project.PackageReferences.Count);
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "Microsoft.NET.Test.Sdk"));
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "MSTest.TestAdapter" && x.Version == "2.2.10"));
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "MSTest.TestFramework" && x.Version == "2.2.10"));
+			Assert.AreEqual(1, project.PackageReferences.Count(x => x.Id == "SomeOtherPackage" && x.Version == "1.0.0"));
+		}
 	}
 }
